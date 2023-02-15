@@ -1,0 +1,36 @@
+[tool.poetry]
+name = "tuneinsight"
+version = "0.1.0"
+description = "Diapason is the official Python SDK for the Tune Insight Agent API"
+authors = ["Tune Insight SA"]
+license = "Apache-2.0"
+include = ["src/tuneinsight/api/**/*.py"]
+readme = "src/tuneinsight/README.md"
+
+[tool.poetry.dependencies]
+python = ">= 3.9, < 3.11"
+python-keycloak = "^0.27.0"
+PyYAML = "^6.0"
+pandas = "^1.4.2"
+matplotlib = "^3.6.0"
+#cloudpickle = "^2.0.0" // TODO: to add in the future to run python on backend
+scikit-learn = "^1.1.3"
+#cryptolib = { file = "../../geco/internal/python/dist/cryptolib-0.1.0-cp39-cp39-linux_x86_64.whl" } // TODO: to add in the future for client side crypto
+wheel = "^0.37.1"
+pylint = "^2.15.2"
+docker = "^6.0.1"
+seaborn = "^0.12.1"
+notebook = "^6.4.11"
+
+# Required by ge_co_rest_api
+httpx = ">=0.15.4,<0.24.0"
+attrs = ">=21.3.0"
+python-dateutil = "^2.8.0"
+python-dotenv = "^0.21.0"
+pyvcf3 = "^1.0.3"
+scipy = "^1.9.3"
+
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,150 @@
+import time
+import itertools
+from typing import List
+from typing_extensions import Self
+import pandas as pd
+from tuneinsight.api.sdk import models
+from tuneinsight.api.sdk.models.computation_type import ComputationType
+from tuneinsight.api.sdk import Client
+from tuneinsight.api.sdk.models.encrypted_regression_params import EncryptedRegressionParams
+from tuneinsight.api.sdk.types import UNSET
+from tuneinsight.client.computations import ComputationRunner
+from tuneinsight.client.datasource import DataSource
+from tuneinsight.utils.model_performance_eval import r2_score, rmse
+
+
+class Regression(ComputationRunner):
+
+    feature_columns: List[str]
+    label_columns: List[str]
+    model: models.EncryptedRegression
+    predict_model : models.EncryptedPrediction
+    encrypted_model_dataobject_id: str
+    type: models.RegressionType
+
+
+    def __init__(self, reg_type: models.RegressionType, client:Client = UNSET, project_id:str=""):
+        self.type = reg_type
+        self.model = models.EncryptedRegression(type=models.ComputationType.ENCRYPTEDREGRESSION)
+        self.predict_model = models.EncryptedPrediction(type=ComputationType.ENCRYPTEDPREDICTION)
+        self.model.params = EncryptedRegressionParams(type=reg_type, seed=0)
+        super().__init__(client=client, project_id=project_id)
+        self.max_timeout = self.max_timeout * 10
+        self.model.timeout = 500
+
+    def copy(self):
+        return type(self)(self.type, self.client, self.project_id)
+
+
+    def fit(self, X: List[str], y: List[str], learning_rate=0.02, network_iteration_count=1, seed=0, elastic=0.85, momentum=0.92) -> Self:
+        self.model.feature_columns = X
+        self.model.label_columns = y
+        self.model.params.learning_rate = learning_rate
+        self.model.params.network_iteration_count = network_iteration_count
+        self.model.params.seed = seed
+        self.model.params.elastic_rate = elastic
+        self.model.params.momentum = momentum
+
+        dataobjects = super().run_computation(comp=self.model, local = False, keyswitch=False, decrypt=False)
+
+        self.encrypted_model_dataobject_id = dataobjects[0].get_id()
+
+        return self
+
+
+    def predict(self, X: pd.DataFrame) -> models.FloatMatrix:
+        # set predict params
+        self.predict_model.model = self.encrypted_model_dataobject_id
+
+        ds = DataSource.from_dataframe(client=self.client,dataframe=X)
+        do = ds.adapt(models.DataObjectType.TABLE)
+        ds.delete()
+        self.predict_model.data = do.get_id()
+
+        self.predict_model.feature_columns = self.model.feature_columns
+        self.predict_model.only_root_prediction = True
+
+        # run predict comp
+        dataobjects = super().run_computation(comp=self.predict_model, local=False, keyswitch=True, decrypt=True)
+        return dataobjects[0].get_float_matrix()
+
+    def grid_search(self, data, param_dict:dict = None, log:bool = False) -> dict:
+        if param_dict is None:
+            param_dict = {'learning_rate': [0.004, 0.005], 'network_iteration_count':[1, 2], 'elastic':[0.85, 0.98]}
+        param_grid = self.generate_param_grid(param_dict)
+        default_params = {'learning_rate': 0.0045, 'elastic':0.85, 'seed':0, 'momentum':0.92, 'network_iteration_count':1}
+
+
+
+        start_time = time.time()
+
+        best_r2 = float('-inf')
+        rmse_of_best = float('inf')
+        best_params = default_params
+        for params in param_grid:
+            all_params = dict(default_params | params)
+            if log:
+                print("Parameters:")
+                for param,val in all_params.items():
+                    print("  " + param + ": " + str(val))
+
+            regression = self.copy()
+
+            model = regression.fit(data['feature_cols'],data['label_col'], learning_rate=all_params['learning_rate'], elastic=all_params['elastic'], seed=all_params['seed'], momentum=all_params['momentum'], network_iteration_count=all_params['network_iteration_count'])
+            results = model.predict(X=data['X_test'])
+            predictions = [pred for prediction_list in results.predictions for pred in prediction_list]
+            r2_tmp = r2_score(data['y_test'], predictions)
+            rmse_tmp = rmse(data['y_test'], predictions)
+
+            if r2_tmp > best_r2:
+                best_r2 = r2_tmp
+                best_params = all_params
+                rmse_of_best = rmse_tmp
+
+            if log:
+                print("R2 Score: " + str(r2_tmp))
+                print("RMSE: " + str(rmse_tmp))
+                print(f"-------- {time.time() - start_time} seconds -------")
+                start_time = time.time()
+
+        print("Best hyper-parameters:")
+        for param,val in best_params.items():
+            print("  " + param + ": " + str(val))
+        print("R2 Score: " + str(best_r2))
+        print("RMSE: " + str(rmse_of_best))
+
+        return best_params
+
+    def generate_param_grid(self, param_dict:dict) -> list[dict]:
+        keys = param_dict.keys()
+        values = (param_dict[key] for key in keys)
+        return [dict(zip(keys, combination)) for combination in itertools.product(*values)]
+
+
+class LinearRegression(Regression):
+    type: models.RegressionType = models.RegressionType.LINEAR
+
+    continuous_labels: bool
+
+    def __init__(self, continuous_labels: bool, client:Client = UNSET, project_id:str=""):
+        super().__init__(reg_type=self.type, client=client, project_id=project_id)
+        self.continuous_labels = continuous_labels
+        self.model.params.linear = models.EncryptedRegressionParamsLinear(continuous_labels=continuous_labels)
+
+    def copy(self):
+        return type(self)(self.continuous_labels, self.client, self.project_id)
+
+class LogisticRegression(Regression):
+    type: models.RegressionType = models.RegressionType.LOGISTIC
+
+    approximation_params: models.approximation_params.ApproximationParams
+
+    def __init__(self, approximation_params:models.approximation_params.ApproximationParams, client:Client = UNSET, project_id:str=""):
+        super().__init__(reg_type=self.type, client=client, project_id=project_id)
+        self.model.params.approximation_params = approximation_params
+
+class PoissonRegression(Regression):
+    type: models.RegressionType = models.RegressionType.POISSON
+
+    def __init__(self, client:Client = UNSET, project_id:str=""):
+        super().__init__(reg_type=self.type, client=client, project_id=project_id)
