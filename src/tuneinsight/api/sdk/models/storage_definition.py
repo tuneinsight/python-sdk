@@ -1,13 +1,10 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
+from typing import Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
+from ..models.backup_definition import BackupDefinition
 from ..models.storage_operation import StorageOperation
 from ..types import UNSET, Unset
-
-if TYPE_CHECKING:
-    from ..models.backup_definition import BackupDefinition
-
 
 T = TypeVar("T", bound="StorageDefinition")
 
@@ -27,7 +24,7 @@ class StorageDefinition:
         operation (Union[Unset, StorageOperation]): operation to perform on the storage
     """
 
-    backup_definition: Union[Unset, "BackupDefinition"] = UNSET
+    backup_definition: Union[Unset, BackupDefinition] = UNSET
     current_key: Union[Unset, str] = UNSET
     encrypt_unencrypted: Union[Unset, bool] = UNSET
     new_key: Union[Unset, str] = UNSET
@@ -64,8 +61,6 @@ class StorageDefinition:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.backup_definition import BackupDefinition
-
         d = src_dict.copy()
         _backup_definition = d.pop("backupDefinition", UNSET)
         backup_definition: Union[Unset, BackupDefinition]

@@ -1,13 +1,10 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
+from typing import Any, Dict, List, Type, TypeVar, Union, cast
 
 import attr
 
+from ..models.computation_definition import ComputationDefinition
+from ..models.differential_privacy_parameters import DifferentialPrivacyParameters
 from ..types import UNSET, Unset
-
-if TYPE_CHECKING:
-    from ..models.computation_definition import ComputationDefinition
-    from ..models.differential_privacy_parameters import DifferentialPrivacyParameters
-
 
 T = TypeVar("T", bound="ComputationPolicy")
 
@@ -28,10 +25,10 @@ class ComputationPolicy:
             template
     """
 
-    differential_privacy_parameters: Union[Unset, "DifferentialPrivacyParameters"] = UNSET
+    differential_privacy_parameters: Union[Unset, DifferentialPrivacyParameters] = UNSET
     fixed_parameters: Union[Unset, List[str]] = UNSET
     flexible_parameters: Union[Unset, List[str]] = UNSET
-    template: Union[Unset, "ComputationDefinition"] = UNSET
+    template: Union[Unset, ComputationDefinition] = UNSET
     validate_parameters: Union[Unset, bool] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -72,9 +69,6 @@ class ComputationPolicy:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.computation_definition import ComputationDefinition
-        from ..models.differential_privacy_parameters import DifferentialPrivacyParameters
-
         d = src_dict.copy()
         _differential_privacy_parameters = d.pop("differentialPrivacyParameters", UNSET)
         differential_privacy_parameters: Union[Unset, DifferentialPrivacyParameters]

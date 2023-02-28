@@ -1,16 +1,13 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
+from typing import Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
+from ..models.computation_data_source_parameters import ComputationDataSourceParameters
+from ..models.computation_preprocessing_parameters import ComputationPreprocessingParameters
 from ..models.computation_type import ComputationType
+from ..models.differential_privacy_parameters import DifferentialPrivacyParameters
+from ..models.statistic_definition import StatisticDefinition
 from ..types import UNSET, Unset
-
-if TYPE_CHECKING:
-    from ..models.computation_data_source_parameters import ComputationDataSourceParameters
-    from ..models.computation_preprocessing_parameters import ComputationPreprocessingParameters
-    from ..models.differential_privacy_parameters import DifferentialPrivacyParameters
-    from ..models.statistic_definition import StatisticDefinition
-
 
 T = TypeVar("T", bound="DatasetStatistics")
 
@@ -36,23 +33,23 @@ class DatasetStatistics:
         project_id (Union[Unset, str]): Unique identifier of a project.
         timeout (Union[Unset, int]): The maximum amount of time in seconds the computation is allowed to run.
         wait (Union[Unset, bool]): Whether to wait synchronously for the computation result.
-        statistics (Union[Unset, List['StatisticDefinition']]): list of statistics to be extracted from the dataset
+        statistics (Union[Unset, List[StatisticDefinition]]): list of statistics to be extracted from the dataset
     """
 
     type: ComputationType
     cohort_id: Union[Unset, str] = UNSET
-    data_source_parameters: Union[Unset, "ComputationDataSourceParameters"] = UNSET
-    differential_privacy_parameters: Union[Unset, "DifferentialPrivacyParameters"] = UNSET
+    data_source_parameters: Union[Unset, ComputationDataSourceParameters] = UNSET
+    differential_privacy_parameters: Union[Unset, DifferentialPrivacyParameters] = UNSET
     encrypted: Union[Unset, bool] = UNSET
     input_data_object: Union[Unset, str] = UNSET
     join_id: Union[Unset, str] = UNSET
     local: Union[Unset, bool] = UNSET
     owner: Union[Unset, str] = UNSET
-    preprocessing_parameters: Union[Unset, "ComputationPreprocessingParameters"] = UNSET
+    preprocessing_parameters: Union[Unset, ComputationPreprocessingParameters] = UNSET
     project_id: Union[Unset, str] = UNSET
     timeout: Union[Unset, int] = UNSET
     wait: Union[Unset, bool] = UNSET
-    statistics: Union[Unset, List["StatisticDefinition"]] = UNSET
+    statistics: Union[Unset, List[StatisticDefinition]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -125,11 +122,6 @@ class DatasetStatistics:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.computation_data_source_parameters import ComputationDataSourceParameters
-        from ..models.computation_preprocessing_parameters import ComputationPreprocessingParameters
-        from ..models.differential_privacy_parameters import DifferentialPrivacyParameters
-        from ..models.statistic_definition import StatisticDefinition
-
         d = src_dict.copy()
         type = ComputationType(d.pop("type"))
 

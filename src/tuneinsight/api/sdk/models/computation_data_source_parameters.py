@@ -1,12 +1,9 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
+from typing import Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
+from ..models.data_source_compound_query import DataSourceCompoundQuery
 from ..types import UNSET, Unset
-
-if TYPE_CHECKING:
-    from ..models.data_source_compound_query import DataSourceCompoundQuery
-
 
 T = TypeVar("T", bound="ComputationDataSourceParameters")
 
@@ -27,7 +24,7 @@ class ComputationDataSourceParameters:
     """
 
     compound_disabled: Union[Unset, bool] = UNSET
-    compound_query: Union[Unset, "DataSourceCompoundQuery"] = UNSET
+    compound_query: Union[Unset, DataSourceCompoundQuery] = UNSET
     data_source_id: Union[Unset, str] = UNSET
     data_source_query: Union[Unset, str] = UNSET
     only_root_query: Union[Unset, bool] = UNSET
@@ -61,8 +58,6 @@ class ComputationDataSourceParameters:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.data_source_compound_query import DataSourceCompoundQuery
-
         d = src_dict.copy()
         compound_disabled = d.pop("compoundDisabled", UNSET)
 

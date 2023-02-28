@@ -1,13 +1,10 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
+from typing import Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
 from ..models.backup_type import BackupType
+from ..models.s3_parameters import S3Parameters
 from ..types import UNSET, Unset
-
-if TYPE_CHECKING:
-    from ..models.s3_parameters import S3Parameters
-
 
 T = TypeVar("T", bound="BackupDefinition")
 
@@ -27,7 +24,7 @@ class BackupDefinition:
     encrypt: Union[Unset, bool] = UNSET
     encryption_key: Union[Unset, str] = UNSET
     path: Union[Unset, str] = UNSET
-    s_3_parameters: Union[Unset, "S3Parameters"] = UNSET
+    s_3_parameters: Union[Unset, S3Parameters] = UNSET
     type: Union[Unset, BackupType] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -61,8 +58,6 @@ class BackupDefinition:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.s3_parameters import S3Parameters
-
         d = src_dict.copy()
         encrypt = d.pop("encrypt", UNSET)
 

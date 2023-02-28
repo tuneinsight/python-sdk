@@ -1,10 +1,8 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar
+from typing import Any, Dict, List, Type, TypeVar
 
 import attr
 
-if TYPE_CHECKING:
-    from ..models.computation_policy import ComputationPolicy
-
+from ..models.computation_policy import ComputationPolicy
 
 T = TypeVar("T", bound="ProjectPolicyComputationPolicies")
 
@@ -13,10 +11,9 @@ T = TypeVar("T", bound="ProjectPolicyComputationPolicies")
 class ProjectPolicyComputationPolicies:
     """given policies for each computation type"""
 
-    additional_properties: Dict[str, "ComputationPolicy"] = attr.ib(init=False, factory=dict)
+    additional_properties: Dict[str, ComputationPolicy] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        pass
 
         field_dict: Dict[str, Any] = {}
         for prop_name, prop in self.additional_properties.items():
@@ -28,8 +25,6 @@ class ProjectPolicyComputationPolicies:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.computation_policy import ComputationPolicy
-
         d = src_dict.copy()
         project_policy_computation_policies = cls()
 
@@ -46,10 +41,10 @@ class ProjectPolicyComputationPolicies:
     def additional_keys(self) -> List[str]:
         return list(self.additional_properties.keys())
 
-    def __getitem__(self, key: str) -> "ComputationPolicy":
+    def __getitem__(self, key: str) -> ComputationPolicy:
         return self.additional_properties[key]
 
-    def __setitem__(self, key: str, value: "ComputationPolicy") -> None:
+    def __setitem__(self, key: str, value: ComputationPolicy) -> None:
         self.additional_properties[key] = value
 
     def __delitem__(self, key: str) -> None:

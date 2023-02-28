@@ -1,12 +1,9 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
+from typing import Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
+from ..models.preprocessing_operation import PreprocessingOperation
 from ..types import UNSET, Unset
-
-if TYPE_CHECKING:
-    from ..models.preprocessing_operation import PreprocessingOperation
-
 
 T = TypeVar("T", bound="PreprocessingChain")
 
@@ -16,10 +13,10 @@ class PreprocessingChain:
     """Chain of preprocessing operations applied to the input dataframe
 
     Attributes:
-        chain (Union[Unset, List['PreprocessingOperation']]):
+        chain (Union[Unset, List[PreprocessingOperation]]):
     """
 
-    chain: Union[Unset, List["PreprocessingOperation"]] = UNSET
+    chain: Union[Unset, List[PreprocessingOperation]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -41,8 +38,6 @@ class PreprocessingChain:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.preprocessing_operation import PreprocessingOperation
-
         d = src_dict.copy()
         chain = []
         _chain = d.pop("chain", UNSET)

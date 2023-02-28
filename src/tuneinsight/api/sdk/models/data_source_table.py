@@ -1,12 +1,9 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
+from typing import Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
+from ..models.data_source_column import DataSourceColumn
 from ..types import UNSET, Unset
-
-if TYPE_CHECKING:
-    from ..models.data_source_column import DataSourceColumn
-
 
 T = TypeVar("T", bound="DataSourceTable")
 
@@ -16,11 +13,11 @@ class DataSourceTable:
     """schema information for a table from a datasource
 
     Attributes:
-        columns (Union[Unset, List['DataSourceColumn']]):
+        columns (Union[Unset, List[DataSourceColumn]]):
         name (Union[Unset, str]):
     """
 
-    columns: Union[Unset, List["DataSourceColumn"]] = UNSET
+    columns: Union[Unset, List[DataSourceColumn]] = UNSET
     name: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -47,8 +44,6 @@ class DataSourceTable:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.data_source_column import DataSourceColumn
-
         d = src_dict.copy()
         columns = []
         _columns = d.pop("columns", UNSET)

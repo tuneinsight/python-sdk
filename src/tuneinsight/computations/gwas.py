@@ -9,12 +9,30 @@ from tuneinsight.utils.plots import style_plot
 
 
 class GWAS(ComputationRunner):
+    """ Computation for a Genome-Wide Association Study (GWAS).
+
+    Args:
+        ComputationRunner (ComputationRunner): parent class for running computation through the REST API.
+    """
 
 
     cohort_id: str = UNSET
     join_id: str = UNSET
 
     def linear_regression(self, target_label:str = UNSET, variants_organization:str = UNSET, matching_params:models.MatchingParams = UNSET, covariates:List[str] = UNSET, locus_range:models.LocusRange = UNSET, local: bool = False) -> pd.DataFrame:
+        """ Run a linear regression for the GWAS.
+
+        Args:
+            target_label (str, optional): name of the column containing the phenotypical trait to study. Defaults to UNSET.
+            variants_organization (str, optional): name of the nodes containing data on variants. Defaults to UNSET.
+            matching_params (models.MatchingParams, optional): parameters to match the patients across the genomic and clinical data. Defaults to UNSET.
+            covariates (List[str], optional): list of column names containing the covariates. Defaults to UNSET.
+            locus_range (models.LocusRange, optional): locus range to analyse. Defaults to UNSET.
+            local (bool, optional): whether to perform the computation locally. Defaults to False.
+
+        Returns:
+            pd.DataFrame: resulting p-values
+        """
         model = models.GWAS(type=models.ComputationType.GWAS)
         model.project_id = self.project_id
         model.covariates = covariates
@@ -39,6 +57,11 @@ class GWAS(ComputationRunner):
         return pd.DataFrame(data)
 
     def plot_manhattan(self, p_values: pd.DataFrame):
+        """ Display the GWAS result as a manhattan plot.
+
+        Args:
+            p_values (pd.DataFrame): DataFrame containing p-values.
+        """
 
         # Transform data for plot
         p_values = p_values[['locus', 'p_value']]

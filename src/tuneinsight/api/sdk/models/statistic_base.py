@@ -1,12 +1,9 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
+from typing import Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
+from ..models.filter_ import Filter
 from ..types import UNSET, Unset
-
-if TYPE_CHECKING:
-    from ..models.filter_ import Filter
-
 
 T = TypeVar("T", bound="StatisticBase")
 
@@ -21,7 +18,7 @@ class StatisticBase:
         variable (Union[Unset, str]): target variable in the dataset from the which the statistic is computed
     """
 
-    filter_: Union[Unset, "Filter"] = UNSET
+    filter_: Union[Unset, Filter] = UNSET
     name: Union[Unset, str] = UNSET
     variable: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
@@ -48,8 +45,6 @@ class StatisticBase:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.filter_ import Filter
-
         d = src_dict.copy()
         _filter_ = d.pop("filter", UNSET)
         filter_: Union[Unset, Filter]

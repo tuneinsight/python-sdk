@@ -1,15 +1,12 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
+from typing import Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
+from ..models.computation_preprocessing_parameters_compound_preprocessing import (
+    ComputationPreprocessingParametersCompoundPreprocessing,
+)
+from ..models.preprocessing_chain import PreprocessingChain
 from ..types import UNSET, Unset
-
-if TYPE_CHECKING:
-    from ..models.computation_preprocessing_parameters_compound_preprocessing import (
-        ComputationPreprocessingParametersCompoundPreprocessing,
-    )
-    from ..models.preprocessing_chain import PreprocessingChain
-
 
 T = TypeVar("T", bound="ComputationPreprocessingParameters")
 
@@ -25,8 +22,8 @@ class ComputationPreprocessingParameters:
             dataframe
     """
 
-    compound_preprocessing: Union[Unset, "ComputationPreprocessingParametersCompoundPreprocessing"] = UNSET
-    global_preprocessing: Union[Unset, "PreprocessingChain"] = UNSET
+    compound_preprocessing: Union[Unset, ComputationPreprocessingParametersCompoundPreprocessing] = UNSET
+    global_preprocessing: Union[Unset, PreprocessingChain] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -50,11 +47,6 @@ class ComputationPreprocessingParameters:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.computation_preprocessing_parameters_compound_preprocessing import (
-            ComputationPreprocessingParametersCompoundPreprocessing,
-        )
-        from ..models.preprocessing_chain import PreprocessingChain
-
         d = src_dict.copy()
         _compound_preprocessing = d.pop("compoundPreprocessing", UNSET)
         compound_preprocessing: Union[Unset, ComputationPreprocessingParametersCompoundPreprocessing]

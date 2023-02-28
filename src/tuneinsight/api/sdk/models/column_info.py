@@ -1,14 +1,11 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
+from typing import Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
 from ..models.column_info_scope import ColumnInfoScope
 from ..models.column_info_value_type import ColumnInfoValueType
+from ..models.group_info import GroupInfo
 from ..types import UNSET, Unset
-
-if TYPE_CHECKING:
-    from ..models.group_info import GroupInfo
-
 
 T = TypeVar("T", bound="ColumnInfo")
 
@@ -28,7 +25,7 @@ class ColumnInfo:
             rows or a sum of values
     """
 
-    group_info: Union[Unset, "GroupInfo"] = UNSET
+    group_info: Union[Unset, GroupInfo] = UNSET
     origin_column: Union[Unset, str] = UNSET
     origin_value: Union[Unset, str] = UNSET
     scope: Union[Unset, ColumnInfoScope] = UNSET
@@ -68,8 +65,6 @@ class ColumnInfo:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.group_info import GroupInfo
-
         d = src_dict.copy()
         _group_info = d.pop("groupInfo", UNSET)
         group_info: Union[Unset, GroupInfo]

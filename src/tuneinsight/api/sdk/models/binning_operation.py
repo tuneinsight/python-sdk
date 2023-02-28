@@ -1,13 +1,10 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
+from typing import Any, Dict, List, Type, TypeVar, Union, cast
 
 import attr
 
+from ..models.categorical_column import CategoricalColumn
 from ..models.group_by_type import GroupByType
 from ..types import UNSET, Unset
-
-if TYPE_CHECKING:
-    from ..models.categorical_column import CategoricalColumn
-
 
 T = TypeVar("T", bound="BinningOperation")
 
@@ -20,7 +17,7 @@ class BinningOperation:
         aggregated_columns (Union[Unset, List[str]]): list of numerical columns to aggregate per bin when binning is
             done, if unspecified binning only counts the number of rows
         categories (Union[Unset, List[str]]): list of categories when groupByType is 'category'
-        count_columns (Union[Unset, List['CategoricalColumn']]): list of categorical on which to count the number of
+        count_columns (Union[Unset, List[CategoricalColumn]]): list of categorical on which to count the number of
             records per bin per matching value
         group_by_type (Union[Unset, GroupByType]): type of the groupBy operation specified
         range_values (Union[Unset, List[float]]): list of cuts to use when groupByType is 'range' ([x,y] => creating 3
@@ -30,7 +27,7 @@ class BinningOperation:
 
     aggregated_columns: Union[Unset, List[str]] = UNSET
     categories: Union[Unset, List[str]] = UNSET
-    count_columns: Union[Unset, List["CategoricalColumn"]] = UNSET
+    count_columns: Union[Unset, List[CategoricalColumn]] = UNSET
     group_by_type: Union[Unset, GroupByType] = UNSET
     range_values: Union[Unset, List[float]] = UNSET
     target_column: Union[Unset, str] = UNSET
@@ -83,8 +80,6 @@ class BinningOperation:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.categorical_column import CategoricalColumn
-
         d = src_dict.copy()
         aggregated_columns = cast(List[str], d.pop("aggregatedColumns", UNSET))
 

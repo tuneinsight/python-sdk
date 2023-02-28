@@ -1,13 +1,10 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
+from typing import Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
+from ..models.workflow_item_data import WorkflowItemData
+from ..models.workflow_item_position import WorkflowItemPosition
 from ..types import UNSET, Unset
-
-if TYPE_CHECKING:
-    from ..models.workflow_item_data import WorkflowItemData
-    from ..models.workflow_item_position import WorkflowItemPosition
-
 
 T = TypeVar("T", bound="WorkflowItem")
 
@@ -27,9 +24,9 @@ class WorkflowItem:
         type (Union[Unset, str]):
     """
 
-    data: Union[Unset, "WorkflowItemData"] = UNSET
+    data: Union[Unset, WorkflowItemData] = UNSET
     id: Union[Unset, str] = UNSET
-    position: Union[Unset, "WorkflowItemPosition"] = UNSET
+    position: Union[Unset, WorkflowItemPosition] = UNSET
     progress: Union[Unset, int] = UNSET
     source: Union[Unset, str] = UNSET
     source_handle: Union[Unset, str] = UNSET
@@ -81,9 +78,6 @@ class WorkflowItem:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.workflow_item_data import WorkflowItemData
-        from ..models.workflow_item_position import WorkflowItemPosition
-
         d = src_dict.copy()
         _data = d.pop("data", UNSET)
         data: Union[Unset, WorkflowItemData]

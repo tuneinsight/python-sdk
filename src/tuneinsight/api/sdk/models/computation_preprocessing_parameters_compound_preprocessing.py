@@ -1,10 +1,8 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar
+from typing import Any, Dict, List, Type, TypeVar
 
 import attr
 
-if TYPE_CHECKING:
-    from ..models.preprocessing_chain import PreprocessingChain
-
+from ..models.preprocessing_chain import PreprocessingChain
 
 T = TypeVar("T", bound="ComputationPreprocessingParametersCompoundPreprocessing")
 
@@ -13,10 +11,9 @@ T = TypeVar("T", bound="ComputationPreprocessingParametersCompoundPreprocessing"
 class ComputationPreprocessingParametersCompoundPreprocessing:
     """preprocessing to be applied for each node"""
 
-    additional_properties: Dict[str, "PreprocessingChain"] = attr.ib(init=False, factory=dict)
+    additional_properties: Dict[str, PreprocessingChain] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        pass
 
         field_dict: Dict[str, Any] = {}
         for prop_name, prop in self.additional_properties.items():
@@ -28,8 +25,6 @@ class ComputationPreprocessingParametersCompoundPreprocessing:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.preprocessing_chain import PreprocessingChain
-
         d = src_dict.copy()
         computation_preprocessing_parameters_compound_preprocessing = cls()
 
@@ -46,10 +41,10 @@ class ComputationPreprocessingParametersCompoundPreprocessing:
     def additional_keys(self) -> List[str]:
         return list(self.additional_properties.keys())
 
-    def __getitem__(self, key: str) -> "PreprocessingChain":
+    def __getitem__(self, key: str) -> PreprocessingChain:
         return self.additional_properties[key]
 
-    def __setitem__(self, key: str, value: "PreprocessingChain") -> None:
+    def __setitem__(self, key: str, value: PreprocessingChain) -> None:
         self.additional_properties[key] = value
 
     def __delitem__(self, key: str) -> None:

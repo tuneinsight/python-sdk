@@ -1,12 +1,9 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
+from typing import Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
+from ..models.noise_parameters import NoiseParameters
 from ..types import UNSET, Unset
-
-if TYPE_CHECKING:
-    from ..models.noise_parameters import NoiseParameters
-
 
 T = TypeVar("T", bound="DifferentialPrivacyParameters")
 
@@ -25,7 +22,7 @@ class DifferentialPrivacyParameters:
 
     minimum_global_input_size: Union[Unset, int] = UNSET
     minimum_local_input_size: Union[Unset, int] = UNSET
-    noise_parameters: Union[Unset, "NoiseParameters"] = UNSET
+    noise_parameters: Union[Unset, NoiseParameters] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -49,8 +46,6 @@ class DifferentialPrivacyParameters:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.noise_parameters import NoiseParameters
-
         d = src_dict.copy()
         minimum_global_input_size = d.pop("minimumGlobalInputSize", UNSET)
 

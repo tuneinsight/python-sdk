@@ -26,11 +26,13 @@ def to_dict(obj):
 @dataclass
 class KeycloakConfiguration:
     keycloak_client_id: str
+    keycloak_client_secret: str
     keycloak_url: str
     keycloak_realm: str
 
-    def __init__(self, keycloak_client_id: str, keycloak_url: str, keycloak_realm: str):
-        self.keycloak_client_id = "cli" if keycloak_client_id is None else keycloak_client_id
+    def __init__(self, keycloak_client_id: str, keycloak_client_secret: str, keycloak_url: str, keycloak_realm: str):
+        self.keycloak_client_id = "python-sdk" if keycloak_client_id is None else keycloak_client_id
+        self.keycloak_client_secret = "" if keycloak_client_secret is None else keycloak_client_secret
         self.keycloak_url = "https://auth.tuneinsight.com/auth/" if keycloak_url is None else keycloak_url
         self.keycloak_realm = "ti-realm" if keycloak_realm is None else keycloak_realm
 
@@ -87,7 +89,19 @@ def LoadEnvClient(envpath: str = None) -> Client:
     if os.getenv('TI_USERNAME') is None and os.getenv('TI_PASSWORD') is None and os.getenv('TI_STATIC_TOKEN') is None:
         raise Exception("Missing environments: need to set either TI_USERNAME and TI_PASSWORD or TI_STATIC_TOKEN")
 
-    kc_config = KeycloakConfiguration(keycloak_url=os.getenv('KEYCLOAK_URL'), keycloak_realm=os.getenv('KEYCLOAK_REALM'), keycloak_client_id=os.getenv('KEYCLOAK_CLIENT_ID'))
-    security_config = Security(username=os.getenv('TI_USERNAME'), password=os.getenv('TI_PASSWORD'), static_token=os.getenv('TI_STATIC_TOKEN'), verify_ssl=literal_eval(os.getenv('TI_VERIFY_SSL')), kc_config=kc_config)
+    kc_config = KeycloakConfiguration(
+        keycloak_url=os.getenv('KEYCLOAK_URL'),
+        keycloak_realm=os.getenv('KEYCLOAK_REALM'),
+        keycloak_client_id=os.getenv('KEYCLOAK_CLIENT_ID'),
+        keycloak_client_secret=os.getenv('KEYCLOAK_CLIENT_SECRET'),
+    )
+
+    security_config = Security(
+        username=os.getenv('TI_USERNAME'),
+        password=os.getenv('TI_PASSWORD'),
+        static_token=os.getenv('TI_STATIC_TOKEN'),
+        verify_ssl=literal_eval(os.getenv('TI_VERIFY_SSL')),
+        kc_config=kc_config
+    )
     client = Client(url=os.getenv('NODE_URL'), security=security_config)
     return client

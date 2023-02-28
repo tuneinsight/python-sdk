@@ -1,15 +1,12 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
+from typing import Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
 from ..models.authorization_status import AuthorizationStatus
+from ..models.computation_definition import ComputationDefinition
+from ..models.project_policy import ProjectPolicy
 from ..models.topology import Topology
 from ..types import UNSET, Unset
-
-if TYPE_CHECKING:
-    from ..models.computation_definition import ComputationDefinition
-    from ..models.project_policy import ProjectPolicy
-
 
 T = TypeVar("T", bound="ProjectBase")
 
@@ -52,7 +49,7 @@ class ProjectBase:
     allow_clear_query: Union[Unset, bool] = UNSET
     allow_shared_edit: Union[Unset, bool] = UNSET
     authorization_status: Union[Unset, AuthorizationStatus] = UNSET
-    computation_definition: Union[Unset, "ComputationDefinition"] = UNSET
+    computation_definition: Union[Unset, ComputationDefinition] = UNSET
     created_by_node: Union[Unset, str] = UNSET
     created_by_user: Union[Unset, str] = UNSET
     data_source_auto_match: Union[Unset, bool] = UNSET
@@ -63,7 +60,7 @@ class ProjectBase:
     locked: Union[Unset, bool] = UNSET
     name: Union[Unset, str] = UNSET
     network_id: Union[Unset, str] = UNSET
-    policy: Union[Unset, "ProjectPolicy"] = UNSET
+    policy: Union[Unset, ProjectPolicy] = UNSET
     query: Union[Unset, str] = UNSET
     query_timeout: Union[Unset, int] = 30
     run_async: Union[Unset, bool] = UNSET
@@ -161,9 +158,6 @@ class ProjectBase:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.computation_definition import ComputationDefinition
-        from ..models.project_policy import ProjectPolicy
-
         d = src_dict.copy()
         allow_clear_query = d.pop("allowClearQuery", UNSET)
 

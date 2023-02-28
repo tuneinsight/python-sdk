@@ -1,14 +1,11 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
+from typing import Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
 from ..models.preprocessing_operation_type import PreprocessingOperationType
 from ..models.rename_axis import RenameAxis
+from ..models.rename_mapper import RenameMapper
 from ..types import UNSET, Unset
-
-if TYPE_CHECKING:
-    from ..models.rename_mapper import RenameMapper
-
 
 T = TypeVar("T", bound="Rename")
 
@@ -25,7 +22,7 @@ class Rename:
     """
 
     type: PreprocessingOperationType
-    mapper: "RenameMapper"
+    mapper: RenameMapper
     axis: Union[Unset, RenameAxis] = UNSET
     copy: Union[Unset, bool] = UNSET
     errors: Union[Unset, bool] = UNSET
@@ -62,8 +59,6 @@ class Rename:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.rename_mapper import RenameMapper
-
         d = src_dict.copy()
         type = PreprocessingOperationType(d.pop("type"))
 

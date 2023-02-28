@@ -1,12 +1,9 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
+from typing import Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
+from ..models.project_policy_computation_policies import ProjectPolicyComputationPolicies
 from ..types import UNSET, Unset
-
-if TYPE_CHECKING:
-    from ..models.project_policy_computation_policies import ProjectPolicyComputationPolicies
-
 
 T = TypeVar("T", bound="ProjectPolicy")
 
@@ -19,7 +16,7 @@ class ProjectPolicy:
         computation_policies (Union[Unset, ProjectPolicyComputationPolicies]): given policies for each computation type
     """
 
-    computation_policies: Union[Unset, "ProjectPolicyComputationPolicies"] = UNSET
+    computation_policies: Union[Unset, ProjectPolicyComputationPolicies] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -37,8 +34,6 @@ class ProjectPolicy:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.project_policy_computation_policies import ProjectPolicyComputationPolicies
-
         d = src_dict.copy()
         _computation_policies = d.pop("computationPolicies", UNSET)
         computation_policies: Union[Unset, ProjectPolicyComputationPolicies]

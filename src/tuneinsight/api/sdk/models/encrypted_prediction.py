@@ -1,15 +1,12 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
+from typing import Any, Dict, List, Type, TypeVar, Union, cast
 
 import attr
 
+from ..models.computation_data_source_parameters import ComputationDataSourceParameters
+from ..models.computation_preprocessing_parameters import ComputationPreprocessingParameters
 from ..models.computation_type import ComputationType
+from ..models.differential_privacy_parameters import DifferentialPrivacyParameters
 from ..types import UNSET, Unset
-
-if TYPE_CHECKING:
-    from ..models.computation_data_source_parameters import ComputationDataSourceParameters
-    from ..models.computation_preprocessing_parameters import ComputationPreprocessingParameters
-    from ..models.differential_privacy_parameters import DifferentialPrivacyParameters
-
 
 T = TypeVar("T", bound="EncryptedPrediction")
 
@@ -49,14 +46,14 @@ class EncryptedPrediction:
 
     type: ComputationType
     cohort_id: Union[Unset, str] = UNSET
-    data_source_parameters: Union[Unset, "ComputationDataSourceParameters"] = UNSET
-    differential_privacy_parameters: Union[Unset, "DifferentialPrivacyParameters"] = UNSET
+    data_source_parameters: Union[Unset, ComputationDataSourceParameters] = UNSET
+    differential_privacy_parameters: Union[Unset, DifferentialPrivacyParameters] = UNSET
     encrypted: Union[Unset, bool] = UNSET
     input_data_object: Union[Unset, str] = UNSET
     join_id: Union[Unset, str] = UNSET
     local: Union[Unset, bool] = UNSET
     owner: Union[Unset, str] = UNSET
-    preprocessing_parameters: Union[Unset, "ComputationPreprocessingParameters"] = UNSET
+    preprocessing_parameters: Union[Unset, ComputationPreprocessingParameters] = UNSET
     project_id: Union[Unset, str] = UNSET
     timeout: Union[Unset, int] = UNSET
     wait: Union[Unset, bool] = UNSET
@@ -153,10 +150,6 @@ class EncryptedPrediction:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.computation_data_source_parameters import ComputationDataSourceParameters
-        from ..models.computation_preprocessing_parameters import ComputationPreprocessingParameters
-        from ..models.differential_privacy_parameters import DifferentialPrivacyParameters
-
         d = src_dict.copy()
         type = ComputationType(d.pop("type"))
 

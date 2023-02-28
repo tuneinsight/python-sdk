@@ -1,15 +1,12 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
+from typing import Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
+from ..models.data_object import DataObject
+from ..models.model_params import ModelParams
 from ..models.model_type import ModelType
 from ..models.training_algorithm import TrainingAlgorithm
 from ..types import UNSET, Unset
-
-if TYPE_CHECKING:
-    from ..models.data_object import DataObject
-    from ..models.model_params import ModelParams
-
 
 T = TypeVar("T", bound="Model")
 
@@ -33,9 +30,9 @@ class Model:
 
     computation_id: Union[Unset, str] = UNSET
     created_at: Union[Unset, str] = UNSET
-    data_object: Union[Unset, "DataObject"] = UNSET
+    data_object: Union[Unset, DataObject] = UNSET
     model_id: Union[Unset, str] = UNSET
-    model_params: Union[Unset, "ModelParams"] = UNSET
+    model_params: Union[Unset, ModelParams] = UNSET
     name: Union[Unset, str] = UNSET
     training_algorithm: Union[Unset, TrainingAlgorithm] = UNSET
     type: Union[Unset, ModelType] = UNSET
@@ -91,9 +88,6 @@ class Model:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.data_object import DataObject
-        from ..models.model_params import ModelParams
-
         d = src_dict.copy()
         computation_id = d.pop("computationId", UNSET)
 

@@ -1,13 +1,10 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
+from typing import Any, Dict, List, Type, TypeVar, Union, cast
 
 import attr
 
+from ..models.computation_definition import ComputationDefinition
 from ..models.computation_status import ComputationStatus
 from ..types import UNSET, Unset
-
-if TYPE_CHECKING:
-    from ..models.computation_definition import ComputationDefinition
-
 
 T = TypeVar("T", bound="Computation")
 
@@ -32,7 +29,7 @@ class Computation:
             default
     """
 
-    definition: "ComputationDefinition"
+    definition: ComputationDefinition
     id: str
     status: ComputationStatus
     created_at: Union[Unset, str] = UNSET
@@ -96,8 +93,6 @@ class Computation:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.computation_definition import ComputationDefinition
-
         d = src_dict.copy()
         definition = ComputationDefinition.from_dict(d.pop("definition"))
 

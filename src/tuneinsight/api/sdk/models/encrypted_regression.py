@@ -1,16 +1,13 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
+from typing import Any, Dict, List, Type, TypeVar, Union, cast
 
 import attr
 
+from ..models.computation_data_source_parameters import ComputationDataSourceParameters
+from ..models.computation_preprocessing_parameters import ComputationPreprocessingParameters
 from ..models.computation_type import ComputationType
+from ..models.differential_privacy_parameters import DifferentialPrivacyParameters
+from ..models.encrypted_regression_params import EncryptedRegressionParams
 from ..types import UNSET, Unset
-
-if TYPE_CHECKING:
-    from ..models.computation_data_source_parameters import ComputationDataSourceParameters
-    from ..models.computation_preprocessing_parameters import ComputationPreprocessingParameters
-    from ..models.differential_privacy_parameters import DifferentialPrivacyParameters
-    from ..models.encrypted_regression_params import EncryptedRegressionParams
-
 
 T = TypeVar("T", bound="EncryptedRegression")
 
@@ -45,20 +42,20 @@ class EncryptedRegression:
 
     type: ComputationType
     cohort_id: Union[Unset, str] = UNSET
-    data_source_parameters: Union[Unset, "ComputationDataSourceParameters"] = UNSET
-    differential_privacy_parameters: Union[Unset, "DifferentialPrivacyParameters"] = UNSET
+    data_source_parameters: Union[Unset, ComputationDataSourceParameters] = UNSET
+    differential_privacy_parameters: Union[Unset, DifferentialPrivacyParameters] = UNSET
     encrypted: Union[Unset, bool] = UNSET
     input_data_object: Union[Unset, str] = UNSET
     join_id: Union[Unset, str] = UNSET
     local: Union[Unset, bool] = UNSET
     owner: Union[Unset, str] = UNSET
-    preprocessing_parameters: Union[Unset, "ComputationPreprocessingParameters"] = UNSET
+    preprocessing_parameters: Union[Unset, ComputationPreprocessingParameters] = UNSET
     project_id: Union[Unset, str] = UNSET
     timeout: Union[Unset, int] = UNSET
     wait: Union[Unset, bool] = UNSET
     feature_columns: Union[Unset, List[str]] = UNSET
     label_columns: Union[Unset, List[str]] = UNSET
-    params: Union[Unset, "EncryptedRegressionParams"] = UNSET
+    params: Union[Unset, EncryptedRegressionParams] = UNSET
     target_model_name: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -144,11 +141,6 @@ class EncryptedRegression:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.computation_data_source_parameters import ComputationDataSourceParameters
-        from ..models.computation_preprocessing_parameters import ComputationPreprocessingParameters
-        from ..models.differential_privacy_parameters import DifferentialPrivacyParameters
-        from ..models.encrypted_regression_params import EncryptedRegressionParams
-
         d = src_dict.copy()
         type = ComputationType(d.pop("type"))
 

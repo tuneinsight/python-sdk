@@ -1,9 +1,7 @@
-from http import HTTPStatus
 from typing import Any, Dict, Optional, Union, cast
 
 import httpx
 
-from ... import errors
 from ...client import Client
 from ...models.post_protocol_response_403 import PostProtocolResponse403
 from ...models.protocol_definition import ProtocolDefinition
@@ -32,35 +30,32 @@ def _get_kwargs(
     }
 
 
-def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[PostProtocolResponse403, str]]:
-    if response.status_code == HTTPStatus.CREATED:
+def _parse_response(*, response: httpx.Response) -> Optional[Union[PostProtocolResponse403, str]]:
+    if response.status_code == 201:
         response_201 = cast(str, response.json())
         return response_201
-    if response.status_code == HTTPStatus.BAD_REQUEST:
+    if response.status_code == 400:
         response_400 = cast(str, response.json())
         return response_400
-    if response.status_code == HTTPStatus.FORBIDDEN:
+    if response.status_code == 403:
         response_403 = PostProtocolResponse403.from_dict(response.json())
 
         return response_403
-    if response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
+    if response.status_code == 422:
         response_422 = cast(str, response.json())
         return response_422
-    if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
+    if response.status_code == 500:
         response_500 = cast(str, response.json())
         return response_500
-    if client.raise_on_unexpected_status:
-        raise errors.UnexpectedStatus(f"Unexpected status code: {response.status_code}")
-    else:
-        return None
+    return None
 
 
-def _build_response(*, client: Client, response: httpx.Response) -> Response[Union[PostProtocolResponse403, str]]:
+def _build_response(*, response: httpx.Response) -> Response[Union[PostProtocolResponse403, str]]:
     return Response(
-        status_code=HTTPStatus(response.status_code),
+        status_code=response.status_code,
         content=response.content,
         headers=response.headers,
-        parsed=_parse_response(client=client, response=response),
+        parsed=_parse_response(response=response),
     )
 
 
@@ -73,10 +68,6 @@ def sync_detailed(
 
     Args:
         json_body (ProtocolDefinition): A new protocol request definition
-
-    Raises:
-        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
-        httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
         Response[Union[PostProtocolResponse403, str]]
@@ -92,7 +83,7 @@ def sync_detailed(
         **kwargs,
     )
 
-    return _build_response(client=client, response=response)
+    return _build_response(response=response)
 
 
 def sync(
@@ -104,10 +95,6 @@ def sync(
 
     Args:
         json_body (ProtocolDefinition): A new protocol request definition
-
-    Raises:
-        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
-        httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
         Response[Union[PostProtocolResponse403, str]]
@@ -129,10 +116,6 @@ async def asyncio_detailed(
     Args:
         json_body (ProtocolDefinition): A new protocol request definition
 
-    Raises:
-        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
-        httpx.TimeoutException: If the request takes longer than Client.timeout.
-
     Returns:
         Response[Union[PostProtocolResponse403, str]]
     """
@@ -145,7 +128,7 @@ async def asyncio_detailed(
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
         response = await _client.request(**kwargs)
 
-    return _build_response(client=client, response=response)
+    return _build_response(response=response)
 
 
 async def asyncio(
@@ -157,10 +140,6 @@ async def asyncio(
 
     Args:
         json_body (ProtocolDefinition): A new protocol request definition
-
-    Raises:
-        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
-        httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
         Response[Union[PostProtocolResponse403, str]]

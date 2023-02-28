@@ -1,19 +1,16 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
+from typing import Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
 from ..models.authorization_status import AuthorizationStatus
+from ..models.computation import Computation
+from ..models.computation_definition import ComputationDefinition
+from ..models.participant import Participant
+from ..models.privacy_summary import PrivacySummary
+from ..models.project_policy import ProjectPolicy
 from ..models.project_status import ProjectStatus
 from ..models.topology import Topology
 from ..types import UNSET, Unset
-
-if TYPE_CHECKING:
-    from ..models.computation import Computation
-    from ..models.computation_definition import ComputationDefinition
-    from ..models.participant import Participant
-    from ..models.privacy_summary import PrivacySummary
-    from ..models.project_policy import ProjectPolicy
-
 
 T = TypeVar("T", bound="Project")
 
@@ -51,10 +48,10 @@ class Project:
             connected to a central node. In tree topology all nodes are connected and aware of each other.
         unique_id (Union[Unset, str]): Unique identifier of a project.
         workflow_json (Union[Unset, str]): JSON representation of the workflow UI in the frontend
-        computations (Union[Unset, List['Computation']]): List of computations of the project
+        computations (Union[Unset, List[Computation]]): List of computations of the project
         created_at (Union[Unset, str]):
         error (Union[Unset, str]): Description of a potential error that happened during the project lifespan
-        participants (Union[Unset, List['Participant']]): List of participants in the project
+        participants (Union[Unset, List[Participant]]): List of participants in the project
         privacy_summary (Union[Unset, PrivacySummary]): Privacy summary for a project
         status (Union[Unset, ProjectStatus]): Stages of a project workflow
         updated_at (Union[Unset, str]):
@@ -63,7 +60,7 @@ class Project:
     allow_clear_query: Union[Unset, bool] = UNSET
     allow_shared_edit: Union[Unset, bool] = UNSET
     authorization_status: Union[Unset, AuthorizationStatus] = UNSET
-    computation_definition: Union[Unset, "ComputationDefinition"] = UNSET
+    computation_definition: Union[Unset, ComputationDefinition] = UNSET
     created_by_node: Union[Unset, str] = UNSET
     created_by_user: Union[Unset, str] = UNSET
     data_source_auto_match: Union[Unset, bool] = UNSET
@@ -74,7 +71,7 @@ class Project:
     locked: Union[Unset, bool] = UNSET
     name: Union[Unset, str] = UNSET
     network_id: Union[Unset, str] = UNSET
-    policy: Union[Unset, "ProjectPolicy"] = UNSET
+    policy: Union[Unset, ProjectPolicy] = UNSET
     query: Union[Unset, str] = UNSET
     query_timeout: Union[Unset, int] = 30
     run_async: Union[Unset, bool] = UNSET
@@ -82,11 +79,11 @@ class Project:
     topology: Union[Unset, Topology] = UNSET
     unique_id: Union[Unset, str] = UNSET
     workflow_json: Union[Unset, str] = UNSET
-    computations: Union[Unset, List["Computation"]] = UNSET
+    computations: Union[Unset, List[Computation]] = UNSET
     created_at: Union[Unset, str] = UNSET
     error: Union[Unset, str] = UNSET
-    participants: Union[Unset, List["Participant"]] = UNSET
-    privacy_summary: Union[Unset, "PrivacySummary"] = UNSET
+    participants: Union[Unset, List[Participant]] = UNSET
+    privacy_summary: Union[Unset, PrivacySummary] = UNSET
     status: Union[Unset, ProjectStatus] = UNSET
     updated_at: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
@@ -220,12 +217,6 @@ class Project:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.computation import Computation
-        from ..models.computation_definition import ComputationDefinition
-        from ..models.participant import Participant
-        from ..models.privacy_summary import PrivacySummary
-        from ..models.project_policy import ProjectPolicy
-
         d = src_dict.copy()
         allow_clear_query = d.pop("allowClearQuery", UNSET)
 

@@ -1,14 +1,11 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
+from typing import Any, Dict, List, Type, TypeVar, Union, cast
 
 import attr
 
+from ..models.credentials_provider import CredentialsProvider
+from ..models.data_source_config import DataSourceConfig
 from ..models.data_source_consent_type import DataSourceConsentType
 from ..types import UNSET, Unset
-
-if TYPE_CHECKING:
-    from ..models.credentials_provider import CredentialsProvider
-    from ..models.data_source_config import DataSourceConfig
-
 
 T = TypeVar("T", bound="DataSourceDefinition")
 
@@ -32,8 +29,8 @@ class DataSourceDefinition:
     name: Union[Unset, str] = UNSET
     type: Union[Unset, str] = UNSET
     unique_id: Union[Unset, str] = UNSET
-    config: Union[Unset, "DataSourceConfig"] = UNSET
-    credentials_provider: Union[Unset, "CredentialsProvider"] = UNSET
+    config: Union[Unset, DataSourceConfig] = UNSET
+    credentials_provider: Union[Unset, CredentialsProvider] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -78,9 +75,6 @@ class DataSourceDefinition:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.credentials_provider import CredentialsProvider
-        from ..models.data_source_config import DataSourceConfig
-
         d = src_dict.copy()
         attributes = cast(List[str], d.pop("attributes", UNSET))
 

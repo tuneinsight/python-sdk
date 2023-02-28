@@ -1,13 +1,10 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
+from typing import Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
+from ..models.filter_ import Filter
 from ..models.statistical_quantity import StatisticalQuantity
 from ..types import UNSET, Unset
-
-if TYPE_CHECKING:
-    from ..models.filter_ import Filter
-
 
 T = TypeVar("T", bound="StatisticDefinition")
 
@@ -26,7 +23,7 @@ class StatisticDefinition:
             list if not specified all relevant statistics are computed
     """
 
-    filter_: Union[Unset, "Filter"] = UNSET
+    filter_: Union[Unset, Filter] = UNSET
     name: Union[Unset, str] = UNSET
     variable: Union[Unset, str] = UNSET
     max_bound: Union[Unset, float] = 1.0
@@ -75,8 +72,6 @@ class StatisticDefinition:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.filter_ import Filter
-
         d = src_dict.copy()
         _filter_ = d.pop("filter", UNSET)
         filter_: Union[Unset, Filter]

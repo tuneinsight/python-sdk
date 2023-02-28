@@ -1,14 +1,11 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
+from typing import Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
 from ..models.authorization_status import AuthorizationStatus
+from ..models.data_source import DataSource
+from ..models.privacy_summary_computation import PrivacySummaryComputation
 from ..types import UNSET, Unset
-
-if TYPE_CHECKING:
-    from ..models.data_source import DataSource
-    from ..models.privacy_summary_computation import PrivacySummaryComputation
-
 
 T = TypeVar("T", bound="PrivacySummary")
 
@@ -25,8 +22,8 @@ class PrivacySummary:
     """
 
     authorization_status: Union[Unset, AuthorizationStatus] = UNSET
-    computation: Union[Unset, "PrivacySummaryComputation"] = UNSET
-    data_source: Union[Unset, "DataSource"] = UNSET
+    computation: Union[Unset, PrivacySummaryComputation] = UNSET
+    data_source: Union[Unset, DataSource] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -56,9 +53,6 @@ class PrivacySummary:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.data_source import DataSource
-        from ..models.privacy_summary_computation import PrivacySummaryComputation
-
         d = src_dict.copy()
         _authorization_status = d.pop("authorizationStatus", UNSET)
         authorization_status: Union[Unset, AuthorizationStatus]

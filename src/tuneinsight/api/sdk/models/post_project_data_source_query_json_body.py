@@ -1,20 +1,15 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
+from typing import Any, Dict, List, Type, TypeVar, Union, cast
 
 import attr
 
 from ..models.post_project_data_source_query_json_body_aggregation_type import (
     PostProjectDataSourceQueryJsonBodyAggregationType,
 )
+from ..models.post_project_data_source_query_json_body_output_data_objects_shared_i_ds import (
+    PostProjectDataSourceQueryJsonBodyOutputDataObjectsSharedIDs,
+)
+from ..models.post_project_data_source_query_json_body_parameters import PostProjectDataSourceQueryJsonBodyParameters
 from ..types import UNSET, Unset
-
-if TYPE_CHECKING:
-    from ..models.post_project_data_source_query_json_body_output_data_objects_shared_i_ds import (
-        PostProjectDataSourceQueryJsonBodyOutputDataObjectsSharedIDs,
-    )
-    from ..models.post_project_data_source_query_json_body_parameters import (
-        PostProjectDataSourceQueryJsonBodyParameters,
-    )
-
 
 T = TypeVar("T", bound="PostProjectDataSourceQueryJsonBody")
 
@@ -45,10 +40,8 @@ class PostProjectDataSourceQueryJsonBody:
     broadcast: Union[Unset, bool] = UNSET
     operation: Union[Unset, str] = UNSET
     output_data_objects_names: Union[Unset, List[str]] = UNSET
-    output_data_objects_shared_i_ds: Union[
-        Unset, "PostProjectDataSourceQueryJsonBodyOutputDataObjectsSharedIDs"
-    ] = UNSET
-    parameters: Union[Unset, "PostProjectDataSourceQueryJsonBodyParameters"] = UNSET
+    output_data_objects_shared_i_ds: Union[Unset, PostProjectDataSourceQueryJsonBodyOutputDataObjectsSharedIDs] = UNSET
+    parameters: Union[Unset, PostProjectDataSourceQueryJsonBodyParameters] = UNSET
     target_public_key: Union[Unset, str] = UNSET
     target_public_key_id: Union[Unset, str] = UNSET
     wait: Union[Unset, bool] = True
@@ -103,13 +96,6 @@ class PostProjectDataSourceQueryJsonBody:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.post_project_data_source_query_json_body_output_data_objects_shared_i_ds import (
-            PostProjectDataSourceQueryJsonBodyOutputDataObjectsSharedIDs,
-        )
-        from ..models.post_project_data_source_query_json_body_parameters import (
-            PostProjectDataSourceQueryJsonBodyParameters,
-        )
-
         d = src_dict.copy()
         _aggregation_type = d.pop("aggregationType", UNSET)
         aggregation_type: Union[Unset, PostProjectDataSourceQueryJsonBodyAggregationType]

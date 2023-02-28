@@ -1,12 +1,9 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
+from typing import Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
+from ..models.data_source_table import DataSourceTable
 from ..types import UNSET, Unset
-
-if TYPE_CHECKING:
-    from ..models.data_source_table import DataSourceTable
-
 
 T = TypeVar("T", bound="DataSourceMetadata")
 
@@ -17,11 +14,11 @@ class DataSourceMetadata:
 
     Attributes:
         metadata_available (Union[Unset, bool]): whether or not the datasource supports returning metadata
-        tables (Union[Unset, List['DataSourceTable']]):
+        tables (Union[Unset, List[DataSourceTable]]):
     """
 
     metadata_available: Union[Unset, bool] = UNSET
-    tables: Union[Unset, List["DataSourceTable"]] = UNSET
+    tables: Union[Unset, List[DataSourceTable]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -46,8 +43,6 @@ class DataSourceMetadata:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.data_source_table import DataSourceTable
-
         d = src_dict.copy()
         metadata_available = d.pop("metadataAvailable", UNSET)
 

@@ -1,13 +1,10 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
+from typing import Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
+from ..models.as_type_type_map import AsTypeTypeMap
 from ..models.preprocessing_operation_type import PreprocessingOperationType
 from ..types import UNSET, Unset
-
-if TYPE_CHECKING:
-    from ..models.as_type_type_map import AsTypeTypeMap
-
 
 T = TypeVar("T", bound="AsType")
 
@@ -23,7 +20,7 @@ class AsType:
     """
 
     type: PreprocessingOperationType
-    type_map: "AsTypeTypeMap"
+    type_map: AsTypeTypeMap
     copy: Union[Unset, bool] = UNSET
     errors: Union[Unset, bool] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
@@ -53,8 +50,6 @@ class AsType:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.as_type_type_map import AsTypeTypeMap
-
         d = src_dict.copy()
         type = PreprocessingOperationType(d.pop("type"))
 

@@ -39,6 +39,15 @@ class Diapason:
 
     @classmethod
     def from_config_path(cls,path: str):
+        """
+        from_config_path creates a client from a configuration file
+
+        Args:
+            path (str): path to the yml configuration file
+
+        Returns:
+            Diapason: the configured diapason client
+        """
         conf = config.LoadClient(path)
         return cls(conf = conf)
 
@@ -59,9 +68,29 @@ class Diapason:
         return self.client
 
     def new_datasource(self, dataframe: pd.DataFrame, name: str = "") -> DataSource:
+        """
+        new_datasource creates a new datasource from a dataframe. It uploads the dataframe to the created datasource.
+
+        Args:
+            dataframe (pd.DataFrame): dataframe to upload.
+            name (str, optional): name of the datasource to be created.
+
+        Returns:
+            DataSource: the newly created datasource
+        """
         return DataSource.from_dataframe(client=self.get_client(),dataframe=dataframe,name=name)
 
     def new_csv_datasource(self,csv: str,name: str = "") -> DataSource:
+        """
+        new_csv_datasource creates a new datasource and upload the given csv file to it
+
+        Args:
+            csv (str): path to the csv file.
+            name (str, optional): name of the datasource to be created.
+
+        Returns:
+            DataSource: the newly created datasource
+        """
         ds =  DataSource.local(client= self.get_client(),name=name)
         ds.load_csv_data(path=csv)
         return ds
@@ -70,6 +99,18 @@ class Diapason:
         return DataSource.postgres(client=self.get_client(),config=pg_config,name=name)
 
     def new_project(self, name: str, clear_if_exists: bool = False) -> Project:
+        """new_project creates a new project
+
+        Args:
+            name (str): name of the project
+            clear_if_exists (bool, optional): remove existing projects with the same name before creating it. Defaults to False.
+
+        Raises:
+            Exception: in case the project already exists and clear_if_exists is False
+
+        Returns:
+            Project: the newly created project
+        """
         if name in [p.get_name() for p in self.get_projects()]:
             if clear_if_exists:
                 self.clear_project(name=name)
@@ -81,6 +122,15 @@ class Diapason:
         return Project(model=proj_response.parsed,client=self.client)
 
     def get_project(self, project_id: str= "",name: str = "") -> Project:
+        """get_project returns a project by id or name
+
+        Args:
+            project_id (str, optional): id of the project.
+            name (str, optional): name of the project. If project_id is not provided, it will be used to find the project
+
+        Returns:
+            Project: the project
+        """
         if project_id == "":
             return self.get_project_by_name(name=name)
         proj_response: Response[models.Project] = get_project.sync_detailed(client=self.client,project_id=project_id)
@@ -88,6 +138,12 @@ class Diapason:
         return Project(model=proj_response.parsed,client=self.client)
 
     def get_projects(self) -> List[Project]:
+        """
+        get_projects returns all the projects
+
+        Returns:
+            List[Project]: list of projects
+        """
         response: Response[List[models.Project]] = get_project_list.sync_detailed(client=self.client)
         validate_response(response)
         projects = []
@@ -103,6 +159,12 @@ class Diapason:
         raise Exception("project not found")
 
     def get_datasources(self) -> List[DataSource]:
+        """
+        get_datasources returns all the datasources
+
+        Returns:
+            List[DataSource]: list of datasources
+        """
         response: Response[List[models.DataSource]] = get_data_source_list.sync_detailed(client=self.client)
         validate_response(response)
         datasources = []
@@ -111,6 +173,15 @@ class Diapason:
         return datasources
 
     def get_datasource(self, ds_id: str= "",name: str = "") -> DataSource:
+        """get_datasource returns a datasource by id or name
+
+        Args:
+            ds_id (str, optional): id of the datasource.
+            name (str, optional): name of the datasource. If ds_id is not provided, it will be used to find the datasource
+
+        Returns:
+            DataSource: the datasource
+        """
         if ds_id == "":
             return self.get_datasource_by_name(name=name)
         ds_response: Response[models.DataSource] = get_data_source.sync_detailed(client=self.client,data_source_id=ds_id)
