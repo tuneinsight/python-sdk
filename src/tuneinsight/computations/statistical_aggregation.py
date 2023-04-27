@@ -15,8 +15,8 @@ class Aggregation(ComputationRunner):
     count_columns: Dict[str,List[str]] = {}
     interval:List[float] = []
 
-
-    def new_model(self) -> models.StatisticalAggregation:
+    @staticmethod
+    def new_model() -> models.StatisticalAggregation:
         return models.StatisticalAggregation(type=models.ComputationType.STATISTICALAGGREGATION)
 
 
@@ -25,17 +25,18 @@ class Aggregation(ComputationRunner):
             return self.interval_str(int(cat),interval)
         return res
 
-    def value_to_categorical_label(self) -> Callable[[str],str]:
+    @staticmethod
+    def value_to_categorical_label() -> Callable[[str],str]:
         def res(cat:str) -> str:
             return cat
         return res
-
 
     def run(self,comp: models.StatisticalAggregation,local: bool) -> models.FloatMatrix:
         dataobjects = super().run_computation(comp=comp,local=local,keyswitch= not local,decrypt=True)
         return dataobjects[0].get_float_matrix()
 
-    def interval_str(self,interval_index: int,interval: List[float]) -> str:
+    @staticmethod
+    def interval_str(interval_index: int,interval: List[float]) -> str:
         res = "-"
         if interval_index < len(interval):
             res = res + str(interval[interval_index])
@@ -84,8 +85,8 @@ class Aggregation(ComputationRunner):
 
         return pd.DataFrame(data=data,columns=cols)
 
-
-    def process_group_by_columns(self,column_infos: List[models.ColumnInfo],
+    @staticmethod
+    def process_group_by_columns(column_infos: List[models.ColumnInfo],
                                  vals: List[float],cat_to_label: Callable[[str],str]) -> Tuple[Dict[str,int],Dict[str,float],List[str]]:
         counts = {}
         totals = {}

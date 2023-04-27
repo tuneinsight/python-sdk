@@ -11,38 +11,38 @@ T = TypeVar("T", bound="GetPrivateSearchDatabaseResponse403")
 class GetPrivateSearchDatabaseResponse403:
     """
     Attributes:
-        code (Union[Unset, int]):
         message (Union[Unset, str]):
+        code (Union[Unset, int]):
     """
 
-    code: Union[Unset, int] = UNSET
     message: Union[Unset, str] = UNSET
+    code: Union[Unset, int] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        code = self.code
         message = self.message
+        code = self.code
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if code is not UNSET:
-            field_dict["code"] = code
         if message is not UNSET:
             field_dict["message"] = message
+        if code is not UNSET:
+            field_dict["code"] = code
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        code = d.pop("code", UNSET)
-
         message = d.pop("message", UNSET)
 
+        code = d.pop("code", UNSET)
+
         get_private_search_database_response_403 = cls(
-            code=code,
             message=message,
+            code=code,
         )
 
         get_private_search_database_response_403.additional_properties = d

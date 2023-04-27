@@ -40,7 +40,8 @@ class HybridFL(ComputationRunner):
         print('Train f1:', round(history.train_f1_s[-1][-1], 4))
         print('Test f1:', round(history.test_f1_s[-1][-1], 4))
 
-    def plot_timeline(self, history, timescale: bool = False):
+    @staticmethod
+    def plot_timeline(history, timescale: bool = False):
         _, ax = plt.subplots(3, 1, figsize=(20, 12))
 
         agg_durations = [datetime.fromtimestamp(end/1000.0) - datetime.fromtimestamp(starts[0]/1000.0) for (starts, end) in zip(history.end_timestamps, history.init_timestamps[1:])]

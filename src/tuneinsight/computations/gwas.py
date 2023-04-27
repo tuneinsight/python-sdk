@@ -56,7 +56,8 @@ class GWAS(ComputationRunner):
 
         return pd.DataFrame(data)
 
-    def plot_manhattan(self, p_values: pd.DataFrame):
+    @staticmethod
+    def plot_manhattan(p_values: pd.DataFrame):
         """ Display the GWAS result as a manhattan plot.
 
         Args:

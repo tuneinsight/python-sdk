@@ -13,14 +13,14 @@ class MixedGenerator(Random):
         self.cols = []
         self.generators = []
 
-    def addRangeColumn(self,column: str, r: list[float]):
+    def addRangeColumn(self,column: str, r: List[float]):
         self.cols.append(column)
         def generator():
             min_val,max_val = r[0],r[1]
             return self.random() * (max_val - min_val) + min_val
         self.generators.append(generator)
 
-    def addCategoricalColumn(self,column: str,categories: list[str]):
+    def addCategoricalColumn(self,column: str,categories: List[str]):
         self.cols.append(column)
         def generator():
             return categories[self.randint(0,len(categories) -1)]
@@ -117,7 +117,8 @@ class PatientGenerator(MixedGenerator):
         weight = self.height_to_weight(height)
         return [district,origin,gender,age,height,weight]
 
-    def columns(self) -> List[str]:
+    @staticmethod
+    def columns() -> List[str]:
         return ["district","origin","gender","age","height","weight"]
 
     def new_dataframe(self,num_rows: int) ->pd.DataFrame:

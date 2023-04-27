@@ -1,7 +1,6 @@
 from typing import List
 import attr
 import pandas as pd
-from typing_extensions import Unpack
 
 from tuneinsight.api.sdk.types import Response
 from tuneinsight.api.sdk import client as api_client
@@ -12,7 +11,6 @@ from tuneinsight.api.sdk.api.api_datasource import get_data_source_list, get_dat
 from tuneinsight.api.sdk import models
 
 from tuneinsight.client.datasource import DataSource
-from tuneinsight.client.datasource import DataSourceParams
 from tuneinsight.client.project import Project
 from tuneinsight.client.validation import validate_response
 from tuneinsight.client import config
@@ -36,7 +34,7 @@ class Diapason:
             self.client = api_client.AuthenticatedClient(base_url=self.conf.url,token=self.conf.security.static_token,verify_ssl=self.conf.security.verify_ssl)
         else:
             self.client = auth.KeycloakClient(base_url=self.conf.url,token="",
-                            kc_config=self.conf.security.kc_config,
+                            oidc_config=self.conf.security.oidc_config,
                             username=self.conf.security.username,
                             password=self.conf.security.password,
                             verify_ssl=self.conf.security.verify_ssl)
@@ -71,7 +69,7 @@ class Diapason:
             raise Exception("client has not been created")
         return self.client
 
-    def new_datasource(self, dataframe: pd.DataFrame, **kwargs: Unpack[DataSourceParams]) -> DataSource:
+    def new_datasource(self, dataframe: pd.DataFrame, name: str, clear_if_exists: bool = False) -> DataSource:
         """
         new_datasource creates a new datasource from a dataframe. It uploads the dataframe to the created datasource.
 
@@ -83,9 +81,9 @@ class Diapason:
         Returns:
             DataSource: the newly created datasource
         """
-        return DataSource.from_dataframe(self.get_client(),dataframe,**kwargs)
+        return DataSource.from_dataframe(self.get_client(),dataframe,name,clear_if_exists)
 
-    def new_api_datasource(self, api_type: models.APIConnectionInfoType, api_url: str, api_token: str, **kwargs: Unpack[DataSourceParams]) -> DataSource:
+    def new_api_datasource(self, api_type: models.APIConnectionInfoType, api_url: str, api_token: str, name: str, clear_if_exists: bool = False) -> DataSource:
         """
         new_api_datasource creates a new API datasource.
 
@@ -97,9 +95,9 @@ class Diapason:
         Returns:
             DataSource: the newly created datasource
         """
-        return DataSource.from_api(self.get_client(),api_type,api_url,api_token,**kwargs)
+        return DataSource.from_api(self.get_client(),api_type,api_url,api_token,name,clear_if_exists)
 
-    def new_csv_datasource(self,csv: str, **kwargs: Unpack[DataSourceParams]) -> DataSource:
+    def new_csv_datasource(self,csv: str, name: str, clear_if_exists: bool = False) -> DataSource:
         """
         new_csv_datasource creates a new datasource and upload the given csv file to it
 
@@ -111,11 +109,11 @@ class Diapason:
         Returns:
             DataSource: the newly created datasource
         """
-        ds =  DataSource.local(client= self.get_client(),**kwargs)
+        ds =  DataSource.local(client= self.get_client(),name=name,clear_if_exists=clear_if_exists)
         ds.load_csv_data(path=csv)
         return ds
 
-    def new_database(self,pg_config: models.DatabaseConnectionInfo, **kwargs: Unpack[DataSourceParams]) -> DataSource:
+    def new_database(self,pg_config: models.DatabaseConnectionInfo, name: str, clear_if_exists: bool = False) -> DataSource:
         """
         new_database creates a new Postgres datasource
 
@@ -127,7 +125,7 @@ class Diapason:
         Returns:
             DataSource: the newly created datasource
         """
-        return DataSource.postgres(client=self.get_client(),config=pg_config,**kwargs)
+        return DataSource.postgres(client=self.get_client(),config=pg_config,name=name,clear_if_exists=clear_if_exists)
 
     def new_project(self, name: str, clear_if_exists: bool = False, topology: models.Topology = UNSET) -> Project:
         """new_project creates a new project

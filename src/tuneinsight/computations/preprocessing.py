@@ -312,8 +312,8 @@ class PreprocessingBuilder:
             if self.check_chain(node_chain.chain) is True:
                 warn("Preprocessing chain for node " + node + " contains one hot encoding without a subsequent select. This could lead to an error if nodes have different categorical values. \n Chain: " + str(node_chain), stacklevel=2)
 
-
-    def check_chain(self, chain: models.PreprocessingChain) -> bool:
+    @staticmethod
+    def check_chain(chain: models.PreprocessingChain) -> bool:
         """
         Check that a preprocessing chain contains a select after one hot encoding.
         """

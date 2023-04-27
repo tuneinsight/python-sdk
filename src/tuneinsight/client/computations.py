@@ -38,8 +38,8 @@ class ComputationRunner():
         self.max_sleep_time = 30 * time.second
         self.recorded_computations = []
 
-
-    def field_is_set(self,field: Any) -> bool:
+    @staticmethod
+    def field_is_set(field: Any) -> bool:
         if field is UNSET or field == "":
             return False
         return True
@@ -75,7 +75,8 @@ class ComputationRunner():
         validate_response(response)
         display(Markdown(response.parsed.description))
 
-    def is_done(self,comp: models.Computation) -> bool:
+    @staticmethod
+    def is_done(comp: models.Computation) -> bool:
         waiting = comp.status not in (models.ComputationStatus.ERROR, models.ComputationStatus.SUCCESS)
         return not waiting
 

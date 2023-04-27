@@ -14,7 +14,7 @@ class Cohort(ComputationRunner):
     cohort_id: str = ""
     join_id: str = ""
 
-    def create_from_matching(self, matching_columns: List[str], result_format: models.SetIntersectionOutputFormat, local_input: models.LocalInput = None, compound_query: dict[str, str] = None) -> List[DataObject]:
+    def create_from_matching(self, matching_columns: List[str], result_format: models.SetIntersectionOutputFormat, local_input: models.LocalInput = None) -> List[DataObject]:
         """ Create a cohort from matching columns
 
         Args:
@@ -33,16 +33,12 @@ class Cohort(ComputationRunner):
         if local_input:
             model.local_input = local_input
 
-        if compound_query:
-            for node in compound_query:
-                query = compound_query[node]
-                self.datasource.set_query(query, [node])
-
         dataobjects = super().run_computation(comp=model,local=False,keyswitch=False,decrypt=False)
         self.cohort_id = dataobjects[0].get_id()
         return dataobjects
 
-    def get_psi_ratio(self, all_parties: List[str], dataobjects: List[DataObject]) -> pd.DataFrame:
+    @staticmethod
+    def get_psi_ratio(all_parties: List[str], dataobjects: List[DataObject]) -> pd.DataFrame:
         """ Add a column to the PSI result indicating for each record the percentage of participants at which the record was observed
 
         Args:
@@ -134,8 +130,8 @@ class Cohort(ComputationRunner):
         gwas.join_id = self.join_id
         return gwas
 
-
-    def plot_psi(self, x, y, title, x_label, y_label):
+    @staticmethod
+    def plot_psi(x, y, title, x_label, y_label):
         """ Plot the PSI results as a bar graph
 
         Args:

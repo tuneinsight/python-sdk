@@ -1,6 +1,7 @@
 import time
 import itertools
-from typing import List
+import uuid
+from typing import List,Dict
 from typing_extensions import Self
 import pandas as pd
 from tuneinsight.api.sdk import models
@@ -81,7 +82,8 @@ class Regression(ComputationRunner):
         # set predict params
         self.predict_model.model = self.encrypted_model_dataobject_id
 
-        ds = DataSource.from_dataframe(client=self.client,dataframe=X)
+        ds_uid = uuid.uuid4()
+        ds = DataSource.from_dataframe(client=self.client,dataframe=X, name="predict_data_"+str(ds_uid))
         do = ds.adapt(models.DataObjectType.TABLE)
         ds.delete()
         self.predict_model.data = do.get_id()
@@ -153,7 +155,8 @@ class Regression(ComputationRunner):
 
         return best_params
 
-    def generate_param_grid(self, param_dict:dict) -> list[dict]:
+    @staticmethod
+    def generate_param_grid(param_dict:Dict) -> List[dict]:
         """ Generates a grid of parameter combinations
 
         Args:

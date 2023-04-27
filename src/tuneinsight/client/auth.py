@@ -11,7 +11,7 @@ from tuneinsight.client import config
 class KeycloakClient(client.AuthenticatedClient):
     """Client for Keycloak authentication"""
 
-    kc_config: config.KeycloakConfiguration
+    oidc_config: config.OIDCConfiguration
     username: str
     password: str
     tokens: dict = {}
@@ -22,10 +22,10 @@ class KeycloakClient(client.AuthenticatedClient):
 
     def __attrs_post_init__(self):
 
-        self.kc_open_id = KeycloakOpenID(server_url=self.kc_config.keycloak_url,
-                                client_id=self.kc_config.keycloak_client_id,
-                                client_secret_key=self.kc_config.keycloak_client_secret,
-                                realm_name=self.kc_config.keycloak_realm)
+        self.kc_open_id = KeycloakOpenID(server_url=self.oidc_config.oidc_url,
+                                client_id=self.oidc_config.oidc_client_id,
+                                client_secret_key=self.oidc_config.oidc_client_secret,
+                                realm_name=self.oidc_config.oidc_realm)
 
     def update_tokens(self,tokens):
         self.tokens = tokens
@@ -34,8 +34,8 @@ class KeycloakClient(client.AuthenticatedClient):
 
     def get_token(self) -> dict:
 
-        # If a keycloak_client_secret is provided, use client credentials flow for service accounts
-        if self.kc_config.keycloak_client_secret != "":
+        # If a oidc_client_secret is provided, use client credentials flow for service accounts
+        if self.oidc_config.oidc_client_secret != "":
             self.tokens = self.kc_open_id.token(
                 self.username, grant_type="client_credentials")
         else:

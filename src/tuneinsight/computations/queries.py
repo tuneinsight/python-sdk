@@ -26,6 +26,11 @@ class QueryBuilder:
                 self.compound_query[node] = query
         self.query_set = True
 
+    def set_query_from_dict(self, query_dict: Dict[str, str]):
+        for node in query_dict:
+            query = query_dict[node]
+            self.set_query(query, [node])
+
     def get_parameters(self) -> models.ComputationDataSourceParameters:
         params = ComputationDataSourceParameters()
         params.data_source_query = self.global_query

@@ -1,5 +1,9 @@
+from math import erf,sqrt
 import numpy as np
-from scipy import stats
+
+def phi(x):
+    #'Cumulative distribution function for the standard normal distribution'
+    return (1.0 + erf(x / sqrt(2.0))) / 2.0
 
 def GWASLinReg(V, X, Y):
     """
@@ -50,6 +54,7 @@ def GWASLinReg(V, X, Y):
         mse = pow(np.inner(mse, mse)/p, 0.5)
 
         # p-value = 2 * cdf(-|beta/(mse*err)|(
-        P[i] = 2 * stats.norm.cdf(-abs(w[f+1] / (mse * err)))
+        P[i] = 2 * phi(-abs(w[f+1] / (mse * err)))
+
 
     return np.array(P)

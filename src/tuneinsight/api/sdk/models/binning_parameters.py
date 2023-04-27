@@ -13,7 +13,6 @@ class BinningParameters:
     """parameters used to bin data
 
     Attributes:
-        bin_size (Union[Unset, float]): size of bins
         bin_size_precision (Union[Unset, None, int]): number of decimals for generated range categories
         categories (Union[Unset, List[str]]): specified categories when method is specifiedCategories
         default_category (Union[Unset, str]): category to assign when an item does not fall in a specific category
@@ -23,17 +22,17 @@ class BinningParameters:
             found, a category is created - "rangeBins" binning is done according to provided range parameters -
             "specifiedCategories" binning is done on specified categories, values that do not fall in provided categories
             are tagged as 'other'
+        bin_size (Union[Unset, float]): size of bins
     """
 
-    bin_size: Union[Unset, float] = UNSET
     bin_size_precision: Union[Unset, None, int] = 0
     categories: Union[Unset, List[str]] = UNSET
     default_category: Union[Unset, str] = "other"
     method: Union[Unset, BinningParametersMethod] = UNSET
+    bin_size: Union[Unset, float] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        bin_size = self.bin_size
         bin_size_precision = self.bin_size_precision
         categories: Union[Unset, List[str]] = UNSET
         if not isinstance(self.categories, Unset):
@@ -44,11 +43,11 @@ class BinningParameters:
         if not isinstance(self.method, Unset):
             method = self.method.value
 
+        bin_size = self.bin_size
+
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if bin_size is not UNSET:
-            field_dict["binSize"] = bin_size
         if bin_size_precision is not UNSET:
             field_dict["binSizePrecision"] = bin_size_precision
         if categories is not UNSET:
@@ -57,14 +56,14 @@ class BinningParameters:
             field_dict["defaultCategory"] = default_category
         if method is not UNSET:
             field_dict["method"] = method
+        if bin_size is not UNSET:
+            field_dict["binSize"] = bin_size
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        bin_size = d.pop("binSize", UNSET)
-
         bin_size_precision = d.pop("binSizePrecision", UNSET)
 
         categories = cast(List[str], d.pop("categories", UNSET))
@@ -78,12 +77,14 @@ class BinningParameters:
         else:
             method = BinningParametersMethod(_method)
 
+        bin_size = d.pop("binSize", UNSET)
+
         binning_parameters = cls(
-            bin_size=bin_size,
             bin_size_precision=bin_size_precision,
             categories=categories,
             default_category=default_category,
             method=method,
+            bin_size=bin_size,
         )
 
         binning_parameters.additional_properties = d

@@ -1,6 +1,7 @@
 import ctypes
 from pathlib import Path
 from os.path import exists
+from typing import List
 import platform
 import pandas as pd
 
@@ -127,7 +128,7 @@ def encrypt_matrix(crypto_system_id: bytes, csv_string: bytes) -> bytes:
 
 def decrypt_dataframe(crypto_system_id: bytes,
                       dataframe_ciphertext: bytes,
-                      headers: list[str] = None) -> pd.DataFrame:
+                      headers: List[str] = None) -> pd.DataFrame:
     """Turn an encrypted pandas dataframe into a new decrypted pandas dataframe.
     Indices are recovered, column names can optionally be provided by the user.
 
@@ -244,7 +245,7 @@ def encrypted_polynomial_evaluation(crypto_system_id: bytes, number: bytes) -> b
     ciphertext = ciphertext[8:]
     return ciphertext
 
-def create_polynomial(crypto_system_id: bytes, polynomial_coefficients: list[float]) -> bytes:
+def create_polynomial(crypto_system_id: bytes, polynomial_coefficients: List[float]) -> bytes:
     generate_polynomial = so.GenPolynomial
     generate_polynomial.restype = ctypes.c_char_p
     # Convert coefficients into csv byte string

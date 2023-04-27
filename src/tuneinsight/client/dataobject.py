@@ -143,7 +143,7 @@ class DataObject:
         """
         delete requests a deletion of the dataobject
         """
-        response: Response[models.Any]= delete_data_object.sync_detailed(client=self.client,data_object_id=self.get_id())
+        response: Response[models.Any]= delete_data_object.sync_detailed(client=self.client,data_object_id=self.get_id()) # pylint: disable=no-member
         validate_response(response)
 
 

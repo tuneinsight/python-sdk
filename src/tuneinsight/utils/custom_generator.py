@@ -214,8 +214,8 @@ class CustomGenerator(Random):
     def _random_id(self):
         return str(uuid.UUID(int=self.getrandbits(128)))
 
-
-    def _get_sample_locuses(self,num: int,locus_values_csv_path: str,locus_csv_column: str,keep: List[str] = None) -> List[str]:
+    @staticmethod
+    def _get_sample_locuses(num: int,locus_values_csv_path: str,locus_csv_column: str,keep: List[str] = None) -> List[str]:
         tmp = pd.read_csv(locus_values_csv_path)
         others = tmp[(~tmp[locus_csv_column].isin(keep))].sample(n=num -len(keep)).sort_index()
         kept = tmp[tmp[locus_csv_column].isin(keep)].sort_index()

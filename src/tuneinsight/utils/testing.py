@@ -27,8 +27,8 @@ class TestCase3Nodes(unittest.TestCase):
         self.assertGreaterEqual(response.status_code,status_codes_min)
         self.assertGreater(status_codes_max,response.status_code)
 
-
-    def aggregate_data(self,data):
+    @staticmethod
+    def aggregate_data(data):
         new_data = []
         result_row = []
         vec_length = len(data[0])
@@ -41,8 +41,8 @@ class TestCase3Nodes(unittest.TestCase):
         return new_data
 
 
-
-    def concatenate_rows(self,datas):
+    @staticmethod
+    def concatenate_rows(datas):
         new_data = []
         for data in datas:
             for row in data:
@@ -98,8 +98,8 @@ class TestCase3Nodes(unittest.TestCase):
         self.compare_data([expected_cols],[actual_cols])
         self.compare_data(expected_vals,actual_vals)
 
-
-    def get_csv(self,filename: str,with_header: bool = True) -> Tuple[List[str],List[List[str]]]:
+    @staticmethod
+    def get_csv(filename: str,with_header: bool = True) -> Tuple[List[str],List[List[str]]]:
         """
         get_csv reads a csv
 

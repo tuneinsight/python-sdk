@@ -1,8 +1,7 @@
-from typing import Any, TypedDict
+from typing import Any
 from io import StringIO
 import pandas as pd
 import attr
-from typing_extensions import Unpack, NotRequired
 
 from tuneinsight.api.sdk.types import Response
 from tuneinsight.api.sdk.types import File
@@ -14,9 +13,6 @@ from tuneinsight.api.sdk.api.api_datasource import delete_data_source
 from tuneinsight.api.sdk.api.api_dataobject import post_data_object
 from tuneinsight.client.validation import validate_response
 from tuneinsight.client.dataobject import DataObject
-class DataSourceParams(TypedDict):
-    name: str
-    clear_if_exists: NotRequired[bool]
 
 @attr.define
 class DataSource:
@@ -42,7 +38,7 @@ class DataSource:
 
 
     @classmethod
-    def local(cls,client: Client,**kwargs: Unpack[DataSourceParams]):
+    def local(cls,client: Client, name: str, clear_if_exists: bool = False):
         """
         local creates a new local datasource without any data
 
@@ -51,19 +47,18 @@ class DataSource:
             name (str, optional): the name to give to the datasource. Defaults to "".
         """
         definition = default_datasource_definition()
-        definition.name = kwargs["name"]
+        definition.name = name
+        definition.clear_if_exists = clear_if_exists
         ds_config_type = models.DataSourceConfigType.LOCALDATASOURCECONFIG
         ds_conf = models.LocalDataSourceConfig(type=ds_config_type)
         definition.config = ds_conf
         definition.type = "local"
 
-        if "clear_if_exists" in kwargs:
-            definition.clear_if_exists = kwargs["clear_if_exists"]
 
         return cls.from_definition(client,definition=definition)
 
     @classmethod
-    def postgres(cls,client: Client,config: models.DatabaseConnectionInfo,**kwargs: Unpack[DataSourceParams]):
+    def postgres(cls,client: Client,config: models.DatabaseConnectionInfo, name: str, clear_if_exists: bool = False):
         """
         postgres creates a new postgres database datasource
 
@@ -73,7 +68,8 @@ class DataSource:
             name (str, optional): the name to give to the datasource. Defaults to "".
         """
         definition = default_datasource_definition()
-        definition.name = kwargs["name"]
+        definition.name = name
+        definition.clear_if_exists = clear_if_exists
         definition.type = "database"
         ds_config_type = models.DataSourceConfigType.DATABASEDATASOURCECONFIG
         credentials = models.Credentials(username=config.user,password=config.password,id="db-creds")
@@ -82,13 +78,10 @@ class DataSource:
         definition.credentials_provider = local_creds
         definition.config = ds_config
 
-        if "clear_if_exists" in kwargs:
-            definition.clear_if_exists = kwargs["clear_if_exists"]
-
         return cls.from_definition(client,definition=definition)
 
     @classmethod
-    def from_api(cls,client: Client, api_type: models.APIConnectionInfoType, api_url: str, api_token: str, **kwargs: Unpack[DataSourceParams]):
+    def from_api(cls,client: Client, api_type: models.APIConnectionInfoType, api_url: str, api_token: str, name: str, clear_if_exists: bool = False):
         """
         from_api creates a new api datasource
 
@@ -98,23 +91,21 @@ class DataSource:
             name (str, optional): the name to give to the datasource. Defaults to "".
         """
         definition = default_datasource_definition()
-        definition.name = kwargs["name"]
+        definition.name = name
+        definition.clear_if_exists = clear_if_exists
         definition.type = "api"
 
         ds_config = models.ApiDataSourceConfig(type=models.DataSourceConfigType.APIDATASOURCECONFIG)
         ds_config.connection_info = models.APIConnectionInfo(api_token=api_token, api_url=api_url, type=api_type)
         definition.config = ds_config
 
-        if "clear_if_exists" in kwargs:
-            definition.clear_if_exists = kwargs["clear_if_exists"]
-
         return cls.from_definition(client,definition=definition)
 
 
 
     @classmethod
-    def from_dataframe(cls,client: Client,dataframe: pd.DataFrame,**kwargs: Unpack[DataSourceParams]):
-        ds = cls.local(client, **kwargs)
+    def from_dataframe(cls,client: Client,dataframe: pd.DataFrame, name: str, clear_if_exists: bool = False):
+        ds = cls.local(client, name, clear_if_exists)
         ds.load_dataframe(df=dataframe)
         return ds
 

@@ -19,20 +19,20 @@ class StatisticDefinition:
         filter_ (Union[Unset, Filter]):
         name (Union[Unset, str]): given name of the statistic
         variable (Union[Unset, str]): target variable in the dataset from the which the statistic is computed
-        max_bound (Union[Unset, float]): specified maximum bound on the variable for sorting Default: 1.0.
         min_bound (Union[Unset, float]): specified minimum bound on the variable for sorting
         quantiles_k_value (Union[Unset, int]): k value used to determine the number of quantiles that are returned
         quantities (Union[Unset, List[StatisticalQuantity]]): if specified only compute the quantities given in this
             list if not specified all relevant statistics are computed
+        max_bound (Union[Unset, float]): specified maximum bound on the variable for sorting Default: 1.0.
     """
 
     filter_: Union[Unset, "Filter"] = UNSET
     name: Union[Unset, str] = UNSET
     variable: Union[Unset, str] = UNSET
-    max_bound: Union[Unset, float] = 1.0
     min_bound: Union[Unset, float] = 0.0
     quantiles_k_value: Union[Unset, int] = UNSET
     quantities: Union[Unset, List[StatisticalQuantity]] = UNSET
+    max_bound: Union[Unset, float] = 1.0
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -42,7 +42,6 @@ class StatisticDefinition:
 
         name = self.name
         variable = self.variable
-        max_bound = self.max_bound
         min_bound = self.min_bound
         quantiles_k_value = self.quantiles_k_value
         quantities: Union[Unset, List[str]] = UNSET
@@ -53,6 +52,8 @@ class StatisticDefinition:
 
                 quantities.append(quantities_item)
 
+        max_bound = self.max_bound
+
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
@@ -62,14 +63,14 @@ class StatisticDefinition:
             field_dict["name"] = name
         if variable is not UNSET:
             field_dict["variable"] = variable
-        if max_bound is not UNSET:
-            field_dict["maxBound"] = max_bound
         if min_bound is not UNSET:
             field_dict["minBound"] = min_bound
         if quantiles_k_value is not UNSET:
             field_dict["quantilesKValue"] = quantiles_k_value
         if quantities is not UNSET:
             field_dict["quantities"] = quantities
+        if max_bound is not UNSET:
+            field_dict["maxBound"] = max_bound
 
         return field_dict
 
@@ -89,8 +90,6 @@ class StatisticDefinition:
 
         variable = d.pop("variable", UNSET)
 
-        max_bound = d.pop("maxBound", UNSET)
-
         min_bound = d.pop("minBound", UNSET)
 
         quantiles_k_value = d.pop("quantilesKValue", UNSET)
@@ -102,14 +101,16 @@ class StatisticDefinition:
 
             quantities.append(quantities_item)
 
+        max_bound = d.pop("maxBound", UNSET)
+
         statistic_definition = cls(
             filter_=filter_,
             name=name,
             variable=variable,
-            max_bound=max_bound,
             min_bound=min_bound,
             quantiles_k_value=quantiles_k_value,
             quantities=quantities,
+            max_bound=max_bound,
         )
 
         statistic_definition.additional_properties = d

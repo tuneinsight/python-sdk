@@ -59,8 +59,8 @@ class Policy(models.ComputationPolicy):
         queries.add(query)
         self.authorized_data_source_queries = list(queries)
 
-
-    def __new_threshold(self,relative:bool=False,fixed_value:int=10,relative_factor:float=0.2) -> models.Threshold:
+    @staticmethod
+    def __new_threshold(relative:bool=False,fixed_value:int=10,relative_factor:float=0.2) -> models.Threshold:
         if relative:
             threshold_type = models.ThresholdType.RELATIVE
         else:

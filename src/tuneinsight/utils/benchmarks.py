@@ -113,9 +113,10 @@ def average_benchmarks(vals: List[Dict[str,np.ndarray]]) ->Dict[str,np.ndarray]:
                 result[key] = values
             else:
                 result[key] += values
-    for k in result:
-        result[k] = result[k] / len(vals)
-    return result
+    final_res = result.copy()
+    for k, v in result.items():
+        final_res[k] = v / len(vals)
+    return final_res
 
 
 

@@ -16,35 +16,35 @@ class PrivateSearchDatabase:
     """Database used by private search
 
     Attributes:
+        database_params (Union[Unset, str]): private search database parameters (b64-encoded), returned on GET /private-
+            search-databases/<id>
         database_hash_index (Union[Unset, PrivateSearchDatabaseDatabaseHashIndex]): private search database hash index
             (in the form [<hash(string)>:<idx(int)>, ...]), returned on GET /private-search-databases/<id>
         database_id (Union[Unset, str]): Unique identifier of a private search database.
-        database_params (Union[Unset, str]): private search database parameters (b64-encoded), returned on GET /private-
-            search-databases/<id>
     """
 
+    database_params: Union[Unset, str] = UNSET
     database_hash_index: Union[Unset, "PrivateSearchDatabaseDatabaseHashIndex"] = UNSET
     database_id: Union[Unset, str] = UNSET
-    database_params: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        database_params = self.database_params
         database_hash_index: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.database_hash_index, Unset):
             database_hash_index = self.database_hash_index.to_dict()
 
         database_id = self.database_id
-        database_params = self.database_params
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if database_params is not UNSET:
+            field_dict["databaseParams"] = database_params
         if database_hash_index is not UNSET:
             field_dict["databaseHashIndex"] = database_hash_index
         if database_id is not UNSET:
             field_dict["databaseID"] = database_id
-        if database_params is not UNSET:
-            field_dict["databaseParams"] = database_params
 
         return field_dict
 
@@ -53,6 +53,8 @@ class PrivateSearchDatabase:
         from ..models.private_search_database_database_hash_index import PrivateSearchDatabaseDatabaseHashIndex
 
         d = src_dict.copy()
+        database_params = d.pop("databaseParams", UNSET)
+
         _database_hash_index = d.pop("databaseHashIndex", UNSET)
         database_hash_index: Union[Unset, PrivateSearchDatabaseDatabaseHashIndex]
         if isinstance(_database_hash_index, Unset):
@@ -62,12 +64,10 @@ class PrivateSearchDatabase:
 
         database_id = d.pop("databaseID", UNSET)
 
-        database_params = d.pop("databaseParams", UNSET)
-
         private_search_database = cls(
+            database_params=database_params,
             database_hash_index=database_hash_index,
             database_id=database_id,
-            database_params=database_params,
         )
 
         private_search_database.additional_properties = d

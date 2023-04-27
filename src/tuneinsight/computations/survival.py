@@ -1,4 +1,4 @@
-from typing import List
+from typing import List,Dict
 import pandas as pd
 import matplotlib.pyplot as plt
 from tuneinsight.api.sdk import models
@@ -83,7 +83,7 @@ class SurvivalParameters:
             res.append(event_column(i))
         return res
 
-    def plot_survivals(self, results: dict[str, pd.DataFrame], size:tuple=(8,4), duration_col: str = None, title="Survival curve"):
+    def plot_survivals(self, results: Dict[str, pd.DataFrame], size:tuple=(8,4), duration_col: str = None, title="Survival curve"):
         if duration_col is None:
             duration_col = self._resolve_duration_column()
         plt.style.use("bmh")

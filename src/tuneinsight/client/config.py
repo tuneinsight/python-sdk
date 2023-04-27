@@ -1,7 +1,5 @@
 import os
 import json
-from types import SimpleNamespace
-from dataclasses import dataclass
 from ast import literal_eval
 from dotenv import load_dotenv
 import yaml
@@ -23,53 +21,66 @@ def to_dict(obj):
         result[key] = element
     return result
 
-@dataclass
-class KeycloakConfiguration:
-    keycloak_client_id: str
-    keycloak_client_secret: str
-    keycloak_url: str
-    keycloak_realm: str
+class OIDCConfiguration:
+    oidc_client_id: str
+    oidc_client_secret: str
+    oidc_url: str
+    oidc_realm: str
 
-    def __init__(self, keycloak_client_id: str, keycloak_client_secret: str, keycloak_url: str, keycloak_realm: str):
-        self.keycloak_client_id = "python-sdk" if keycloak_client_id is None else keycloak_client_id
-        self.keycloak_client_secret = "" if keycloak_client_secret is None else keycloak_client_secret
-        self.keycloak_url = "https://auth.tuneinsight.com/auth/" if keycloak_url is None else keycloak_url
-        self.keycloak_realm = "ti-realm" if keycloak_realm is None else keycloak_realm
+    def __init__(self, oidc_client_id: str, oidc_client_secret: str, oidc_url: str, oidc_realm: str):
+        self.oidc_client_id = "python-sdk" if oidc_client_id is None else oidc_client_id
+        self.oidc_client_secret = "" if oidc_client_secret is None else oidc_client_secret
+        self.oidc_url = "https://auth.tuneinsight.com/auth/" if oidc_url is None else oidc_url
+        self.oidc_realm = "ti-realm" if oidc_realm is None else oidc_realm
+
+    @staticmethod
+    def from_json(json_dct):
+        return OIDCConfiguration(json_dct.get('oidc_client_id'), json_dct.get('oidc_client_secret'), json_dct.get('oidc_url'), json_dct.get('oidc_realm'))
 
 
-@dataclass
 class Security:
     static_token: str
     username: str
     password: str
     verify_ssl: bool
-    kc_config: KeycloakConfiguration
+    oidc_config: OIDCConfiguration
 
-    def __init__(self, static_token: str, username: str, password: str, verify_ssl: bool, kc_config: KeycloakConfiguration):
+    def __init__(self, oidc_config: OIDCConfiguration, static_token: str, username: str, password: str, verify_ssl: bool):
         self.verify_ssl = True if verify_ssl is None else verify_ssl
-        self.static_token = static_token
-        self.username = username
-        self.password = password
-        self.kc_config = kc_config
+        self.static_token = '' if static_token is None else static_token
+        self.username = '' if username is None else username
+        self.password = '' if password is None else password
+        self.oidc_config = oidc_config
+
+    @staticmethod
+    def from_json(json_dct):
+        oidc_config = OIDCConfiguration.from_json(json_dct.get('oidc_config'))
+        return Security(oidc_config, json_dct.get('static_token'), json_dct.get('username'), json_dct.get('password'), json_dct.get('verify_ssl'))
 
 
-@dataclass
 class Client:
     url: str
     security: Security
+
+    def __init__(self, url, security):
+        self.url = url
+        self.security = security
 
     def save(self,filepath: str):
         with open(filepath,"w",encoding='utf-8') as f:
             res = to_dict(self)
             yaml.safe_dump(res,f)
 
-
+    @staticmethod
+    def from_json(json_dct):
+        security = Security.from_json(json_dct.get('security'))
+        return Client(json_dct.get('url'), security)
 
 def LoadClient(filepath: str) -> Client:
     with open(filepath,encoding='utf-8') as f:
         dm = yaml.safe_load(f)
         dumped = json.dumps(dm)
-        client = json.loads(dumped,object_hook=lambda d: SimpleNamespace(**d))
+        client = Client.from_json(json.loads(dumped))
         return client
 
 def LoadEnvClient(envpath: str = None) -> Client:
@@ -89,11 +100,11 @@ def LoadEnvClient(envpath: str = None) -> Client:
     if os.getenv('TI_USERNAME') is None and os.getenv('TI_PASSWORD') is None and os.getenv('TI_STATIC_TOKEN') is None:
         raise Exception("Missing environments: need to set either TI_USERNAME and TI_PASSWORD or TI_STATIC_TOKEN")
 
-    kc_config = KeycloakConfiguration(
-        keycloak_url=os.getenv('KEYCLOAK_URL'),
-        keycloak_realm=os.getenv('KEYCLOAK_REALM'),
-        keycloak_client_id=os.getenv('KEYCLOAK_CLIENT_ID'),
-        keycloak_client_secret=os.getenv('KEYCLOAK_CLIENT_SECRET'),
+    oidc_config = OIDCConfiguration(
+        oidc_url=os.getenv('OIDC_URL'),
+        oidc_realm=os.getenv('OIDC_REALM'),
+        oidc_client_id=os.getenv('OIDC_CLIENT_ID'),
+        oidc_client_secret=os.getenv('OIDC_CLIENT_SECRET'),
     )
 
     security_config = Security(
@@ -101,7 +112,7 @@ def LoadEnvClient(envpath: str = None) -> Client:
         password=os.getenv('TI_PASSWORD'),
         static_token=os.getenv('TI_STATIC_TOKEN'),
         verify_ssl=literal_eval(os.getenv('TI_VERIFY_SSL')),
-        kc_config=kc_config
+        oidc_config=oidc_config
     )
     client = Client(url=os.getenv('NODE_URL'), security=security_config)
     return client

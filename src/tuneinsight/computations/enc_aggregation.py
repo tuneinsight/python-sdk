@@ -33,8 +33,8 @@ class EncryptedAggregation(ComputationRunner):
 
         return pd.DataFrame(data)
 
-
-    def plot_aggregation(self, result:pd.DataFrame, title:str, x_label:str, y_label:str, size:tuple=(8,4)):
+    @staticmethod
+    def plot_aggregation(result:pd.DataFrame, title:str, x_label:str, y_label:str, size:tuple=(8,4)):
         plt.style.use("bmh")
         fig, ax = plt.subplots()
 

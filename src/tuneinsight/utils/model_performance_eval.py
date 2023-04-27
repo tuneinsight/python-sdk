@@ -1,34 +1,26 @@
 from typing import List
-from sklearn import metrics
-import seaborn as sns
-import matplotlib.pyplot as plt
-
-
-def accuracy(y_true: List[float]=None, y_pred: List[float]=None) -> float:
-    return metrics.accuracy_score(y_true, y_pred, normalize=True)
-
-def recall(y_true: List[float]=None, y_pred: List[float]=None, average: str="macro") -> float:
-    return metrics.recall_score(y_true, y_pred, average=average)
-
-# F1 = 2 * (precision * recall) / (precision + recall)
-def f1_score(y_true: List[float]=None, y_pred: List[float]=None, average: str="macro") -> float:
-    return metrics.f1_score(y_true, y_pred, average=average)
-
-def r2_score(y_true: List[float]=None, y_pred: List[float]=None) -> float:
-    return metrics.r2_score(y_true, y_pred)
+import math
+import numpy as np
 
 def mse(y_true: List[float]=None, y_pred: List[float]=None) -> float:
-    return metrics.mean_squared_error(y_true, y_pred)
+    return np.square(np.subtract(y_true,y_pred)).mean()
 
 def rmse(y_true: List[float]=None, y_pred: List[float]=None) -> float:
-    return metrics.mean_squared_error(y_true, y_pred, squared=False)
+    return math.sqrt(mse(y_true,y_pred))
 
-def confusion_matrix(y_true: List[float]=None, y_pred: List[float]=None):
-    cm = metrics.confusion_matrix(y_true, y_pred)
-    plt.figure(figsize=(9,9))
-    sns.heatmap(cm, annot=True, fmt=".3f", linewidths=.5, square = True, cmap = 'Blues_r')
-    plt.ylabel('Actual label')
-    plt.xlabel('Predicted label')
-    all_sample_title = 'Confusion matrix'
-    plt.title(all_sample_title, size = 15)
-    plt.show()
+def r2_score(y_true: List[float]=None, y_pred: List[float]=None) -> float:
+    if len(y_pred) != len(y_true):
+        raise Exception("Input sizes should be equal")
+    size = len(y_pred)
+
+    ss_t = 0
+    ss_r = 0
+
+    mean_y = np.mean(y_true)
+
+    for i in range(size):
+        ss_t += (y_true[i] - mean_y) ** 2
+        ss_r += (y_true[i] - y_pred[i]) ** 2
+
+    r2 = 1 - (ss_r/ss_t)
+    return r2

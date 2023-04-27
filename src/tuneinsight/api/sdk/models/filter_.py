@@ -14,26 +14,26 @@ class Filter:
     """
     Attributes:
         type (PreprocessingOperationType): type of preprocessing operation
+        value (str): value with which to compare
         col_name (str): name of column to filter on
         comparator (ComparisonType): type of comparison
-        value (str): value with which to compare
         numerical (Union[Unset, bool]): indicate whether the comparison is on numerical values
     """
 
     type: PreprocessingOperationType
+    value: str
     col_name: str
     comparator: ComparisonType
-    value: str
     numerical: Union[Unset, bool] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         type = self.type.value
 
+        value = self.value
         col_name = self.col_name
         comparator = self.comparator.value
 
-        value = self.value
         numerical = self.numerical
 
         field_dict: Dict[str, Any] = {}
@@ -41,9 +41,9 @@ class Filter:
         field_dict.update(
             {
                 "type": type,
+                "value": value,
                 "colName": col_name,
                 "comparator": comparator,
-                "value": value,
             }
         )
         if numerical is not UNSET:
@@ -56,19 +56,19 @@ class Filter:
         d = src_dict.copy()
         type = PreprocessingOperationType(d.pop("type"))
 
+        value = d.pop("value")
+
         col_name = d.pop("colName")
 
         comparator = ComparisonType(d.pop("comparator"))
-
-        value = d.pop("value")
 
         numerical = d.pop("numerical", UNSET)
 
         filter_ = cls(
             type=type,
+            value=value,
             col_name=col_name,
             comparator=comparator,
-            value=value,
             numerical=numerical,
         )
 
