@@ -3,6 +3,7 @@ from enum import Enum
 
 class DataObjectType(str, Enum):
     RLWE_PUBLIC_KEY = "rlwe-public-key"
+    RLWE_EVALUATION_KEY = "rlwe-evaluation-key"
     RLWE_ROTATION_KEY = "rlwe-rotation-key"
     RLWE_RELINEARIZATION_KEY = "rlwe-relinearization-key"
     RLWE_SECRET_KEY = "rlwe-secret-key"
@@ -21,8 +22,12 @@ class DataObjectType(str, Enum):
     ENCRYPTED_BUFFER = "encrypted-buffer"
     COHORT = "cohort"
     GWAS_MODEL = "gwas-model"
+    EXTERNAL_ML_MODEL = "external-ml-model"
     ENCRYPTED_STATISTICS = "encrypted-statistics"
     DECRYPTED_STATISTICS = "decrypted-statistics"
+    PIR_DATASET = "pir-dataset"
+    ENCRYPTED_PIR_SEARCH = "encrypted-pir-search"
+    ENCRYPTED_PIR_RESULT = "encrypted-pir-result"
 
     def __str__(self) -> str:
         return str(self.value)

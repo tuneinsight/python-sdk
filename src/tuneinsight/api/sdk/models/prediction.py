@@ -1,10 +1,13 @@
-from typing import Any, Dict, List, Type, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
 
 import attr
 
 from ..models.content_type import ContentType
-from ..models.result_contextual_info import ResultContextualInfo
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.result_contextual_info import ResultContextualInfo
+
 
 T = TypeVar("T", bound="Prediction")
 
@@ -22,7 +25,7 @@ class Prediction:
     type: ContentType
     labels: List[List[float]]
     predictions: List[List[float]]
-    contextual_info: Union[Unset, ResultContextualInfo] = UNSET
+    contextual_info: Union[Unset, "ResultContextualInfo"] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -60,6 +63,8 @@ class Prediction:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.result_contextual_info import ResultContextualInfo
+
         d = src_dict.copy()
         type = ContentType(d.pop("type"))
 

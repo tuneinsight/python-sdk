@@ -1,11 +1,14 @@
-from typing import Any, Dict, List, Type, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
 
 import attr
 
-from ..models.credentials_provider import CredentialsProvider
-from ..models.data_source_config import DataSourceConfig
 from ..models.data_source_consent_type import DataSourceConsentType
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.credentials_provider import CredentialsProvider
+    from ..models.data_source_config import DataSourceConfig
+
 
 T = TypeVar("T", bound="DataSourceDefinition")
 
@@ -18,7 +21,8 @@ class DataSourceDefinition:
         consent_type (Union[Unset, DataSourceConsentType]): Consent type given to the data source.
         name (Union[Unset, str]):
         type (Union[Unset, str]):
-        unique_id (Union[Unset, str]): Unique identifier of a data source.
+        unique_id (Union[Unset, None, str]): Unique identifier of a data source.
+        clear_if_exists (Union[Unset, bool]): If true and a data source with the same name already exists, delete it.
         config (Union[Unset, DataSourceConfig]): Configuration of data source that depends on the type.
         credentials_provider (Union[Unset, CredentialsProvider]): The provider of the credentials needed to access the
             data source.
@@ -28,9 +32,10 @@ class DataSourceDefinition:
     consent_type: Union[Unset, DataSourceConsentType] = UNSET
     name: Union[Unset, str] = UNSET
     type: Union[Unset, str] = UNSET
-    unique_id: Union[Unset, str] = UNSET
-    config: Union[Unset, DataSourceConfig] = UNSET
-    credentials_provider: Union[Unset, CredentialsProvider] = UNSET
+    unique_id: Union[Unset, None, str] = UNSET
+    clear_if_exists: Union[Unset, bool] = False
+    config: Union[Unset, "DataSourceConfig"] = UNSET
+    credentials_provider: Union[Unset, "CredentialsProvider"] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -45,6 +50,7 @@ class DataSourceDefinition:
         name = self.name
         type = self.type
         unique_id = self.unique_id
+        clear_if_exists = self.clear_if_exists
         config: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.config, Unset):
             config = self.config.to_dict()
@@ -66,6 +72,8 @@ class DataSourceDefinition:
             field_dict["type"] = type
         if unique_id is not UNSET:
             field_dict["uniqueId"] = unique_id
+        if clear_if_exists is not UNSET:
+            field_dict["clearIfExists"] = clear_if_exists
         if config is not UNSET:
             field_dict["config"] = config
         if credentials_provider is not UNSET:
@@ -75,6 +83,9 @@ class DataSourceDefinition:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.credentials_provider import CredentialsProvider
+        from ..models.data_source_config import DataSourceConfig
+
         d = src_dict.copy()
         attributes = cast(List[str], d.pop("attributes", UNSET))
 
@@ -90,6 +101,8 @@ class DataSourceDefinition:
         type = d.pop("type", UNSET)
 
         unique_id = d.pop("uniqueId", UNSET)
+
+        clear_if_exists = d.pop("clearIfExists", UNSET)
 
         _config = d.pop("config", UNSET)
         config: Union[Unset, DataSourceConfig]
@@ -111,6 +124,7 @@ class DataSourceDefinition:
             name=name,
             type=type,
             unique_id=unique_id,
+            clear_if_exists=clear_if_exists,
             config=config,
             credentials_provider=credentials_provider,
         )

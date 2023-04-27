@@ -1,7 +1,25 @@
+from enum import Enum
 from typing import Dict,List
 from warnings import warn
 from tuneinsight.api.sdk import models
 from tuneinsight.computations.survival import SurvivalParameters
+from tuneinsight.api.sdk.models import PreprocessingOperationType as op_type
+
+
+
+class Operation(Enum):
+    ONE_HOT = op_type.ONEHOTENCODING
+    PHONETIC = op_type.PHONETICENCODING
+    SELECT = op_type.SELECT
+    DROP = op_type.DROP
+    FILTER = op_type.FILTER
+    COUNTS = op_type.COUNTS
+    SURVIVAL = op_type.SURVIVAL
+    TRANSPOSE = op_type.TRANSPOSE
+    RENAME = op_type.RENAME
+
+    def to_preproc_operation_type(self) -> op_type:
+        return op_type(self.value)
 
 
 class PreprocessingBuilder:
@@ -11,10 +29,14 @@ class PreprocessingBuilder:
 
     chain: List[models.PreprocessingOperation]
     compound_chain: Dict[str, models.PreprocessingChain]
+    output_selection: models.Select
+    output_selection_set: bool
 
     def __init__(self):
         self.chain = []
         self.compound_chain = {}
+        self.output_selection = models.Select(type=models.PreprocessingOperationType.SELECT,cols=[])
+        self.output_selection_set = False
 
 
     def new_chain(self, chain: List[models.PreprocessingOperation]):
@@ -71,6 +93,22 @@ class PreprocessingBuilder:
         """
         self.append_to_chain(models.Select(type=models.PreprocessingOperationType.SELECT, cols=columns, create_if_missing=create_if_missing, dummy_value=dummy_value), nodes)
         return self
+
+
+    def set_columns(self,columns: List[str],create_if_missing:bool = False, dummy_value:str = ""):
+        '''
+        set_columns set columns sets the selected columns after all other preprocessing blocks are applied
+
+        Args:
+            columns (List[str]): list of column names to be selected
+            create_if_missing (bool, optional): whether to create the columns if they do not exist. Defaults to False.
+            dummy_value (str, optional): what to fill the created columns with. Defaults to "".
+        '''
+        self.output_selection.cols = columns
+        self.output_selection.create_if_missing = create_if_missing
+        self.output_selection.dummy_value = dummy_value
+        self.output_selection_set = True
+
 
     def filter(self, target_column: str, comparator:models.ComparisonType, value:str, numerical:bool = False, nodes: List[str] = None):
         """ Add a filter operation to the preprocessing chain. The operation filters rows from the data under a given condition.

@@ -1,10 +1,13 @@
-from typing import Any, Dict, List, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
-from ..models.query_results import QueryResults
 from ..models.query_status import QueryStatus
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.query_results import QueryResults
+
 
 T = TypeVar("T", bound="Query")
 
@@ -31,7 +34,7 @@ class Query:
     id: Union[Unset, str] = UNSET
     project_id: Union[Unset, str] = UNSET
     query_string: Union[Unset, str] = UNSET
-    results: Union[Unset, QueryResults] = UNSET
+    results: Union[Unset, "QueryResults"] = UNSET
     status: Union[Unset, QueryStatus] = UNSET
     updated_at: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
@@ -79,6 +82,8 @@ class Query:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.query_results import QueryResults
+
         d = src_dict.copy()
         created_at = d.pop("createdAt", UNSET)
 

@@ -1,9 +1,12 @@
-from typing import Any, Dict, List, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
-from ..models.column_info import ColumnInfo
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.column_info import ColumnInfo
+
 
 T = TypeVar("T", bound="ResultContextualInfo")
 
@@ -13,10 +16,10 @@ class ResultContextualInfo:
     """contextual information about the content retrieved
 
     Attributes:
-        columns_info (Union[Unset, List[ColumnInfo]]): columns description
+        columns_info (Union[Unset, List['ColumnInfo']]): columns description
     """
 
-    columns_info: Union[Unset, List[ColumnInfo]] = UNSET
+    columns_info: Union[Unset, List["ColumnInfo"]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -38,6 +41,8 @@ class ResultContextualInfo:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.column_info import ColumnInfo
+
         d = src_dict.copy()
         columns_info = []
         _columns_info = d.pop("columnsInfo", UNSET)

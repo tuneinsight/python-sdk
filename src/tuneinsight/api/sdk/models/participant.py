@@ -1,12 +1,15 @@
-from typing import Any, Dict, List, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
 from ..models.authorization_status import AuthorizationStatus
-from ..models.data_source_metadata import DataSourceMetadata
-from ..models.node import Node
 from ..models.project_status import ProjectStatus
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.data_source_metadata import DataSourceMetadata
+    from ..models.node import Node
+
 
 T = TypeVar("T", bound="Participant")
 
@@ -23,8 +26,8 @@ class Participant:
     """
 
     authorization_status: Union[Unset, AuthorizationStatus] = UNSET
-    input_metadata: Union[Unset, DataSourceMetadata] = UNSET
-    node: Union[Unset, Node] = UNSET
+    input_metadata: Union[Unset, "DataSourceMetadata"] = UNSET
+    node: Union[Unset, "Node"] = UNSET
     status: Union[Unset, ProjectStatus] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -61,6 +64,9 @@ class Participant:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.data_source_metadata import DataSourceMetadata
+        from ..models.node import Node
+
         d = src_dict.copy()
         _authorization_status = d.pop("authorizationStatus", UNSET)
         authorization_status: Union[Unset, AuthorizationStatus]

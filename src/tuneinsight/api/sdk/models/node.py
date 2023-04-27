@@ -1,9 +1,12 @@
-from typing import Any, Dict, List, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
-from ..models.organization import Organization
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.organization import Organization
+
 
 T = TypeVar("T", bound="Node")
 
@@ -15,6 +18,7 @@ class Node:
     Attributes:
         api_path (Union[Unset, str]):
         current (Union[Unset, bool]):
+        is_root (Union[Unset, bool]): True if the node is the root node in a tree topology network.
         name (Union[Unset, str]):
         organization (Union[Unset, Organization]): Organization taking part in a project
         url (Union[Unset, str]):
@@ -22,14 +26,16 @@ class Node:
 
     api_path: Union[Unset, str] = UNSET
     current: Union[Unset, bool] = UNSET
+    is_root: Union[Unset, bool] = UNSET
     name: Union[Unset, str] = UNSET
-    organization: Union[Unset, Organization] = UNSET
+    organization: Union[Unset, "Organization"] = UNSET
     url: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         api_path = self.api_path
         current = self.current
+        is_root = self.is_root
         name = self.name
         organization: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.organization, Unset):
@@ -44,6 +50,8 @@ class Node:
             field_dict["apiPath"] = api_path
         if current is not UNSET:
             field_dict["current"] = current
+        if is_root is not UNSET:
+            field_dict["isRoot"] = is_root
         if name is not UNSET:
             field_dict["name"] = name
         if organization is not UNSET:
@@ -55,10 +63,14 @@ class Node:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.organization import Organization
+
         d = src_dict.copy()
         api_path = d.pop("apiPath", UNSET)
 
         current = d.pop("current", UNSET)
+
+        is_root = d.pop("isRoot", UNSET)
 
         name = d.pop("name", UNSET)
 
@@ -74,6 +86,7 @@ class Node:
         node = cls(
             api_path=api_path,
             current=current,
+            is_root=is_root,
             name=name,
             organization=organization,
             url=url,

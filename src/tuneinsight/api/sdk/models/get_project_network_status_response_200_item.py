@@ -1,9 +1,12 @@
-from typing import Any, Dict, List, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
-from ..models.node_status import NodeStatus
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.node_status import NodeStatus
+
 
 T = TypeVar("T", bound="GetProjectNetworkStatusResponse200Item")
 
@@ -13,11 +16,11 @@ class GetProjectNetworkStatusResponse200Item:
     """
     Attributes:
         from_ (Union[Unset, str]):
-        statuses (Union[Unset, List[NodeStatus]]):
+        statuses (Union[Unset, List['NodeStatus']]):
     """
 
     from_: Union[Unset, str] = UNSET
-    statuses: Union[Unset, List[NodeStatus]] = UNSET
+    statuses: Union[Unset, List["NodeStatus"]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -42,6 +45,8 @@ class GetProjectNetworkStatusResponse200Item:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.node_status import NodeStatus
+
         d = src_dict.copy()
         from_ = d.pop("from", UNSET)
 

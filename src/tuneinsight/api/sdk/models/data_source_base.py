@@ -17,14 +17,14 @@ class DataSourceBase:
         consent_type (Union[Unset, DataSourceConsentType]): Consent type given to the data source.
         name (Union[Unset, str]):
         type (Union[Unset, str]):
-        unique_id (Union[Unset, str]): Unique identifier of a data source.
+        unique_id (Union[Unset, None, str]): Unique identifier of a data source.
     """
 
     attributes: Union[Unset, List[str]] = UNSET
     consent_type: Union[Unset, DataSourceConsentType] = UNSET
     name: Union[Unset, str] = UNSET
     type: Union[Unset, str] = UNSET
-    unique_id: Union[Unset, str] = UNSET
+    unique_id: Union[Unset, None, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:

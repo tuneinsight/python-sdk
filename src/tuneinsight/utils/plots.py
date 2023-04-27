@@ -57,6 +57,12 @@ def style_title(axis: plt.Axes, title:str = "", fontsize:int = 15):
     font_regular = Path(this_path + "/graphical/MontserratRegular.ttf")
     axis.set_title(title, font=font_regular, fontsize=fontsize)
 
+
+def style_suptitle(fig,title= "",fontsize=15):
+    font_regular = Path(this_path + "/graphical/MontserratRegular.ttf")
+    fig.suptitle(title,size=fontsize,font=font_regular)
+
+
 def style_ylabel(axis: plt.Axes, y_label: str, fontsize: int = 10):
     """ Style plot y label with Tune Insight branding font
 

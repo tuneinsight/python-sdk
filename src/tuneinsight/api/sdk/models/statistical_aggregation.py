@@ -1,13 +1,17 @@
-from typing import Any, Dict, List, Type, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
 
 import attr
 
-from ..models.binning_operation import BinningOperation
-from ..models.computation_data_source_parameters import ComputationDataSourceParameters
-from ..models.computation_preprocessing_parameters import ComputationPreprocessingParameters
 from ..models.computation_type import ComputationType
-from ..models.differential_privacy_parameters import DifferentialPrivacyParameters
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.binning_operation import BinningOperation
+    from ..models.computation_data_source_parameters import ComputationDataSourceParameters
+    from ..models.computation_preprocessing_parameters import ComputationPreprocessingParameters
+    from ..models.dp_policy import DPPolicy
+    from ..models.local_input import LocalInput
+
 
 T = TypeVar("T", bound="StatisticalAggregation")
 
@@ -17,16 +21,21 @@ class StatisticalAggregation:
     """
     Attributes:
         type (ComputationType): Type of the computation.
+        dp_policy (Union[Unset, DPPolicy]): represents the disclosure prevention policy that enables toggling various
+            disclosure prevention mechanisms
         cohort_id (Union[Unset, str]): Unique identifier of a data object.
         data_source_parameters (Union[Unset, ComputationDataSourceParameters]): Parameters used to query the datasource
             from each node before the computation
-        differential_privacy_parameters (Union[Unset, DifferentialPrivacyParameters]): parameters for adding
-            differential privacy noise to the computation's encrypted output
         encrypted (Union[Unset, bool]): True if computation result should be encrypted with the collective public key.
         input_data_object (Union[Unset, str]): Shared identifier of a data object.
         join_id (Union[Unset, str]): Unique identifier of a data object.
         local (Union[Unset, bool]): True if the project's computation should run only with local data (not configured
             the network)
+        local_input (Union[Unset, LocalInput]): If a local input is provided, the node initiating the computation will
+            use it instead of querying the datasource. This data is *not* shared to other nodes, only used for the duration
+            of the computation. The local input columns/values must be in the form {<column1>: [<value1>, <value2>, ...],
+            ...}
+        local_input_id (Union[Unset, str]): Unique identifier of a data object.
         owner (Union[Unset, str]): The username of the user who started the computation.
         preprocessing_parameters (Union[Unset, ComputationPreprocessingParameters]): dataframe pre-processing parameters
             applied to the input retrieved from the datasource, if applicable
@@ -34,45 +43,52 @@ class StatisticalAggregation:
         timeout (Union[Unset, int]): The maximum amount of time in seconds the computation is allowed to run.
         wait (Union[Unset, bool]): Whether to wait synchronously for the computation result.
         aggregation_columns (Union[Unset, List[str]]): list of columns where all data is aggregated
-        binning_operations (Union[Unset, List[BinningOperation]]): list of binning operations to apply before
+        binning_operations (Union[Unset, List['BinningOperation']]): list of binning operations to apply before
             aggregating the results
         include_dataset_length (Union[Unset, bool]): whether or not to compute the total dataset length
     """
 
     type: ComputationType
+    dp_policy: Union[Unset, "DPPolicy"] = UNSET
     cohort_id: Union[Unset, str] = UNSET
-    data_source_parameters: Union[Unset, ComputationDataSourceParameters] = UNSET
-    differential_privacy_parameters: Union[Unset, DifferentialPrivacyParameters] = UNSET
+    data_source_parameters: Union[Unset, "ComputationDataSourceParameters"] = UNSET
     encrypted: Union[Unset, bool] = UNSET
     input_data_object: Union[Unset, str] = UNSET
     join_id: Union[Unset, str] = UNSET
     local: Union[Unset, bool] = UNSET
+    local_input: Union[Unset, "LocalInput"] = UNSET
+    local_input_id: Union[Unset, str] = UNSET
     owner: Union[Unset, str] = UNSET
-    preprocessing_parameters: Union[Unset, ComputationPreprocessingParameters] = UNSET
+    preprocessing_parameters: Union[Unset, "ComputationPreprocessingParameters"] = UNSET
     project_id: Union[Unset, str] = UNSET
     timeout: Union[Unset, int] = UNSET
     wait: Union[Unset, bool] = UNSET
     aggregation_columns: Union[Unset, List[str]] = UNSET
-    binning_operations: Union[Unset, List[BinningOperation]] = UNSET
+    binning_operations: Union[Unset, List["BinningOperation"]] = UNSET
     include_dataset_length: Union[Unset, bool] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         type = self.type.value
 
+        dp_policy: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.dp_policy, Unset):
+            dp_policy = self.dp_policy.to_dict()
+
         cohort_id = self.cohort_id
         data_source_parameters: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.data_source_parameters, Unset):
             data_source_parameters = self.data_source_parameters.to_dict()
 
-        differential_privacy_parameters: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.differential_privacy_parameters, Unset):
-            differential_privacy_parameters = self.differential_privacy_parameters.to_dict()
-
         encrypted = self.encrypted
         input_data_object = self.input_data_object
         join_id = self.join_id
         local = self.local
+        local_input: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.local_input, Unset):
+            local_input = self.local_input.to_dict()
+
+        local_input_id = self.local_input_id
         owner = self.owner
         preprocessing_parameters: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.preprocessing_parameters, Unset):
@@ -102,12 +118,12 @@ class StatisticalAggregation:
                 "type": type,
             }
         )
+        if dp_policy is not UNSET:
+            field_dict["DPPolicy"] = dp_policy
         if cohort_id is not UNSET:
             field_dict["cohortId"] = cohort_id
         if data_source_parameters is not UNSET:
             field_dict["dataSourceParameters"] = data_source_parameters
-        if differential_privacy_parameters is not UNSET:
-            field_dict["differentialPrivacyParameters"] = differential_privacy_parameters
         if encrypted is not UNSET:
             field_dict["encrypted"] = encrypted
         if input_data_object is not UNSET:
@@ -116,6 +132,10 @@ class StatisticalAggregation:
             field_dict["joinId"] = join_id
         if local is not UNSET:
             field_dict["local"] = local
+        if local_input is not UNSET:
+            field_dict["localInput"] = local_input
+        if local_input_id is not UNSET:
+            field_dict["localInputID"] = local_input_id
         if owner is not UNSET:
             field_dict["owner"] = owner
         if preprocessing_parameters is not UNSET:
@@ -137,8 +157,21 @@ class StatisticalAggregation:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.binning_operation import BinningOperation
+        from ..models.computation_data_source_parameters import ComputationDataSourceParameters
+        from ..models.computation_preprocessing_parameters import ComputationPreprocessingParameters
+        from ..models.dp_policy import DPPolicy
+        from ..models.local_input import LocalInput
+
         d = src_dict.copy()
         type = ComputationType(d.pop("type"))
+
+        _dp_policy = d.pop("DPPolicy", UNSET)
+        dp_policy: Union[Unset, DPPolicy]
+        if isinstance(_dp_policy, Unset):
+            dp_policy = UNSET
+        else:
+            dp_policy = DPPolicy.from_dict(_dp_policy)
 
         cohort_id = d.pop("cohortId", UNSET)
 
@@ -149,13 +182,6 @@ class StatisticalAggregation:
         else:
             data_source_parameters = ComputationDataSourceParameters.from_dict(_data_source_parameters)
 
-        _differential_privacy_parameters = d.pop("differentialPrivacyParameters", UNSET)
-        differential_privacy_parameters: Union[Unset, DifferentialPrivacyParameters]
-        if isinstance(_differential_privacy_parameters, Unset):
-            differential_privacy_parameters = UNSET
-        else:
-            differential_privacy_parameters = DifferentialPrivacyParameters.from_dict(_differential_privacy_parameters)
-
         encrypted = d.pop("encrypted", UNSET)
 
         input_data_object = d.pop("inputDataObject", UNSET)
@@ -163,6 +189,15 @@ class StatisticalAggregation:
         join_id = d.pop("joinId", UNSET)
 
         local = d.pop("local", UNSET)
+
+        _local_input = d.pop("localInput", UNSET)
+        local_input: Union[Unset, LocalInput]
+        if isinstance(_local_input, Unset):
+            local_input = UNSET
+        else:
+            local_input = LocalInput.from_dict(_local_input)
+
+        local_input_id = d.pop("localInputID", UNSET)
 
         owner = d.pop("owner", UNSET)
 
@@ -192,13 +227,15 @@ class StatisticalAggregation:
 
         statistical_aggregation = cls(
             type=type,
+            dp_policy=dp_policy,
             cohort_id=cohort_id,
             data_source_parameters=data_source_parameters,
-            differential_privacy_parameters=differential_privacy_parameters,
             encrypted=encrypted,
             input_data_object=input_data_object,
             join_id=join_id,
             local=local,
+            local_input=local_input,
+            local_input_id=local_input_id,
             owner=owner,
             preprocessing_parameters=preprocessing_parameters,
             project_id=project_id,

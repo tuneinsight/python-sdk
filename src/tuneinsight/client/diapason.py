@@ -1,20 +1,24 @@
 from typing import List
 import attr
 import pandas as pd
+from typing_extensions import Unpack
+
 from tuneinsight.api.sdk.types import Response
 from tuneinsight.api.sdk import client as api_client
 from tuneinsight.api.sdk.api.api_project import post_project
 from tuneinsight.api.sdk.api.api_project import get_project
 from tuneinsight.api.sdk.api.api_project import get_project_list
-from tuneinsight.api.sdk.api.api_datasource import get_data_source_list, get_data_source
+from tuneinsight.api.sdk.api.api_datasource import get_data_source_list, get_data_source, delete_data_source
 from tuneinsight.api.sdk import models
 
 from tuneinsight.client.datasource import DataSource
+from tuneinsight.client.datasource import DataSourceParams
 from tuneinsight.client.project import Project
 from tuneinsight.client.validation import validate_response
 from tuneinsight.client import config
 from tuneinsight.client import auth
 
+from tuneinsight.api.sdk.types import UNSET
 
 @attr.s(auto_attribs=True)
 class Diapason:
@@ -67,38 +71,65 @@ class Diapason:
             raise Exception("client has not been created")
         return self.client
 
-    def new_datasource(self, dataframe: pd.DataFrame, name: str = "") -> DataSource:
+    def new_datasource(self, dataframe: pd.DataFrame, **kwargs: Unpack[DataSourceParams]) -> DataSource:
         """
         new_datasource creates a new datasource from a dataframe. It uploads the dataframe to the created datasource.
 
         Args:
             dataframe (pd.DataFrame): dataframe to upload.
-            name (str, optional): name of the datasource to be created.
+            name (str, required): name of the datasource to be created.
+            clear_if_exists (str, optional): clear_if_exists of the datasource to be created.
 
         Returns:
             DataSource: the newly created datasource
         """
-        return DataSource.from_dataframe(client=self.get_client(),dataframe=dataframe,name=name)
+        return DataSource.from_dataframe(self.get_client(),dataframe,**kwargs)
 
-    def new_csv_datasource(self,csv: str,name: str = "") -> DataSource:
+    def new_api_datasource(self, api_type: models.APIConnectionInfoType, api_url: str, api_token: str, **kwargs: Unpack[DataSourceParams]) -> DataSource:
+        """
+        new_api_datasource creates a new API datasource.
+
+        Args:
+            apiConfig (any): API configuration.
+            name (str, required): name of the datasource to be created.
+            clear_if_exists (str, optional): clear_if_exists of the datasource to be created.
+
+        Returns:
+            DataSource: the newly created datasource
+        """
+        return DataSource.from_api(self.get_client(),api_type,api_url,api_token,**kwargs)
+
+    def new_csv_datasource(self,csv: str, **kwargs: Unpack[DataSourceParams]) -> DataSource:
         """
         new_csv_datasource creates a new datasource and upload the given csv file to it
 
         Args:
             csv (str): path to the csv file.
-            name (str, optional): name of the datasource to be created.
+            name (str, required): name of the datasource to be created.
+            clear_if_exists (str, optional): clear_if_exists of the datasource to be created.
 
         Returns:
             DataSource: the newly created datasource
         """
-        ds =  DataSource.local(client= self.get_client(),name=name)
+        ds =  DataSource.local(client= self.get_client(),**kwargs)
         ds.load_csv_data(path=csv)
         return ds
 
-    def new_database(self,pg_config: models.DatabaseConnectionInfo,name: str = "") -> DataSource:
-        return DataSource.postgres(client=self.get_client(),config=pg_config,name=name)
+    def new_database(self,pg_config: models.DatabaseConnectionInfo, **kwargs: Unpack[DataSourceParams]) -> DataSource:
+        """
+        new_database creates a new Postgres datasource
 
-    def new_project(self, name: str, clear_if_exists: bool = False) -> Project:
+        Args:
+            config (models.DatabaseConnectionInfo): Postgres configuration.
+            name (str, required): name of the datasource to be created.
+            clear_if_exists (str, optional): clear_if_exists of the datasource to be created.
+
+        Returns:
+            DataSource: the newly created datasource
+        """
+        return DataSource.postgres(client=self.get_client(),config=pg_config,**kwargs)
+
+    def new_project(self, name: str, clear_if_exists: bool = False, topology: models.Topology = UNSET) -> Project:
         """new_project creates a new project
 
         Args:
@@ -116,7 +147,8 @@ class Diapason:
                 self.clear_project(name=name)
             else:
                 raise Exception("project " + name + " already exists")
-        proj_def = models.ProjectDefinition(name=name,local=True,allow_shared_edit=True)
+
+        proj_def = models.ProjectDefinition(name=name,local=True,allow_shared_edit=True,topology=topology)
         proj_response: Response[models.Project] = post_project.sync_detailed(client=self.client,json_body=proj_def)
         validate_response(proj_response)
         return Project(model=proj_response.parsed,client=self.client)
@@ -158,21 +190,19 @@ class Diapason:
                 return self.get_project(project_id=p.get_id())
         raise Exception("project not found")
 
-    def get_datasources(self) -> List[DataSource]:
-        """
-        get_datasources returns all the datasources
-
-        Returns:
-            List[DataSource]: list of datasources
-        """
-        response: Response[List[models.DataSource]] = get_data_source_list.sync_detailed(client=self.client)
+    def get_datasources(self, name: str="") -> List[DataSource]:
+        response: Response[List[models.DataSource]] = get_data_source_list.sync_detailed(client=self.client, name=name)
         validate_response(response)
         datasources = []
         for datasource in response.parsed:
             datasources.append(DataSource(model=datasource,client=self.client))
         return datasources
 
-    def get_datasource(self, ds_id: str= "",name: str = "") -> DataSource:
+    def delete_datasource(self, ds: DataSource) -> List[DataSource]:
+        response = delete_data_source.sync_detailed(client=self.client, data_source_id=ds.get_id())
+        validate_response(response)
+
+    def get_datasource(self, ds_id: str= "", name: str = "") -> DataSource:
         """get_datasource returns a datasource by id or name
 
         Args:
@@ -183,22 +213,10 @@ class Diapason:
             DataSource: the datasource
         """
         if ds_id == "":
-            return self.get_datasource_by_name(name=name)
+            return self.get_datasources(name=name)[0]
         ds_response: Response[models.DataSource] = get_data_source.sync_detailed(client=self.client,data_source_id=ds_id)
         validate_response(ds_response)
         return DataSource(model=ds_response.parsed,client=self.client)
-
-    def get_datasource_by_name(self, name:str) -> DataSource:
-        datasources = self.get_datasources()
-        found = []
-        for ds in datasources:
-            if ds.model.name == name:
-                found.append(ds)
-        # take most recent ds
-        if len(found) > 0:
-            latest_ds = found[-1]
-            return self.get_datasource(ds_id=latest_ds.get_id())
-        raise Exception("datasource not found")
 
     def clear_project(self, project_id: str = "", name: str = "") :
         p = self.get_project(project_id=project_id, name=name)

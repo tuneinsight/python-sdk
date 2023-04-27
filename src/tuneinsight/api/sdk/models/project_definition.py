@@ -1,12 +1,15 @@
-from typing import Any, Dict, List, Type, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
 
 import attr
 
 from ..models.authorization_status import AuthorizationStatus
-from ..models.computation_definition import ComputationDefinition
-from ..models.project_policy import ProjectPolicy
 from ..models.topology import Topology
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.computation_definition import ComputationDefinition
+    from ..models.project_policy import ProjectPolicy
+
 
 T = TypeVar("T", bound="ProjectDefinition")
 
@@ -25,11 +28,11 @@ class ProjectDefinition:
         created_by_user (Union[Unset, str]): ID of user who created the project
         data_source_auto_match (Union[Unset, bool]): whether or not to automatically assign the first matching
             datasource when the project is shared with other nodes
-        data_source_id (Union[Unset, str]): Unique identifier of a data source.
-        description (Union[Unset, str]):
+        data_source_id (Union[Unset, None, str]): Unique identifier of a data source.
+        description (Union[Unset, None, str]):
         dpia (Union[Unset, str]):
-        local (Union[Unset, bool]): True if the project's computation should run only with local data (not configured
-            the network)
+        local (Union[Unset, None, bool]): True if the project's computation should run only with local data (not
+            configured the network)
         locked (Union[Unset, bool]): True if the project is read-only (likely because it has already been shared)
         name (Union[Unset, str]):
         network_id (Union[Unset, str]): id to uniquely identify the network
@@ -52,18 +55,18 @@ class ProjectDefinition:
     allow_clear_query: Union[Unset, bool] = UNSET
     allow_shared_edit: Union[Unset, bool] = UNSET
     authorization_status: Union[Unset, AuthorizationStatus] = UNSET
-    computation_definition: Union[Unset, ComputationDefinition] = UNSET
+    computation_definition: Union[Unset, "ComputationDefinition"] = UNSET
     created_by_node: Union[Unset, str] = UNSET
     created_by_user: Union[Unset, str] = UNSET
     data_source_auto_match: Union[Unset, bool] = UNSET
-    data_source_id: Union[Unset, str] = UNSET
-    description: Union[Unset, str] = UNSET
+    data_source_id: Union[Unset, None, str] = UNSET
+    description: Union[Unset, None, str] = UNSET
     dpia: Union[Unset, str] = UNSET
-    local: Union[Unset, bool] = UNSET
+    local: Union[Unset, None, bool] = UNSET
     locked: Union[Unset, bool] = UNSET
     name: Union[Unset, str] = UNSET
     network_id: Union[Unset, str] = UNSET
-    policy: Union[Unset, ProjectPolicy] = UNSET
+    policy: Union[Unset, "ProjectPolicy"] = UNSET
     query: Union[Unset, str] = UNSET
     query_timeout: Union[Unset, int] = 30
     run_async: Union[Unset, bool] = UNSET
@@ -175,6 +178,9 @@ class ProjectDefinition:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.computation_definition import ComputationDefinition
+        from ..models.project_policy import ProjectPolicy
+
         d = src_dict.copy()
         allow_clear_query = d.pop("allowClearQuery", UNSET)
 

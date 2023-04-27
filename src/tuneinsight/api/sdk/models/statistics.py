@@ -1,11 +1,14 @@
-from typing import Any, Dict, List, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
 from ..models.content_type import ContentType
-from ..models.result_contextual_info import ResultContextualInfo
-from ..models.statistic_result import StatisticResult
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.result_contextual_info import ResultContextualInfo
+    from ..models.statistic_result import StatisticResult
+
 
 T = TypeVar("T", bound="Statistics")
 
@@ -15,13 +18,13 @@ class Statistics:
     """
     Attributes:
         type (ContentType): Type of the content
-        results (List[StatisticResult]):
+        results (List['StatisticResult']):
         contextual_info (Union[Unset, ResultContextualInfo]): contextual information about the content retrieved
     """
 
     type: ContentType
-    results: List[StatisticResult]
-    contextual_info: Union[Unset, ResultContextualInfo] = UNSET
+    results: List["StatisticResult"]
+    contextual_info: Union[Unset, "ResultContextualInfo"] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -52,6 +55,9 @@ class Statistics:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.result_contextual_info import ResultContextualInfo
+        from ..models.statistic_result import StatisticResult
+
         d = src_dict.copy()
         type = ContentType(d.pop("type"))
 

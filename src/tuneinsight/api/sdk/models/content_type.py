@@ -6,6 +6,7 @@ class ContentType(str, Enum):
     STRINGMATRIX = "stringMatrix"
     CIPHERTABLE = "ciphertable"
     PREDICTION = "prediction"
+    EXTERNALMLRESULT = "externalMlResult"
     STATISTICS = "statistics"
 
     def __str__(self) -> str:

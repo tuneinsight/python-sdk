@@ -1,7 +1,9 @@
+from http import HTTPStatus
 from typing import Any, Dict, Optional, Union, cast
 
 import httpx
 
+from ... import errors
 from ...client import Client
 from ...models.post_project_data_json_body import PostProjectDataJsonBody
 from ...models.post_project_data_response_403 import PostProjectDataResponse403
@@ -31,29 +33,32 @@ def _get_kwargs(
     }
 
 
-def _parse_response(*, response: httpx.Response) -> Optional[Union[PostProjectDataResponse403, str]]:
-    if response.status_code == 201:
+def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[PostProjectDataResponse403, str]]:
+    if response.status_code == HTTPStatus.CREATED:
         response_201 = cast(str, response.json())
         return response_201
-    if response.status_code == 403:
+    if response.status_code == HTTPStatus.FORBIDDEN:
         response_403 = PostProjectDataResponse403.from_dict(response.json())
 
         return response_403
-    if response.status_code == 404:
+    if response.status_code == HTTPStatus.NOT_FOUND:
         response_404 = cast(str, response.json())
         return response_404
-    if response.status_code == 500:
+    if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
         response_500 = cast(str, response.json())
         return response_500
-    return None
+    if client.raise_on_unexpected_status:
+        raise errors.UnexpectedStatus(f"Unexpected status code: {response.status_code}")
+    else:
+        return None
 
 
-def _build_response(*, response: httpx.Response) -> Response[Union[PostProjectDataResponse403, str]]:
+def _build_response(*, client: Client, response: httpx.Response) -> Response[Union[PostProjectDataResponse403, str]]:
     return Response(
-        status_code=response.status_code,
+        status_code=HTTPStatus(response.status_code),
         content=response.content,
         headers=response.headers,
-        parsed=_parse_response(response=response),
+        parsed=_parse_response(client=client, response=response),
     )
 
 
@@ -68,6 +73,10 @@ def sync_detailed(
     Args:
         project_id (str):
         json_body (PostProjectDataJsonBody):
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
         Response[Union[PostProjectDataResponse403, str]]
@@ -84,7 +93,7 @@ def sync_detailed(
         **kwargs,
     )
 
-    return _build_response(response=response)
+    return _build_response(client=client, response=response)
 
 
 def sync(
@@ -98,6 +107,10 @@ def sync(
     Args:
         project_id (str):
         json_body (PostProjectDataJsonBody):
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
         Response[Union[PostProjectDataResponse403, str]]
@@ -122,6 +135,10 @@ async def asyncio_detailed(
         project_id (str):
         json_body (PostProjectDataJsonBody):
 
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
     Returns:
         Response[Union[PostProjectDataResponse403, str]]
     """
@@ -135,7 +152,7 @@ async def asyncio_detailed(
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
         response = await _client.request(**kwargs)
 
-    return _build_response(response=response)
+    return _build_response(client=client, response=response)
 
 
 async def asyncio(
@@ -149,6 +166,10 @@ async def asyncio(
     Args:
         project_id (str):
         json_body (PostProjectDataJsonBody):
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
         Response[Union[PostProjectDataResponse403, str]]

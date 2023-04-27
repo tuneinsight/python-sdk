@@ -1,9 +1,13 @@
-from typing import Any, Dict, List, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
 from ..models.authorization_status import AuthorizationStatus
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.organization_coordinates import OrganizationCoordinates
+
 
 T = TypeVar("T", bound="Organization")
 
@@ -14,12 +18,14 @@ class Organization:
 
     Attributes:
         authorization_status (Union[Unset, AuthorizationStatus]): Authorization status of the project
+        coordinates (Union[Unset, OrganizationCoordinates]): Coordinates of the organization. (Decimal degrees, WGS84)
         country (Union[Unset, str]): Country code of the organization. (Lower case two-letter ISO 3166-1 alpha-2)
         data_officer (Union[Unset, str]): Name of the data officer in charge in the organization
         name (Union[Unset, str]): Name of the organization
     """
 
     authorization_status: Union[Unset, AuthorizationStatus] = UNSET
+    coordinates: Union[Unset, "OrganizationCoordinates"] = UNSET
     country: Union[Unset, str] = UNSET
     data_officer: Union[Unset, str] = UNSET
     name: Union[Unset, str] = UNSET
@@ -30,6 +36,10 @@ class Organization:
         if not isinstance(self.authorization_status, Unset):
             authorization_status = self.authorization_status.value
 
+        coordinates: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.coordinates, Unset):
+            coordinates = self.coordinates.to_dict()
+
         country = self.country
         data_officer = self.data_officer
         name = self.name
@@ -39,6 +49,8 @@ class Organization:
         field_dict.update({})
         if authorization_status is not UNSET:
             field_dict["authorizationStatus"] = authorization_status
+        if coordinates is not UNSET:
+            field_dict["coordinates"] = coordinates
         if country is not UNSET:
             field_dict["country"] = country
         if data_officer is not UNSET:
@@ -50,6 +62,8 @@ class Organization:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.organization_coordinates import OrganizationCoordinates
+
         d = src_dict.copy()
         _authorization_status = d.pop("authorizationStatus", UNSET)
         authorization_status: Union[Unset, AuthorizationStatus]
@@ -57,6 +71,13 @@ class Organization:
             authorization_status = UNSET
         else:
             authorization_status = AuthorizationStatus(_authorization_status)
+
+        _coordinates = d.pop("coordinates", UNSET)
+        coordinates: Union[Unset, OrganizationCoordinates]
+        if isinstance(_coordinates, Unset):
+            coordinates = UNSET
+        else:
+            coordinates = OrganizationCoordinates.from_dict(_coordinates)
 
         country = d.pop("country", UNSET)
 
@@ -66,6 +87,7 @@ class Organization:
 
         organization = cls(
             authorization_status=authorization_status,
+            coordinates=coordinates,
             country=country,
             data_officer=data_officer,
             name=name,

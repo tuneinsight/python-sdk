@@ -1,8 +1,10 @@
-from typing import Any, Dict, List, Type, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, cast
 
 import attr
 
-from ..models.prediction_params import PredictionParams
+if TYPE_CHECKING:
+    from ..models.prediction_params import PredictionParams
+
 
 T = TypeVar("T", bound="ModelDefinition")
 
@@ -18,7 +20,7 @@ class ModelDefinition:
     """
 
     name: str
-    prediction_params: PredictionParams
+    prediction_params: "PredictionParams"
     weights: List[List[float]]
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -46,6 +48,8 @@ class ModelDefinition:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.prediction_params import PredictionParams
+
         d = src_dict.copy()
         name = d.pop("name")
 

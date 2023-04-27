@@ -21,7 +21,9 @@ class ComputationType(str, Enum):
     SAMPLEEXTRACTION = "sampleExtraction"
     GWAS = "GWAS"
     SURVIVALAGGREGATION = "survivalAggregation"
+    HYBRIDFL = "hybridFL"
     DATASETSTATISTICS = "datasetStatistics"
+    PRIVATESEARCH = "privateSearch"
 
     def __str__(self) -> str:
         return str(self.value)

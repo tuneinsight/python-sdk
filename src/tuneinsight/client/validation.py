@@ -1,6 +1,6 @@
 
 from tuneinsight.api.sdk.types import Response
-
+from tuneinsight.utils.errors import hidden_traceback_scope
 
 
 def validate_response(response: Response):
@@ -14,8 +14,27 @@ def validate_response(response: Response):
         InvalidResponseError: the exception if the response's status code is not successful
     """
     if response.status_code < 200 or response.status_code > 210:
-        raise InvalidResponseError(response=response)
+        with hidden_traceback_scope():
+            if response.status_code == 403:
+                raise AuthorizationError(response=response)
+            raise InvalidResponseError(response=response)
 
+
+class AuthorizationError(Exception):
+    '''
+    AuthorizationError is the exception used when the response status code is 403
+
+    Args:
+        Exception: the base exception class
+    '''
+
+    def __init__(self,response: Response):
+        pattern = '"message":"'
+        content = str(response.content)
+        ind = content.find(pattern)
+        content = content[ind + len(pattern):]
+        msg = content.split('"}',maxsplit=1)[0]
+        super().__init__(msg)
 
 class InvalidResponseError(Exception):
     """

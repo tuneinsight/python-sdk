@@ -1,9 +1,13 @@
-from typing import Any, Dict, List, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
-from ..models.data_source_compound_query import DataSourceCompoundQuery
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.data_source_compound_query import DataSourceCompoundQuery
+    from ..models.select import Select
+
 
 T = TypeVar("T", bound="ComputationDataSourceParameters")
 
@@ -17,17 +21,19 @@ class ComputationDataSourceParameters:
             into account (enables keeping previously defined queries)
         compound_query (Union[Unset, DataSourceCompoundQuery]): definition of datasource queries for each node in the
             computation
-        data_source_id (Union[Unset, str]): Unique identifier of a data source.
+        data_source_id (Union[Unset, None, str]): Unique identifier of a data source.
         data_source_query (Union[Unset, str]): The query to pass to the datasource
         only_root_query (Union[Unset, bool]): Whether or not the query should only be executed at the root node of the
             computation
+        select (Union[Unset, Select]):
     """
 
     compound_disabled: Union[Unset, bool] = UNSET
-    compound_query: Union[Unset, DataSourceCompoundQuery] = UNSET
-    data_source_id: Union[Unset, str] = UNSET
+    compound_query: Union[Unset, "DataSourceCompoundQuery"] = UNSET
+    data_source_id: Union[Unset, None, str] = UNSET
     data_source_query: Union[Unset, str] = UNSET
     only_root_query: Union[Unset, bool] = UNSET
+    select: Union[Unset, "Select"] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -39,6 +45,9 @@ class ComputationDataSourceParameters:
         data_source_id = self.data_source_id
         data_source_query = self.data_source_query
         only_root_query = self.only_root_query
+        select: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.select, Unset):
+            select = self.select.to_dict()
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -53,11 +62,16 @@ class ComputationDataSourceParameters:
             field_dict["dataSourceQuery"] = data_source_query
         if only_root_query is not UNSET:
             field_dict["onlyRootQuery"] = only_root_query
+        if select is not UNSET:
+            field_dict["select"] = select
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.data_source_compound_query import DataSourceCompoundQuery
+        from ..models.select import Select
+
         d = src_dict.copy()
         compound_disabled = d.pop("compoundDisabled", UNSET)
 
@@ -74,12 +88,20 @@ class ComputationDataSourceParameters:
 
         only_root_query = d.pop("onlyRootQuery", UNSET)
 
+        _select = d.pop("select", UNSET)
+        select: Union[Unset, Select]
+        if isinstance(_select, Unset):
+            select = UNSET
+        else:
+            select = Select.from_dict(_select)
+
         computation_data_source_parameters = cls(
             compound_disabled=compound_disabled,
             compound_query=compound_query,
             data_source_id=data_source_id,
             data_source_query=data_source_query,
             only_root_query=only_root_query,
+            select=select,
         )
 
         computation_data_source_parameters.additional_properties = d

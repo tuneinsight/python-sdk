@@ -1,12 +1,15 @@
-from typing import Any, Dict, List, Type, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
 
 import attr
 
 from ..models.data_object_type import DataObjectType
 from ..models.data_object_visibility_status import DataObjectVisibilityStatus
-from ..models.key_info import KeyInfo
 from ..models.post_data_object_json_body_method import PostDataObjectJsonBodyMethod
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.key_info import KeyInfo
+
 
 T = TypeVar("T", bound="PostDataObjectJsonBody")
 
@@ -38,7 +41,7 @@ class PostDataObjectJsonBody:
     data_object_shared_id: Union[Unset, str] = UNSET
     data_source_id: Union[Unset, str] = UNSET
     encrypted: Union[Unset, bool] = UNSET
-    key_info: Union[Unset, KeyInfo] = UNSET
+    key_info: Union[Unset, "KeyInfo"] = UNSET
     method: Union[Unset, PostDataObjectJsonBodyMethod] = UNSET
     private_key: Union[Unset, str] = UNSET
     project_id: Union[Unset, str] = UNSET
@@ -119,6 +122,8 @@ class PostDataObjectJsonBody:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.key_info import KeyInfo
+
         d = src_dict.copy()
         columns = cast(List[str], d.pop("columns", UNSET))
 

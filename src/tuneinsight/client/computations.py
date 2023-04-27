@@ -1,15 +1,16 @@
 from typing import Any, List, Callable, TypeVar
+from IPython.display import display, Markdown
 from tuneinsight.api.sdk import models
 from tuneinsight.api.sdk import Client
 from tuneinsight.api.sdk.types import UNSET
 from tuneinsight.api.sdk.types import  Response
-from tuneinsight.api.sdk.api.api_computations import compute
-from tuneinsight.api.sdk.api.api_computations import get_computation
+from tuneinsight.api.sdk.api.api_computations import compute, get_computation, documentation
 from tuneinsight.api.sdk.api.api_dataobject import get_data_object
 from tuneinsight.computations.queries import QueryBuilder
 from tuneinsight.computations.preprocessing import PreprocessingBuilder
 from tuneinsight.client.validation import validate_response
 from tuneinsight.client.dataobject import DataObject
+from tuneinsight.computations.errors import raise_computation_error
 import tuneinsight.utils.time_tools as time
 
 ComputationLauncher = TypeVar("ComputationLauncher",bound=Callable[[models.ComputationDefinition,bool],models.Computation])
@@ -24,6 +25,7 @@ class ComputationRunner():
     max_timeout: int
     polling_initial_interval: int
     max_sleep_time: int
+    recorded_computations: List[models.Computation]
 
 
     def __init__(self, project_id:str = "", client:Client = UNSET):
@@ -34,6 +36,7 @@ class ComputationRunner():
         self.max_timeout = 600 * time.second
         self.polling_initial_interval = 100 * time.millisecond
         self.max_sleep_time = 30 * time.second
+        self.recorded_computations = []
 
 
     def field_is_set(self,field: Any) -> bool:
@@ -43,7 +46,7 @@ class ComputationRunner():
 
 
     def update_computation_input(self,comp: models.ComputationDefinition):
-        if comp.type == models.ComputationType.COLLECTIVEKEYSWITCH:
+        if comp.type in [models.ComputationType.COLLECTIVEKEYSWITCH, models.ComputationType.ENCRYPTEDPREDICTION]:
             return
         if self.datasource.query_set:
             comp.data_source_parameters = self.datasource.get_parameters()
@@ -59,6 +62,18 @@ class ComputationRunner():
         comp.timeout = int(self.max_timeout / time.second)
         self.update_computation_input(comp=comp)
 
+    def display_documentation(self, comp: models.ComputationDefinition):
+        '''
+        display_documentation displays the documentation given a computation definition this first overrides the fields accordingly before calling POST documentation
+
+        Args:
+            comp (models.ComputationDefinition): the computation definition
+        '''
+        self.post_preprocessing(comp)
+        self.update_computation_fields(comp)
+        response : Response[models.DocumentationResponse200] = documentation.sync_detailed(client=self.client,json_body=comp)
+        validate_response(response)
+        display(Markdown(response.parsed.description))
 
     def is_done(self,comp: models.Computation) -> bool:
         waiting = comp.status not in (models.ComputationStatus.ERROR, models.ComputationStatus.SUCCESS)
@@ -86,11 +101,13 @@ class ComputationRunner():
 
         # Raise an exception if there is an error
         if (current_comp.status == models.ComputationStatus.ERROR) or (len(comp.error) > 0):
-            raise Exception(f"computation error: {current_comp.error}")
+            raise_computation_error(current_comp.error)
 
         if len(current_comp.results) < 1:
             raise Exception("computation has no results")
 
+        # Update recorded computation
+        self.recorded_computations.append(current_comp)
         # Get Result models
         results : List[DataObject] = []
         for doID in current_comp.results:
@@ -124,8 +141,8 @@ class ComputationRunner():
             compound_params =  models.ComputationPreprocessingParametersCompoundPreprocessing()
             compound_params.additional_properties = self.preprocessing.compound_chain
             comp.preprocessing_parameters.compound_preprocessing = compound_params
-
-
+        if self.preprocessing.output_selection_set:
+            comp.preprocessing_parameters.select = self.preprocessing.output_selection
 
     def run_computation(self,comp: models.ComputationDefinition,local: bool=False,keyswitch: bool=True,decrypt: bool=True) -> List[DataObject]:
         self.post_preprocessing(comp)

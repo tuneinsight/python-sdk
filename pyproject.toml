@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "tuneinsight"
-version = "0.1.1"
+version = "0.2.1"
 description = "Diapason is the official Python SDK for the Tune Insight Agent API"
 authors = ["Tune Insight SA"]
 license = "Apache-2.0"
@@ -15,7 +15,6 @@ pandas = "^1.4.2"
 matplotlib = "^3.6.0"
 #cloudpickle = "^2.0.0" // TODO: to add in the future to run python on backend
 scikit-learn = "^1.1.3"
-#cryptolib = { file = "../../geco/internal/python/dist/cryptolib-0.1.0-cp39-cp39-linux_x86_64.whl" } // TODO: to add in the future for client side crypto
 wheel = "^0.37.1"
 pylint = "^2.15.2"
 docker = "^6.0.1"

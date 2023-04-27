@@ -14,12 +14,13 @@ class Cohort(ComputationRunner):
     cohort_id: str = ""
     join_id: str = ""
 
-    def create_from_matching(self, matching_columns: List[str], result_format: models.SetIntersectionOutputFormat) -> List[DataObject]:
+    def create_from_matching(self, matching_columns: List[str], result_format: models.SetIntersectionOutputFormat, local_input: models.LocalInput = None, compound_query: dict[str, str] = None) -> List[DataObject]:
         """ Create a cohort from matching columns
 
         Args:
             matching_columns (List[str]): a list of column names to match on
             result_format (models.SetIntersectionOutputFormat): the format to output the resulting cohort as
+            local_input (models.LocalInput): optional local input to use in the computation
 
         Returns:
             List[DataObject]: The resulting dataobjects
@@ -28,25 +29,31 @@ class Cohort(ComputationRunner):
         model.matching_columns = matching_columns
         model.result_format = result_format
         model.project_id = self.project_id
+
+        if local_input:
+            model.local_input = local_input
+
+        if compound_query:
+            for node in compound_query:
+                query = compound_query[node]
+                self.datasource.set_query(query, [node])
+
         dataobjects = super().run_computation(comp=model,local=False,keyswitch=False,decrypt=False)
         self.cohort_id = dataobjects[0].get_id()
         return dataobjects
 
-    def parse_suricata_psi_output(self, all_parties: List[str], dataobjects: List[DataObject]) -> pd.DataFrame:
-        """ Parse suricata data
+    def get_psi_ratio(self, all_parties: List[str], dataobjects: List[DataObject]) -> pd.DataFrame:
+        """ Add a column to the PSI result indicating for each record the percentage of participants at which the record was observed
 
         Args:
             all_parties (List[str]): list of the names of the parties involved in the private set intersection
-            dataobjects (List[DataObject]): suricata dataobjects to parse
+            dataobjects (List[DataObject]): psi result
 
         Returns:
             pd.DataFrame: parsed data
         """
         df = dataobjects[0].get_dataframe()
-        num_parties = len(all_parties)-1
-        alert_ids  = df['alert_id']
-        severities = df['alert_severity']
-        categories = df['alert_category']
+        num_parties = len(all_parties)
         percentages = []
         results = df.to_dict(orient='records')
         for row in results:
@@ -55,8 +62,8 @@ class Cohort(ComputationRunner):
                 if org in row and row[org] == 'true':
                     match += 1
             percentages.append(match/num_parties*100)
-        data = {'alert_id': alert_ids, 'severity': severities, 'category': categories, 'customer_ratio': percentages}
-        return pd.DataFrame(data)
+        df['psi_ratio'] = pd.Series(percentages)
+        return df
 
     def create_from_join(self, target_columns: List[str], join_columns: List[str]):
         """ Create a cohort from vertically partitioned data

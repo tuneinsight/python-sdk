@@ -1,10 +1,13 @@
-from typing import Any, Dict, List, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
-from ..models.credentials import Credentials
 from ..models.credentials_provider_type import CredentialsProviderType
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.credentials import Credentials
+
 
 T = TypeVar("T", bound="LocalCredentialsProvider")
 
@@ -14,11 +17,11 @@ class LocalCredentialsProvider:
     """
     Attributes:
         type (CredentialsProviderType):
-        credentials (Union[Unset, List[Credentials]]):
+        credentials (Union[Unset, List['Credentials']]):
     """
 
     type: CredentialsProviderType
-    credentials: Union[Unset, List[Credentials]] = UNSET
+    credentials: Union[Unset, List["Credentials"]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -46,6 +49,8 @@ class LocalCredentialsProvider:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.credentials import Credentials
+
         d = src_dict.copy()
         type = CredentialsProviderType(d.pop("type"))
 

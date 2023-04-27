@@ -1,12 +1,17 @@
-from typing import Any, Dict, List, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
-from ..models.computation_preprocessing_parameters_compound_preprocessing import (
-    ComputationPreprocessingParametersCompoundPreprocessing,
-)
-from ..models.preprocessing_chain import PreprocessingChain
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.computation_preprocessing_parameters_compound_preprocessing import (
+        ComputationPreprocessingParametersCompoundPreprocessing,
+    )
+    from ..models.logical_formula import LogicalFormula
+    from ..models.preprocessing_chain import PreprocessingChain
+    from ..models.select import Select
+
 
 T = TypeVar("T", bound="ComputationPreprocessingParameters")
 
@@ -18,12 +23,17 @@ class ComputationPreprocessingParameters:
     Attributes:
         compound_preprocessing (Union[Unset, ComputationPreprocessingParametersCompoundPreprocessing]): preprocessing to
             be applied for each node
+        filters (Union[Unset, List['LogicalFormula']]): list of filters to apply to the input dataframe (applied after
+            the preprocessing is run)
         global_preprocessing (Union[Unset, PreprocessingChain]): Chain of preprocessing operations applied to the input
             dataframe
+        select (Union[Unset, Select]):
     """
 
-    compound_preprocessing: Union[Unset, ComputationPreprocessingParametersCompoundPreprocessing] = UNSET
-    global_preprocessing: Union[Unset, PreprocessingChain] = UNSET
+    compound_preprocessing: Union[Unset, "ComputationPreprocessingParametersCompoundPreprocessing"] = UNSET
+    filters: Union[Unset, List["LogicalFormula"]] = UNSET
+    global_preprocessing: Union[Unset, "PreprocessingChain"] = UNSET
+    select: Union[Unset, "Select"] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -31,22 +41,45 @@ class ComputationPreprocessingParameters:
         if not isinstance(self.compound_preprocessing, Unset):
             compound_preprocessing = self.compound_preprocessing.to_dict()
 
+        filters: Union[Unset, List[Dict[str, Any]]] = UNSET
+        if not isinstance(self.filters, Unset):
+            filters = []
+            for filters_item_data in self.filters:
+                filters_item = filters_item_data.to_dict()
+
+                filters.append(filters_item)
+
         global_preprocessing: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.global_preprocessing, Unset):
             global_preprocessing = self.global_preprocessing.to_dict()
+
+        select: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.select, Unset):
+            select = self.select.to_dict()
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
         if compound_preprocessing is not UNSET:
             field_dict["compoundPreprocessing"] = compound_preprocessing
+        if filters is not UNSET:
+            field_dict["filters"] = filters
         if global_preprocessing is not UNSET:
             field_dict["globalPreprocessing"] = global_preprocessing
+        if select is not UNSET:
+            field_dict["select"] = select
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.computation_preprocessing_parameters_compound_preprocessing import (
+            ComputationPreprocessingParametersCompoundPreprocessing,
+        )
+        from ..models.logical_formula import LogicalFormula
+        from ..models.preprocessing_chain import PreprocessingChain
+        from ..models.select import Select
+
         d = src_dict.copy()
         _compound_preprocessing = d.pop("compoundPreprocessing", UNSET)
         compound_preprocessing: Union[Unset, ComputationPreprocessingParametersCompoundPreprocessing]
@@ -57,6 +90,13 @@ class ComputationPreprocessingParameters:
                 _compound_preprocessing
             )
 
+        filters = []
+        _filters = d.pop("filters", UNSET)
+        for filters_item_data in _filters or []:
+            filters_item = LogicalFormula.from_dict(filters_item_data)
+
+            filters.append(filters_item)
+
         _global_preprocessing = d.pop("globalPreprocessing", UNSET)
         global_preprocessing: Union[Unset, PreprocessingChain]
         if isinstance(_global_preprocessing, Unset):
@@ -64,9 +104,18 @@ class ComputationPreprocessingParameters:
         else:
             global_preprocessing = PreprocessingChain.from_dict(_global_preprocessing)
 
+        _select = d.pop("select", UNSET)
+        select: Union[Unset, Select]
+        if isinstance(_select, Unset):
+            select = UNSET
+        else:
+            select = Select.from_dict(_select)
+
         computation_preprocessing_parameters = cls(
             compound_preprocessing=compound_preprocessing,
+            filters=filters,
             global_preprocessing=global_preprocessing,
+            select=select,
         )
 
         computation_preprocessing_parameters.additional_properties = d

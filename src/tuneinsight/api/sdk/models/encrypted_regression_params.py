@@ -1,11 +1,14 @@
-from typing import Any, Dict, List, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
-from ..models.approximation_params import ApproximationParams
-from ..models.encrypted_regression_params_linear import EncryptedRegressionParamsLinear
 from ..models.regression_type import RegressionType
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.approximation_params import ApproximationParams
+    from ..models.encrypted_regression_params_linear import EncryptedRegressionParamsLinear
+
 
 T = TypeVar("T", bound="EncryptedRegressionParams")
 
@@ -27,10 +30,10 @@ class EncryptedRegressionParams:
         type (Union[Unset, RegressionType]): type of the regression
     """
 
-    approximation_params: Union[Unset, ApproximationParams] = UNSET
+    approximation_params: Union[Unset, "ApproximationParams"] = UNSET
     elastic_rate: Union[Unset, float] = 0.85
     learning_rate: Union[Unset, float] = 0.02
-    linear: Union[Unset, EncryptedRegressionParamsLinear] = UNSET
+    linear: Union[Unset, "EncryptedRegressionParamsLinear"] = UNSET
     local_batch_size: Union[Unset, int] = 64
     local_iteration_count: Union[Unset, int] = 1
     momentum: Union[Unset, float] = 0.92
@@ -87,6 +90,9 @@ class EncryptedRegressionParams:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.approximation_params import ApproximationParams
+        from ..models.encrypted_regression_params_linear import EncryptedRegressionParamsLinear
+
         d = src_dict.copy()
         _approximation_params = d.pop("approximationParams", UNSET)
         approximation_params: Union[Unset, ApproximationParams]

@@ -1,9 +1,12 @@
-from typing import Any, Dict, List, Type, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
 
 import attr
 
-from ..models.filter_ import Filter
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.filter_ import Filter
+
 
 T = TypeVar("T", bound="StatisticResult")
 
@@ -24,7 +27,7 @@ class StatisticResult:
         variance (Union[Unset, None, float]):
     """
 
-    filter_: Union[Unset, Filter] = UNSET
+    filter_: Union[Unset, "Filter"] = UNSET
     name: Union[Unset, str] = UNSET
     variable: Union[Unset, str] = UNSET
     iqr: Union[Unset, None, float] = UNSET
@@ -82,6 +85,8 @@ class StatisticResult:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.filter_ import Filter
+
         d = src_dict.copy()
         _filter_ = d.pop("filter", UNSET)
         filter_: Union[Unset, Filter]

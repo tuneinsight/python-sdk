@@ -52,7 +52,7 @@ class Statistics:
             deviations.append(math.sqrt(res.variance))
 
         ax[0].errorbar(names,means,deviations,linestyle='None', marker='o',color=c)
-        ax[1].bxp(boxes, showfliers=False,medianprops=dict(color=c))
+        ax[1].bxp(boxes, showfliers=False, medianprops={"color": c})
         style_title(ax[0], title="Mean & Standard Deviation")
         style_title(ax[1], title="Quantiles")
         style_ylabel(ax[0], y_label=metric)
@@ -89,12 +89,31 @@ class DatasetStatistics(ComputationRunner):
         self.variables[name] = models.StatisticDefinition(name=name,variable=variable,min_bound=min_bound,max_bound=max_bound,quantiles_k_value=1)
 
 
-    def compute(self,local: bool=False) -> Statistics:
-        if len(self.variables) == 0:
-            raise Exception("at least one variable must be added to the computation")
+
+    def get_model(self) -> models.DatasetStatistics:
+        '''
+        get_model returns the api model definition of this computation
+
+        Returns:
+            models.DatasetStatistics: the computation definition
+        '''
         model = models.DatasetStatistics(type=models.ComputationType.DATASETSTATISTICS)
         model.statistics = list(self.variables.values())
         model.project_id = self.project_id
+        return model
+
+
+    def compute(self,local: bool=False) -> Statistics:
+        if len(self.variables) == 0:
+            raise Exception("at least one variable must be added to the computation")
+        model = self.get_model()
         self.max_timeout = 30 * time.minute
         results = super().run_computation(comp=model,local=local,keyswitch=not local,decrypt=not local)
         return Statistics(results[0].get_stats().results)
+
+
+    def display_workflow(self):
+        '''
+        display_workflow displays a documentation of the computation workflow
+        '''
+        return super().display_documentation(self.get_model())

@@ -1,10 +1,13 @@
-from typing import Any, Dict, List, Type, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
 
 import attr
 
 from ..models.enc_vector_type import EncVectorType
-from ..models.encryption import Encryption
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.encryption import Encryption
+
 
 T = TypeVar("T", bound="EncVector")
 
@@ -20,7 +23,7 @@ class EncVector:
         packed (Union[Unset, str]):
     """
 
-    encryption: Encryption
+    encryption: "Encryption"
     type: EncVectorType
     expanded: Union[Unset, List[str]] = UNSET
     packed: Union[Unset, str] = UNSET
@@ -54,6 +57,8 @@ class EncVector:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.encryption import Encryption
+
         d = src_dict.copy()
         encryption = Encryption.from_dict(d.pop("encryption"))
 

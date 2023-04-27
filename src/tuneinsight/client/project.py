@@ -1,5 +1,4 @@
 from typing import List
-import json
 import attr
 import pandas as pd
 from IPython.display import display, HTML, Markdown
@@ -16,7 +15,10 @@ from tuneinsight.computations.survival_aggregation import SurvivalAggregation
 from tuneinsight.computations.regression import LinearRegression, LogisticRegression, PoissonRegression
 from tuneinsight.computations.cohort import Cohort
 from tuneinsight.computations.secure_join import SecureJoin
+from tuneinsight.computations.hybrid_fl import HybridFL
 from tuneinsight.computations.stats import DatasetStatistics
+from tuneinsight.computations.policy import Policy,display_policy
+from tuneinsight.computations.types import displayed_types,Type
 from tuneinsight.client.validation import validate_response
 from tuneinsight.computations.statistical_aggregation import Aggregation
 from tuneinsight.client.computations import ComputationRunner
@@ -320,6 +322,15 @@ class Project:
         '''
         return SecureJoin(client=self.client,project_id=self.get_id())
 
+    def new_hybrid_fl(self) -> HybridFL:
+        '''
+        new_hybrid_fl returns a new HybridFL which can be computed by running the project
+
+        Returns:
+            HybridFL: the hybrid federated learning computation instance
+        '''
+        return HybridFL(client=self.client, project_id=self.get_id())
+
     def new_statistics(self) -> DatasetStatistics:
         '''
         new_statistics returns a new DatasetStatistics instance which can run statistics on the project
@@ -329,44 +340,39 @@ class Project:
         '''
         return DatasetStatistics(client=self.client,project_id=self.get_id())
 
-    def display_policy(self):
+
+    def add_policy(self,policy: Policy):
+        '''
+        add_policy adds the provided policy to the project according to the computation type defined in the policy
+
+        Args:
+            policy (Policy): the policy to add to the project
+        '''
+        self.refresh()
+        curr_policy = self.model.policy
+        if isinstance(curr_policy,Unset):
+            curr_policy = models.ProjectPolicy()
+            curr_policy.computation_policies = models.ProjectPolicyComputationPolicies()
+            curr_policy.computation_policies.additional_properties = {}
+        curr_policy.computation_policies[policy.computation_type] = policy
+        proj_def = models.ProjectDefinition(policy=curr_policy)
+        self.patch(proj_def=proj_def)
+
+    def display_policy(self,detailed:bool = False,show_queries: bool = False):
+        '''
+        display_policy displays the policies associated to the project
+
+        Args:
+            detailed (bool, optional): shows additional policy details if set to true such as the json of the policy. Defaults to False.
+            show_queries (bool, optional): shows the set of authorized SQL queries. Defaults to False.
+        '''
         policy = self.model.policy
+        display(Markdown(f'# {self.model.name} Policy'))
         if policy is Unset:
             print("project has no policy")
-        cols = ["computation type","minimum local input size","minimum global input size","differential-privacy noise","fixed parameters","flexible parameters","validated"]
-        data = []
         if isinstance(policy,Unset):
             return
-        templates = {}
         for comp_type in policy.computation_policies.additional_properties:
             p = policy.computation_policies[comp_type]
-            min_local = 0
-            min_global = 0
-            noise = False
-            validate_params = False
-            fixed = ""
-            flexible = ""
-            dp = p.differential_privacy_parameters
-            if not isinstance(dp,Unset):
-                if not isinstance(dp.minimum_local_input_size,Unset):
-                    min_local = dp.minimum_local_input_size
-                if not isinstance(dp.minimum_global_input_size,Unset):
-                    min_global = dp.minimum_global_input_size
-                if not isinstance(dp.noise_parameters,Unset):
-                    noise = True
-            if not isinstance(p.fixed_parameters,Unset):
-                fixed = str(p.fixed_parameters)
-            if not isinstance(p.flexible_parameters,Unset):
-                flexible = str(p.flexible_parameters)
-            if not isinstance(p.template,Unset):
-                templates[comp_type] = p.template.to_dict()
-            if not isinstance(p.validate_parameters,Unset):
-                validate_params = p.validate_parameters
-            data.append([str(comp_type),min_local,min_global,noise,fixed,flexible,validate_params])
-        display(Markdown("###  Policies: "))
-        display(pd.DataFrame(data=data,columns=cols))
-        display(Markdown("###  Templates: "))
-        for comp_type in templates.items():
-            display(Markdown("#### Computation Type: " + "`" + str(comp_type) + "`"))
-            json_formatted_str = json.dumps(templates[comp_type], indent=2)
-            display(Markdown("```\n" + json_formatted_str + "\n ```"))
+            display(Markdown(f'## {displayed_types[Type(comp_type)]} Policy'))
+            display_policy(p,detailed=detailed,show_queries=show_queries)

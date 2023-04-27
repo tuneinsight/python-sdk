@@ -1,9 +1,12 @@
-from typing import Any, Dict, List, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
-from ..models.matching_column import MatchingColumn
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.matching_column import MatchingColumn
+
 
 T = TypeVar("T", bound="MatchingParams")
 
@@ -13,10 +16,10 @@ class MatchingParams:
     """parameters relevant for matching
 
     Attributes:
-        matching_columns (Union[Unset, List[MatchingColumn]]):
+        matching_columns (Union[Unset, List['MatchingColumn']]):
     """
 
-    matching_columns: Union[Unset, List[MatchingColumn]] = UNSET
+    matching_columns: Union[Unset, List["MatchingColumn"]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -38,6 +41,8 @@ class MatchingParams:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.matching_column import MatchingColumn
+
         d = src_dict.copy()
         matching_columns = []
         _matching_columns = d.pop("matchingColumns", UNSET)

@@ -1,12 +1,15 @@
-from typing import Any, Dict, List, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
-from ..models.post_data_source_query_json_body_output_data_objects_shared_i_ds import (
-    PostDataSourceQueryJsonBodyOutputDataObjectsSharedIDs,
-)
-from ..models.post_data_source_query_json_body_parameters import PostDataSourceQueryJsonBodyParameters
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.post_data_source_query_json_body_output_data_objects_shared_i_ds import (
+        PostDataSourceQueryJsonBodyOutputDataObjectsSharedIDs,
+    )
+    from ..models.post_data_source_query_json_body_parameters import PostDataSourceQueryJsonBodyParameters
+
 
 T = TypeVar("T", bound="PostDataSourceQueryJsonBody")
 
@@ -25,8 +28,8 @@ class PostDataSourceQueryJsonBody:
     """
 
     operation: Union[Unset, str] = UNSET
-    output_data_objects_shared_i_ds: Union[Unset, PostDataSourceQueryJsonBodyOutputDataObjectsSharedIDs] = UNSET
-    parameters: Union[Unset, PostDataSourceQueryJsonBodyParameters] = UNSET
+    output_data_objects_shared_i_ds: Union[Unset, "PostDataSourceQueryJsonBodyOutputDataObjectsSharedIDs"] = UNSET
+    parameters: Union[Unset, "PostDataSourceQueryJsonBodyParameters"] = UNSET
     target_public_key: Union[Unset, str] = UNSET
     target_public_key_id: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
@@ -62,6 +65,11 @@ class PostDataSourceQueryJsonBody:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.post_data_source_query_json_body_output_data_objects_shared_i_ds import (
+            PostDataSourceQueryJsonBodyOutputDataObjectsSharedIDs,
+        )
+        from ..models.post_data_source_query_json_body_parameters import PostDataSourceQueryJsonBodyParameters
+
         d = src_dict.copy()
         operation = d.pop("operation", UNSET)
 

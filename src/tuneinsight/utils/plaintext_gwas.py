@@ -46,7 +46,7 @@ def GWASLinReg(V, X, Y):
         Yhat = w @ S.T
 
         # mse = sqrt(sum((y[i] - yhat[i])^2) / p)
-        mse = (Y - Yhat)
+        mse = Y - Yhat
         mse = pow(np.inner(mse, mse)/p, 0.5)
 
         # p-value = 2 * cdf(-|beta/(mse*err)|(

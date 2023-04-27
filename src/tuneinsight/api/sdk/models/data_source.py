@@ -1,10 +1,13 @@
-from typing import Any, Dict, List, Type, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
 
 import attr
 
 from ..models.data_source_consent_type import DataSourceConsentType
-from ..models.data_source_metadata import DataSourceMetadata
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.data_source_metadata import DataSourceMetadata
+
 
 T = TypeVar("T", bound="DataSource")
 
@@ -17,7 +20,7 @@ class DataSource:
         consent_type (Union[Unset, DataSourceConsentType]): Consent type given to the data source.
         name (Union[Unset, str]):
         type (Union[Unset, str]):
-        unique_id (Union[Unset, str]): Unique identifier of a data source.
+        unique_id (Union[Unset, None, str]): Unique identifier of a data source.
         created_at (Union[Unset, str]):
         metadata (Union[Unset, DataSourceMetadata]): metadata about a datasource
         updated_at (Union[Unset, str]):
@@ -27,9 +30,9 @@ class DataSource:
     consent_type: Union[Unset, DataSourceConsentType] = UNSET
     name: Union[Unset, str] = UNSET
     type: Union[Unset, str] = UNSET
-    unique_id: Union[Unset, str] = UNSET
+    unique_id: Union[Unset, None, str] = UNSET
     created_at: Union[Unset, str] = UNSET
-    metadata: Union[Unset, DataSourceMetadata] = UNSET
+    metadata: Union[Unset, "DataSourceMetadata"] = UNSET
     updated_at: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -76,6 +79,8 @@ class DataSource:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.data_source_metadata import DataSourceMetadata
+
         d = src_dict.copy()
         attributes = cast(List[str], d.pop("attributes", UNSET))
 

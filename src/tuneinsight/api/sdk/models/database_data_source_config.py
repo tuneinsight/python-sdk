@@ -1,10 +1,13 @@
-from typing import Any, Dict, List, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
 from ..models.data_source_config_type import DataSourceConfigType
-from ..models.database_connection_info import DatabaseConnectionInfo
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.database_connection_info import DatabaseConnectionInfo
+
 
 T = TypeVar("T", bound="DatabaseDataSourceConfig")
 
@@ -18,7 +21,7 @@ class DatabaseDataSourceConfig:
     """
 
     type: DataSourceConfigType
-    connection_info: Union[Unset, DatabaseConnectionInfo] = UNSET
+    connection_info: Union[Unset, "DatabaseConnectionInfo"] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -42,6 +45,8 @@ class DatabaseDataSourceConfig:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.database_connection_info import DatabaseConnectionInfo
+
         d = src_dict.copy()
         type = DataSourceConfigType(d.pop("type"))
 

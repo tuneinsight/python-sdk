@@ -1,9 +1,12 @@
-from typing import Any, Dict, List, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
-from ..models.computation_definition import ComputationDefinition
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.computation_definition import ComputationDefinition
+
 
 T = TypeVar("T", bound="ProtocolDefinition")
 
@@ -17,7 +20,7 @@ class ProtocolDefinition:
         service_id (Union[Unset, str]): id of the protocol service
     """
 
-    computation: Union[Unset, ComputationDefinition] = UNSET
+    computation: Union[Unset, "ComputationDefinition"] = UNSET
     service_id: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -40,6 +43,8 @@ class ProtocolDefinition:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.computation_definition import ComputationDefinition
+
         d = src_dict.copy()
         _computation = d.pop("computation", UNSET)
         computation: Union[Unset, ComputationDefinition]

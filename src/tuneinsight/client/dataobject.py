@@ -96,6 +96,16 @@ class DataObject:
         fm: models.FloatMatrix = self.get_content()
         return fm
 
+    def get_ml_result(self) -> models.ExternalMlResult:
+        """
+        get_ml_result returns the content of the dataobject as an external ml result if possible
+
+        Returns:
+            models.ExternalMlResult: the external ml result of the dataobject
+        """
+        fm: models.ExternalMlResult = self.get_content()
+        return fm
+
     def get_string_matrix(self) -> models.StringMatrix:
         """
         get_string_matrix returns the content of the dataobject as a string matrix if possible

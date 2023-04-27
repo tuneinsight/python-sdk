@@ -12,21 +12,31 @@ class NoiseParameters:
     """parameters for adding differential privacy noise to the computation's encrypted output
 
     Attributes:
+        delta (Union[Unset, float]): probability of privacy leakage Default: 0.0001.
+        discrete (Union[Unset, bool]): whether to sample discrete noise or not Default: True.
         epsilon (Union[Unset, float]): the privacy budget Default: 0.2.
         sensitivity (Union[Unset, float]): sensitivity of the function applied Default: 1.0.
     """
 
+    delta: Union[Unset, float] = 0.0001
+    discrete: Union[Unset, bool] = True
     epsilon: Union[Unset, float] = 0.2
     sensitivity: Union[Unset, float] = 1.0
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        delta = self.delta
+        discrete = self.discrete
         epsilon = self.epsilon
         sensitivity = self.sensitivity
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if delta is not UNSET:
+            field_dict["delta"] = delta
+        if discrete is not UNSET:
+            field_dict["discrete"] = discrete
         if epsilon is not UNSET:
             field_dict["epsilon"] = epsilon
         if sensitivity is not UNSET:
@@ -37,11 +47,17 @@ class NoiseParameters:
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
+        delta = d.pop("delta", UNSET)
+
+        discrete = d.pop("discrete", UNSET)
+
         epsilon = d.pop("epsilon", UNSET)
 
         sensitivity = d.pop("sensitivity", UNSET)
 
         noise_parameters = cls(
+            delta=delta,
+            discrete=discrete,
             epsilon=epsilon,
             sensitivity=sensitivity,
         )
