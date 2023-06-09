@@ -1,6 +1,10 @@
+import inspect
+import textwrap
 from enum import Enum
-from typing import Dict,List
+from typing import Dict,List,Callable
 from warnings import warn
+import pandas as pd
+
 from tuneinsight.api.sdk import models
 from tuneinsight.computations.survival import SurvivalParameters
 from tuneinsight.api.sdk.models import PreprocessingOperationType as op_type
@@ -247,6 +251,50 @@ class PreprocessingBuilder:
         """
         assert isinstance(columns,list)
         self.append_to_chain(models.ApplyRegEx(type=models.PreprocessingOperationType.APPLYREGEX, regex=regex, cols=columns, regex_type=regex_type, names=names), nodes)
+        return self
+
+    def quantiles(self,input_:str,min_v: float,max_v: float,nodes: List[str] = None):
+        '''
+        quantiles computes the local quantiles (min,q1,median,q3,max) of the input column,
+        and then applies the following transformation to each quantile:
+        - normalization using the given `min_v` and `max_v` values.
+        - scaling by the dataset size.
+        The output contains a single row with each transformed quantiles and as the last column the dataset size.
+        This operation is intended to be used whenever collective quantiles are approximated through a weighted aggregation.
+        Due to the output format, it is discouraged to run any other operation after running this one.
+        After running a collective aggregation on the preprocessed values, the original values can be retrieved by performing the inverse transformation
+        as a client-side post-processing operation.
+
+        Args:
+            input_ (str): the column from which to compute the quantiles
+            min_v (float): the minimum expected value a sample can take
+            max_v (float): the maximum expected value a sample can take
+            nodes (List[str], optional): the nodes to apply this operation to. Defaults to None.
+
+        Returns:
+            self (PreprocessingBuilder): the updated PreprocessingBuilder
+        '''
+        self.append_to_chain(models.Quantiles(type=models.PreprocessingOperationType.QUANTILES,input_=input_,min_=min_v,max_=max_v),nodes=nodes)
+        return self
+
+
+    def custom(self,function: Callable[[pd.DataFrame], pd.DataFrame],name: str = "",description: str = "",nodes:List[str] = None):
+        '''
+        custom adds a custom python preprocessing block to the chain.
+        **WARNING**: This preprocessing operation can be dangerous as it enables the users to run code on other organization's machine.
+        Workflows containing such preprocessing blocks should always be carefully reviewed by the responsible data controllers from each
+        participating organization before approving the project.
+
+        Args:
+            function (Callable[[pd.DataFrame], pd.DataFrame]): the preprocessing operation, must be a python function which takes as input a dataframe and returns a new dataframe
+            name (str, optional): common name given to the operation, for indicative purposes. Defaults to "".
+            description (str, optional): description given to the operation for indicative purposes. Defaults to "".
+            nodes (List[str], optional): the nodes for which the preprocessing block will apply to. Defaults to None.
+
+        Returns:
+            self (PreprocessingBuilder): the updated PreprocessingBuilder
+        '''
+        self.append_to_chain(models.Custom(type=models.PreprocessingOperationType.CUSTOM,name=name,description=description,function=textwrap.dedent(inspect.getsource(function))),nodes)
         return self
 
     def gwas_preprocessing(self, genomic_nodes: List[str], clinical_nodes: List[str], sample_cols: List[str]):

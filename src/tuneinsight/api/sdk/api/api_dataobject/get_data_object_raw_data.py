@@ -7,18 +7,24 @@ import httpx
 from ... import errors
 from ...client import Client
 from ...models.get_data_object_raw_data_response_403 import GetDataObjectRawDataResponse403
-from ...types import File, Response
+from ...types import UNSET, File, Response, Unset
 
 
 def _get_kwargs(
     data_object_id: str,
     *,
     client: Client,
+    base64: Union[Unset, None, bool] = UNSET,
 ) -> Dict[str, Any]:
     url = "{}/dataobjects/{dataObjectId}/rawData".format(client.base_url, dataObjectId=data_object_id)
 
     headers: Dict[str, str] = client.get_headers()
     cookies: Dict[str, Any] = client.get_cookies()
+
+    params: Dict[str, Any] = {}
+    params["base64"] = base64
+
+    params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
     return {
         "method": "get",
@@ -26,6 +32,7 @@ def _get_kwargs(
         "headers": headers,
         "cookies": cookies,
         "timeout": client.get_timeout(),
+        "params": params,
     }
 
 
@@ -67,11 +74,13 @@ def sync_detailed(
     data_object_id: str,
     *,
     client: Client,
+    base64: Union[Unset, None, bool] = UNSET,
 ) -> Response[Union[File, GetDataObjectRawDataResponse403, str]]:
     """Get the raw content of a data object.
 
     Args:
         data_object_id (str):
+        base64 (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -84,6 +93,7 @@ def sync_detailed(
     kwargs = _get_kwargs(
         data_object_id=data_object_id,
         client=client,
+        base64=base64,
     )
 
     response = httpx.request(
@@ -98,11 +108,13 @@ def sync(
     data_object_id: str,
     *,
     client: Client,
+    base64: Union[Unset, None, bool] = UNSET,
 ) -> Optional[Union[File, GetDataObjectRawDataResponse403, str]]:
     """Get the raw content of a data object.
 
     Args:
         data_object_id (str):
+        base64 (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -115,6 +127,7 @@ def sync(
     return sync_detailed(
         data_object_id=data_object_id,
         client=client,
+        base64=base64,
     ).parsed
 
 
@@ -122,11 +135,13 @@ async def asyncio_detailed(
     data_object_id: str,
     *,
     client: Client,
+    base64: Union[Unset, None, bool] = UNSET,
 ) -> Response[Union[File, GetDataObjectRawDataResponse403, str]]:
     """Get the raw content of a data object.
 
     Args:
         data_object_id (str):
+        base64 (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -139,6 +154,7 @@ async def asyncio_detailed(
     kwargs = _get_kwargs(
         data_object_id=data_object_id,
         client=client,
+        base64=base64,
     )
 
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
@@ -151,11 +167,13 @@ async def asyncio(
     data_object_id: str,
     *,
     client: Client,
+    base64: Union[Unset, None, bool] = UNSET,
 ) -> Optional[Union[File, GetDataObjectRawDataResponse403, str]]:
     """Get the raw content of a data object.
 
     Args:
         data_object_id (str):
+        base64 (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -169,5 +187,6 @@ async def asyncio(
         await asyncio_detailed(
             data_object_id=data_object_id,
             client=client,
+            base64=base64,
         )
     ).parsed

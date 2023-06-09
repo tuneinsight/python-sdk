@@ -17,10 +17,6 @@ class DPPolicy:
     """represents the disclosure prevention policy that enables toggling various disclosure prevention mechanisms
 
     Attributes:
-        noise_parameters (Union[Unset, NoiseParameters]): parameters for adding differential privacy noise to the
-            computation's encrypted output
-        noisy_global_size (Union[Unset, bool]): when computing the global size, whether noise is used or not. If so,
-            each node adds discrete noise to its input to the encrypted aggregation
         authorized_variables (Union[Unset, List[str]]): constraint on the set of variables that can be used as input, in
             order to prevent misuse of variables that are out of context of the project.
             if > 0 variables are defined here, then the dataset will automatically drop any variables that do not belong to
@@ -37,24 +33,23 @@ class DPPolicy:
             size
         min_global_dataset_size (Union[Unset, int]): minimum size of the global / collective dataset. It is collectively
             computed using the encrypted aggregation
+        noise_parameters (Union[Unset, NoiseParameters]): parameters for adding differential privacy noise to the
+            computation's encrypted output
+        noisy_global_size (Union[Unset, bool]): when computing the global size, whether noise is used or not. If so,
+            each node adds discrete noise to its input to the encrypted aggregation
     """
 
-    noise_parameters: Union[Unset, "NoiseParameters"] = UNSET
-    noisy_global_size: Union[Unset, bool] = UNSET
     authorized_variables: Union[Unset, List[str]] = UNSET
     max_column_count: Union[Unset, "Threshold"] = UNSET
     max_factors: Union[Unset, "Threshold"] = UNSET
     min_dataset_size: Union[Unset, int] = UNSET
     min_frequencies: Union[Unset, "Threshold"] = UNSET
     min_global_dataset_size: Union[Unset, int] = UNSET
+    noise_parameters: Union[Unset, "NoiseParameters"] = UNSET
+    noisy_global_size: Union[Unset, bool] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        noise_parameters: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.noise_parameters, Unset):
-            noise_parameters = self.noise_parameters.to_dict()
-
-        noisy_global_size = self.noisy_global_size
         authorized_variables: Union[Unset, List[str]] = UNSET
         if not isinstance(self.authorized_variables, Unset):
             authorized_variables = self.authorized_variables
@@ -73,14 +68,15 @@ class DPPolicy:
             min_frequencies = self.min_frequencies.to_dict()
 
         min_global_dataset_size = self.min_global_dataset_size
+        noise_parameters: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.noise_parameters, Unset):
+            noise_parameters = self.noise_parameters.to_dict()
+
+        noisy_global_size = self.noisy_global_size
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if noise_parameters is not UNSET:
-            field_dict["noiseParameters"] = noise_parameters
-        if noisy_global_size is not UNSET:
-            field_dict["noisyGlobalSize"] = noisy_global_size
         if authorized_variables is not UNSET:
             field_dict["authorizedVariables"] = authorized_variables
         if max_column_count is not UNSET:
@@ -93,6 +89,10 @@ class DPPolicy:
             field_dict["minFrequencies"] = min_frequencies
         if min_global_dataset_size is not UNSET:
             field_dict["minGlobalDatasetSize"] = min_global_dataset_size
+        if noise_parameters is not UNSET:
+            field_dict["noiseParameters"] = noise_parameters
+        if noisy_global_size is not UNSET:
+            field_dict["noisyGlobalSize"] = noisy_global_size
 
         return field_dict
 
@@ -102,15 +102,6 @@ class DPPolicy:
         from ..models.threshold import Threshold
 
         d = src_dict.copy()
-        _noise_parameters = d.pop("noiseParameters", UNSET)
-        noise_parameters: Union[Unset, NoiseParameters]
-        if isinstance(_noise_parameters, Unset):
-            noise_parameters = UNSET
-        else:
-            noise_parameters = NoiseParameters.from_dict(_noise_parameters)
-
-        noisy_global_size = d.pop("noisyGlobalSize", UNSET)
-
         authorized_variables = cast(List[str], d.pop("authorizedVariables", UNSET))
 
         _max_column_count = d.pop("maxColumnCount", UNSET)
@@ -138,15 +129,24 @@ class DPPolicy:
 
         min_global_dataset_size = d.pop("minGlobalDatasetSize", UNSET)
 
+        _noise_parameters = d.pop("noiseParameters", UNSET)
+        noise_parameters: Union[Unset, NoiseParameters]
+        if isinstance(_noise_parameters, Unset):
+            noise_parameters = UNSET
+        else:
+            noise_parameters = NoiseParameters.from_dict(_noise_parameters)
+
+        noisy_global_size = d.pop("noisyGlobalSize", UNSET)
+
         dp_policy = cls(
-            noise_parameters=noise_parameters,
-            noisy_global_size=noisy_global_size,
             authorized_variables=authorized_variables,
             max_column_count=max_column_count,
             max_factors=max_factors,
             min_dataset_size=min_dataset_size,
             min_frequencies=min_frequencies,
             min_global_dataset_size=min_global_dataset_size,
+            noise_parameters=noise_parameters,
+            noisy_global_size=noisy_global_size,
         )
 
         dp_policy.additional_properties = d

@@ -341,21 +341,14 @@ class Project:
         return DatasetStatistics(client=self.client,project_id=self.get_id())
 
 
-    def add_policy(self,policy: Policy):
+    def set_policy(self,policy: Policy):
         '''
-        add_policy adds the provided policy to the project according to the computation type defined in the policy
+        set_policy sets the policy to the project
 
         Args:
             policy (Policy): the policy to add to the project
         '''
-        self.refresh()
-        curr_policy = self.model.policy
-        if isinstance(curr_policy,Unset):
-            curr_policy = models.ProjectPolicy()
-            curr_policy.computation_policies = models.ProjectPolicyComputationPolicies()
-            curr_policy.computation_policies.additional_properties = {}
-        curr_policy.computation_policies[policy.computation_type] = policy
-        proj_def = models.ProjectDefinition(policy=curr_policy)
+        proj_def = models.ProjectDefinition(policy=policy)
         self.patch(proj_def=proj_def)
 
     def display_policy(self,detailed:bool = False,show_queries: bool = False):

@@ -14,6 +14,7 @@ if not exists(cryptolib_path):
     raise FileNotFoundError("Could not find the cryptolib library. Your platform might not be supported.")
 so = ctypes.cdll.LoadLibrary(cryptolib_path)
 
+
 def go_error() -> Exception:
     """Raise a python exception from the latest go error."""
 
@@ -33,11 +34,61 @@ def load_b64_cryptosystem(cryptoparams_b64: str) -> bytes:
     """
     b64_crypto_system = so.LoadB64CryptoSystem
     b64_crypto_system.restype = ctypes.c_char_p
-    crypto_system_id = b64_crypto_system(cryptoparams_b64)
+    crypto_system_id = b64_crypto_system(cryptoparams_b64.encode())
     if crypto_system_id is None:
         raise go_error()
     return crypto_system_id
 
+
+def get_relin_key_bytes(crypto_system_id: bytes) -> bytes:
+    '''
+    get_relin_key_bytes retrieves the relinearization key bytes from the cryptosystem
+
+    Args:
+        crypto_system_id (bytes): the id of the cryptosystem
+
+    Returns:
+        bytes: the relinearization key bytes
+    '''
+    get_relin_key = so.GetRelinearizationKeyBytes
+    get_relin_key.restype = ctypes.c_void_p
+    res = get_relin_key(crypto_system_id)
+    return _handle_bytes_result(res)
+
+def encrypt_prediction_dataset(crypto_system_id:bytes,csv_bytes: bytes,b64_params: str,remove_header: bool) -> bytes:
+    '''
+    encrypt_prediction_dataset encrypts a provided dataset in prediction format using the secret key of the cryptosystem
+
+    Args:
+        crypto_system_id (bytes): the cryptosystem id
+        csv_bytes (bytes): the csv data to encrypt
+        b64_params (str): the base64 machine learning model parameters
+        remove_header (bool): whether or not the csv data contains a header
+
+    Returns:
+        bytes: the encrypted version of the dataset that can be used as input to a encrypted prediction computation
+    '''
+    encrypt_pred = so.EncryptPredictionDataset
+    encrypt_pred.restype = ctypes.c_void_p
+    res = encrypt_pred(crypto_system_id,csv_bytes,len(csv_bytes),b64_params.encode(),ctypes.c_bool(remove_header))
+    return _handle_bytes_result(res)
+
+
+def decrypt_prediction(crypto_system_id: bytes,ct: bytes) -> bytes:
+    '''
+    decrypt_prediction decrypts the encrypted prediction ciphertext
+
+    Args:
+        crypto_system_id (bytes): the id of the cryptosystem storing the secret key
+        ct (bytes): the encrypted prediction bytes
+
+    Returns:
+        bytes: the decrypted predicted values as a csv in byte format
+    '''
+    decrypt_pred = so.DecryptPredictionResult
+    decrypt_pred.restype = ctypes.c_void_p
+    res = decrypt_pred(crypto_system_id,ct,len(ct))
+    return _handle_bytes_result(res)
 
 def key_generation(crypto_system_id: bytes) -> bytes:
     """Generate a key for a given cryptosystem.
@@ -279,3 +330,11 @@ def decrypt_number(crypto_system_id: bytes, encrypted_number: bytes) -> int:
         raise go_error()
     result_length = int.from_bytes(ctypes.string_at(result, 8), "little")
     return result_length
+
+def _handle_bytes_result(result) -> bytes:
+    if result is None:
+        raise go_error()
+    result_length = int.from_bytes(ctypes.string_at(result, 8), "little")
+    result_bytes = ctypes.string_at(result, result_length + 8)
+    result_bytes = result_bytes[8:]
+    return result_bytes

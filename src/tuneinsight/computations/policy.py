@@ -1,7 +1,6 @@
 import json
 from typing import List
 from IPython.display import display, Markdown
-from tuneinsight.computations.types import Type
 from tuneinsight.computations.preprocessing import Operation
 from tuneinsight.api.sdk import models
 from tuneinsight.api.sdk.types import Unset
@@ -16,9 +15,8 @@ class Policy(models.ComputationPolicy):
         models (_type_): _description_
     '''
 
-    computation_type: models.ComputationType
 
-    def __init__(self,computation_type: Type):
+    def __init__(self):
         '''
         __init__ initializes the the policy using the computation type
 
@@ -31,7 +29,6 @@ class Policy(models.ComputationPolicy):
         self.fixed_parameters = []
         self.flexible_parameters = []
         self.dp_policy = models.DPPolicy()
-        self.computation_type = computation_type.to_computation_type()
 
 
     def add_authorized_preprocessing(self,operations: List[Operation]):

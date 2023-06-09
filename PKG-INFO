@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: tuneinsight
-Version: 0.3.0
+Version: 0.4.0
 Summary: Diapason is the official Python SDK for the Tune Insight Agent API
 License: Apache-2.0
 Author: Tune Insight SA
@@ -34,7 +34,7 @@ Diapason is the Tune Insight Python SDK
 ### Installing
 
 ```bash
-pip install tuneinsight-0.1.1.tar.gz
+pip install tuneinsight-0.4.0.tar.gz
 ```
 
 ## Usage

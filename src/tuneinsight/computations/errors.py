@@ -72,7 +72,9 @@ def find_error_pattern(error_msg:str,pattern: str) -> Tuple[bool,str]:
     '''
     if pattern in error_msg:
         msg = error_msg[error_msg.find(pattern) + len(pattern):]
-        msg = msg[:msg.find('\n')]
+        tmp = msg.find('\n')
+        if tmp != -1:
+            msg = msg[:msg.find('\n')]
         return True,msg
     return False,""
 

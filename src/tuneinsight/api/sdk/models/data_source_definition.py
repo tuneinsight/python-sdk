@@ -17,30 +17,28 @@ T = TypeVar("T", bound="DataSourceDefinition")
 class DataSourceDefinition:
     """
     Attributes:
-        type (Union[Unset, str]):
-        unique_id (Union[Unset, None, str]): Unique identifier of a data source.
         attributes (Union[Unset, List[str]]):
         consent_type (Union[Unset, DataSourceConsentType]): Consent type given to the data source.
         name (Union[Unset, str]):
+        type (Union[Unset, str]):
+        unique_id (Union[Unset, None, str]): Unique identifier of a data source.
         clear_if_exists (Union[Unset, bool]): If true and a data source with the same name already exists, delete it.
         config (Union[Unset, DataSourceConfig]): Configuration of data source that depends on the type.
         credentials_provider (Union[Unset, CredentialsProvider]): The provider of the credentials needed to access the
             data source.
     """
 
-    type: Union[Unset, str] = UNSET
-    unique_id: Union[Unset, None, str] = UNSET
     attributes: Union[Unset, List[str]] = UNSET
     consent_type: Union[Unset, DataSourceConsentType] = UNSET
     name: Union[Unset, str] = UNSET
+    type: Union[Unset, str] = UNSET
+    unique_id: Union[Unset, None, str] = UNSET
     clear_if_exists: Union[Unset, bool] = False
     config: Union[Unset, "DataSourceConfig"] = UNSET
     credentials_provider: Union[Unset, "CredentialsProvider"] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        type = self.type
-        unique_id = self.unique_id
         attributes: Union[Unset, List[str]] = UNSET
         if not isinstance(self.attributes, Unset):
             attributes = self.attributes
@@ -50,6 +48,8 @@ class DataSourceDefinition:
             consent_type = self.consent_type.value
 
         name = self.name
+        type = self.type
+        unique_id = self.unique_id
         clear_if_exists = self.clear_if_exists
         config: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.config, Unset):
@@ -62,16 +62,16 @@ class DataSourceDefinition:
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if type is not UNSET:
-            field_dict["type"] = type
-        if unique_id is not UNSET:
-            field_dict["uniqueId"] = unique_id
         if attributes is not UNSET:
             field_dict["attributes"] = attributes
         if consent_type is not UNSET:
             field_dict["consentType"] = consent_type
         if name is not UNSET:
             field_dict["name"] = name
+        if type is not UNSET:
+            field_dict["type"] = type
+        if unique_id is not UNSET:
+            field_dict["uniqueId"] = unique_id
         if clear_if_exists is not UNSET:
             field_dict["clearIfExists"] = clear_if_exists
         if config is not UNSET:
@@ -87,10 +87,6 @@ class DataSourceDefinition:
         from ..models.data_source_config import DataSourceConfig
 
         d = src_dict.copy()
-        type = d.pop("type", UNSET)
-
-        unique_id = d.pop("uniqueId", UNSET)
-
         attributes = cast(List[str], d.pop("attributes", UNSET))
 
         _consent_type = d.pop("consentType", UNSET)
@@ -101,6 +97,10 @@ class DataSourceDefinition:
             consent_type = DataSourceConsentType(_consent_type)
 
         name = d.pop("name", UNSET)
+
+        type = d.pop("type", UNSET)
+
+        unique_id = d.pop("uniqueId", UNSET)
 
         clear_if_exists = d.pop("clearIfExists", UNSET)
 
@@ -119,11 +119,11 @@ class DataSourceDefinition:
             credentials_provider = CredentialsProvider.from_dict(_credentials_provider)
 
         data_source_definition = cls(
-            type=type,
-            unique_id=unique_id,
             attributes=attributes,
             consent_type=consent_type,
             name=name,
+            type=type,
+            unique_id=unique_id,
             clear_if_exists=clear_if_exists,
             config=config,
             credentials_provider=credentials_provider,

@@ -52,9 +52,9 @@ install_requires = \
 
 setup_kwargs = {
     'name': 'tuneinsight',
-    'version': '0.2.1',
+    'version': '0.4.0',
     'description': 'Diapason is the official Python SDK for the Tune Insight Agent API',
-    'long_description': "# Tune Insight Python SDK\n\nDiapason is the Tune Insight Python SDK\n\n## Getting Started\n\n### Installing\n\n```bash\npip install tuneinsight-0.1.1.tar.gz\n```\n\n## Usage\n\nTo use the SDK you must be able to connect to a *Tune Insight* Agent.\n\n\n### Creating a client to the agents\n\nTo create a new client to one of the running agents, simply run:\n```python\nfrom tuneinsight.client.diapason import Diapason\nclient = Diapason.from_config_path('conf.yml')\n```\n\n## Documentation\nThe complete documentation for Diapason is available [here](https://docs.tuneinsight.com/docs/python-sdk).\n\n\n## License\nApache License 2.0",
+    'long_description': "# Tune Insight Python SDK\n\nDiapason is the Tune Insight Python SDK\n\n## Getting Started\n\n### Installing\n\n```bash\npip install tuneinsight-0.4.0.tar.gz\n```\n\n## Usage\n\nTo use the SDK you must be able to connect to a *Tune Insight* Agent.\n\n\n### Creating a client to the agents\n\nTo create a new client to one of the running agents, simply run:\n```python\nfrom tuneinsight.client.diapason import Diapason\nclient = Diapason.from_config_path('conf.yml')\n```\n\n## Documentation\nThe complete documentation for Diapason is available [here](https://docs.tuneinsight.com/docs/python-sdk).\n\n\n## License\nApache License 2.0",
     'author': 'Tune Insight SA',
     'author_email': 'None',
     'maintainer': 'None',
@@ -64,7 +64,7 @@ setup_kwargs = {
     'packages': packages,
     'package_data': package_data,
     'install_requires': install_requires,
-    'python_requires': '>=3.9,<3.11',
+    'python_requires': '>=3.7.1,<3.11',
 }
 
 

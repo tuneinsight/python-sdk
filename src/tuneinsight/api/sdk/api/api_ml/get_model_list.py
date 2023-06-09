@@ -17,6 +17,7 @@ def _get_kwargs(
     client: Client,
     sort_by: Union[Unset, None, GetModelListSortBy] = UNSET,
     order: Union[Unset, None, GetModelListOrder] = UNSET,
+    project_id: Union[Unset, None, str] = UNSET,
 ) -> Dict[str, Any]:
     url = "{}/models".format(client.base_url)
 
@@ -35,6 +36,8 @@ def _get_kwargs(
         json_order = order.value if order else None
 
     params["order"] = json_order
+
+    params["projectId"] = project_id
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
@@ -89,12 +92,14 @@ def sync_detailed(
     client: Client,
     sort_by: Union[Unset, None, GetModelListSortBy] = UNSET,
     order: Union[Unset, None, GetModelListOrder] = UNSET,
+    project_id: Union[Unset, None, str] = UNSET,
 ) -> Response[Union[GetModelListResponse403, List["Model"], str]]:
     """Get the list of available machine learning models.
 
     Args:
         sort_by (Union[Unset, None, GetModelListSortBy]):
         order (Union[Unset, None, GetModelListOrder]):
+        project_id (Union[Unset, None, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -108,6 +113,7 @@ def sync_detailed(
         client=client,
         sort_by=sort_by,
         order=order,
+        project_id=project_id,
     )
 
     response = httpx.request(
@@ -123,12 +129,14 @@ def sync(
     client: Client,
     sort_by: Union[Unset, None, GetModelListSortBy] = UNSET,
     order: Union[Unset, None, GetModelListOrder] = UNSET,
+    project_id: Union[Unset, None, str] = UNSET,
 ) -> Optional[Union[GetModelListResponse403, List["Model"], str]]:
     """Get the list of available machine learning models.
 
     Args:
         sort_by (Union[Unset, None, GetModelListSortBy]):
         order (Union[Unset, None, GetModelListOrder]):
+        project_id (Union[Unset, None, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -142,6 +150,7 @@ def sync(
         client=client,
         sort_by=sort_by,
         order=order,
+        project_id=project_id,
     ).parsed
 
 
@@ -150,12 +159,14 @@ async def asyncio_detailed(
     client: Client,
     sort_by: Union[Unset, None, GetModelListSortBy] = UNSET,
     order: Union[Unset, None, GetModelListOrder] = UNSET,
+    project_id: Union[Unset, None, str] = UNSET,
 ) -> Response[Union[GetModelListResponse403, List["Model"], str]]:
     """Get the list of available machine learning models.
 
     Args:
         sort_by (Union[Unset, None, GetModelListSortBy]):
         order (Union[Unset, None, GetModelListOrder]):
+        project_id (Union[Unset, None, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -169,6 +180,7 @@ async def asyncio_detailed(
         client=client,
         sort_by=sort_by,
         order=order,
+        project_id=project_id,
     )
 
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
@@ -182,12 +194,14 @@ async def asyncio(
     client: Client,
     sort_by: Union[Unset, None, GetModelListSortBy] = UNSET,
     order: Union[Unset, None, GetModelListOrder] = UNSET,
+    project_id: Union[Unset, None, str] = UNSET,
 ) -> Optional[Union[GetModelListResponse403, List["Model"], str]]:
     """Get the list of available machine learning models.
 
     Args:
         sort_by (Union[Unset, None, GetModelListSortBy]):
         order (Union[Unset, None, GetModelListOrder]):
+        project_id (Union[Unset, None, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -202,5 +216,6 @@ async def asyncio(
             client=client,
             sort_by=sort_by,
             order=order,
+            project_id=project_id,
         )
     ).parsed

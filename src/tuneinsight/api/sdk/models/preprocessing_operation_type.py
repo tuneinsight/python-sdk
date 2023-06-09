@@ -16,6 +16,8 @@ class PreprocessingOperationType(str, Enum):
     RENAME = "rename"
     EXTRACTDICTFIELD = "extractDictField"
     APPLYREGEX = "applyRegEx"
+    QUANTILES = "quantiles"
+    CUSTOM = "custom"
 
     def __str__(self) -> str:
         return str(self.value)

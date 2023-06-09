@@ -15,7 +15,6 @@ from tuneinsight.client.project import Project
 from tuneinsight.client.validation import validate_response
 from tuneinsight.client import config
 from tuneinsight.client import auth
-
 from tuneinsight.api.sdk.types import UNSET
 
 @attr.s(auto_attribs=True)
@@ -28,6 +27,7 @@ class Diapason:
     """
     conf: config.Client
     client: api_client.Client = None
+    maas = None # expected type ModelManager not included to avoid cryptolib dependency
 
     def __attrs_post_init__(self):
         if self.conf.security.static_token != "":
@@ -64,10 +64,28 @@ class Diapason:
         conf = config.LoadEnvClient(path)
         return cls(conf = conf)
 
+    def login(self):
+        """
+        login provides users with a link to log in from a browser
+
+        Raises:
+            AttributeError: if the client is not a keycloak client
+        """
+        if not isinstance(self.client, auth.KeycloakClient):
+            raise AttributeError("client is not a KeycloakClient")
+
+        device_resp = self.client.get_device_code()
+        login_url = device_resp['verification_uri_complete']
+        print("Follow this link to login: " + login_url)
+        return login_url
+
     def get_client(self):
         if self.client is None:
-            raise Exception("client has not been created")
+            raise AttributeError("client has not been created")
         return self.client
+
+    def add_models(self, model_manager):
+        self.maas = model_manager
 
     def new_datasource(self, dataframe: pd.DataFrame, name: str, clear_if_exists: bool = False) -> DataSource:
         """
@@ -127,12 +145,16 @@ class Diapason:
         """
         return DataSource.postgres(client=self.get_client(),config=pg_config,name=name,clear_if_exists=clear_if_exists)
 
-    def new_project(self, name: str, clear_if_exists: bool = False, topology: models.Topology = UNSET) -> Project:
+    def new_project(self, name: str, clear_if_exists: bool = False,
+                    topology: models.Topology = UNSET, authorized_users: list = None) -> Project:
         """new_project creates a new project
 
         Args:
             name (str): name of the project
             clear_if_exists (bool, optional): remove existing projects with the same name before creating it. Defaults to False.
+            topology (Union[Unset, Topology]): Network Topologies. 'star' or 'tree'. In star topology all nodes are
+            connected to a central node. In tree topology all nodes are connected and aware of each other.
+            authorized_users (Union[Unset, List[str]]): The IDs of the users who can run the project
 
         Raises:
             Exception: in case the project already exists and clear_if_exists is False
@@ -140,13 +162,19 @@ class Diapason:
         Returns:
             Project: the newly created project
         """
+
+        if authorized_users is None:
+            authorized_users = []
+
         if name in [p.get_name() for p in self.get_projects()]:
             if clear_if_exists:
                 self.clear_project(name=name)
             else:
-                raise Exception("project " + name + " already exists")
+                raise ValueError(f"project {name} already exists")
 
-        proj_def = models.ProjectDefinition(name=name,local=True,allow_shared_edit=True,topology=topology)
+        proj_def = models.ProjectDefinition(name=name,local=True,allow_shared_edit=True,
+                                            topology=topology,created_with_client=models.Client.DIAPASON_PY,
+                                            authorized_users=authorized_users)
         proj_response: Response[models.Project] = post_project.sync_detailed(client=self.client,json_body=proj_def)
         validate_response(proj_response)
         return Project(model=proj_response.parsed,client=self.client)
@@ -186,7 +214,7 @@ class Diapason:
         for p in projects:
             if p.get_name() == name:
                 return self.get_project(project_id=p.get_id())
-        raise Exception("project not found")
+        raise LookupError("project not found")
 
     def get_datasources(self, name: str="") -> List[DataSource]:
         response: Response[List[models.DataSource]] = get_data_source_list.sync_detailed(client=self.client, name=name)
@@ -197,6 +225,14 @@ class Diapason:
         return datasources
 
     def delete_datasource(self, ds: DataSource) -> List[DataSource]:
+        """delete_datasource deletes a datasource
+
+        Args:
+            ds (DataSource): the datasource to delete
+
+        Returns:
+            List[DataSource]: updated list of datasources
+        """
         response = delete_data_source.sync_detailed(client=self.client, data_source_id=ds.get_id())
         validate_response(response)
 

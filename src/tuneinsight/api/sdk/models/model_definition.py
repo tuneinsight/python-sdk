@@ -1,8 +1,11 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
 
 import attr
 
+from ..types import UNSET, Unset
+
 if TYPE_CHECKING:
+    from ..models.model_metadata import ModelMetadata
     from ..models.prediction_params import PredictionParams
 
 
@@ -17,11 +20,15 @@ class ModelDefinition:
         name (str): common name to give to the model
         prediction_params (PredictionParams): subset of parameters required for only the prediction
         weights (List[List[float]]): Plaintext weights of the model as a float matrix
+        metadata (Union[Unset, ModelMetadata]): public metadata about the model
+        project_id (Union[Unset, str]): Unique identifier of a project.
     """
 
     name: str
     prediction_params: "PredictionParams"
     weights: List[List[float]]
+    metadata: Union[Unset, "ModelMetadata"] = UNSET
+    project_id: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -34,6 +41,12 @@ class ModelDefinition:
 
             weights.append(weights_item)
 
+        metadata: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.metadata, Unset):
+            metadata = self.metadata.to_dict()
+
+        project_id = self.project_id
+
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -43,11 +56,16 @@ class ModelDefinition:
                 "weights": weights,
             }
         )
+        if metadata is not UNSET:
+            field_dict["metadata"] = metadata
+        if project_id is not UNSET:
+            field_dict["projectId"] = project_id
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.model_metadata import ModelMetadata
         from ..models.prediction_params import PredictionParams
 
         d = src_dict.copy()
@@ -62,10 +80,21 @@ class ModelDefinition:
 
             weights.append(weights_item)
 
+        _metadata = d.pop("metadata", UNSET)
+        metadata: Union[Unset, ModelMetadata]
+        if isinstance(_metadata, Unset):
+            metadata = UNSET
+        else:
+            metadata = ModelMetadata.from_dict(_metadata)
+
+        project_id = d.pop("projectId", UNSET)
+
         model_definition = cls(
             name=name,
             prediction_params=prediction_params,
             weights=weights,
+            metadata=metadata,
+            project_id=project_id,
         )
 
         model_definition.additional_properties = d

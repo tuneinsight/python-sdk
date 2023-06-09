@@ -65,6 +65,23 @@ class DataObject:
     client: Client
 
 
+    @classmethod
+    def create(cls,client: Client,do_type: models.DataObjectType,session_id: str = "",encrypted: bool = False,key_info: models.KeyInfo = None,data:bytes=None):
+        body = models.PostDataObjectJsonBody()
+        body.method = models.PostDataObjectJsonBodyMethod.CREATE
+        body.encrypted = encrypted
+        body.type = do_type
+        body.session_id = session_id
+        if key_info is not None:
+            body.key_info = key_info
+        response: Response[models.DataObject] = post_data_object.sync_detailed(client=client,json_body=body)
+        validate_response(response)
+
+        data_object = cls(model=response.parsed,client=client)
+        if data is not None:
+            data_object.load_data_from_bytes(data)
+        return data_object
+
     def get_id(self) -> str:
         """
         get_id returns the ID of the dataobject

@@ -17,21 +17,24 @@ class BackupDefinition:
     """backup parameters
 
     Attributes:
-        s_3_parameters (Union[Unset, S3Parameters]): parameters for the remote s3-compatible storage
-        type (Union[Unset, BackupType]): enumeration of backup types
         encrypt (Union[Unset, bool]): whether or not to encrypt the backup
         encryption_key (Union[Unset, str]): b64 encoded encryption in case the backup needs to be encrypted
         path (Union[Unset, str]): path to the local backup directory
+        s_3_parameters (Union[Unset, S3Parameters]): parameters for the remote s3-compatible storage
+        type (Union[Unset, BackupType]): enumeration of backup types
     """
 
-    s_3_parameters: Union[Unset, "S3Parameters"] = UNSET
-    type: Union[Unset, BackupType] = UNSET
     encrypt: Union[Unset, bool] = UNSET
     encryption_key: Union[Unset, str] = UNSET
     path: Union[Unset, str] = UNSET
+    s_3_parameters: Union[Unset, "S3Parameters"] = UNSET
+    type: Union[Unset, BackupType] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        encrypt = self.encrypt
+        encryption_key = self.encryption_key
+        path = self.path
         s_3_parameters: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.s_3_parameters, Unset):
             s_3_parameters = self.s_3_parameters.to_dict()
@@ -40,23 +43,19 @@ class BackupDefinition:
         if not isinstance(self.type, Unset):
             type = self.type.value
 
-        encrypt = self.encrypt
-        encryption_key = self.encryption_key
-        path = self.path
-
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if s_3_parameters is not UNSET:
-            field_dict["s3Parameters"] = s_3_parameters
-        if type is not UNSET:
-            field_dict["type"] = type
         if encrypt is not UNSET:
             field_dict["encrypt"] = encrypt
         if encryption_key is not UNSET:
             field_dict["encryptionKey"] = encryption_key
         if path is not UNSET:
             field_dict["path"] = path
+        if s_3_parameters is not UNSET:
+            field_dict["s3Parameters"] = s_3_parameters
+        if type is not UNSET:
+            field_dict["type"] = type
 
         return field_dict
 
@@ -65,6 +64,12 @@ class BackupDefinition:
         from ..models.s3_parameters import S3Parameters
 
         d = src_dict.copy()
+        encrypt = d.pop("encrypt", UNSET)
+
+        encryption_key = d.pop("encryptionKey", UNSET)
+
+        path = d.pop("path", UNSET)
+
         _s_3_parameters = d.pop("s3Parameters", UNSET)
         s_3_parameters: Union[Unset, S3Parameters]
         if isinstance(_s_3_parameters, Unset):
@@ -79,18 +84,12 @@ class BackupDefinition:
         else:
             type = BackupType(_type)
 
-        encrypt = d.pop("encrypt", UNSET)
-
-        encryption_key = d.pop("encryptionKey", UNSET)
-
-        path = d.pop("path", UNSET)
-
         backup_definition = cls(
-            s_3_parameters=s_3_parameters,
-            type=type,
             encrypt=encrypt,
             encryption_key=encryption_key,
             path=path,
+            s_3_parameters=s_3_parameters,
+            type=type,
         )
 
         backup_definition.additional_properties = d

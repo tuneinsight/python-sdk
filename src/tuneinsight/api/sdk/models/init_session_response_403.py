@@ -11,38 +11,38 @@ T = TypeVar("T", bound="InitSessionResponse403")
 class InitSessionResponse403:
     """
     Attributes:
-        message (Union[Unset, str]):
         code (Union[Unset, int]):
+        message (Union[Unset, str]):
     """
 
-    message: Union[Unset, str] = UNSET
     code: Union[Unset, int] = UNSET
+    message: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        message = self.message
         code = self.code
+        message = self.message
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if message is not UNSET:
-            field_dict["message"] = message
         if code is not UNSET:
             field_dict["code"] = code
+        if message is not UNSET:
+            field_dict["message"] = message
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        message = d.pop("message", UNSET)
-
         code = d.pop("code", UNSET)
 
+        message = d.pop("message", UNSET)
+
         init_session_response_403 = cls(
-            message=message,
             code=code,
+            message=message,
         )
 
         init_session_response_403.additional_properties = d

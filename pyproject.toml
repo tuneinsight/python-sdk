@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "tuneinsight"
-version = "0.3.0"
+version = "0.4.0"
 description = "Diapason is the official Python SDK for the Tune Insight Agent API"
 authors = ["Tune Insight SA"]
 license = "Apache-2.0"
@@ -25,6 +25,7 @@ matplotlib = "^3.5.0"
 # Required by ge_co_rest_api
 httpx = ">=0.15.4,<0.24.0"
 attrs = ">=21.3.0"
+selenium = "^4.9.1"
 
 
 [build-system]

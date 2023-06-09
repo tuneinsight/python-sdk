@@ -1,7 +1,9 @@
 from typing import Dict
 from time import time
+from ast import literal_eval
 from attr import define
-from keycloak import KeycloakOpenID
+from keycloak import KeycloakOpenID, raise_error_from_response
+from keycloak.exceptions import KeycloakError
 
 from tuneinsight.api.sdk import client
 from tuneinsight.client import config
@@ -14,6 +16,7 @@ class KeycloakClient(client.AuthenticatedClient):
     oidc_config: config.OIDCConfiguration
     username: str
     password: str
+    device_code: str = ''
     tokens: dict = {}
     kc_open_id: KeycloakOpenID = None
     token_timeout: float = 0
@@ -38,6 +41,10 @@ class KeycloakClient(client.AuthenticatedClient):
         if self.oidc_config.oidc_client_secret != "":
             self.tokens = self.kc_open_id.token(
                 self.username, grant_type="client_credentials")
+        # If a device_code is provided, use the device authorization grant flow
+        elif self.device_code !='':
+            self.tokens = self.kc_open_id.token(
+                self.username, grant_type="urn:ietf:params:oauth:grant-type:device_code", device_code=self.device_code)
         else:
             # Otherwise, use password flow for user accounts
             self.tokens = self.kc_open_id.token(self.username, self.password)
@@ -45,6 +52,20 @@ class KeycloakClient(client.AuthenticatedClient):
 
     def refresh_token(self) -> dict:
         self.update_tokens(self.kc_open_id.refresh_token(self.tokens["refresh_token"]))
+
+    def get_device_code(self) -> dict:
+        payload = {
+            "client_id": self.kc_open_id.client_id,
+        }
+
+        url = self.oidc_config.oidc_url + 'realms/' + self.oidc_config.oidc_realm + '/protocol/openid-connect/auth/device'
+
+        resp = self.kc_open_id.connection.raw_post(url, payload)
+        if resp.status_code in [200, 201, 204]:
+            decoded_resp = literal_eval(resp.content.decode())
+            self.device_code = decoded_resp['device_code']
+        # return literal_eval(resp.content.decode())
+        return raise_error_from_response(resp, KeycloakError)
 
     def get_headers(self) -> Dict[str, str]:
         """Get headers to be used in authenticated endpoints"""

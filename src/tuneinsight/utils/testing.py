@@ -2,6 +2,7 @@ import csv
 import unittest
 from typing import Any, List, Tuple
 import pandas as pd
+import numpy as np
 from tuneinsight.api.sdk.types import Response
 from tuneinsight.utils.generator import PatientGenerator
 from tuneinsight.client.diapason import Diapason
@@ -154,10 +155,42 @@ def partition_dataframe(df: pd.DataFrame,num: int = 3,seed: int=0) -> List[pd.Da
     if num == 1:
         return [df]
     if num > len(df):
-        raise Exception("number of partitions cannot be higher then the row count")
+        raise ValueError("number of partitions cannot be higher then the row count")
     part_size = int(len(df) / num)
     partition = df.sample(n=part_size,random_state=seed)
     remaining = df.drop(index=partition.index)
     partitions = partition_dataframe(remaining,num-1,seed)
     partitions.append(partition)
     return partitions
+
+
+def sigmoid(z: np.ndarray) -> np.ndarray:
+    '''
+    sigmoid applies the sigmoid activation on z
+
+    Args:
+        z (np.ndarray): the numpy representation of z
+
+    Returns:
+        np.ndarray: the transformed array
+    '''
+    return 1 / (1 + np.exp(-z))
+
+def regression_prediction(weights: np.ndarray,bias: np.ndarray,inputs: np.ndarray,activation: callable = None) -> np.ndarray:
+    '''
+    regression_prediction computes the regression prediction given the weights, bias and input datasets. An additional optional
+    activation function can be provided to be applied after the linear transformation
+
+    Args:
+        weights (np.ndarray): the model weights/coefficients
+        bias (np.ndarray): the model bias
+        inputs (np.ndarray): the input dataset
+        activation (callable, optional): the optional activation function. Defaults to None.
+
+    Returns:
+        np.ndarray: the numpy array of predicted values
+    '''
+    z = np.dot(weights.T,inputs.T) + bias
+    if activation is not None:
+        return activation(z)
+    return z
