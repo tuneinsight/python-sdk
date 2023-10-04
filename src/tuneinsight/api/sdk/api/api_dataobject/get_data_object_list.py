@@ -1,12 +1,12 @@
 from http import HTTPStatus
-from typing import Any, Dict, List, Optional, Union, cast
+from typing import Any, Dict, List, Optional, Union
 
 import httpx
 
 from ... import errors
 from ...client import Client
 from ...models.data_object import DataObject
-from ...models.get_data_object_list_response_403 import GetDataObjectListResponse403
+from ...models.error import Error
 from ...types import Response
 
 
@@ -28,9 +28,7 @@ def _get_kwargs(
     }
 
 
-def _parse_response(
-    *, client: Client, response: httpx.Response
-) -> Optional[Union[GetDataObjectListResponse403, List["DataObject"], str]]:
+def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[Error, List["DataObject"]]]:
     if response.status_code == HTTPStatus.OK:
         response_200 = []
         _response_200 = response.json()
@@ -41,11 +39,12 @@ def _parse_response(
 
         return response_200
     if response.status_code == HTTPStatus.FORBIDDEN:
-        response_403 = GetDataObjectListResponse403.from_dict(response.json())
+        response_403 = Error.from_dict(response.json())
 
         return response_403
     if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
-        response_500 = cast(str, response.json())
+        response_500 = Error.from_dict(response.json())
+
         return response_500
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(f"Unexpected status code: {response.status_code}")
@@ -53,9 +52,7 @@ def _parse_response(
         return None
 
 
-def _build_response(
-    *, client: Client, response: httpx.Response
-) -> Response[Union[GetDataObjectListResponse403, List["DataObject"], str]]:
+def _build_response(*, client: Client, response: httpx.Response) -> Response[Union[Error, List["DataObject"]]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -67,7 +64,7 @@ def _build_response(
 def sync_detailed(
     *,
     client: Client,
-) -> Response[Union[GetDataObjectListResponse403, List["DataObject"], str]]:
+) -> Response[Union[Error, List["DataObject"]]]:
     """Get the list of available data objects.
 
     Raises:
@@ -75,7 +72,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetDataObjectListResponse403, List['DataObject'], str]]
+        Response[Union[Error, List['DataObject']]]
     """
 
     kwargs = _get_kwargs(
@@ -93,7 +90,7 @@ def sync_detailed(
 def sync(
     *,
     client: Client,
-) -> Optional[Union[GetDataObjectListResponse403, List["DataObject"], str]]:
+) -> Optional[Union[Error, List["DataObject"]]]:
     """Get the list of available data objects.
 
     Raises:
@@ -101,7 +98,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetDataObjectListResponse403, List['DataObject'], str]]
+        Response[Union[Error, List['DataObject']]]
     """
 
     return sync_detailed(
@@ -112,7 +109,7 @@ def sync(
 async def asyncio_detailed(
     *,
     client: Client,
-) -> Response[Union[GetDataObjectListResponse403, List["DataObject"], str]]:
+) -> Response[Union[Error, List["DataObject"]]]:
     """Get the list of available data objects.
 
     Raises:
@@ -120,7 +117,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetDataObjectListResponse403, List['DataObject'], str]]
+        Response[Union[Error, List['DataObject']]]
     """
 
     kwargs = _get_kwargs(
@@ -136,7 +133,7 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: Client,
-) -> Optional[Union[GetDataObjectListResponse403, List["DataObject"], str]]:
+) -> Optional[Union[Error, List["DataObject"]]]:
     """Get the list of available data objects.
 
     Raises:
@@ -144,7 +141,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetDataObjectListResponse403, List['DataObject'], str]]
+        Response[Union[Error, List['DataObject']]]
     """
 
     return (

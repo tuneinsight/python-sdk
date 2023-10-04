@@ -17,6 +17,12 @@ class PreprocessingOperationType(str, Enum):
     EXTRACTDICTFIELD = "extractDictField"
     APPLYREGEX = "applyRegEx"
     QUANTILES = "quantiles"
+    TIMEDIFF = "timeDiff"
+    DROPNA = "dropna"
+    APPLYMAPPING = "applyMapping"
+    CUT = "cut"
+    DEVIATIONSQUARES = "deviationSquares"
+    ADDCOLUMNS = "addColumns"
     CUSTOM = "custom"
 
     def __str__(self) -> str:

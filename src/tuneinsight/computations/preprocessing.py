@@ -5,6 +5,7 @@ from typing import Dict,List,Callable
 from warnings import warn
 import pandas as pd
 
+from tuneinsight.api.sdk.types import UNSET
 from tuneinsight.api.sdk import models
 from tuneinsight.computations.survival import SurvivalParameters
 from tuneinsight.api.sdk.models import PreprocessingOperationType as op_type
@@ -277,6 +278,119 @@ class PreprocessingBuilder:
         self.append_to_chain(models.Quantiles(type=models.PreprocessingOperationType.QUANTILES,input_=input_,min_=min_v,max_=max_v),nodes=nodes)
         return self
 
+    def time_diff(self,start: str,end:str,output: str,unit: models.TimeUnit = models.TimeUnit.MONTHS,filter_na: bool = True, nodes: List[str] = None):
+        '''
+        time_diff computes the time difference between two datetime columns (must be parsable dates/times
+
+        Args:
+            start (str): the column indicating the start of the measurement
+            end (str): the column indicating the end of the measurement
+            output (str): the output column name
+            unit (models.TimeUnit, optional): the time unit to use. Defaults to models.TimeUnit.MONTHS.
+            filter_na (bool, optional): whether to filter NaN values in both columns beforehand. Defaults to True.
+            nodes (List[str], optional): the list of nodes to apply this preprocessing operation to. Defaults to None.
+
+        Returns:
+            _type_: _description_
+        '''
+        self.append_to_chain(models.TimeDiff(type=models.PreprocessingOperationType.TIMEDIFF,start=start,end=end,output=output,unit=unit,filter_na=filter_na),nodes)
+        return self
+
+    def dropna(self,subset: List[str] = None,nodes: List[str] = None):
+        '''
+        dropna Drops all rows that contain NaN values, calls the standard pandas function, it also converts strings with the value 'NaN' to actual NaN values
+
+        Args:
+            nodes (List[str], optional): the list of nodes to apply this preprocessing operation to. Defaults to None.
+        Returns:
+            self (PreprocessingBuilder): the updated PreprocessingBuilder
+        '''
+        if subset is None:
+            subset = UNSET
+        self.append_to_chain(models.Dropna(type=models.PreprocessingOperationType.DROPNA,subset=subset),nodes)
+        return self
+
+
+    def apply_mapping(self,input_: str,output: str,mapping: Dict[str,str],default: str = "",nodes: List[str] = None):
+        '''
+        apply_mapping creates a new column based on another column, given a mapping defined by the user
+
+        Args:
+            input_ (str): the source column
+            output (str): the newly derived column name
+            mapping (Dict[str,str]): the mapping of values
+            default (str, optional): default value to use when the value does not match any value from the mapping. Defaults to "".
+            nodes (List[str], optional): the list of nodes to apply this preprocessing operation to. Defaults to None.
+
+        Returns:
+            self (PreprocessingBuilder): the updated PreprocessingBuilder
+        '''
+        sm = models.StringMapping.from_dict(mapping)
+        # Convert all keys and values to strings
+        for key,value in sm.additional_properties.items():
+            sm.additional_properties[key] = str(value)
+
+        self.append_to_chain(models.ApplyMapping(type=models.PreprocessingOperationType.APPLYMAPPING,input_=input_,output=output,mapping=sm,default=str(default)),nodes=nodes)
+        return self
+
+    def cut(self,input_:str,output:str,cuts: List[float],labels: List[str],nodes: List[str] = None):
+        '''
+        cut transforms a numeric variable into categories according to a list of cuts and labels defined by the user
+
+        Args:
+            input_ (str): name of the input column
+            output (str): name of the output column
+            cuts (List[float]): the list of cuts (must be numerical)
+            labels (List[str], optional): list of associated labels/categories must be equal to `len(cuts) - 1`
+            nodes (List[str], optional): If specified, applies the preprocessing operation only for the given nodes. Defaults to None.
+
+        Returns:
+            self (PreprocessingBuilder): the updated PreprocessingBuilder
+        '''
+
+        if len(labels) != len(cuts) - 1:
+            raise ValueError(f"wrong number of labels, expected {len(cuts) - 1}, got {len(labels)}")
+        # Make sure the values passed are in appropriate format
+        for i,_ in enumerate(cuts):
+            cuts[i] = float(cuts[i])
+        for i,_ in enumerate(labels):
+            labels[i] = str(labels[i])
+        self.append_to_chain(models.Cut(type=models.PreprocessingOperationType.CUT,input_=input_,output=output,cuts=cuts,labels=labels),nodes=nodes)
+        return self
+
+
+    def deviation_squares(self,input_:str,output_:str,mean: float,count:int = 0,nodes: List[str] = None):
+        '''
+        deviation_squares creates a new column where each value is equal to (df[input] - mean)^2- / (count - 1)
+        if count is < 1 then the denominator is equal to 1 (computes the squared deviation)
+        should be used when computing the variance of a variable once the global mean and count are known
+
+        Args:
+            input_ (str): the input column
+            output_ (str): the output column
+            mean (float): the previously computed global mean
+            count (int, optional): the previously computed global count. Defaults to 0.
+            nodes (List[str], optional): the nodes to assign the preprocessing operation to. Defaults to None.
+        '''
+        mean = float(mean)
+        count = int(count)
+        self.append_to_chain(models.DeviationSquares(models.PreprocessingOperationType.DEVIATIONSQUARES,count=count,input_=input_,output=output_,mean=mean),nodes=nodes)
+
+
+    def add_columns(self,input_cols: List[str],output:str,sep: str="",numerical: bool = False,nodes: List[str] = None):
+        '''
+        add_columns adds the specified columns together, if the columns are not numerical a separator can be additionally specified
+
+        Args:
+            input_cols (str): the columns to add together
+            output (str): name of the output column
+            sep (str, optional): separator when the columns are strings. Defaults to "".
+            numerical (bool, optional): whether or not to add numerically. Defaults to False.
+            nodes (List[str], optional): the nodes for which the preprocessing applies to. Defaults to None.
+        '''
+        self.append_to_chain(models.AddColumns(type=models.PreprocessingOperationType.ADDCOLUMNS,input_columns=input_cols,output=output,sep=sep,numerical=numerical),nodes)
+
+
 
     def custom(self,function: Callable[[pd.DataFrame], pd.DataFrame],name: str = "",description: str = "",nodes:List[str] = None):
         '''
@@ -373,3 +487,17 @@ class PreprocessingBuilder:
                 one_hot_without_select = False
 
         return one_hot_without_select
+
+
+    def get_params(self) -> models.ComputationPreprocessingParameters:
+        res = models.ComputationPreprocessingParameters()
+        self.check_validity()
+        if self.chain != []:
+            res.global_preprocessing = models.PreprocessingChain(self.chain)
+        if self.compound_chain != {}:
+            compound_params =  models.ComputationPreprocessingParametersCompoundPreprocessing()
+            compound_params.additional_properties = self.compound_chain
+            res.compound_preprocessing = compound_params
+        if self.output_selection_set:
+            res.select = self.output_selection
+        return res

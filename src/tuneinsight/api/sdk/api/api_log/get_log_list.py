@@ -1,22 +1,22 @@
 from http import HTTPStatus
-from typing import Any, Dict, List, Optional, Union, cast
+from typing import Any, Dict, Optional, Union
 
 import httpx
 
 from ... import errors
 from ...client import Client
+from ...models.error import Error
 from ...models.get_log_list_order import GetLogListOrder
-from ...models.get_log_list_response_403 import GetLogListResponse403
-from ...models.get_log_list_sort_by import GetLogListSortBy
-from ...models.log import Log
+from ...models.get_log_list_response_200 import GetLogListResponse200
 from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
     client: Client,
-    limit: Union[Unset, None, int] = 50,
-    sort_by: Union[Unset, None, GetLogListSortBy] = UNSET,
+    page: Union[Unset, None, int] = 1,
+    per_page: Union[Unset, None, int] = 30,
+    with_total: Union[Unset, None, bool] = True,
     order: Union[Unset, None, GetLogListOrder] = UNSET,
 ) -> Dict[str, Any]:
     url = "{}/logs".format(client.base_url)
@@ -25,13 +25,11 @@ def _get_kwargs(
     cookies: Dict[str, Any] = client.get_cookies()
 
     params: Dict[str, Any] = {}
-    params["limit"] = limit
+    params["page"] = page
 
-    json_sort_by: Union[Unset, None, str] = UNSET
-    if not isinstance(sort_by, Unset):
-        json_sort_by = sort_by.value if sort_by else None
+    params["perPage"] = per_page
 
-    params["sortBy"] = json_sort_by
+    params["withTotal"] = with_total
 
     json_order: Union[Unset, None, str] = UNSET
     if not isinstance(order, Unset):
@@ -51,24 +49,18 @@ def _get_kwargs(
     }
 
 
-def _parse_response(
-    *, client: Client, response: httpx.Response
-) -> Optional[Union[GetLogListResponse403, List["Log"], str]]:
+def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[Error, GetLogListResponse200]]:
     if response.status_code == HTTPStatus.OK:
-        response_200 = []
-        _response_200 = response.json()
-        for response_200_item_data in _response_200:
-            response_200_item = Log.from_dict(response_200_item_data)
-
-            response_200.append(response_200_item)
+        response_200 = GetLogListResponse200.from_dict(response.json())
 
         return response_200
     if response.status_code == HTTPStatus.FORBIDDEN:
-        response_403 = GetLogListResponse403.from_dict(response.json())
+        response_403 = Error.from_dict(response.json())
 
         return response_403
     if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
-        response_500 = cast(str, response.json())
+        response_500 = Error.from_dict(response.json())
+
         return response_500
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(f"Unexpected status code: {response.status_code}")
@@ -76,9 +68,7 @@ def _parse_response(
         return None
 
 
-def _build_response(
-    *, client: Client, response: httpx.Response
-) -> Response[Union[GetLogListResponse403, List["Log"], str]]:
+def _build_response(*, client: Client, response: httpx.Response) -> Response[Union[Error, GetLogListResponse200]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -90,15 +80,17 @@ def _build_response(
 def sync_detailed(
     *,
     client: Client,
-    limit: Union[Unset, None, int] = 50,
-    sort_by: Union[Unset, None, GetLogListSortBy] = UNSET,
+    page: Union[Unset, None, int] = 1,
+    per_page: Union[Unset, None, int] = 30,
+    with_total: Union[Unset, None, bool] = True,
     order: Union[Unset, None, GetLogListOrder] = UNSET,
-) -> Response[Union[GetLogListResponse403, List["Log"], str]]:
+) -> Response[Union[Error, GetLogListResponse200]]:
     """Gets logs
 
     Args:
-        limit (Union[Unset, None, int]):  Default: 50.
-        sort_by (Union[Unset, None, GetLogListSortBy]):
+        page (Union[Unset, None, int]):  Default: 1.
+        per_page (Union[Unset, None, int]):  Default: 30.
+        with_total (Union[Unset, None, bool]):  Default: True.
         order (Union[Unset, None, GetLogListOrder]):
 
     Raises:
@@ -106,13 +98,14 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetLogListResponse403, List['Log'], str]]
+        Response[Union[Error, GetLogListResponse200]]
     """
 
     kwargs = _get_kwargs(
         client=client,
-        limit=limit,
-        sort_by=sort_by,
+        page=page,
+        per_page=per_page,
+        with_total=with_total,
         order=order,
     )
 
@@ -127,15 +120,17 @@ def sync_detailed(
 def sync(
     *,
     client: Client,
-    limit: Union[Unset, None, int] = 50,
-    sort_by: Union[Unset, None, GetLogListSortBy] = UNSET,
+    page: Union[Unset, None, int] = 1,
+    per_page: Union[Unset, None, int] = 30,
+    with_total: Union[Unset, None, bool] = True,
     order: Union[Unset, None, GetLogListOrder] = UNSET,
-) -> Optional[Union[GetLogListResponse403, List["Log"], str]]:
+) -> Optional[Union[Error, GetLogListResponse200]]:
     """Gets logs
 
     Args:
-        limit (Union[Unset, None, int]):  Default: 50.
-        sort_by (Union[Unset, None, GetLogListSortBy]):
+        page (Union[Unset, None, int]):  Default: 1.
+        per_page (Union[Unset, None, int]):  Default: 30.
+        with_total (Union[Unset, None, bool]):  Default: True.
         order (Union[Unset, None, GetLogListOrder]):
 
     Raises:
@@ -143,13 +138,14 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetLogListResponse403, List['Log'], str]]
+        Response[Union[Error, GetLogListResponse200]]
     """
 
     return sync_detailed(
         client=client,
-        limit=limit,
-        sort_by=sort_by,
+        page=page,
+        per_page=per_page,
+        with_total=with_total,
         order=order,
     ).parsed
 
@@ -157,15 +153,17 @@ def sync(
 async def asyncio_detailed(
     *,
     client: Client,
-    limit: Union[Unset, None, int] = 50,
-    sort_by: Union[Unset, None, GetLogListSortBy] = UNSET,
+    page: Union[Unset, None, int] = 1,
+    per_page: Union[Unset, None, int] = 30,
+    with_total: Union[Unset, None, bool] = True,
     order: Union[Unset, None, GetLogListOrder] = UNSET,
-) -> Response[Union[GetLogListResponse403, List["Log"], str]]:
+) -> Response[Union[Error, GetLogListResponse200]]:
     """Gets logs
 
     Args:
-        limit (Union[Unset, None, int]):  Default: 50.
-        sort_by (Union[Unset, None, GetLogListSortBy]):
+        page (Union[Unset, None, int]):  Default: 1.
+        per_page (Union[Unset, None, int]):  Default: 30.
+        with_total (Union[Unset, None, bool]):  Default: True.
         order (Union[Unset, None, GetLogListOrder]):
 
     Raises:
@@ -173,13 +171,14 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetLogListResponse403, List['Log'], str]]
+        Response[Union[Error, GetLogListResponse200]]
     """
 
     kwargs = _get_kwargs(
         client=client,
-        limit=limit,
-        sort_by=sort_by,
+        page=page,
+        per_page=per_page,
+        with_total=with_total,
         order=order,
     )
 
@@ -192,15 +191,17 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: Client,
-    limit: Union[Unset, None, int] = 50,
-    sort_by: Union[Unset, None, GetLogListSortBy] = UNSET,
+    page: Union[Unset, None, int] = 1,
+    per_page: Union[Unset, None, int] = 30,
+    with_total: Union[Unset, None, bool] = True,
     order: Union[Unset, None, GetLogListOrder] = UNSET,
-) -> Optional[Union[GetLogListResponse403, List["Log"], str]]:
+) -> Optional[Union[Error, GetLogListResponse200]]:
     """Gets logs
 
     Args:
-        limit (Union[Unset, None, int]):  Default: 50.
-        sort_by (Union[Unset, None, GetLogListSortBy]):
+        page (Union[Unset, None, int]):  Default: 1.
+        per_page (Union[Unset, None, int]):  Default: 30.
+        with_total (Union[Unset, None, bool]):  Default: True.
         order (Union[Unset, None, GetLogListOrder]):
 
     Raises:
@@ -208,14 +209,15 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetLogListResponse403, List['Log'], str]]
+        Response[Union[Error, GetLogListResponse200]]
     """
 
     return (
         await asyncio_detailed(
             client=client,
-            limit=limit,
-            sort_by=sort_by,
+            page=page,
+            per_page=per_page,
+            with_total=with_total,
             order=order,
         )
     ).parsed

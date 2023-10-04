@@ -5,8 +5,8 @@ import httpx
 
 from ... import errors
 from ...client import Client
+from ...models.error import Error
 from ...models.post_project_data_json_body import PostProjectDataJsonBody
-from ...models.post_project_data_response_403 import PostProjectDataResponse403
 from ...types import Response
 
 
@@ -33,19 +33,21 @@ def _get_kwargs(
     }
 
 
-def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[PostProjectDataResponse403, str]]:
+def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[Error, str]]:
     if response.status_code == HTTPStatus.CREATED:
         response_201 = cast(str, response.json())
         return response_201
     if response.status_code == HTTPStatus.FORBIDDEN:
-        response_403 = PostProjectDataResponse403.from_dict(response.json())
+        response_403 = Error.from_dict(response.json())
 
         return response_403
     if response.status_code == HTTPStatus.NOT_FOUND:
-        response_404 = cast(str, response.json())
+        response_404 = Error.from_dict(response.json())
+
         return response_404
     if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
-        response_500 = cast(str, response.json())
+        response_500 = Error.from_dict(response.json())
+
         return response_500
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(f"Unexpected status code: {response.status_code}")
@@ -53,7 +55,7 @@ def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Uni
         return None
 
 
-def _build_response(*, client: Client, response: httpx.Response) -> Response[Union[PostProjectDataResponse403, str]]:
+def _build_response(*, client: Client, response: httpx.Response) -> Response[Union[Error, str]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -67,7 +69,7 @@ def sync_detailed(
     *,
     client: Client,
     json_body: PostProjectDataJsonBody,
-) -> Response[Union[PostProjectDataResponse403, str]]:
+) -> Response[Union[Error, str]]:
     """Run the query defined in the project to create a dataobject from the datasource
 
     Args:
@@ -79,7 +81,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[PostProjectDataResponse403, str]]
+        Response[Union[Error, str]]
     """
 
     kwargs = _get_kwargs(
@@ -101,7 +103,7 @@ def sync(
     *,
     client: Client,
     json_body: PostProjectDataJsonBody,
-) -> Optional[Union[PostProjectDataResponse403, str]]:
+) -> Optional[Union[Error, str]]:
     """Run the query defined in the project to create a dataobject from the datasource
 
     Args:
@@ -113,7 +115,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[PostProjectDataResponse403, str]]
+        Response[Union[Error, str]]
     """
 
     return sync_detailed(
@@ -128,7 +130,7 @@ async def asyncio_detailed(
     *,
     client: Client,
     json_body: PostProjectDataJsonBody,
-) -> Response[Union[PostProjectDataResponse403, str]]:
+) -> Response[Union[Error, str]]:
     """Run the query defined in the project to create a dataobject from the datasource
 
     Args:
@@ -140,7 +142,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[PostProjectDataResponse403, str]]
+        Response[Union[Error, str]]
     """
 
     kwargs = _get_kwargs(
@@ -160,7 +162,7 @@ async def asyncio(
     *,
     client: Client,
     json_body: PostProjectDataJsonBody,
-) -> Optional[Union[PostProjectDataResponse403, str]]:
+) -> Optional[Union[Error, str]]:
     """Run the query defined in the project to create a dataobject from the datasource
 
     Args:
@@ -172,7 +174,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[PostProjectDataResponse403, str]]
+        Response[Union[Error, str]]
     """
 
     return (

@@ -9,7 +9,7 @@ from tuneinsight.api.sdk.models import SessionDefinition,Session,DataObjectType,
 from tuneinsight.api.sdk.api.api_ml import get_model_list,get_model,post_model,delete_model
 from tuneinsight.api.sdk.api.api_sessions import post_session
 from tuneinsight.client.validation import validate_response
-from tuneinsight.cryptolib.cryptolib import load_b64_cryptosystem,get_relin_key_bytes,encrypt_prediction_dataset,decrypt_prediction
+from tuneinsight.cryptolib.cryptolib import new_ckks_operator_from_b64_scheme_context,get_relin_key_bytes,encrypt_prediction_dataset,decrypt_prediction
 from tuneinsight.client.dataobject import DataObject
 from tuneinsight.api.sdk.types import Response
 from tuneinsight.utils.io import data_to_bytes,data_from_bytes
@@ -119,7 +119,7 @@ class Model:
 
     def _upload_eval_keys(self,s_id:str) -> bytes:
         # Load the parameters into a cryptosystem
-        cs_id = load_b64_cryptosystem(str(self.model.model_params.cryptolib_params))
+        cs_id = new_ckks_operator_from_b64_scheme_context(str(self.model.model_params.cryptolib_params))
         # Generate and upload relinearization key
         rlk_bytes = get_relin_key_bytes(cs_id)
         key_info = KeyInfo(collective=False)
@@ -130,7 +130,6 @@ class Model:
     def _encrypt_dataset(self,cs_id: bytes,data: Any) -> bytes:
         csv_bytes = data_to_bytes(data,remove_header=True)
         return encrypt_prediction_dataset(cs_id, csv_bytes, self.model.model_params.prediction_params, False)
-
 
     def _upload_dataset(self,s_id:str,ct: bytes) -> str:
         do_type = DataObjectType.ENCRYPTED_PREDICTION_DATASET
@@ -176,8 +175,8 @@ class ModelManager:
         try:
             new_data = [[float(element) for element in row] for row in data]
             return new_data
-        except Exception as e:
-            raise AttributeError("could not convert weights to valid float values") from e
+        except Exception as exception:
+            raise AttributeError("could not convert weights to valid float values") from exception
 
 
     def get_models(self) -> List[Model]:

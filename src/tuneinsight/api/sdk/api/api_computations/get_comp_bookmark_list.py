@@ -1,13 +1,13 @@
 from http import HTTPStatus
-from typing import Any, Dict, List, Optional, Union, cast
+from typing import Any, Dict, List, Optional, Union
 
 import httpx
 
 from ... import errors
 from ...client import Client
 from ...models.computation import Computation
+from ...models.error import Error
 from ...models.get_comp_bookmark_list_order import GetCompBookmarkListOrder
-from ...models.get_comp_bookmark_list_response_403 import GetCompBookmarkListResponse403
 from ...models.get_comp_bookmark_list_sort_by import GetCompBookmarkListSortBy
 from ...types import UNSET, Response, Unset
 
@@ -15,7 +15,6 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     *,
     client: Client,
-    limit: Union[Unset, None, int] = 50,
     sort_by: Union[Unset, None, GetCompBookmarkListSortBy] = UNSET,
     order: Union[Unset, None, GetCompBookmarkListOrder] = UNSET,
 ) -> Dict[str, Any]:
@@ -25,8 +24,6 @@ def _get_kwargs(
     cookies: Dict[str, Any] = client.get_cookies()
 
     params: Dict[str, Any] = {}
-    params["limit"] = limit
-
     json_sort_by: Union[Unset, None, str] = UNSET
     if not isinstance(sort_by, Unset):
         json_sort_by = sort_by.value if sort_by else None
@@ -51,9 +48,7 @@ def _get_kwargs(
     }
 
 
-def _parse_response(
-    *, client: Client, response: httpx.Response
-) -> Optional[Union[GetCompBookmarkListResponse403, List["Computation"], str]]:
+def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[Error, List["Computation"]]]:
     if response.status_code == HTTPStatus.OK:
         response_200 = []
         _response_200 = response.json()
@@ -64,17 +59,20 @@ def _parse_response(
 
         return response_200
     if response.status_code == HTTPStatus.FORBIDDEN:
-        response_403 = GetCompBookmarkListResponse403.from_dict(response.json())
+        response_403 = Error.from_dict(response.json())
 
         return response_403
     if response.status_code == HTTPStatus.NOT_FOUND:
-        response_404 = cast(str, response.json())
+        response_404 = Error.from_dict(response.json())
+
         return response_404
     if response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
-        response_422 = cast(str, response.json())
+        response_422 = Error.from_dict(response.json())
+
         return response_422
     if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
-        response_500 = cast(str, response.json())
+        response_500 = Error.from_dict(response.json())
+
         return response_500
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(f"Unexpected status code: {response.status_code}")
@@ -82,9 +80,7 @@ def _parse_response(
         return None
 
 
-def _build_response(
-    *, client: Client, response: httpx.Response
-) -> Response[Union[GetCompBookmarkListResponse403, List["Computation"], str]]:
+def _build_response(*, client: Client, response: httpx.Response) -> Response[Union[Error, List["Computation"]]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -96,14 +92,12 @@ def _build_response(
 def sync_detailed(
     *,
     client: Client,
-    limit: Union[Unset, None, int] = 50,
     sort_by: Union[Unset, None, GetCompBookmarkListSortBy] = UNSET,
     order: Union[Unset, None, GetCompBookmarkListOrder] = UNSET,
-) -> Response[Union[GetCompBookmarkListResponse403, List["Computation"], str]]:
+) -> Response[Union[Error, List["Computation"]]]:
     """Get the list of bookmarked computations of the logged in user
 
     Args:
-        limit (Union[Unset, None, int]):  Default: 50.
         sort_by (Union[Unset, None, GetCompBookmarkListSortBy]):
         order (Union[Unset, None, GetCompBookmarkListOrder]):
 
@@ -112,12 +106,11 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetCompBookmarkListResponse403, List['Computation'], str]]
+        Response[Union[Error, List['Computation']]]
     """
 
     kwargs = _get_kwargs(
         client=client,
-        limit=limit,
         sort_by=sort_by,
         order=order,
     )
@@ -133,14 +126,12 @@ def sync_detailed(
 def sync(
     *,
     client: Client,
-    limit: Union[Unset, None, int] = 50,
     sort_by: Union[Unset, None, GetCompBookmarkListSortBy] = UNSET,
     order: Union[Unset, None, GetCompBookmarkListOrder] = UNSET,
-) -> Optional[Union[GetCompBookmarkListResponse403, List["Computation"], str]]:
+) -> Optional[Union[Error, List["Computation"]]]:
     """Get the list of bookmarked computations of the logged in user
 
     Args:
-        limit (Union[Unset, None, int]):  Default: 50.
         sort_by (Union[Unset, None, GetCompBookmarkListSortBy]):
         order (Union[Unset, None, GetCompBookmarkListOrder]):
 
@@ -149,12 +140,11 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetCompBookmarkListResponse403, List['Computation'], str]]
+        Response[Union[Error, List['Computation']]]
     """
 
     return sync_detailed(
         client=client,
-        limit=limit,
         sort_by=sort_by,
         order=order,
     ).parsed
@@ -163,14 +153,12 @@ def sync(
 async def asyncio_detailed(
     *,
     client: Client,
-    limit: Union[Unset, None, int] = 50,
     sort_by: Union[Unset, None, GetCompBookmarkListSortBy] = UNSET,
     order: Union[Unset, None, GetCompBookmarkListOrder] = UNSET,
-) -> Response[Union[GetCompBookmarkListResponse403, List["Computation"], str]]:
+) -> Response[Union[Error, List["Computation"]]]:
     """Get the list of bookmarked computations of the logged in user
 
     Args:
-        limit (Union[Unset, None, int]):  Default: 50.
         sort_by (Union[Unset, None, GetCompBookmarkListSortBy]):
         order (Union[Unset, None, GetCompBookmarkListOrder]):
 
@@ -179,12 +167,11 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetCompBookmarkListResponse403, List['Computation'], str]]
+        Response[Union[Error, List['Computation']]]
     """
 
     kwargs = _get_kwargs(
         client=client,
-        limit=limit,
         sort_by=sort_by,
         order=order,
     )
@@ -198,14 +185,12 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: Client,
-    limit: Union[Unset, None, int] = 50,
     sort_by: Union[Unset, None, GetCompBookmarkListSortBy] = UNSET,
     order: Union[Unset, None, GetCompBookmarkListOrder] = UNSET,
-) -> Optional[Union[GetCompBookmarkListResponse403, List["Computation"], str]]:
+) -> Optional[Union[Error, List["Computation"]]]:
     """Get the list of bookmarked computations of the logged in user
 
     Args:
-        limit (Union[Unset, None, int]):  Default: 50.
         sort_by (Union[Unset, None, GetCompBookmarkListSortBy]):
         order (Union[Unset, None, GetCompBookmarkListOrder]):
 
@@ -214,13 +199,12 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetCompBookmarkListResponse403, List['Computation'], str]]
+        Response[Union[Error, List['Computation']]]
     """
 
     return (
         await asyncio_detailed(
             client=client,
-            limit=limit,
             sort_by=sort_by,
             order=order,
         )

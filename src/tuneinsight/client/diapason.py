@@ -1,4 +1,5 @@
 from typing import List
+from keycloak.exceptions import KeycloakConnectionError
 import attr
 import pandas as pd
 
@@ -8,7 +9,9 @@ from tuneinsight.api.sdk.api.api_project import post_project
 from tuneinsight.api.sdk.api.api_project import get_project
 from tuneinsight.api.sdk.api.api_project import get_project_list
 from tuneinsight.api.sdk.api.api_datasource import get_data_source_list, get_data_source, delete_data_source
+from tuneinsight.api.sdk.api.api_dataobject import get_data_object
 from tuneinsight.api.sdk import models
+from tuneinsight.client.dataobject import DataObject
 
 from tuneinsight.client.datasource import DataSource
 from tuneinsight.client.project import Project
@@ -16,6 +19,9 @@ from tuneinsight.client.validation import validate_response
 from tuneinsight.client import config
 from tuneinsight.client import auth
 from tuneinsight.api.sdk.types import UNSET
+from tuneinsight.client.validation import InvalidResponseError
+import tuneinsight.utils.time_tools as time
+
 
 @attr.s(auto_attribs=True)
 class Diapason:
@@ -94,26 +100,27 @@ class Diapason:
         Args:
             dataframe (pd.DataFrame): dataframe to upload.
             name (str, required): name of the datasource to be created.
-            clear_if_exists (str, optional): clear_if_exists of the datasource to be created.
+            clear_if_exists (str, optional): overwrite datasource if it already exists.
 
         Returns:
             DataSource: the newly created datasource
         """
         return DataSource.from_dataframe(self.get_client(),dataframe,name,clear_if_exists)
 
-    def new_api_datasource(self, api_type: models.APIConnectionInfoType, api_url: str, api_token: str, name: str, clear_if_exists: bool = False) -> DataSource:
+    def new_api_datasource(self, api_type: models.APIConnectionInfoType, api_url: str, name: str, api_token: str = "", clear_if_exists: bool = False, cert: str = "") -> DataSource:
         """
         new_api_datasource creates a new API datasource.
 
         Args:
             apiConfig (any): API configuration.
             name (str, required): name of the datasource to be created.
-            clear_if_exists (str, optional): clear_if_exists of the datasource to be created.
+            clear_if_exists (str, optional): overwrite datasource if it already exists.
+            cert (str, optional): name of the certificate to use for this datasource (must be accessible in note at "/usr/local/share/datasource-certificates/{cert}.pem,.key").
 
         Returns:
             DataSource: the newly created datasource
         """
-        return DataSource.from_api(self.get_client(),api_type,api_url,api_token,name,clear_if_exists)
+        return DataSource.from_api(self.get_client(),api_type,api_url,api_token,name,clear_if_exists,cert)
 
     def new_csv_datasource(self,csv: str, name: str, clear_if_exists: bool = False) -> DataSource:
         """
@@ -122,7 +129,8 @@ class Diapason:
         Args:
             csv (str): path to the csv file.
             name (str, required): name of the datasource to be created.
-            clear_if_exists (str, optional): clear_if_exists of the datasource to be created.
+            clear_if_exists (str, optional): overwrite datasource if it already exists.
+            cert (str, optional): name of the certificate to use for this datasource (must be accessible in note at "/usr/local/share/datasource-certificates/{cert}.pem,.key").
 
         Returns:
             DataSource: the newly created datasource
@@ -138,7 +146,7 @@ class Diapason:
         Args:
             config (models.DatabaseConnectionInfo): Postgres configuration.
             name (str, required): name of the datasource to be created.
-            clear_if_exists (str, optional): clear_if_exists of the datasource to be created.
+            clear_if_exists (str, optional): overwrite datasource if it already exists.
 
         Returns:
             DataSource: the newly created datasource
@@ -210,10 +218,10 @@ class Diapason:
         return projects
 
     def get_project_by_name(self, name:str) -> Project:
-        projects = self.get_projects()
-        for p in projects:
-            if p.get_name() == name:
-                return self.get_project(project_id=p.get_id())
+        response: Response[List[models.Project]] = get_project_list.sync_detailed(client=self.client,name=name)
+        validate_response(response)
+        if len(response.parsed):
+            return Project(model=response.parsed[0],client=self.client)
         raise LookupError("project not found")
 
     def get_datasources(self, name: str="") -> List[DataSource]:
@@ -255,3 +263,38 @@ class Diapason:
     def clear_project(self, project_id: str = "", name: str = "") :
         p = self.get_project(project_id=project_id, name=name)
         p.delete()
+
+    def get_dataobject(self, do_id: str) -> DataObject:
+        """get_dataobject returns a dataobject by id
+
+        Args:
+            do_id (str, optional): id of the dataobject.
+
+        Returns:
+            DataObject: the dataobject
+        """
+        do_response: Response[models.DataObject] = get_data_object.sync_detailed(client=self.client,data_object_id=do_id)
+        validate_response(do_response)
+        return DataObject(model=do_response.parsed,client=self.client)
+
+    def wait_ready(self,repeat: int = 50,sleep_seconds: int = 5):
+        '''
+        wait_ready polls the API until it answers by using the get_projects() endpoint
+
+        Args:
+            repeat (int, optional): maximum number of requests sent to the API. Defaults to 50.
+            sleep_seconds (int, optional): sleeping time between each request in seconds. Defaults to 5.
+
+        Raises:
+            TimeoutError: if the API has not answered
+        '''
+        num_tries = repeat
+        sleep_time = sleep_seconds * time.second
+        for _ in range(num_tries):
+            try:
+                self.get_projects()
+                return
+            except (ConnectionError,KeycloakConnectionError,InvalidResponseError):
+                time.sleep(sleep_time)
+                continue
+        raise TimeoutError()

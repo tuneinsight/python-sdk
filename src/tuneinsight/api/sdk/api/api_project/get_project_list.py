@@ -1,12 +1,12 @@
 from http import HTTPStatus
-from typing import Any, Dict, List, Optional, Union, cast
+from typing import Any, Dict, List, Optional, Union
 
 import httpx
 
 from ... import errors
 from ...client import Client
+from ...models.error import Error
 from ...models.get_project_list_order import GetProjectListOrder
-from ...models.get_project_list_response_403 import GetProjectListResponse403
 from ...models.get_project_list_sort_by import GetProjectListSortBy
 from ...models.project import Project
 from ...types import UNSET, Response, Unset
@@ -15,9 +15,12 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     *,
     client: Client,
-    limit: Union[Unset, None, int] = 50,
+    page: Union[Unset, None, int] = 1,
+    per_page: Union[Unset, None, int] = 30,
+    with_total: Union[Unset, None, bool] = True,
     sort_by: Union[Unset, None, GetProjectListSortBy] = UNSET,
     order: Union[Unset, None, GetProjectListOrder] = UNSET,
+    name: Union[Unset, None, str] = UNSET,
 ) -> Dict[str, Any]:
     url = "{}/projects".format(client.base_url)
 
@@ -25,7 +28,11 @@ def _get_kwargs(
     cookies: Dict[str, Any] = client.get_cookies()
 
     params: Dict[str, Any] = {}
-    params["limit"] = limit
+    params["page"] = page
+
+    params["perPage"] = per_page
+
+    params["withTotal"] = with_total
 
     json_sort_by: Union[Unset, None, str] = UNSET
     if not isinstance(sort_by, Unset):
@@ -39,6 +46,8 @@ def _get_kwargs(
 
     params["order"] = json_order
 
+    params["name"] = name
+
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
     return {
@@ -51,9 +60,7 @@ def _get_kwargs(
     }
 
 
-def _parse_response(
-    *, client: Client, response: httpx.Response
-) -> Optional[Union[GetProjectListResponse403, List["Project"], str]]:
+def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[Error, List["Project"]]]:
     if response.status_code == HTTPStatus.OK:
         response_200 = []
         _response_200 = response.json()
@@ -64,11 +71,12 @@ def _parse_response(
 
         return response_200
     if response.status_code == HTTPStatus.FORBIDDEN:
-        response_403 = GetProjectListResponse403.from_dict(response.json())
+        response_403 = Error.from_dict(response.json())
 
         return response_403
     if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
-        response_500 = cast(str, response.json())
+        response_500 = Error.from_dict(response.json())
+
         return response_500
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(f"Unexpected status code: {response.status_code}")
@@ -76,9 +84,7 @@ def _parse_response(
         return None
 
 
-def _build_response(
-    *, client: Client, response: httpx.Response
-) -> Response[Union[GetProjectListResponse403, List["Project"], str]]:
+def _build_response(*, client: Client, response: httpx.Response) -> Response[Union[Error, List["Project"]]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -90,30 +96,39 @@ def _build_response(
 def sync_detailed(
     *,
     client: Client,
-    limit: Union[Unset, None, int] = 50,
+    page: Union[Unset, None, int] = 1,
+    per_page: Union[Unset, None, int] = 30,
+    with_total: Union[Unset, None, bool] = True,
     sort_by: Union[Unset, None, GetProjectListSortBy] = UNSET,
     order: Union[Unset, None, GetProjectListOrder] = UNSET,
-) -> Response[Union[GetProjectListResponse403, List["Project"], str]]:
+    name: Union[Unset, None, str] = UNSET,
+) -> Response[Union[Error, List["Project"]]]:
     """Get the list of projects
 
     Args:
-        limit (Union[Unset, None, int]):  Default: 50.
+        page (Union[Unset, None, int]):  Default: 1.
+        per_page (Union[Unset, None, int]):  Default: 30.
+        with_total (Union[Unset, None, bool]):  Default: True.
         sort_by (Union[Unset, None, GetProjectListSortBy]):
         order (Union[Unset, None, GetProjectListOrder]):
+        name (Union[Unset, None, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetProjectListResponse403, List['Project'], str]]
+        Response[Union[Error, List['Project']]]
     """
 
     kwargs = _get_kwargs(
         client=client,
-        limit=limit,
+        page=page,
+        per_page=per_page,
+        with_total=with_total,
         sort_by=sort_by,
         order=order,
+        name=name,
     )
 
     response = httpx.request(
@@ -127,60 +142,78 @@ def sync_detailed(
 def sync(
     *,
     client: Client,
-    limit: Union[Unset, None, int] = 50,
+    page: Union[Unset, None, int] = 1,
+    per_page: Union[Unset, None, int] = 30,
+    with_total: Union[Unset, None, bool] = True,
     sort_by: Union[Unset, None, GetProjectListSortBy] = UNSET,
     order: Union[Unset, None, GetProjectListOrder] = UNSET,
-) -> Optional[Union[GetProjectListResponse403, List["Project"], str]]:
+    name: Union[Unset, None, str] = UNSET,
+) -> Optional[Union[Error, List["Project"]]]:
     """Get the list of projects
 
     Args:
-        limit (Union[Unset, None, int]):  Default: 50.
+        page (Union[Unset, None, int]):  Default: 1.
+        per_page (Union[Unset, None, int]):  Default: 30.
+        with_total (Union[Unset, None, bool]):  Default: True.
         sort_by (Union[Unset, None, GetProjectListSortBy]):
         order (Union[Unset, None, GetProjectListOrder]):
+        name (Union[Unset, None, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetProjectListResponse403, List['Project'], str]]
+        Response[Union[Error, List['Project']]]
     """
 
     return sync_detailed(
         client=client,
-        limit=limit,
+        page=page,
+        per_page=per_page,
+        with_total=with_total,
         sort_by=sort_by,
         order=order,
+        name=name,
     ).parsed
 
 
 async def asyncio_detailed(
     *,
     client: Client,
-    limit: Union[Unset, None, int] = 50,
+    page: Union[Unset, None, int] = 1,
+    per_page: Union[Unset, None, int] = 30,
+    with_total: Union[Unset, None, bool] = True,
     sort_by: Union[Unset, None, GetProjectListSortBy] = UNSET,
     order: Union[Unset, None, GetProjectListOrder] = UNSET,
-) -> Response[Union[GetProjectListResponse403, List["Project"], str]]:
+    name: Union[Unset, None, str] = UNSET,
+) -> Response[Union[Error, List["Project"]]]:
     """Get the list of projects
 
     Args:
-        limit (Union[Unset, None, int]):  Default: 50.
+        page (Union[Unset, None, int]):  Default: 1.
+        per_page (Union[Unset, None, int]):  Default: 30.
+        with_total (Union[Unset, None, bool]):  Default: True.
         sort_by (Union[Unset, None, GetProjectListSortBy]):
         order (Union[Unset, None, GetProjectListOrder]):
+        name (Union[Unset, None, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetProjectListResponse403, List['Project'], str]]
+        Response[Union[Error, List['Project']]]
     """
 
     kwargs = _get_kwargs(
         client=client,
-        limit=limit,
+        page=page,
+        per_page=per_page,
+        with_total=with_total,
         sort_by=sort_by,
         order=order,
+        name=name,
     )
 
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
@@ -192,30 +225,39 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: Client,
-    limit: Union[Unset, None, int] = 50,
+    page: Union[Unset, None, int] = 1,
+    per_page: Union[Unset, None, int] = 30,
+    with_total: Union[Unset, None, bool] = True,
     sort_by: Union[Unset, None, GetProjectListSortBy] = UNSET,
     order: Union[Unset, None, GetProjectListOrder] = UNSET,
-) -> Optional[Union[GetProjectListResponse403, List["Project"], str]]:
+    name: Union[Unset, None, str] = UNSET,
+) -> Optional[Union[Error, List["Project"]]]:
     """Get the list of projects
 
     Args:
-        limit (Union[Unset, None, int]):  Default: 50.
+        page (Union[Unset, None, int]):  Default: 1.
+        per_page (Union[Unset, None, int]):  Default: 30.
+        with_total (Union[Unset, None, bool]):  Default: True.
         sort_by (Union[Unset, None, GetProjectListSortBy]):
         order (Union[Unset, None, GetProjectListOrder]):
+        name (Union[Unset, None, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetProjectListResponse403, List['Project'], str]]
+        Response[Union[Error, List['Project']]]
     """
 
     return (
         await asyncio_detailed(
             client=client,
-            limit=limit,
+            page=page,
+            per_page=per_page,
+            with_total=with_total,
             sort_by=sort_by,
             order=order,
+            name=name,
         )
     ).parsed

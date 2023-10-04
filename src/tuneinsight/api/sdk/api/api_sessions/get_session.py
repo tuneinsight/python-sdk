@@ -1,11 +1,11 @@
 from http import HTTPStatus
-from typing import Any, Dict, Optional, Union, cast
+from typing import Any, Dict, Optional, Union
 
 import httpx
 
 from ... import errors
 from ...client import Client
-from ...models.get_session_response_403 import GetSessionResponse403
+from ...models.error import Error
 from ...models.session import Session
 from ...types import Response
 
@@ -29,22 +29,22 @@ def _get_kwargs(
     }
 
 
-def _parse_response(
-    *, client: Client, response: httpx.Response
-) -> Optional[Union[GetSessionResponse403, Session, str]]:
+def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[Error, Session]]:
     if response.status_code == HTTPStatus.OK:
         response_200 = Session.from_dict(response.json())
 
         return response_200
     if response.status_code == HTTPStatus.FORBIDDEN:
-        response_403 = GetSessionResponse403.from_dict(response.json())
+        response_403 = Error.from_dict(response.json())
 
         return response_403
     if response.status_code == HTTPStatus.NOT_FOUND:
-        response_404 = cast(str, response.json())
+        response_404 = Error.from_dict(response.json())
+
         return response_404
     if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
-        response_500 = cast(str, response.json())
+        response_500 = Error.from_dict(response.json())
+
         return response_500
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(f"Unexpected status code: {response.status_code}")
@@ -52,9 +52,7 @@ def _parse_response(
         return None
 
 
-def _build_response(
-    *, client: Client, response: httpx.Response
-) -> Response[Union[GetSessionResponse403, Session, str]]:
+def _build_response(*, client: Client, response: httpx.Response) -> Response[Union[Error, Session]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -67,7 +65,7 @@ def sync_detailed(
     session_id: str,
     *,
     client: Client,
-) -> Response[Union[GetSessionResponse403, Session, str]]:
+) -> Response[Union[Error, Session]]:
     """Get basic information about a session
 
     Args:
@@ -78,7 +76,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetSessionResponse403, Session, str]]
+        Response[Union[Error, Session]]
     """
 
     kwargs = _get_kwargs(
@@ -98,7 +96,7 @@ def sync(
     session_id: str,
     *,
     client: Client,
-) -> Optional[Union[GetSessionResponse403, Session, str]]:
+) -> Optional[Union[Error, Session]]:
     """Get basic information about a session
 
     Args:
@@ -109,7 +107,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetSessionResponse403, Session, str]]
+        Response[Union[Error, Session]]
     """
 
     return sync_detailed(
@@ -122,7 +120,7 @@ async def asyncio_detailed(
     session_id: str,
     *,
     client: Client,
-) -> Response[Union[GetSessionResponse403, Session, str]]:
+) -> Response[Union[Error, Session]]:
     """Get basic information about a session
 
     Args:
@@ -133,7 +131,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetSessionResponse403, Session, str]]
+        Response[Union[Error, Session]]
     """
 
     kwargs = _get_kwargs(
@@ -151,7 +149,7 @@ async def asyncio(
     session_id: str,
     *,
     client: Client,
-) -> Optional[Union[GetSessionResponse403, Session, str]]:
+) -> Optional[Union[Error, Session]]:
     """Get basic information about a session
 
     Args:
@@ -162,7 +160,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetSessionResponse403, Session, str]]
+        Response[Union[Error, Session]]
     """
 
     return (

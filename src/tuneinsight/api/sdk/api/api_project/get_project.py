@@ -1,11 +1,11 @@
 from http import HTTPStatus
-from typing import Any, Dict, Optional, Union, cast
+from typing import Any, Dict, Optional, Union
 
 import httpx
 
 from ... import errors
 from ...client import Client
-from ...models.get_project_response_403 import GetProjectResponse403
+from ...models.error import Error
 from ...models.project import Project
 from ...types import Response
 
@@ -29,22 +29,22 @@ def _get_kwargs(
     }
 
 
-def _parse_response(
-    *, client: Client, response: httpx.Response
-) -> Optional[Union[GetProjectResponse403, Project, str]]:
+def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[Error, Project]]:
     if response.status_code == HTTPStatus.OK:
         response_200 = Project.from_dict(response.json())
 
         return response_200
     if response.status_code == HTTPStatus.FORBIDDEN:
-        response_403 = GetProjectResponse403.from_dict(response.json())
+        response_403 = Error.from_dict(response.json())
 
         return response_403
     if response.status_code == HTTPStatus.NOT_FOUND:
-        response_404 = cast(str, response.json())
+        response_404 = Error.from_dict(response.json())
+
         return response_404
     if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
-        response_500 = cast(str, response.json())
+        response_500 = Error.from_dict(response.json())
+
         return response_500
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(f"Unexpected status code: {response.status_code}")
@@ -52,9 +52,7 @@ def _parse_response(
         return None
 
 
-def _build_response(
-    *, client: Client, response: httpx.Response
-) -> Response[Union[GetProjectResponse403, Project, str]]:
+def _build_response(*, client: Client, response: httpx.Response) -> Response[Union[Error, Project]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -67,7 +65,7 @@ def sync_detailed(
     project_id: str,
     *,
     client: Client,
-) -> Response[Union[GetProjectResponse403, Project, str]]:
+) -> Response[Union[Error, Project]]:
     """Get a project.
 
     Args:
@@ -78,7 +76,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetProjectResponse403, Project, str]]
+        Response[Union[Error, Project]]
     """
 
     kwargs = _get_kwargs(
@@ -98,7 +96,7 @@ def sync(
     project_id: str,
     *,
     client: Client,
-) -> Optional[Union[GetProjectResponse403, Project, str]]:
+) -> Optional[Union[Error, Project]]:
     """Get a project.
 
     Args:
@@ -109,7 +107,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetProjectResponse403, Project, str]]
+        Response[Union[Error, Project]]
     """
 
     return sync_detailed(
@@ -122,7 +120,7 @@ async def asyncio_detailed(
     project_id: str,
     *,
     client: Client,
-) -> Response[Union[GetProjectResponse403, Project, str]]:
+) -> Response[Union[Error, Project]]:
     """Get a project.
 
     Args:
@@ -133,7 +131,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetProjectResponse403, Project, str]]
+        Response[Union[Error, Project]]
     """
 
     kwargs = _get_kwargs(
@@ -151,7 +149,7 @@ async def asyncio(
     project_id: str,
     *,
     client: Client,
-) -> Optional[Union[GetProjectResponse403, Project, str]]:
+) -> Optional[Union[Error, Project]]:
     """Get a project.
 
     Args:
@@ -162,7 +160,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetProjectResponse403, Project, str]]
+        Response[Union[Error, Project]]
     """
 
     return (

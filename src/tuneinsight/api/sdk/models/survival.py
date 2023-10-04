@@ -14,6 +14,7 @@ class Survival:
     """
     Attributes:
         type (PreprocessingOperationType): type of preprocessing operation
+        unit (Union[Unset, TimeUnit]): encoded unit of time
         duration_col (Union[Unset, str]): the name of the column that stores the duration for each sample, the values
             stored must be integers Default: 'duration'.
         end_event (Union[Unset, str]): the column that must contain the timestamps of the end event (can be empty if no
@@ -24,21 +25,24 @@ class Survival:
         num_frames (Union[Unset, int]): the number of time frames to take into account starting from the start of the
             survival
         start_event (Union[Unset, str]): the event column that must contain the timestamps of the start of the trial
-        unit (Union[Unset, TimeUnit]): encoded unit of time
     """
 
     type: PreprocessingOperationType
+    unit: Union[Unset, TimeUnit] = UNSET
     duration_col: Union[Unset, str] = "duration"
     end_event: Union[Unset, str] = UNSET
     event_col: Union[Unset, str] = "event"
     event_val: Union[Unset, str] = UNSET
     num_frames: Union[Unset, int] = UNSET
     start_event: Union[Unset, str] = UNSET
-    unit: Union[Unset, TimeUnit] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         type = self.type.value
+
+        unit: Union[Unset, str] = UNSET
+        if not isinstance(self.unit, Unset):
+            unit = self.unit.value
 
         duration_col = self.duration_col
         end_event = self.end_event
@@ -46,9 +50,6 @@ class Survival:
         event_val = self.event_val
         num_frames = self.num_frames
         start_event = self.start_event
-        unit: Union[Unset, str] = UNSET
-        if not isinstance(self.unit, Unset):
-            unit = self.unit.value
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -57,6 +58,8 @@ class Survival:
                 "type": type,
             }
         )
+        if unit is not UNSET:
+            field_dict["unit"] = unit
         if duration_col is not UNSET:
             field_dict["durationCol"] = duration_col
         if end_event is not UNSET:
@@ -69,8 +72,6 @@ class Survival:
             field_dict["numFrames"] = num_frames
         if start_event is not UNSET:
             field_dict["startEvent"] = start_event
-        if unit is not UNSET:
-            field_dict["unit"] = unit
 
         return field_dict
 
@@ -78,6 +79,13 @@ class Survival:
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
         type = PreprocessingOperationType(d.pop("type"))
+
+        _unit = d.pop("unit", UNSET)
+        unit: Union[Unset, TimeUnit]
+        if isinstance(_unit, Unset):
+            unit = UNSET
+        else:
+            unit = TimeUnit(_unit)
 
         duration_col = d.pop("durationCol", UNSET)
 
@@ -91,22 +99,15 @@ class Survival:
 
         start_event = d.pop("startEvent", UNSET)
 
-        _unit = d.pop("unit", UNSET)
-        unit: Union[Unset, TimeUnit]
-        if isinstance(_unit, Unset):
-            unit = UNSET
-        else:
-            unit = TimeUnit(_unit)
-
         survival = cls(
             type=type,
+            unit=unit,
             duration_col=duration_col,
             end_event=end_event,
             event_col=event_col,
             event_val=event_val,
             num_frames=num_frames,
             start_event=start_event,
-            unit=unit,
         )
 
         survival.additional_properties = d

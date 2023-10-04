@@ -16,25 +16,27 @@ class Node:
     """Node or agent of the network
 
     Attributes:
-        api_path (Union[Unset, str]):
-        current (Union[Unset, bool]):
+        current (Union[Unset, bool]): True if this node is the current one (root node).
+        has_user_management (Union[Unset, bool]): True if the node has the user management APIs enabled.
         is_root (Union[Unset, bool]): True if the node is the root node in a tree topology network.
         name (Union[Unset, str]):
         organization (Union[Unset, Organization]): Organization taking part in a project
         url (Union[Unset, str]):
+        api_path (Union[Unset, str]):
     """
 
-    api_path: Union[Unset, str] = UNSET
     current: Union[Unset, bool] = UNSET
+    has_user_management: Union[Unset, bool] = UNSET
     is_root: Union[Unset, bool] = UNSET
     name: Union[Unset, str] = UNSET
     organization: Union[Unset, "Organization"] = UNSET
     url: Union[Unset, str] = UNSET
+    api_path: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        api_path = self.api_path
         current = self.current
+        has_user_management = self.has_user_management
         is_root = self.is_root
         name = self.name
         organization: Union[Unset, Dict[str, Any]] = UNSET
@@ -42,14 +44,15 @@ class Node:
             organization = self.organization.to_dict()
 
         url = self.url
+        api_path = self.api_path
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if api_path is not UNSET:
-            field_dict["apiPath"] = api_path
         if current is not UNSET:
             field_dict["current"] = current
+        if has_user_management is not UNSET:
+            field_dict["hasUserManagement"] = has_user_management
         if is_root is not UNSET:
             field_dict["isRoot"] = is_root
         if name is not UNSET:
@@ -58,6 +61,8 @@ class Node:
             field_dict["organization"] = organization
         if url is not UNSET:
             field_dict["url"] = url
+        if api_path is not UNSET:
+            field_dict["apiPath"] = api_path
 
         return field_dict
 
@@ -66,9 +71,9 @@ class Node:
         from ..models.organization import Organization
 
         d = src_dict.copy()
-        api_path = d.pop("apiPath", UNSET)
-
         current = d.pop("current", UNSET)
+
+        has_user_management = d.pop("hasUserManagement", UNSET)
 
         is_root = d.pop("isRoot", UNSET)
 
@@ -83,13 +88,16 @@ class Node:
 
         url = d.pop("url", UNSET)
 
+        api_path = d.pop("apiPath", UNSET)
+
         node = cls(
-            api_path=api_path,
             current=current,
+            has_user_management=has_user_management,
             is_root=is_root,
             name=name,
             organization=organization,
             url=url,
+            api_path=api_path,
         )
 
         node.additional_properties = d

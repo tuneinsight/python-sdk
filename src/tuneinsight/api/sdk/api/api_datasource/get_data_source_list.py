@@ -1,12 +1,12 @@
 from http import HTTPStatus
-from typing import Any, Dict, List, Optional, Union, cast
+from typing import Any, Dict, List, Optional, Union
 
 import httpx
 
 from ... import errors
 from ...client import Client
 from ...models.data_source import DataSource
-from ...models.get_data_source_list_response_403 import GetDataSourceListResponse403
+from ...models.error import Error
 from ...types import UNSET, Response, Unset
 
 
@@ -35,9 +35,7 @@ def _get_kwargs(
     }
 
 
-def _parse_response(
-    *, client: Client, response: httpx.Response
-) -> Optional[Union[GetDataSourceListResponse403, List["DataSource"], str]]:
+def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[Error, List["DataSource"]]]:
     if response.status_code == HTTPStatus.OK:
         response_200 = []
         _response_200 = response.json()
@@ -48,11 +46,12 @@ def _parse_response(
 
         return response_200
     if response.status_code == HTTPStatus.FORBIDDEN:
-        response_403 = GetDataSourceListResponse403.from_dict(response.json())
+        response_403 = Error.from_dict(response.json())
 
         return response_403
     if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
-        response_500 = cast(str, response.json())
+        response_500 = Error.from_dict(response.json())
+
         return response_500
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(f"Unexpected status code: {response.status_code}")
@@ -60,9 +59,7 @@ def _parse_response(
         return None
 
 
-def _build_response(
-    *, client: Client, response: httpx.Response
-) -> Response[Union[GetDataSourceListResponse403, List["DataSource"], str]]:
+def _build_response(*, client: Client, response: httpx.Response) -> Response[Union[Error, List["DataSource"]]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -75,7 +72,7 @@ def sync_detailed(
     *,
     client: Client,
     name: Union[Unset, None, str] = UNSET,
-) -> Response[Union[GetDataSourceListResponse403, List["DataSource"], str]]:
+) -> Response[Union[Error, List["DataSource"]]]:
     """Get data sources
 
     Args:
@@ -86,7 +83,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetDataSourceListResponse403, List['DataSource'], str]]
+        Response[Union[Error, List['DataSource']]]
     """
 
     kwargs = _get_kwargs(
@@ -106,7 +103,7 @@ def sync(
     *,
     client: Client,
     name: Union[Unset, None, str] = UNSET,
-) -> Optional[Union[GetDataSourceListResponse403, List["DataSource"], str]]:
+) -> Optional[Union[Error, List["DataSource"]]]:
     """Get data sources
 
     Args:
@@ -117,7 +114,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetDataSourceListResponse403, List['DataSource'], str]]
+        Response[Union[Error, List['DataSource']]]
     """
 
     return sync_detailed(
@@ -130,7 +127,7 @@ async def asyncio_detailed(
     *,
     client: Client,
     name: Union[Unset, None, str] = UNSET,
-) -> Response[Union[GetDataSourceListResponse403, List["DataSource"], str]]:
+) -> Response[Union[Error, List["DataSource"]]]:
     """Get data sources
 
     Args:
@@ -141,7 +138,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetDataSourceListResponse403, List['DataSource'], str]]
+        Response[Union[Error, List['DataSource']]]
     """
 
     kwargs = _get_kwargs(
@@ -159,7 +156,7 @@ async def asyncio(
     *,
     client: Client,
     name: Union[Unset, None, str] = UNSET,
-) -> Optional[Union[GetDataSourceListResponse403, List["DataSource"], str]]:
+) -> Optional[Union[Error, List["DataSource"]]]:
     """Get data sources
 
     Args:
@@ -170,7 +167,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetDataSourceListResponse403, List['DataSource'], str]]
+        Response[Union[Error, List['DataSource']]]
     """
 
     return (

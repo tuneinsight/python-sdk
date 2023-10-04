@@ -46,7 +46,7 @@ class ComputationRunner():
 
 
     def update_computation_input(self,comp: models.ComputationDefinition):
-        if comp.type in [models.ComputationType.COLLECTIVEKEYSWITCH, models.ComputationType.ENCRYPTEDPREDICTION]:
+        if comp.type in [models.ComputationType.COLLECTIVEKEYSWITCH, models.ComputationType.ENCRYPTEDPREDICTION, models.ComputationType.PRIVATESEARCH]:
             return
         if self.datasource.query_set:
             comp.data_source_parameters = self.datasource.get_parameters()
@@ -101,8 +101,8 @@ class ComputationRunner():
                 sleep_time = int(sleep_time * 1.05)
 
         # Raise an exception if there is an error
-        if (current_comp.status == models.ComputationStatus.ERROR) or (len(comp.error) > 0):
-            raise_computation_error(current_comp.error)
+        if (current_comp.status == models.ComputationStatus.ERROR) or (len(comp.errors) > 0):
+            raise_computation_error(current_comp.errors)
 
         if len(current_comp.results) < 1:
             raise Exception("computation has no results")

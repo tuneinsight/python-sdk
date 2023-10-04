@@ -81,7 +81,7 @@ class DataSource:
         return cls.from_definition(client,definition=definition)
 
     @classmethod
-    def from_api(cls,client: Client, api_type: models.APIConnectionInfoType, api_url: str, api_token: str, name: str, clear_if_exists: bool = False):
+    def from_api(cls,client: Client, api_type: models.APIConnectionInfoType, api_url: str, api_token: str, name: str, clear_if_exists: bool = False, cert: str = ""):
         """
         from_api creates a new api datasource
 
@@ -89,6 +89,8 @@ class DataSource:
             client (Client): the client to use to interact with the datasource
             config (models.PostgresDatabaseConfig): the postgres configuration
             name (str, optional): the name to give to the datasource. Defaults to "".
+            clear_if_exists (str, optional): overwrite datasource if it already exists.
+            cert (str, optional): name of the certificate to use for this datasource (must be accessible in note at "/usr/local/share/datasource-certificates/{cert}.pem,.key").
         """
         definition = default_datasource_definition()
         definition.name = name
@@ -96,7 +98,7 @@ class DataSource:
         definition.type = "api"
 
         ds_config = models.ApiDataSourceConfig(type=models.DataSourceConfigType.APIDATASOURCECONFIG)
-        ds_config.connection_info = models.APIConnectionInfo(api_token=api_token, api_url=api_url, type=api_type)
+        ds_config.connection_info = models.APIConnectionInfo(api_token=api_token, api_url=api_url, type=api_type, cert=cert)
         definition.config = ds_config
 
         return cls.from_definition(client,definition=definition)
@@ -126,7 +128,7 @@ class DataSource:
         return self.model.unique_id
 
 
-    def adapt(self,do_type: models.DataObjectType,query: Any = "") -> DataObject:
+    def adapt(self,do_type: models.DataObjectType,query: Any = "",json_path: str = "") -> DataObject:
         """
         adapt adapts the data source into a dataobject
 
@@ -137,8 +139,8 @@ class DataSource:
         Returns:
             DataObject: _description_
         """
-        method = models.PostDataObjectJsonBodyMethod.DATASOURCE
-        definition = models.PostDataObjectJsonBody(method=method,data_source_id=self.get_id(),type=do_type,query=query)
+        method = models.DataObjectCreationMethod.DATASOURCE
+        definition = models.PostDataObjectJsonBody(method=method,data_source_id=self.get_id(),type=do_type,query=query,json_path=json_path)
         response: Response[models.DataObject] = post_data_object.sync_detailed(client=self.client,json_body=definition)
         validate_response(response)
         return DataObject(model=response.parsed,client=self.client)
@@ -166,8 +168,8 @@ class DataSource:
         validate_response(response)
 
 
-    def get_dataframe(self,query: Any = "") -> pd.DataFrame:
-        do = self.adapt(do_type=models.DataObjectType.TABLE,query =query)
+    def get_dataframe(self,query: Any = "",json_path: str = "") -> pd.DataFrame:
+        do = self.adapt(do_type=models.DataObjectType.TABLE,query=query,json_path=json_path)
         df = do.get_dataframe()
         do.delete()
         return df
@@ -198,3 +200,7 @@ def default_datasource_definition() -> models.DataSourceDefinition:
 
 def new_postgres_config(host: str,port: str,name: str,user: str,password: str) -> models.DatabaseConnectionInfo:
     return models.DatabaseConnectionInfo(type=models.DatabaseType.POSTGRES,host=host,port=port,database=name,user=user,password=password)
+
+
+def new_mariadb_config(host: str="mariadb",port: str="3306",name:str = "geco_0",user: str="geco",password:str = "geco")-> models.DatabaseConnectionInfo:
+    return models.DatabaseConnectionInfo(type=models.DatabaseType.MYSQL,host=host,port=port,database=name,user=user,password=password)

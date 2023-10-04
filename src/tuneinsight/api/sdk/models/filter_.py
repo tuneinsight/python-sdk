@@ -15,15 +15,15 @@ class Filter:
     Attributes:
         type (PreprocessingOperationType): type of preprocessing operation
         col_name (str): name of column to filter on
-        comparator (ComparisonType): type of comparison
         value (str): value with which to compare
+        comparator (Union[Unset, ComparisonType]): type of comparison
         numerical (Union[Unset, bool]): indicate whether the comparison is on numerical values
     """
 
     type: PreprocessingOperationType
     col_name: str
-    comparator: ComparisonType
     value: str
+    comparator: Union[Unset, ComparisonType] = UNSET
     numerical: Union[Unset, bool] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -31,9 +31,11 @@ class Filter:
         type = self.type.value
 
         col_name = self.col_name
-        comparator = self.comparator.value
-
         value = self.value
+        comparator: Union[Unset, str] = UNSET
+        if not isinstance(self.comparator, Unset):
+            comparator = self.comparator.value
+
         numerical = self.numerical
 
         field_dict: Dict[str, Any] = {}
@@ -42,10 +44,11 @@ class Filter:
             {
                 "type": type,
                 "colName": col_name,
-                "comparator": comparator,
                 "value": value,
             }
         )
+        if comparator is not UNSET:
+            field_dict["comparator"] = comparator
         if numerical is not UNSET:
             field_dict["numerical"] = numerical
 
@@ -58,17 +61,22 @@ class Filter:
 
         col_name = d.pop("colName")
 
-        comparator = ComparisonType(d.pop("comparator"))
-
         value = d.pop("value")
+
+        _comparator = d.pop("comparator", UNSET)
+        comparator: Union[Unset, ComparisonType]
+        if isinstance(_comparator, Unset):
+            comparator = UNSET
+        else:
+            comparator = ComparisonType(_comparator)
 
         numerical = d.pop("numerical", UNSET)
 
         filter_ = cls(
             type=type,
             col_name=col_name,
-            comparator=comparator,
             value=value,
+            comparator=comparator,
             numerical=numerical,
         )
 

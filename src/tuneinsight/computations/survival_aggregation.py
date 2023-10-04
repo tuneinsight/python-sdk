@@ -29,7 +29,7 @@ class SurvivalAggregation(ComputationRunner):
 
     def add_subgroup(self,name: str,target_column: str, comparator:models.ComparisonType, value:str, numerical:bool = False):
         filter_operation = models.Filter(type=models.PreprocessingOperationType.FILTER, col_name=target_column, comparator=comparator, value=value, numerical=numerical)
-        item = models.SurvivalAggregationSubgroupsItem(filter_operation,name)
+        item = models.SurvivalAggregationSubgroupsItem(filter_=filter_operation,name=name)
         self.subgroups.append(item)
 
     def set_matching(self,matching_organization: str, matching_columns: List[str],fuzzy_matching: bool = False):

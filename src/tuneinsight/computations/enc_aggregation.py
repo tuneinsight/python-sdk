@@ -35,6 +35,8 @@ class EncryptedAggregation(ComputationRunner):
 
     cohort_id: str = ""
     join_id: str = ""
+    float_precision: int = 2
+    selected_cols: List[str] = None
 
 
     def get_model(self) -> models.EncryptedAggregation:
@@ -42,6 +44,8 @@ class EncryptedAggregation(ComputationRunner):
         model.project_id = self.project_id
         model.cohort_id = self.cohort_id
         model.join_id = self.join_id
+        if self.selected_cols is not None and len(self.selected_cols) > 0:
+            model.aggregate_columns = self.selected_cols
         return model
 
 
@@ -59,11 +63,12 @@ class EncryptedAggregation(ComputationRunner):
         dataobjects = super().run_computation(comp=model,local=local,keyswitch= not local,decrypt=True)
         result = dataobjects[0].get_float_matrix()
         totals = result.data[0]
+        rounded_totals = [round(v, self.float_precision) for v in totals]
 
-        if len(result.columns) == len(totals):
-            data = {'Column': result.columns, 'Total': totals}
+        if len(result.columns) == len(rounded_totals):
+            data = {'Column': result.columns, 'Total': rounded_totals}
         else:
-            data = totals
+            data = rounded_totals
 
         return pd.DataFrame(data)
 
@@ -90,7 +95,8 @@ class EncryptedAggregation(ComputationRunner):
         new_row.extend(revert_quantiles(quantiles,n,min_v,max_v))
         cols = ['n']
         cols.extend([f'q{i}' for i in range(len(quantiles))])
-        return pd.DataFrame(data=[new_row],columns=cols)
+        rounded_values = [round(v, self.float_precision) for v in new_row]
+        return pd.DataFrame(data=[rounded_values],columns=cols)
 
 
     @staticmethod

@@ -1,11 +1,12 @@
 from http import HTTPStatus
-from typing import Any, Dict, Optional, Union, cast
+from typing import Any, Dict, Optional, Union
 
 import httpx
 
 from ... import errors
 from ...client import Client
-from ...models.get_network_metadata_response_403 import GetNetworkMetadataResponse403
+from ...models.error import Error
+from ...models.get_network_metadata_response_200 import GetNetworkMetadataResponse200
 from ...types import Response
 
 
@@ -27,13 +28,20 @@ def _get_kwargs(
     }
 
 
-def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[GetNetworkMetadataResponse403, str]]:
+def _parse_response(
+    *, client: Client, response: httpx.Response
+) -> Optional[Union[Error, GetNetworkMetadataResponse200]]:
+    if response.status_code == HTTPStatus.OK:
+        response_200 = GetNetworkMetadataResponse200.from_dict(response.json())
+
+        return response_200
     if response.status_code == HTTPStatus.FORBIDDEN:
-        response_403 = GetNetworkMetadataResponse403.from_dict(response.json())
+        response_403 = Error.from_dict(response.json())
 
         return response_403
     if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
-        response_500 = cast(str, response.json())
+        response_500 = Error.from_dict(response.json())
+
         return response_500
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(f"Unexpected status code: {response.status_code}")
@@ -41,7 +49,9 @@ def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Uni
         return None
 
 
-def _build_response(*, client: Client, response: httpx.Response) -> Response[Union[GetNetworkMetadataResponse403, str]]:
+def _build_response(
+    *, client: Client, response: httpx.Response
+) -> Response[Union[Error, GetNetworkMetadataResponse200]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -53,7 +63,7 @@ def _build_response(*, client: Client, response: httpx.Response) -> Response[Uni
 def sync_detailed(
     *,
     client: Client,
-) -> Response[Union[GetNetworkMetadataResponse403, str]]:
+) -> Response[Union[Error, GetNetworkMetadataResponse200]]:
     """Get network metadata (nodes URLs, public keys, etc.).
 
     Raises:
@@ -61,7 +71,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetNetworkMetadataResponse403, str]]
+        Response[Union[Error, GetNetworkMetadataResponse200]]
     """
 
     kwargs = _get_kwargs(
@@ -79,7 +89,7 @@ def sync_detailed(
 def sync(
     *,
     client: Client,
-) -> Optional[Union[GetNetworkMetadataResponse403, str]]:
+) -> Optional[Union[Error, GetNetworkMetadataResponse200]]:
     """Get network metadata (nodes URLs, public keys, etc.).
 
     Raises:
@@ -87,7 +97,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetNetworkMetadataResponse403, str]]
+        Response[Union[Error, GetNetworkMetadataResponse200]]
     """
 
     return sync_detailed(
@@ -98,7 +108,7 @@ def sync(
 async def asyncio_detailed(
     *,
     client: Client,
-) -> Response[Union[GetNetworkMetadataResponse403, str]]:
+) -> Response[Union[Error, GetNetworkMetadataResponse200]]:
     """Get network metadata (nodes URLs, public keys, etc.).
 
     Raises:
@@ -106,7 +116,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetNetworkMetadataResponse403, str]]
+        Response[Union[Error, GetNetworkMetadataResponse200]]
     """
 
     kwargs = _get_kwargs(
@@ -122,7 +132,7 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: Client,
-) -> Optional[Union[GetNetworkMetadataResponse403, str]]:
+) -> Optional[Union[Error, GetNetworkMetadataResponse200]]:
     """Get network metadata (nodes URLs, public keys, etc.).
 
     Raises:
@@ -130,7 +140,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetNetworkMetadataResponse403, str]]
+        Response[Union[Error, GetNetworkMetadataResponse200]]
     """
 
     return (

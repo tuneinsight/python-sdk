@@ -1,7 +1,8 @@
-from typing import Callable, Dict,List, Tuple
+from typing import Callable, Dict,List, Tuple, Union
 import pandas as pd
 
 from tuneinsight.api.sdk import models
+from tuneinsight.api.sdk.models import float_matrix
 from tuneinsight.api.sdk.types import UNSET
 from tuneinsight.client.computations import ComputationRunner
 
@@ -10,10 +11,10 @@ class Aggregation(ComputationRunner):
     float_precision: int = 2
     target_column: str = ""
     join_id: str = ""
-    values: List[str] = []
+    values: List[str] = None
     aggregated_columns: List[str] = []
     count_columns: Dict[str,List[str]] = {}
-    interval:List[float] = []
+    interval:List[float] = None
 
     @staticmethod
     def new_model() -> models.StatisticalAggregation:
@@ -44,6 +45,138 @@ class Aggregation(ComputationRunner):
             res = str(interval[interval_index -1]) + res
         return res
 
+    @staticmethod
+    def parse_aggregation(result: float_matrix) -> Dict:
+        vals = result.data[0]
+        totals = {}
+        for i,col_info in enumerate(result.contextual_info.columns_info):
+            if col_info.value_type == models.ColumnInfoValueType.ROWCOUNT:
+                totals["row_count"] = vals[i]
+            else:
+                totals[col_info.origin_column] = vals[i]
+
+        return totals
+
+    def count(self, local: bool = False) -> Union[int,pd.DataFrame]:
+        """count returns the number of records
+
+        Args:
+            local (bool, optional): whether to perform the operation only on local data or collectively. Defaults to False.
+
+        Returns:
+            Union[int,pd.DataFrame]: the number of records as an int or as a dataframe if a group by was set beforehand
+        """
+
+        columns_to_extract = []
+        if len(self.count_columns) > 0:
+            extracted_dict = [vals + ['other ' + k] for k,vals in self.count_columns.items()]
+            flattened = [v for sublist in extracted_dict for v in sublist]
+            columns_to_extract.extend(flattened)
+        if self.values is not None:
+            result = self.group_by_value(local=local)
+            columns_to_extract = [self.target_column, "count"] + columns_to_extract
+            return result[columns_to_extract]
+        if self.interval is not None:
+            result = self.group_by_interval(local=local)
+            columns_to_extract = [self.target_column, "count"] + columns_to_extract
+            return result[columns_to_extract]
+
+        model = self.new_model()
+        model.include_dataset_length = True
+        result = self.run(comp=model,local=local)
+
+        parsed = self.parse_aggregation(result)
+
+        return round(parsed["row_count"])
+
+    def sum(self, columns: List[str], local: bool = False) -> pd.DataFrame:
+        """sum returns the total for each given column
+
+        Args:
+            columns (List[str]): columns to compute sum on
+            local (bool, optional): whether to perform the operation only on local data or collectively. Defaults to False.
+
+        Returns:
+            pd.DataFrame: the sum for each column
+        """
+        if self.values is not None:
+            self.aggregated_columns = columns # pylint: disable=W0201
+            result = self.group_by_value(local=local)
+            columns_to_extract = [self.target_column] + ["total " + col for col in columns]
+            return result[columns_to_extract]
+        if self.interval is not None:
+            self.aggregated_columns = columns # pylint: disable=W0201
+            result = self.group_by_interval(local=local)
+            columns_to_extract = [self.target_column] + ["total " + col for col in columns]
+            return result[columns_to_extract]
+
+        model = self.new_model()
+        model.aggregation_columns = columns
+
+        result = self.run(comp=model,local=local)
+
+        parsed = self.parse_aggregation(result)
+
+        return pd.DataFrame.from_dict(parsed, orient='index', columns=["Total"])
+
+    def average(self, columns: List[str], local: bool = False) -> pd.DataFrame:
+        """average returns the average value for each given column
+
+        Args:
+            columns (List[str]): columns to compute average on
+            local (bool, optional): whether to perform the operation only on local data or collectively. Defaults to False.
+
+        Returns:
+            pd.DataFrame: the average for each column
+        """
+
+        if self.values is not None:
+            self.aggregated_columns = columns # pylint: disable=W0201
+            result = self.group_by_value(local=local)
+            columns_to_extract = [self.target_column] + ["average " + col for col in columns]
+            return result[columns_to_extract]
+        if self.interval is not None:
+            self.aggregated_columns = columns # pylint: disable=W0201
+            result = self.group_by_interval(local=local)
+            columns_to_extract = [self.target_column] + ["average " + col for col in columns]
+            return result[columns_to_extract]
+
+        model = self.new_model()
+        model.aggregation_columns = columns
+        model.include_dataset_length = True
+
+        result = self.run(comp=model,local=local)
+        parsed = self.parse_aggregation(result)
+
+        dataset_length = round(parsed["row_count"])
+        parsed.pop("row_count")
+        cols = []
+        data = []
+        for column_name,total in parsed.items():
+            cols.append("average " + column_name)
+            if dataset_length != 0:
+                data.append(round(total/float(dataset_length),self.float_precision))
+            else:
+                data.append(0)
+        return pd.DataFrame(data=[data],columns=cols)
+
+
+    def group_by(self, target_col:str = None, values: List[str] = None, interval: List[float] = None, count_columns: Dict[str,List[str]] = {}): # pylint: disable=W0102
+        """group_by sets attributes to perform grouped aggregations
+
+        Args:
+            target_col (str, optional): name of the column on which to perform the group by operation
+            values (List[str], optional): values of the column on which to group
+            interval (List[float], optional): intervals on which to group
+            count_columns (Dict[str,List[str]], optional): values on which to compute a count percentage
+        """
+
+        self.target_column = target_col
+        self.values = values
+        self.interval = interval
+        self.count_columns = count_columns
+
+
     def group_by_to_dataframe(self,cat_labels: List[str],counts: Dict[str,int],totals: Dict[str,float]) -> pd.DataFrame:
         # Create the data frame columns
         cols = [self.target_column,"count"]
@@ -56,6 +189,7 @@ class Aggregation(ComputationRunner):
         for col in self.aggregated_columns:
             cols.append("total " + col)
             cols.append("average " + col)
+
 
         # create the rows
         data = []
@@ -104,6 +238,7 @@ class Aggregation(ComputationRunner):
         return counts,totals,categories.keys()
 
 
+
     def group_by_value(self,local: bool = False) -> pd.DataFrame:
         # create groupBy Value model
         model = self.new_model()
@@ -144,28 +279,3 @@ class Aggregation(ComputationRunner):
 
         counts,totals,categories = self.process_group_by_columns(result.contextual_info.columns_info,result.data[0],self.interval_to_categorical_label(self.interval))
         return self.group_by_to_dataframe(cat_labels=categories,counts=counts,totals=totals)
-
-    def average(self,columns: List[str],local: bool = False) -> pd.DataFrame:
-
-        model = self.new_model()
-        model.aggregation_columns = columns
-        model.include_dataset_length = True
-
-        result = self.run(comp=model,local=local)
-        vals = result.data[0]
-        totals = {}
-        dataset_length = 0
-        for i,col_info in enumerate(result.contextual_info.columns_info):
-            if col_info.value_type == models.ColumnInfoValueType.ROWCOUNT:
-                dataset_length = int(vals[i])
-            else:
-                totals[col_info.origin_column] = vals[i]
-        cols = []
-        data = []
-        for column_name,total in totals.items():
-            cols.append("average " + column_name)
-            if dataset_length != 0:
-                data.append(round(total/float(dataset_length),self.float_precision))
-            else:
-                data.append(0)
-        return pd.DataFrame(data=[data],columns=cols)

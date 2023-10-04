@@ -7,6 +7,7 @@ class StorageOperation(str, Enum):
     ROTATE = "rotate"
     BACKUP = "backup"
     RESTORE = "restore"
+    DELETEDANGLING = "deleteDangling"
 
     def __str__(self) -> str:
         return str(self.value)

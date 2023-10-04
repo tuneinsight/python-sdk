@@ -3,8 +3,8 @@ from enum import Enum
 
 class DataObjectType(str, Enum):
     RLWE_PUBLIC_KEY = "rlwe-public-key"
-    RLWE_EVALUATION_KEY = "rlwe-evaluation-key"
-    RLWE_ROTATION_KEY = "rlwe-rotation-key"
+    RLWE_GALOIS_KEY = "rlwe-galois-key"
+    RLWE_EVALUATION_KEY_SET = "rlwe-evaluation-key-set"
     RLWE_RELINEARIZATION_KEY = "rlwe-relinearization-key"
     RLWE_SECRET_KEY = "rlwe-secret-key"
     ENCRYPTED_REG_MODEL = "encrypted-reg-model"

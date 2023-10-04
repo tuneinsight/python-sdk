@@ -5,7 +5,7 @@ import httpx
 
 from ... import errors
 from ...client import Client
-from ...models.post_storage_response_403 import PostStorageResponse403
+from ...models.error import Error
 from ...models.storage_definition import StorageDefinition
 from ...types import Response
 
@@ -32,22 +32,25 @@ def _get_kwargs(
     }
 
 
-def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[PostStorageResponse403, str]]:
+def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[Error, str]]:
     if response.status_code == HTTPStatus.OK:
         response_200 = cast(str, response.json())
         return response_200
     if response.status_code == HTTPStatus.BAD_REQUEST:
-        response_400 = cast(str, response.json())
+        response_400 = Error.from_dict(response.json())
+
         return response_400
     if response.status_code == HTTPStatus.FORBIDDEN:
-        response_403 = PostStorageResponse403.from_dict(response.json())
+        response_403 = Error.from_dict(response.json())
 
         return response_403
     if response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
-        response_422 = cast(str, response.json())
+        response_422 = Error.from_dict(response.json())
+
         return response_422
     if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
-        response_500 = cast(str, response.json())
+        response_500 = Error.from_dict(response.json())
+
         return response_500
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(f"Unexpected status code: {response.status_code}")
@@ -55,7 +58,7 @@ def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Uni
         return None
 
 
-def _build_response(*, client: Client, response: httpx.Response) -> Response[Union[PostStorageResponse403, str]]:
+def _build_response(*, client: Client, response: httpx.Response) -> Response[Union[Error, str]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -68,7 +71,7 @@ def sync_detailed(
     *,
     client: Client,
     json_body: StorageDefinition,
-) -> Response[Union[PostStorageResponse403, str]]:
+) -> Response[Union[Error, str]]:
     """Request a Storage operation
 
     Args:
@@ -79,7 +82,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[PostStorageResponse403, str]]
+        Response[Union[Error, str]]
     """
 
     kwargs = _get_kwargs(
@@ -99,7 +102,7 @@ def sync(
     *,
     client: Client,
     json_body: StorageDefinition,
-) -> Optional[Union[PostStorageResponse403, str]]:
+) -> Optional[Union[Error, str]]:
     """Request a Storage operation
 
     Args:
@@ -110,7 +113,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[PostStorageResponse403, str]]
+        Response[Union[Error, str]]
     """
 
     return sync_detailed(
@@ -123,7 +126,7 @@ async def asyncio_detailed(
     *,
     client: Client,
     json_body: StorageDefinition,
-) -> Response[Union[PostStorageResponse403, str]]:
+) -> Response[Union[Error, str]]:
     """Request a Storage operation
 
     Args:
@@ -134,7 +137,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[PostStorageResponse403, str]]
+        Response[Union[Error, str]]
     """
 
     kwargs = _get_kwargs(
@@ -152,7 +155,7 @@ async def asyncio(
     *,
     client: Client,
     json_body: StorageDefinition,
-) -> Optional[Union[PostStorageResponse403, str]]:
+) -> Optional[Union[Error, str]]:
     """Request a Storage operation
 
     Args:
@@ -163,7 +166,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[PostStorageResponse403, str]]
+        Response[Union[Error, str]]
     """
 
     return (

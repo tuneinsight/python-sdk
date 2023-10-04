@@ -5,7 +5,7 @@ from IPython.display import display, HTML, Markdown
 from tuneinsight.api.sdk.types import UNSET,Unset
 from tuneinsight.api.sdk.types import Response
 from tuneinsight.api.sdk import models
-from tuneinsight.api.sdk.api.api_project import patch_project
+from tuneinsight.api.sdk.api.api_project import patch_project, post_project_computation
 from tuneinsight.api.sdk.api.api_project import get_project
 from tuneinsight.api.sdk.api.api_project import delete_project
 from tuneinsight.api.sdk.api.api_datasource import get_data_source
@@ -18,12 +18,13 @@ from tuneinsight.computations.secure_join import SecureJoin
 from tuneinsight.computations.hybrid_fl import HybridFL
 from tuneinsight.computations.stats import DatasetStatistics
 from tuneinsight.computations.policy import Policy,display_policy
-from tuneinsight.computations.types import displayed_types,Type
+from tuneinsight.computations.types import Type
 from tuneinsight.client.validation import validate_response
 from tuneinsight.computations.statistical_aggregation import Aggregation
 from tuneinsight.client.computations import ComputationRunner
 from tuneinsight.client.datasource import DataSource
 from tuneinsight.client.dataobject import DataObject
+from tuneinsight.client.local_data_selection import LocalDataSelection
 
 
 @attr.s(auto_attribs=True)
@@ -241,6 +242,17 @@ class Project:
         comp.data_source_parameters = models.ComputationDataSourceParameters()
         return runner.run_computation(comp=comp,local=local,keyswitch=keyswitch,decrypt=decrypt)
 
+    def run_project(self) -> models.Project:
+        """Run the computation defined on the project
+
+        Returns:
+            models.Project: Project Computation Created
+        """
+        response : Response[models.Project] = post_project_computation.sync_detailed(project_id=self.get_id(), client=self.client)
+        validate_response(response)
+        return response.parsed
+
+
     def new_aggregation(self) -> Aggregation:
         """
         new_aggregation returns a new Aggregation Computation which can be computed by running the project
@@ -365,7 +377,35 @@ class Project:
             print("project has no policy")
         if isinstance(policy,Unset):
             return
-        for comp_type in policy.computation_policies.additional_properties:
-            p = policy.computation_policies[comp_type]
-            display(Markdown(f'## {displayed_types[Type(comp_type)]} Policy'))
-            display_policy(p,detailed=detailed,show_queries=show_queries)
+        display_policy(policy,detailed=detailed,show_queries=show_queries)
+
+
+    def local_data_selection(self) -> LocalDataSelection:
+        '''
+        local_data_selection returns the local data selection settings for the project
+
+        Returns:
+            LocalDataSelection: the data selection settings that can be updated by the user
+        '''
+
+        def update_func(definition: models.LocalDataSelectionDefinition) -> models.LocalDataSelection:
+            proj_def = models.ProjectDefinition()
+            proj_def.local_data_selection_definition = definition
+            self.patch(proj_def)
+            self.refresh()
+            return self.model.local_data_selection_definition
+
+        return LocalDataSelection(update_func)
+
+
+    def display_workflow(self):
+        '''
+        display_workflow displays the workflow description for the project
+        '''
+        self.refresh()
+        display(Markdown(self.model.workflow_description))
+
+
+    def set_computation_type(self,comp_type: Type):
+        definition = models.ComputationDefinition(type=comp_type)
+        self.set_computation(definition)

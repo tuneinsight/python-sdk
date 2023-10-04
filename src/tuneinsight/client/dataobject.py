@@ -68,7 +68,7 @@ class DataObject:
     @classmethod
     def create(cls,client: Client,do_type: models.DataObjectType,session_id: str = "",encrypted: bool = False,key_info: models.KeyInfo = None,data:bytes=None):
         body = models.PostDataObjectJsonBody()
-        body.method = models.PostDataObjectJsonBodyMethod.CREATE
+        body.method = models.DataObjectCreationMethod.CREATE
         body.encrypted = encrypted
         body.type = do_type
         body.session_id = session_id
@@ -171,7 +171,7 @@ class DataObject:
         Returns:
             DataObject: the decrypted dataobject
         """
-        method = models.PostDataObjectJsonBodyMethod(models.PostDataObjectJsonBodyMethod.DECRYPT)
+        method = models.DataObjectCreationMethod(models.DataObjectCreationMethod.DECRYPT)
         definition = models.PostDataObjectJsonBody(method=method,data_object_id=self.get_id())
         doResp: Response[models.DataObject] = post_data_object.sync_detailed(client=self.client,json_body=definition)
         validate_response(doResp)

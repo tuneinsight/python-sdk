@@ -1,12 +1,12 @@
 from http import HTTPStatus
-from typing import Any, Dict, List, Optional, Union, cast
+from typing import Any, Dict, List, Optional, Union
 
 import httpx
 
 from ... import errors
 from ...client import Client
+from ...models.error import Error
 from ...models.get_model_list_order import GetModelListOrder
-from ...models.get_model_list_response_403 import GetModelListResponse403
 from ...models.get_model_list_sort_by import GetModelListSortBy
 from ...models.model import Model
 from ...types import UNSET, Response, Unset
@@ -51,9 +51,7 @@ def _get_kwargs(
     }
 
 
-def _parse_response(
-    *, client: Client, response: httpx.Response
-) -> Optional[Union[GetModelListResponse403, List["Model"], str]]:
+def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[Error, List["Model"]]]:
     if response.status_code == HTTPStatus.OK:
         response_200 = []
         _response_200 = response.json()
@@ -64,11 +62,12 @@ def _parse_response(
 
         return response_200
     if response.status_code == HTTPStatus.FORBIDDEN:
-        response_403 = GetModelListResponse403.from_dict(response.json())
+        response_403 = Error.from_dict(response.json())
 
         return response_403
     if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
-        response_500 = cast(str, response.json())
+        response_500 = Error.from_dict(response.json())
+
         return response_500
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(f"Unexpected status code: {response.status_code}")
@@ -76,9 +75,7 @@ def _parse_response(
         return None
 
 
-def _build_response(
-    *, client: Client, response: httpx.Response
-) -> Response[Union[GetModelListResponse403, List["Model"], str]]:
+def _build_response(*, client: Client, response: httpx.Response) -> Response[Union[Error, List["Model"]]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -93,7 +90,7 @@ def sync_detailed(
     sort_by: Union[Unset, None, GetModelListSortBy] = UNSET,
     order: Union[Unset, None, GetModelListOrder] = UNSET,
     project_id: Union[Unset, None, str] = UNSET,
-) -> Response[Union[GetModelListResponse403, List["Model"], str]]:
+) -> Response[Union[Error, List["Model"]]]:
     """Get the list of available machine learning models.
 
     Args:
@@ -106,7 +103,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetModelListResponse403, List['Model'], str]]
+        Response[Union[Error, List['Model']]]
     """
 
     kwargs = _get_kwargs(
@@ -130,7 +127,7 @@ def sync(
     sort_by: Union[Unset, None, GetModelListSortBy] = UNSET,
     order: Union[Unset, None, GetModelListOrder] = UNSET,
     project_id: Union[Unset, None, str] = UNSET,
-) -> Optional[Union[GetModelListResponse403, List["Model"], str]]:
+) -> Optional[Union[Error, List["Model"]]]:
     """Get the list of available machine learning models.
 
     Args:
@@ -143,7 +140,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetModelListResponse403, List['Model'], str]]
+        Response[Union[Error, List['Model']]]
     """
 
     return sync_detailed(
@@ -160,7 +157,7 @@ async def asyncio_detailed(
     sort_by: Union[Unset, None, GetModelListSortBy] = UNSET,
     order: Union[Unset, None, GetModelListOrder] = UNSET,
     project_id: Union[Unset, None, str] = UNSET,
-) -> Response[Union[GetModelListResponse403, List["Model"], str]]:
+) -> Response[Union[Error, List["Model"]]]:
     """Get the list of available machine learning models.
 
     Args:
@@ -173,7 +170,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetModelListResponse403, List['Model'], str]]
+        Response[Union[Error, List['Model']]]
     """
 
     kwargs = _get_kwargs(
@@ -195,7 +192,7 @@ async def asyncio(
     sort_by: Union[Unset, None, GetModelListSortBy] = UNSET,
     order: Union[Unset, None, GetModelListOrder] = UNSET,
     project_id: Union[Unset, None, str] = UNSET,
-) -> Optional[Union[GetModelListResponse403, List["Model"], str]]:
+) -> Optional[Union[Error, List["Model"]]]:
     """Get the list of available machine learning models.
 
     Args:
@@ -208,7 +205,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetModelListResponse403, List['Model'], str]]
+        Response[Union[Error, List['Model']]]
     """
 
     return (

@@ -24,6 +24,7 @@ class ComputationType(str, Enum):
     HYBRIDFL = "hybridFL"
     DATASETSTATISTICS = "datasetStatistics"
     PRIVATESEARCH = "privateSearch"
+    PRIVATESEARCHSETUP = "privateSearchSetup"
 
     def __str__(self) -> str:
         return str(self.value)

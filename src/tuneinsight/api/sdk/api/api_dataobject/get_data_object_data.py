@@ -1,14 +1,14 @@
 from http import HTTPStatus
-from typing import Any, Dict, Optional, Union, cast
+from typing import Any, Dict, Optional, Union
 
 import httpx
 
 from ... import errors
 from ...client import Client
 from ...models.ciphertable import Ciphertable
+from ...models.error import Error
 from ...models.external_ml_result import ExternalMlResult
 from ...models.float_matrix import FloatMatrix
-from ...models.get_data_object_data_response_403 import GetDataObjectDataResponse403
 from ...models.prediction import Prediction
 from ...models.statistics import Statistics
 from ...models.string_matrix import StringMatrix
@@ -37,11 +37,7 @@ def _get_kwargs(
 def _parse_response(
     *, client: Client, response: httpx.Response
 ) -> Optional[
-    Union[
-        GetDataObjectDataResponse403,
-        Union["Ciphertable", "ExternalMlResult", "FloatMatrix", "Prediction", "Statistics", "StringMatrix"],
-        str,
-    ]
+    Union[Error, Union["Ciphertable", "ExternalMlResult", "FloatMatrix", "Prediction", "Statistics", "StringMatrix"]]
 ]:
     if response.status_code == HTTPStatus.OK:
 
@@ -98,14 +94,20 @@ def _parse_response(
 
         return response_200
     if response.status_code == HTTPStatus.FORBIDDEN:
-        response_403 = GetDataObjectDataResponse403.from_dict(response.json())
+        response_403 = Error.from_dict(response.json())
 
         return response_403
     if response.status_code == HTTPStatus.NOT_FOUND:
-        response_404 = cast(str, response.json())
+        response_404 = Error.from_dict(response.json())
+
         return response_404
+    if response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
+        response_422 = Error.from_dict(response.json())
+
+        return response_422
     if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
-        response_500 = cast(str, response.json())
+        response_500 = Error.from_dict(response.json())
+
         return response_500
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(f"Unexpected status code: {response.status_code}")
@@ -116,11 +118,7 @@ def _parse_response(
 def _build_response(
     *, client: Client, response: httpx.Response
 ) -> Response[
-    Union[
-        GetDataObjectDataResponse403,
-        Union["Ciphertable", "ExternalMlResult", "FloatMatrix", "Prediction", "Statistics", "StringMatrix"],
-        str,
-    ]
+    Union[Error, Union["Ciphertable", "ExternalMlResult", "FloatMatrix", "Prediction", "Statistics", "StringMatrix"]]
 ]:
     return Response(
         status_code=HTTPStatus(response.status_code),
@@ -135,11 +133,7 @@ def sync_detailed(
     *,
     client: Client,
 ) -> Response[
-    Union[
-        GetDataObjectDataResponse403,
-        Union["Ciphertable", "ExternalMlResult", "FloatMatrix", "Prediction", "Statistics", "StringMatrix"],
-        str,
-    ]
+    Union[Error, Union["Ciphertable", "ExternalMlResult", "FloatMatrix", "Prediction", "Statistics", "StringMatrix"]]
 ]:
     """Get the content of a data object.
 
@@ -151,7 +145,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetDataObjectDataResponse403, Union['Ciphertable', 'ExternalMlResult', 'FloatMatrix', 'Prediction', 'Statistics', 'StringMatrix'], str]]
+        Response[Union[Error, Union['Ciphertable', 'ExternalMlResult', 'FloatMatrix', 'Prediction', 'Statistics', 'StringMatrix']]]
     """
 
     kwargs = _get_kwargs(
@@ -172,11 +166,7 @@ def sync(
     *,
     client: Client,
 ) -> Optional[
-    Union[
-        GetDataObjectDataResponse403,
-        Union["Ciphertable", "ExternalMlResult", "FloatMatrix", "Prediction", "Statistics", "StringMatrix"],
-        str,
-    ]
+    Union[Error, Union["Ciphertable", "ExternalMlResult", "FloatMatrix", "Prediction", "Statistics", "StringMatrix"]]
 ]:
     """Get the content of a data object.
 
@@ -188,7 +178,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetDataObjectDataResponse403, Union['Ciphertable', 'ExternalMlResult', 'FloatMatrix', 'Prediction', 'Statistics', 'StringMatrix'], str]]
+        Response[Union[Error, Union['Ciphertable', 'ExternalMlResult', 'FloatMatrix', 'Prediction', 'Statistics', 'StringMatrix']]]
     """
 
     return sync_detailed(
@@ -202,11 +192,7 @@ async def asyncio_detailed(
     *,
     client: Client,
 ) -> Response[
-    Union[
-        GetDataObjectDataResponse403,
-        Union["Ciphertable", "ExternalMlResult", "FloatMatrix", "Prediction", "Statistics", "StringMatrix"],
-        str,
-    ]
+    Union[Error, Union["Ciphertable", "ExternalMlResult", "FloatMatrix", "Prediction", "Statistics", "StringMatrix"]]
 ]:
     """Get the content of a data object.
 
@@ -218,7 +204,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetDataObjectDataResponse403, Union['Ciphertable', 'ExternalMlResult', 'FloatMatrix', 'Prediction', 'Statistics', 'StringMatrix'], str]]
+        Response[Union[Error, Union['Ciphertable', 'ExternalMlResult', 'FloatMatrix', 'Prediction', 'Statistics', 'StringMatrix']]]
     """
 
     kwargs = _get_kwargs(
@@ -237,11 +223,7 @@ async def asyncio(
     *,
     client: Client,
 ) -> Optional[
-    Union[
-        GetDataObjectDataResponse403,
-        Union["Ciphertable", "ExternalMlResult", "FloatMatrix", "Prediction", "Statistics", "StringMatrix"],
-        str,
-    ]
+    Union[Error, Union["Ciphertable", "ExternalMlResult", "FloatMatrix", "Prediction", "Statistics", "StringMatrix"]]
 ]:
     """Get the content of a data object.
 
@@ -253,7 +235,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetDataObjectDataResponse403, Union['Ciphertable', 'ExternalMlResult', 'FloatMatrix', 'Prediction', 'Statistics', 'StringMatrix'], str]]
+        Response[Union[Error, Union['Ciphertable', 'ExternalMlResult', 'FloatMatrix', 'Prediction', 'Statistics', 'StringMatrix']]]
     """
 
     return (

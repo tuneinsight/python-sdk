@@ -5,7 +5,7 @@ import httpx
 
 from ... import errors
 from ...client import Client
-from ...models.init_session_response_403 import InitSessionResponse403
+from ...models.error import Error
 from ...types import Response
 
 
@@ -27,16 +27,17 @@ def _get_kwargs(
     }
 
 
-def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[Any, InitSessionResponse403, str]]:
+def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[Any, Error]]:
     if response.status_code == HTTPStatus.OK:
         response_200 = cast(Any, None)
         return response_200
     if response.status_code == HTTPStatus.FORBIDDEN:
-        response_403 = InitSessionResponse403.from_dict(response.json())
+        response_403 = Error.from_dict(response.json())
 
         return response_403
     if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
-        response_500 = cast(str, response.json())
+        response_500 = Error.from_dict(response.json())
+
         return response_500
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(f"Unexpected status code: {response.status_code}")
@@ -44,7 +45,7 @@ def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Uni
         return None
 
 
-def _build_response(*, client: Client, response: httpx.Response) -> Response[Union[Any, InitSessionResponse403, str]]:
+def _build_response(*, client: Client, response: httpx.Response) -> Response[Union[Any, Error]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -56,7 +57,7 @@ def _build_response(*, client: Client, response: httpx.Response) -> Response[Uni
 def sync_detailed(
     *,
     client: Client,
-) -> Response[Union[Any, InitSessionResponse403, str]]:
+) -> Response[Union[Any, Error]]:
     """Initiate a session by generating the collective and relinearization keys.
 
      This operation has been integrated on the protocols and no longer needed
@@ -66,7 +67,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Any, InitSessionResponse403, str]]
+        Response[Union[Any, Error]]
     """
 
     kwargs = _get_kwargs(
@@ -84,7 +85,7 @@ def sync_detailed(
 def sync(
     *,
     client: Client,
-) -> Optional[Union[Any, InitSessionResponse403, str]]:
+) -> Optional[Union[Any, Error]]:
     """Initiate a session by generating the collective and relinearization keys.
 
      This operation has been integrated on the protocols and no longer needed
@@ -94,7 +95,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Any, InitSessionResponse403, str]]
+        Response[Union[Any, Error]]
     """
 
     return sync_detailed(
@@ -105,7 +106,7 @@ def sync(
 async def asyncio_detailed(
     *,
     client: Client,
-) -> Response[Union[Any, InitSessionResponse403, str]]:
+) -> Response[Union[Any, Error]]:
     """Initiate a session by generating the collective and relinearization keys.
 
      This operation has been integrated on the protocols and no longer needed
@@ -115,7 +116,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Any, InitSessionResponse403, str]]
+        Response[Union[Any, Error]]
     """
 
     kwargs = _get_kwargs(
@@ -131,7 +132,7 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: Client,
-) -> Optional[Union[Any, InitSessionResponse403, str]]:
+) -> Optional[Union[Any, Error]]:
     """Initiate a session by generating the collective and relinearization keys.
 
      This operation has been integrated on the protocols and no longer needed
@@ -141,7 +142,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Any, InitSessionResponse403, str]]
+        Response[Union[Any, Error]]
     """
 
     return (

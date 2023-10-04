@@ -5,7 +5,7 @@ import httpx
 
 from ... import errors
 from ...client import Client
-from ...models.delete_model_response_403 import DeleteModelResponse403
+from ...models.error import Error
 from ...types import UNSET, Response
 
 
@@ -34,19 +34,21 @@ def _get_kwargs(
     }
 
 
-def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[Any, DeleteModelResponse403, str]]:
+def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[Any, Error]]:
     if response.status_code == HTTPStatus.NO_CONTENT:
         response_204 = cast(Any, None)
         return response_204
     if response.status_code == HTTPStatus.FORBIDDEN:
-        response_403 = DeleteModelResponse403.from_dict(response.json())
+        response_403 = Error.from_dict(response.json())
 
         return response_403
     if response.status_code == HTTPStatus.NOT_FOUND:
-        response_404 = cast(str, response.json())
+        response_404 = Error.from_dict(response.json())
+
         return response_404
     if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
-        response_500 = cast(str, response.json())
+        response_500 = Error.from_dict(response.json())
+
         return response_500
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(f"Unexpected status code: {response.status_code}")
@@ -54,7 +56,7 @@ def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Uni
         return None
 
 
-def _build_response(*, client: Client, response: httpx.Response) -> Response[Union[Any, DeleteModelResponse403, str]]:
+def _build_response(*, client: Client, response: httpx.Response) -> Response[Union[Any, Error]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -67,7 +69,7 @@ def sync_detailed(
     *,
     client: Client,
     model_id: str,
-) -> Response[Union[Any, DeleteModelResponse403, str]]:
+) -> Response[Union[Any, Error]]:
     """Delete a model its associated data.
 
     Args:
@@ -78,7 +80,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Any, DeleteModelResponse403, str]]
+        Response[Union[Any, Error]]
     """
 
     kwargs = _get_kwargs(
@@ -98,7 +100,7 @@ def sync(
     *,
     client: Client,
     model_id: str,
-) -> Optional[Union[Any, DeleteModelResponse403, str]]:
+) -> Optional[Union[Any, Error]]:
     """Delete a model its associated data.
 
     Args:
@@ -109,7 +111,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Any, DeleteModelResponse403, str]]
+        Response[Union[Any, Error]]
     """
 
     return sync_detailed(
@@ -122,7 +124,7 @@ async def asyncio_detailed(
     *,
     client: Client,
     model_id: str,
-) -> Response[Union[Any, DeleteModelResponse403, str]]:
+) -> Response[Union[Any, Error]]:
     """Delete a model its associated data.
 
     Args:
@@ -133,7 +135,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Any, DeleteModelResponse403, str]]
+        Response[Union[Any, Error]]
     """
 
     kwargs = _get_kwargs(
@@ -151,7 +153,7 @@ async def asyncio(
     *,
     client: Client,
     model_id: str,
-) -> Optional[Union[Any, DeleteModelResponse403, str]]:
+) -> Optional[Union[Any, Error]]:
     """Delete a model its associated data.
 
     Args:
@@ -162,7 +164,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Any, DeleteModelResponse403, str]]
+        Response[Union[Any, Error]]
     """
 
     return (

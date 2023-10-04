@@ -16,15 +16,16 @@ class DataSourceTable:
     """schema information for a table from a datasource
 
     Attributes:
-        columns (Union[Unset, List['DataSourceColumn']]):
         name (Union[Unset, str]):
+        columns (Union[Unset, List['DataSourceColumn']]):
     """
 
-    columns: Union[Unset, List["DataSourceColumn"]] = UNSET
     name: Union[Unset, str] = UNSET
+    columns: Union[Unset, List["DataSourceColumn"]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        name = self.name
         columns: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.columns, Unset):
             columns = []
@@ -33,15 +34,13 @@ class DataSourceTable:
 
                 columns.append(columns_item)
 
-        name = self.name
-
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if columns is not UNSET:
-            field_dict["columns"] = columns
         if name is not UNSET:
             field_dict["name"] = name
+        if columns is not UNSET:
+            field_dict["columns"] = columns
 
         return field_dict
 
@@ -50,6 +49,8 @@ class DataSourceTable:
         from ..models.data_source_column import DataSourceColumn
 
         d = src_dict.copy()
+        name = d.pop("name", UNSET)
+
         columns = []
         _columns = d.pop("columns", UNSET)
         for columns_item_data in _columns or []:
@@ -57,11 +58,9 @@ class DataSourceTable:
 
             columns.append(columns_item)
 
-        name = d.pop("name", UNSET)
-
         data_source_table = cls(
-            columns=columns,
             name=name,
+            columns=columns,
         )
 
         data_source_table.additional_properties = d

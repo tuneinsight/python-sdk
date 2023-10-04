@@ -1,12 +1,8 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
+from typing import Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
 from ..types import UNSET, Unset
-
-if TYPE_CHECKING:
-    from ..models.private_search_database_database_hash_index import PrivateSearchDatabaseDatabaseHashIndex
-
 
 T = TypeVar("T", bound="PrivateSearchDatabase")
 
@@ -16,58 +12,55 @@ class PrivateSearchDatabase:
     """Database used by private search
 
     Attributes:
-        database_hash_index (Union[Unset, PrivateSearchDatabaseDatabaseHashIndex]): private search database hash index
-            (in the form [<hash(string)>:<idx(int)>, ...]), returned on GET /private-search-databases/<id>
-        database_id (Union[Unset, str]): Unique identifier of a private search database.
+        database_index (Union[Unset, str]): private search database hash index (b64-encoded)
         database_params (Union[Unset, str]): private search database parameters (b64-encoded), returned on GET /private-
             search-databases/<id>
+        cryptosystem_params (Union[Unset, str]): cryptosystem parameters (b64-encoded)
+        database_id (Union[Unset, str]): Unique identifier of a private search database.
     """
 
-    database_hash_index: Union[Unset, "PrivateSearchDatabaseDatabaseHashIndex"] = UNSET
-    database_id: Union[Unset, str] = UNSET
+    database_index: Union[Unset, str] = UNSET
     database_params: Union[Unset, str] = UNSET
+    cryptosystem_params: Union[Unset, str] = UNSET
+    database_id: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        database_hash_index: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.database_hash_index, Unset):
-            database_hash_index = self.database_hash_index.to_dict()
-
-        database_id = self.database_id
+        database_index = self.database_index
         database_params = self.database_params
+        cryptosystem_params = self.cryptosystem_params
+        database_id = self.database_id
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if database_hash_index is not UNSET:
-            field_dict["databaseHashIndex"] = database_hash_index
-        if database_id is not UNSET:
-            field_dict["databaseID"] = database_id
+        if database_index is not UNSET:
+            field_dict["databaseIndex"] = database_index
         if database_params is not UNSET:
             field_dict["databaseParams"] = database_params
+        if cryptosystem_params is not UNSET:
+            field_dict["cryptosystemParams"] = cryptosystem_params
+        if database_id is not UNSET:
+            field_dict["databaseID"] = database_id
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.private_search_database_database_hash_index import PrivateSearchDatabaseDatabaseHashIndex
-
         d = src_dict.copy()
-        _database_hash_index = d.pop("databaseHashIndex", UNSET)
-        database_hash_index: Union[Unset, PrivateSearchDatabaseDatabaseHashIndex]
-        if isinstance(_database_hash_index, Unset):
-            database_hash_index = UNSET
-        else:
-            database_hash_index = PrivateSearchDatabaseDatabaseHashIndex.from_dict(_database_hash_index)
-
-        database_id = d.pop("databaseID", UNSET)
+        database_index = d.pop("databaseIndex", UNSET)
 
         database_params = d.pop("databaseParams", UNSET)
 
+        cryptosystem_params = d.pop("cryptosystemParams", UNSET)
+
+        database_id = d.pop("databaseID", UNSET)
+
         private_search_database = cls(
-            database_hash_index=database_hash_index,
-            database_id=database_id,
+            database_index=database_index,
             database_params=database_params,
+            cryptosystem_params=cryptosystem_params,
+            database_id=database_id,
         )
 
         private_search_database.additional_properties = d

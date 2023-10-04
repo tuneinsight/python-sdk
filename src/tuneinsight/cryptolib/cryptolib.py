@@ -21,46 +21,63 @@ def go_error() -> Exception:
     get_go_error = so.GetLastError
     get_go_error.restype = ctypes.c_char_p
     error_message = get_go_error()
+    if "not found" in str(error_message):
+        return ValueError(error_message)
     return Exception(error_message)
 
-def load_b64_cryptosystem(cryptoparams_b64: str) -> bytes:
-    """Load a cryptosystem with base64 encoded parameters.
+def new_ckks_operator_from_b64_ckks_parameters(ckks_parameters_b64: str) -> bytes:
+    """Instantiates a new CKKS Operator from a base64 encoded ckks parameters.
 
     Args:
-        cryptoparams_b64 (str): Base64 encoded marshalled cryptoparameters
+        ckks_parameters_b64 (str): Base64 encoded marshalled ckks parameters
 
     Returns:
-        crypto_system_id (bytes): The crypto system id
+        ckks_operator_id (bytes): The CKKS Operator id
     """
-    b64_crypto_system = so.LoadB64CryptoSystem
-    b64_crypto_system.restype = ctypes.c_char_p
-    crypto_system_id = b64_crypto_system(cryptoparams_b64.encode())
-    if crypto_system_id is None:
+    b64_ckks_operator = so.NewCKKSOperatorFromB64CKKSParameters
+    b64_ckks_operator.restype = ctypes.c_char_p
+    ckks_operator_id = b64_ckks_operator(ckks_parameters_b64.encode())
+    if ckks_operator_id is None:
         raise go_error()
-    return crypto_system_id
+    return ckks_operator_id
 
+def new_ckks_operator_from_b64_scheme_context(scheme_context_b64: str) -> bytes:
+    """Instantiates a new CKKS Operator from a base64 encoded scheme.Context.
 
-def get_relin_key_bytes(crypto_system_id: bytes) -> bytes:
+    Args:
+        scheme_context_b64 (str): Base64 encoded marshalled scheme.Context
+
+    Returns:
+        ckks_operator_id (bytes): The CKKS Operator id
+    """
+    b64_ckks_operator = so.NewCKKSOperatorFromB64SchemeContext
+    b64_ckks_operator.restype = ctypes.c_char_p
+    ckks_operator_id = b64_ckks_operator(scheme_context_b64.encode())
+    if ckks_operator_id is None:
+        raise go_error()
+    return ckks_operator_id
+
+def get_relin_key_bytes(ckks_operator_id: bytes) -> bytes:
     '''
     get_relin_key_bytes retrieves the relinearization key bytes from the cryptosystem
 
     Args:
-        crypto_system_id (bytes): the id of the cryptosystem
+        ckks_operator_id (bytes): the id of the cryptosystem
 
     Returns:
         bytes: the relinearization key bytes
     '''
     get_relin_key = so.GetRelinearizationKeyBytes
     get_relin_key.restype = ctypes.c_void_p
-    res = get_relin_key(crypto_system_id)
+    res = get_relin_key(ckks_operator_id)
     return _handle_bytes_result(res)
 
-def encrypt_prediction_dataset(crypto_system_id:bytes,csv_bytes: bytes,b64_params: str,remove_header: bool) -> bytes:
+def encrypt_prediction_dataset(ckks_operator_id:bytes,csv_bytes: bytes,b64_params: str,remove_header: bool) -> bytes:
     '''
     encrypt_prediction_dataset encrypts a provided dataset in prediction format using the secret key of the cryptosystem
 
     Args:
-        crypto_system_id (bytes): the cryptosystem id
+        ckks_operator_id (bytes): the cryptosystem id
         csv_bytes (bytes): the csv data to encrypt
         b64_params (str): the base64 machine learning model parameters
         remove_header (bool): whether or not the csv data contains a header
@@ -70,16 +87,16 @@ def encrypt_prediction_dataset(crypto_system_id:bytes,csv_bytes: bytes,b64_param
     '''
     encrypt_pred = so.EncryptPredictionDataset
     encrypt_pred.restype = ctypes.c_void_p
-    res = encrypt_pred(crypto_system_id,csv_bytes,len(csv_bytes),b64_params.encode(),ctypes.c_bool(remove_header))
+    res = encrypt_pred(ckks_operator_id,csv_bytes,len(csv_bytes),b64_params.encode(),ctypes.c_bool(remove_header))
     return _handle_bytes_result(res)
 
 
-def decrypt_prediction(crypto_system_id: bytes,ct: bytes) -> bytes:
+def decrypt_prediction(ckks_operator_id: bytes,ct: bytes) -> bytes:
     '''
     decrypt_prediction decrypts the encrypted prediction ciphertext
 
     Args:
-        crypto_system_id (bytes): the id of the cryptosystem storing the secret key
+        ckks_operator_id (bytes): the id of the cryptosystem storing the secret key
         ct (bytes): the encrypted prediction bytes
 
     Returns:
@@ -87,81 +104,81 @@ def decrypt_prediction(crypto_system_id: bytes,ct: bytes) -> bytes:
     '''
     decrypt_pred = so.DecryptPredictionResult
     decrypt_pred.restype = ctypes.c_void_p
-    res = decrypt_pred(crypto_system_id,ct,len(ct))
+    res = decrypt_pred(ckks_operator_id,ct,len(ct))
     return _handle_bytes_result(res)
 
-def key_generation(crypto_system_id: bytes) -> bytes:
+def key_generation(ckks_operator_id: bytes) -> bytes:
     """Generate a key for a given cryptosystem.
 
     Args:
-        crypto_system_id (bytes): The crypto system id
+        ckks_operator_id (bytes): The crypto system id
 
     Returns:
         key_response (bytes): The response message of the key generation
     """
     key_gen = so.GenKeyPair
     key_gen.restype = ctypes.c_char_p
-    key_response = key_gen(crypto_system_id)
+    key_response = key_gen(ckks_operator_id)
     if key_response is None:
         raise go_error()
     return key_response
 
-def relinearization_key_generation(crypto_system_id: bytes) -> bytes:
+def relinearization_key_generation(ckks_operator_id: bytes) -> bytes:
     """Generate a key for a given cryptosystem.
 
     Args:
-        crypto_system_id (bytes): The crypto system id
+        ckks_operator_id (bytes): The crypto system id
 
     Returns:
         key_response (bytes): The response message of the key generation
     """
     relin_key_gen = so.GenRelinearizationKey
     relin_key_gen.restype = ctypes.c_char_p
-    key_response = relin_key_gen(crypto_system_id)
+    key_response = relin_key_gen(ckks_operator_id)
     if key_response is None:
         raise go_error()
     return key_response
 
 
-def instantiate_scheme(crypto_system_id: bytes) -> bytes:
+def instantiate_scheme(ckks_operator_id: bytes) -> bytes:
     """Instantiate a scheme for a given cryptosystem.
 
     Args:
-        crypto_system_id (bytes): The crypto system id
+        ckks_operator_id (bytes): The crypto system id
 
     Returns:
         scheme_response (bytes): The response message of the scheme instantiation
     """
     instantiate_crypto_scheme = so.InstantiateScheme
     instantiate_crypto_scheme.restype = ctypes.c_char_p
-    scheme_response = instantiate_crypto_scheme(crypto_system_id)
+    scheme_response = instantiate_crypto_scheme(ckks_operator_id)
     if scheme_response is None:
         raise go_error()
     return scheme_response
 
 
-def encrypt_dataframe(crypto_system_id: bytes, dataframe: pd.DataFrame) -> bytes:
+def encrypt_dataframe(ckks_operator_id: bytes, dataframe: pd.DataFrame) -> bytes:
     """Encrypt a numeric pandas dataframe. Column names will be lost, index names are recovered.
 
     Args:
-        crypto_system_id (bytes): The crypto system id
+        ckks_operator_id (bytes): The crypto system id
         dataframe (bytes): The pandas.DataFrame that will be encrypted
 
     Returns:
         ciphertext (bytes): The generated ciphertext
     """
     plaintext_dataframe = dataframe.to_csv().encode("UTF-8")
-    ciphertext = encrypt_matrix(crypto_system_id, plaintext_dataframe)
+    ciphertext = encrypt_matrix(ckks_operator_id, plaintext_dataframe)
     if ciphertext is None:
         raise go_error()
     return ciphertext
 
 
-def encrypt_matrix(crypto_system_id: bytes, csv_string: bytes) -> bytes:
+def encrypt_matrix(ckks_operator_id: bytes, csv_string: bytes) -> bytes:
     """Encrypt a csv formatted table of numbers.
 
     Args:
-        crypto_system_id (bytes): The crypto system id
+        ckks_operator_id (bytes): The crypto system id
         csv_string (bytes): The csv content that will be encrypted
 
     Returns:
@@ -169,7 +186,7 @@ def encrypt_matrix(crypto_system_id: bytes, csv_string: bytes) -> bytes:
     """
     encrypt_float_matrix = so.EncryptFloatMatrix
     encrypt_float_matrix.restype = ctypes.c_void_p
-    res = encrypt_float_matrix(crypto_system_id, csv_string)
+    res = encrypt_float_matrix(ckks_operator_id, csv_string)
     if res is None:
         raise go_error()
     res_length = int.from_bytes(ctypes.string_at(res, 8), "little")
@@ -177,21 +194,21 @@ def encrypt_matrix(crypto_system_id: bytes, csv_string: bytes) -> bytes:
     ciphertext = ciphertext[8:]
     return ciphertext
 
-def decrypt_dataframe(crypto_system_id: bytes,
+def decrypt_dataframe(ckks_operator_id: bytes,
                       dataframe_ciphertext: bytes,
                       headers: List[str] = None) -> pd.DataFrame:
     """Turn an encrypted pandas dataframe into a new decrypted pandas dataframe.
     Indices are recovered, column names can optionally be provided by the user.
 
     Args:
-        crypto_system_id (bytes): The crypto system id
+        ckks_operator_id (bytes): The crypto system id
         dataframe_ciphertext (bytes): The encrypted pandas dataframe
         headers (list[str]): List of column names of the dataframe
 
     Returns:
         plaintext_dataframe (pandas.DataFrame): The decrypted dataframe
     """
-    plaintext_csv_bytes = decrypt_csv(crypto_system_id, dataframe_ciphertext)
+    plaintext_csv_bytes = decrypt_csv(ckks_operator_id, dataframe_ciphertext)
     if plaintext_csv_bytes is None:
         raise go_error()
     plaintext_csv = plaintext_csv_bytes.decode('utf8')
@@ -209,11 +226,11 @@ def decrypt_dataframe(crypto_system_id: bytes,
     return plaintext_dataframe
 
 
-def decrypt_csv(crypto_system_id: bytes, csv_ciphertext: bytes) -> bytes:
+def decrypt_csv(ckks_operator_id: bytes, csv_ciphertext: bytes) -> bytes:
     """Decrypt a cipher table into a CSV formatted string. The column names are not recovered.
 
     Args:
-        crypto_system_id (bytes): The crypto system id
+        ckks_operator_id (bytes): The crypto system id
         csv_ciphertext (bytes): The encrypted pandas dataframe
 
     Returns:
@@ -223,7 +240,7 @@ def decrypt_csv(crypto_system_id: bytes, csv_ciphertext: bytes) -> bytes:
     decrypt_cipher_table.restype = ctypes.c_char_p
     ctxt_length = len(csv_ciphertext)
     csv_plaintext = decrypt_cipher_table(
-        crypto_system_id, csv_ciphertext, ctxt_length)
+        ckks_operator_id, csv_ciphertext, ctxt_length)
     if csv_plaintext is None:
         raise go_error()
     return csv_plaintext
@@ -256,14 +273,14 @@ def test_polynomial_evaluation_ckks_params() -> str:
         raise go_error()
     return cryptoparameters_b64
 
-def encrypted_addition(crypto_system_id: bytes,
+def encrypted_addition(ckks_operator_id: bytes,
                        number1: bytes,
                        number2: bytes) -> bytes:
     add = so.Add
     add.restype = ctypes.c_void_p
     number1_size = len(number1)
     number2_size = len(number2)
-    result = add(crypto_system_id, number1, number2, number1_size, number2_size)
+    result = add(ckks_operator_id, number1, number2, number1_size, number2_size)
     if result is None:
         raise go_error()
     res_length = int.from_bytes(ctypes.string_at(result, 8), "little")
@@ -271,12 +288,12 @@ def encrypted_addition(crypto_system_id: bytes,
     ciphertext = ciphertext[8:]
     return ciphertext
 
-def encrypted_multiplication(crypto_system_id: bytes, number1: bytes, number2: bytes) -> bytes:
+def encrypted_multiplication(ckks_operator_id: bytes, number1: bytes, number2: bytes) -> bytes:
     multiply = so.Multiply
     multiply.restype = ctypes.c_void_p
     number1_size = len(number1)
     number2_size = len(number2)
-    result = multiply(crypto_system_id, number1, number2, number1_size, number2_size)
+    result = multiply(ckks_operator_id, number1, number2, number1_size, number2_size)
     if result is None:
         raise go_error()
     res_length = int.from_bytes(ctypes.string_at(result, 8), "little")
@@ -284,36 +301,29 @@ def encrypted_multiplication(crypto_system_id: bytes, number1: bytes, number2: b
     ciphertext = ciphertext[8:]
     return ciphertext
 
-def encrypted_polynomial_evaluation(crypto_system_id: bytes, number: bytes) -> bytes:
+def encrypted_polynomial_evaluation(ckks_operator_id: bytes, polynomial_coefficients: list[int, float], number: bytes) -> bytes:
     polynomial_evaluation = so.PolynomialEvaluation
     polynomial_evaluation.restype = ctypes.c_void_p
     number_size = len(number)
-    result = polynomial_evaluation(crypto_system_id, number, number_size)
-    if result is None:
-        raise go_error()
-    res_length = int.from_bytes(ctypes.string_at(result, 8), "little")
-    ciphertext = ctypes.string_at(result, res_length + 8)
-    ciphertext = ciphertext[8:]
-    return ciphertext
 
-def create_polynomial(crypto_system_id: bytes, polynomial_coefficients: List[float]) -> bytes:
-    generate_polynomial = so.GenPolynomial
-    generate_polynomial.restype = ctypes.c_char_p
-    # Convert coefficients into csv byte string
     polynomial_coefficients = [str(i) for i in polynomial_coefficients]
     polynomial_coefficients = ",".join(polynomial_coefficients)
     polynomial_coefficients = polynomial_coefficients.encode('UTF-8')
     polynomial_size = len(polynomial_coefficients)
-    result = generate_polynomial(crypto_system_id, polynomial_coefficients, polynomial_size)
+
+    result = polynomial_evaluation(ckks_operator_id, polynomial_coefficients, polynomial_size, number, number_size)
     if result is None:
         raise go_error()
-    return result
+    res_length = int.from_bytes(ctypes.string_at(result, 8), "little")
+    ciphertext = ctypes.string_at(result, res_length + 8)
+    ciphertext = ciphertext[8:]
+    return ciphertext
 
-def encrypt_number(crypto_system_id: bytes, number1: int) -> bytes:
+def encrypt_number(ckks_operator_id: bytes, number1: int) -> bytes:
     encrypt = so.EncryptNumber
     encrypt.restype = ctypes.c_void_p
     byte_number = str(number1).encode('UTF-8')
-    result = encrypt(crypto_system_id, byte_number)
+    result = encrypt(ckks_operator_id, byte_number)
     if result is None:
         raise go_error()
     result_length = int.from_bytes(ctypes.string_at(result, 8), "little")
@@ -321,11 +331,11 @@ def encrypt_number(crypto_system_id: bytes, number1: int) -> bytes:
     ciphertext = ciphertext[8:]
     return ciphertext
 
-def decrypt_number(crypto_system_id: bytes, encrypted_number: bytes) -> int:
+def decrypt_number(ckks_operator_id: bytes, encrypted_number: bytes) -> int:
     decrypt = so.DecryptNumber
     decrypt.restype = ctypes.c_void_p
     encrypted_number_length = len(encrypted_number)
-    result = decrypt(crypto_system_id, encrypted_number, encrypted_number_length)
+    result = decrypt(ckks_operator_id, encrypted_number, encrypted_number_length)
     if result is None:
         raise go_error()
     result_length = int.from_bytes(ctypes.string_at(result, 8), "little")
@@ -338,3 +348,76 @@ def _handle_bytes_result(result) -> bytes:
     result_bytes = ctypes.string_at(result, result_length + 8)
     result_bytes = result_bytes[8:]
     return result_bytes
+
+############################################### PIR ###############################################
+
+class PIRContext:
+    '''
+    Represents a PIR context for client side PIR operations
+
+    Raises:
+        go_error: upon getting invalid parameters
+    '''
+
+
+    ctx_id: bytes
+
+    def __init__(self,pir_b64:str,index_b64: str):
+        '''
+        __init__ initializes a PIR context
+
+        Args:
+            pir_b64 (str): base64-encoded PIR parameters
+            index_b64 (str): base64-encoded Index
+
+        Raises:
+            go_error: upon invalid parameters
+        '''
+        func = so.NewPIRContext
+        func.restype = ctypes.c_char_p
+        self.ctx_id = func(pir_b64.encode(),index_b64.encode())
+        if self.ctx_id is None:
+            raise go_error()
+
+
+    def get_eva_key(self) -> bytes:
+        '''
+        get_eva_key returns the bytes of the evaluation key set
+
+        Returns:
+            bytes: the bytes of the evaluation key set
+        '''
+        get_func = so.GetPIREvaluationKeyBytes
+        get_func.restype = ctypes.c_void_p
+        result = get_func(self.ctx_id)
+        return _handle_bytes_result(result)
+
+    def encrypt_query(self, query: str) -> bytes:
+        '''
+        encrypt_query encrypts the given query
+
+        Args:
+            query (str): query string
+
+        Returns:
+            bytes: the encrypted query as bytes ready to be uploaded
+        '''
+        encrypt_pir = so.EncryptPIRQuery
+        encrypt_pir.restype = ctypes.c_void_p
+        result = encrypt_pir(self.ctx_id, query.encode())
+        return _handle_bytes_result(result)
+
+    def decrypt_response(self, pir_result: bytes) -> bytes:
+        '''
+        decrypt_response decrypts the encrypted bytes as a plaintext csv string
+
+        Args:
+            pir_result (bytes): the encrypted bytes result
+
+        Returns:
+            bytes: the decrypted csv as a byte string
+        '''
+        decrypt_pir = so.DecryptPIRResult
+        decrypt_pir.restype = ctypes.c_void_p
+        result = decrypt_pir(self.ctx_id, pir_result, len(pir_result))
+        return _handle_bytes_result(result)

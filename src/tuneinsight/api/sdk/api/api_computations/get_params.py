@@ -1,12 +1,12 @@
 from http import HTTPStatus
-from typing import Any, Dict, Optional, Union, cast
+from typing import Any, Dict, Optional, Union
 
 import httpx
 
 from ... import errors
 from ...client import Client
+from ...models.error import Error
 from ...models.get_params_response_200 import GetParamsResponse200
-from ...models.get_params_response_403 import GetParamsResponse403
 from ...types import Response
 
 
@@ -28,25 +28,26 @@ def _get_kwargs(
     }
 
 
-def _parse_response(
-    *, client: Client, response: httpx.Response
-) -> Optional[Union[GetParamsResponse200, GetParamsResponse403, str]]:
+def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[Error, GetParamsResponse200]]:
     if response.status_code == HTTPStatus.OK:
         response_200 = GetParamsResponse200.from_dict(response.json())
 
         return response_200
     if response.status_code == HTTPStatus.FORBIDDEN:
-        response_403 = GetParamsResponse403.from_dict(response.json())
+        response_403 = Error.from_dict(response.json())
 
         return response_403
     if response.status_code == HTTPStatus.NOT_FOUND:
-        response_404 = cast(str, response.json())
+        response_404 = Error.from_dict(response.json())
+
         return response_404
     if response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
-        response_422 = cast(str, response.json())
+        response_422 = Error.from_dict(response.json())
+
         return response_422
     if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
-        response_500 = cast(str, response.json())
+        response_500 = Error.from_dict(response.json())
+
         return response_500
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(f"Unexpected status code: {response.status_code}")
@@ -54,9 +55,7 @@ def _parse_response(
         return None
 
 
-def _build_response(
-    *, client: Client, response: httpx.Response
-) -> Response[Union[GetParamsResponse200, GetParamsResponse403, str]]:
+def _build_response(*, client: Client, response: httpx.Response) -> Response[Union[Error, GetParamsResponse200]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -68,7 +67,7 @@ def _build_response(
 def sync_detailed(
     *,
     client: Client,
-) -> Response[Union[GetParamsResponse200, GetParamsResponse403, str]]:
+) -> Response[Union[Error, GetParamsResponse200]]:
     """Returns the serialized parameters depending on the computation type
 
     Raises:
@@ -76,7 +75,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetParamsResponse200, GetParamsResponse403, str]]
+        Response[Union[Error, GetParamsResponse200]]
     """
 
     kwargs = _get_kwargs(
@@ -94,7 +93,7 @@ def sync_detailed(
 def sync(
     *,
     client: Client,
-) -> Optional[Union[GetParamsResponse200, GetParamsResponse403, str]]:
+) -> Optional[Union[Error, GetParamsResponse200]]:
     """Returns the serialized parameters depending on the computation type
 
     Raises:
@@ -102,7 +101,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetParamsResponse200, GetParamsResponse403, str]]
+        Response[Union[Error, GetParamsResponse200]]
     """
 
     return sync_detailed(
@@ -113,7 +112,7 @@ def sync(
 async def asyncio_detailed(
     *,
     client: Client,
-) -> Response[Union[GetParamsResponse200, GetParamsResponse403, str]]:
+) -> Response[Union[Error, GetParamsResponse200]]:
     """Returns the serialized parameters depending on the computation type
 
     Raises:
@@ -121,7 +120,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetParamsResponse200, GetParamsResponse403, str]]
+        Response[Union[Error, GetParamsResponse200]]
     """
 
     kwargs = _get_kwargs(
@@ -137,7 +136,7 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: Client,
-) -> Optional[Union[GetParamsResponse200, GetParamsResponse403, str]]:
+) -> Optional[Union[Error, GetParamsResponse200]]:
     """Returns the serialized parameters depending on the computation type
 
     Raises:
@@ -145,7 +144,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[GetParamsResponse200, GetParamsResponse403, str]]
+        Response[Union[Error, GetParamsResponse200]]
     """
 
     return (

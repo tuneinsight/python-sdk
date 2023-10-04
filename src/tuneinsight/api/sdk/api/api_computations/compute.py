@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Dict, Optional, Union, cast
+from typing import Any, Dict, Optional, Union
 
 import httpx
 
@@ -10,17 +10,18 @@ from ...models.bootstrap import Bootstrap
 from ...models.collective_key_gen import CollectiveKeyGen
 from ...models.collective_key_switch import CollectiveKeySwitch
 from ...models.computation import Computation
-from ...models.compute_response_403 import ComputeResponse403
 from ...models.dataset_statistics import DatasetStatistics
 from ...models.distributed_join import DistributedJoin
 from ...models.dummy import Dummy
 from ...models.encrypted_aggregation import EncryptedAggregation
 from ...models.encrypted_prediction import EncryptedPrediction
 from ...models.encrypted_regression import EncryptedRegression
+from ...models.error import Error
 from ...models.gwas import GWAS
 from ...models.hybrid_fl import HybridFL
 from ...models.key_switched_computation import KeySwitchedComputation
 from ...models.private_search import PrivateSearch
+from ...models.private_search_setup import PrivateSearchSetup
 from ...models.relin_key_gen import RelinKeyGen
 from ...models.rot_key_gen import RotKeyGen
 from ...models.sample_extraction import SampleExtraction
@@ -50,6 +51,7 @@ def _get_kwargs(
         "HybridFL",
         "KeySwitchedComputation",
         "PrivateSearch",
+        "PrivateSearchSetup",
         "RelinKeyGen",
         "RotKeyGen",
         "SampleExtraction",
@@ -130,6 +132,9 @@ def _get_kwargs(
     elif isinstance(json_body, DatasetStatistics):
         json_json_body = json_body.to_dict()
 
+    elif isinstance(json_body, PrivateSearch):
+        json_json_body = json_body.to_dict()
+
     else:
         json_json_body = json_body.to_dict()
 
@@ -143,25 +148,26 @@ def _get_kwargs(
     }
 
 
-def _parse_response(
-    *, client: Client, response: httpx.Response
-) -> Optional[Union[Computation, ComputeResponse403, str]]:
+def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[Computation, Error]]:
     if response.status_code == HTTPStatus.CREATED:
         response_201 = Computation.from_dict(response.json())
 
         return response_201
     if response.status_code == HTTPStatus.BAD_REQUEST:
-        response_400 = cast(str, response.json())
+        response_400 = Error.from_dict(response.json())
+
         return response_400
     if response.status_code == HTTPStatus.FORBIDDEN:
-        response_403 = ComputeResponse403.from_dict(response.json())
+        response_403 = Error.from_dict(response.json())
 
         return response_403
     if response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
-        response_422 = cast(str, response.json())
+        response_422 = Error.from_dict(response.json())
+
         return response_422
     if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
-        response_500 = cast(str, response.json())
+        response_500 = Error.from_dict(response.json())
+
         return response_500
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(f"Unexpected status code: {response.status_code}")
@@ -169,9 +175,7 @@ def _parse_response(
         return None
 
 
-def _build_response(
-    *, client: Client, response: httpx.Response
-) -> Response[Union[Computation, ComputeResponse403, str]]:
+def _build_response(*, client: Client, response: httpx.Response) -> Response[Union[Computation, Error]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -198,6 +202,7 @@ def sync_detailed(
         "HybridFL",
         "KeySwitchedComputation",
         "PrivateSearch",
+        "PrivateSearchSetup",
         "RelinKeyGen",
         "RotKeyGen",
         "SampleExtraction",
@@ -207,23 +212,23 @@ def sync_detailed(
         "SurvivalAggregation",
         "VBinnedAggregation",
     ],
-) -> Response[Union[Computation, ComputeResponse403, str]]:
+) -> Response[Union[Computation, Error]]:
     """Request a computation.
 
     Args:
         json_body (Union['AggregatedDatasetLength', 'Bootstrap', 'CollectiveKeyGen',
             'CollectiveKeySwitch', 'DatasetStatistics', 'DistributedJoin', 'Dummy',
             'EncryptedAggregation', 'EncryptedPrediction', 'EncryptedRegression', 'GWAS', 'HybridFL',
-            'KeySwitchedComputation', 'PrivateSearch', 'RelinKeyGen', 'RotKeyGen', 'SampleExtraction',
-            'SetIntersection', 'SetupSession', 'StatisticalAggregation', 'SurvivalAggregation',
-            'VBinnedAggregation']):
+            'KeySwitchedComputation', 'PrivateSearch', 'PrivateSearchSetup', 'RelinKeyGen',
+            'RotKeyGen', 'SampleExtraction', 'SetIntersection', 'SetupSession',
+            'StatisticalAggregation', 'SurvivalAggregation', 'VBinnedAggregation']):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Computation, ComputeResponse403, str]]
+        Response[Union[Computation, Error]]
     """
 
     kwargs = _get_kwargs(
@@ -257,6 +262,7 @@ def sync(
         "HybridFL",
         "KeySwitchedComputation",
         "PrivateSearch",
+        "PrivateSearchSetup",
         "RelinKeyGen",
         "RotKeyGen",
         "SampleExtraction",
@@ -266,23 +272,23 @@ def sync(
         "SurvivalAggregation",
         "VBinnedAggregation",
     ],
-) -> Optional[Union[Computation, ComputeResponse403, str]]:
+) -> Optional[Union[Computation, Error]]:
     """Request a computation.
 
     Args:
         json_body (Union['AggregatedDatasetLength', 'Bootstrap', 'CollectiveKeyGen',
             'CollectiveKeySwitch', 'DatasetStatistics', 'DistributedJoin', 'Dummy',
             'EncryptedAggregation', 'EncryptedPrediction', 'EncryptedRegression', 'GWAS', 'HybridFL',
-            'KeySwitchedComputation', 'PrivateSearch', 'RelinKeyGen', 'RotKeyGen', 'SampleExtraction',
-            'SetIntersection', 'SetupSession', 'StatisticalAggregation', 'SurvivalAggregation',
-            'VBinnedAggregation']):
+            'KeySwitchedComputation', 'PrivateSearch', 'PrivateSearchSetup', 'RelinKeyGen',
+            'RotKeyGen', 'SampleExtraction', 'SetIntersection', 'SetupSession',
+            'StatisticalAggregation', 'SurvivalAggregation', 'VBinnedAggregation']):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Computation, ComputeResponse403, str]]
+        Response[Union[Computation, Error]]
     """
 
     return sync_detailed(
@@ -309,6 +315,7 @@ async def asyncio_detailed(
         "HybridFL",
         "KeySwitchedComputation",
         "PrivateSearch",
+        "PrivateSearchSetup",
         "RelinKeyGen",
         "RotKeyGen",
         "SampleExtraction",
@@ -318,23 +325,23 @@ async def asyncio_detailed(
         "SurvivalAggregation",
         "VBinnedAggregation",
     ],
-) -> Response[Union[Computation, ComputeResponse403, str]]:
+) -> Response[Union[Computation, Error]]:
     """Request a computation.
 
     Args:
         json_body (Union['AggregatedDatasetLength', 'Bootstrap', 'CollectiveKeyGen',
             'CollectiveKeySwitch', 'DatasetStatistics', 'DistributedJoin', 'Dummy',
             'EncryptedAggregation', 'EncryptedPrediction', 'EncryptedRegression', 'GWAS', 'HybridFL',
-            'KeySwitchedComputation', 'PrivateSearch', 'RelinKeyGen', 'RotKeyGen', 'SampleExtraction',
-            'SetIntersection', 'SetupSession', 'StatisticalAggregation', 'SurvivalAggregation',
-            'VBinnedAggregation']):
+            'KeySwitchedComputation', 'PrivateSearch', 'PrivateSearchSetup', 'RelinKeyGen',
+            'RotKeyGen', 'SampleExtraction', 'SetIntersection', 'SetupSession',
+            'StatisticalAggregation', 'SurvivalAggregation', 'VBinnedAggregation']):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Computation, ComputeResponse403, str]]
+        Response[Union[Computation, Error]]
     """
 
     kwargs = _get_kwargs(
@@ -366,6 +373,7 @@ async def asyncio(
         "HybridFL",
         "KeySwitchedComputation",
         "PrivateSearch",
+        "PrivateSearchSetup",
         "RelinKeyGen",
         "RotKeyGen",
         "SampleExtraction",
@@ -375,23 +383,23 @@ async def asyncio(
         "SurvivalAggregation",
         "VBinnedAggregation",
     ],
-) -> Optional[Union[Computation, ComputeResponse403, str]]:
+) -> Optional[Union[Computation, Error]]:
     """Request a computation.
 
     Args:
         json_body (Union['AggregatedDatasetLength', 'Bootstrap', 'CollectiveKeyGen',
             'CollectiveKeySwitch', 'DatasetStatistics', 'DistributedJoin', 'Dummy',
             'EncryptedAggregation', 'EncryptedPrediction', 'EncryptedRegression', 'GWAS', 'HybridFL',
-            'KeySwitchedComputation', 'PrivateSearch', 'RelinKeyGen', 'RotKeyGen', 'SampleExtraction',
-            'SetIntersection', 'SetupSession', 'StatisticalAggregation', 'SurvivalAggregation',
-            'VBinnedAggregation']):
+            'KeySwitchedComputation', 'PrivateSearch', 'PrivateSearchSetup', 'RelinKeyGen',
+            'RotKeyGen', 'SampleExtraction', 'SetIntersection', 'SetupSession',
+            'StatisticalAggregation', 'SurvivalAggregation', 'VBinnedAggregation']):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Computation, ComputeResponse403, str]]
+        Response[Union[Computation, Error]]
     """
 
     return (

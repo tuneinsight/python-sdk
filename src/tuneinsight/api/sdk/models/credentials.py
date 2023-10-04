@@ -12,54 +12,54 @@ class Credentials:
     """The credentials needed to access the data source.
 
     Attributes:
+        username (Union[Unset, str]):
         connection_string (Union[Unset, str]):
         id (Union[Unset, str]):
         password (Union[Unset, str]):
-        username (Union[Unset, str]):
     """
 
+    username: Union[Unset, str] = UNSET
     connection_string: Union[Unset, str] = UNSET
     id: Union[Unset, str] = UNSET
     password: Union[Unset, str] = UNSET
-    username: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        username = self.username
         connection_string = self.connection_string
         id = self.id
         password = self.password
-        username = self.username
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if username is not UNSET:
+            field_dict["username"] = username
         if connection_string is not UNSET:
             field_dict["connectionString"] = connection_string
         if id is not UNSET:
             field_dict["id"] = id
         if password is not UNSET:
             field_dict["password"] = password
-        if username is not UNSET:
-            field_dict["username"] = username
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
+        username = d.pop("username", UNSET)
+
         connection_string = d.pop("connectionString", UNSET)
 
         id = d.pop("id", UNSET)
 
         password = d.pop("password", UNSET)
 
-        username = d.pop("username", UNSET)
-
         credentials = cls(
+            username=username,
             connection_string=connection_string,
             id=id,
             password=password,
-            username=username,
         )
 
         credentials.additional_properties = d

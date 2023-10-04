@@ -5,7 +5,7 @@ import httpx
 
 from ... import errors
 from ...client import Client
-from ...models.put_comp_bookmark_response_403 import PutCompBookmarkResponse403
+from ...models.error import Error
 from ...types import Response
 
 
@@ -27,24 +27,25 @@ def _get_kwargs(
     }
 
 
-def _parse_response(
-    *, client: Client, response: httpx.Response
-) -> Optional[Union[Any, PutCompBookmarkResponse403, str]]:
+def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[Any, Error]]:
     if response.status_code == HTTPStatus.CREATED:
         response_201 = cast(Any, None)
         return response_201
     if response.status_code == HTTPStatus.FORBIDDEN:
-        response_403 = PutCompBookmarkResponse403.from_dict(response.json())
+        response_403 = Error.from_dict(response.json())
 
         return response_403
     if response.status_code == HTTPStatus.NOT_FOUND:
-        response_404 = cast(str, response.json())
+        response_404 = Error.from_dict(response.json())
+
         return response_404
     if response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
-        response_422 = cast(str, response.json())
+        response_422 = Error.from_dict(response.json())
+
         return response_422
     if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
-        response_500 = cast(str, response.json())
+        response_500 = Error.from_dict(response.json())
+
         return response_500
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(f"Unexpected status code: {response.status_code}")
@@ -52,9 +53,7 @@ def _parse_response(
         return None
 
 
-def _build_response(
-    *, client: Client, response: httpx.Response
-) -> Response[Union[Any, PutCompBookmarkResponse403, str]]:
+def _build_response(*, client: Client, response: httpx.Response) -> Response[Union[Any, Error]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -66,7 +65,7 @@ def _build_response(
 def sync_detailed(
     *,
     client: Client,
-) -> Response[Union[Any, PutCompBookmarkResponse403, str]]:
+) -> Response[Union[Any, Error]]:
     """Bookmarks the computation for the logged in user
 
     Raises:
@@ -74,7 +73,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Any, PutCompBookmarkResponse403, str]]
+        Response[Union[Any, Error]]
     """
 
     kwargs = _get_kwargs(
@@ -92,7 +91,7 @@ def sync_detailed(
 def sync(
     *,
     client: Client,
-) -> Optional[Union[Any, PutCompBookmarkResponse403, str]]:
+) -> Optional[Union[Any, Error]]:
     """Bookmarks the computation for the logged in user
 
     Raises:
@@ -100,7 +99,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Any, PutCompBookmarkResponse403, str]]
+        Response[Union[Any, Error]]
     """
 
     return sync_detailed(
@@ -111,7 +110,7 @@ def sync(
 async def asyncio_detailed(
     *,
     client: Client,
-) -> Response[Union[Any, PutCompBookmarkResponse403, str]]:
+) -> Response[Union[Any, Error]]:
     """Bookmarks the computation for the logged in user
 
     Raises:
@@ -119,7 +118,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Any, PutCompBookmarkResponse403, str]]
+        Response[Union[Any, Error]]
     """
 
     kwargs = _get_kwargs(
@@ -135,7 +134,7 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: Client,
-) -> Optional[Union[Any, PutCompBookmarkResponse403, str]]:
+) -> Optional[Union[Any, Error]]:
     """Bookmarks the computation for the logged in user
 
     Raises:
@@ -143,7 +142,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Any, PutCompBookmarkResponse403, str]]
+        Response[Union[Any, Error]]
     """
 
     return (
