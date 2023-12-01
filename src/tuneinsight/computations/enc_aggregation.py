@@ -60,7 +60,7 @@ class EncryptedAggregation(ComputationRunner):
             pd.DataFrame: the decrypted results as a dataframe
         '''
         model = self.get_model()
-        dataobjects = super().run_computation(comp=model,local=local,keyswitch= not local,decrypt=True)
+        dataobjects = super().run_computation(comp=model,local=local,release=True)
         result = dataobjects[0].get_float_matrix()
         totals = result.data[0]
         rounded_totals = [round(v, self.float_precision) for v in totals]

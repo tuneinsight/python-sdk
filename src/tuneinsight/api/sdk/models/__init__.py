@@ -28,6 +28,9 @@ from .collective_key_switch import CollectiveKeySwitch
 from .column_info import ColumnInfo
 from .column_info_scope import ColumnInfoScope
 from .column_info_value_type import ColumnInfoValueType
+from .column_schema import ColumnSchema
+from .column_schema_checks import ColumnSchemaChecks
+from .column_schema_checks_in_range import ColumnSchemaChecksInRange
 from .column_type_group import ColumnTypeGroup
 from .comparison_type import ComparisonType
 from .computation import Computation
@@ -70,7 +73,10 @@ from .data_source_types_info import DataSourceTypesInfo
 from .database_connection_info import DatabaseConnectionInfo
 from .database_data_source_config import DatabaseDataSourceConfig
 from .database_type import DatabaseType
+from .dataset_schema import DatasetSchema
+from .dataset_schema_columns import DatasetSchemaColumns
 from .dataset_statistics import DatasetStatistics
+from .dataset_validation import DatasetValidation
 from .deviation_squares import DeviationSquares
 from .distributed_join import DistributedJoin
 from .documentation_response_200 import DocumentationResponse200
@@ -104,7 +110,6 @@ from .get_log_list_response_200 import GetLogListResponse200
 from .get_model_list_order import GetModelListOrder
 from .get_model_list_sort_by import GetModelListSortBy
 from .get_network_metadata_response_200 import GetNetworkMetadataResponse200
-from .get_network_metadata_response_200_nodes_item import GetNetworkMetadataResponse200NodesItem
 from .get_params_response_200 import GetParamsResponse200
 from .get_private_search_databases_list_order import GetPrivateSearchDatabasesListOrder
 from .get_private_search_databases_list_sort_by import GetPrivateSearchDatabasesListSortBy
@@ -139,6 +144,8 @@ from .model_definition import ModelDefinition
 from .model_metadata import ModelMetadata
 from .model_params import ModelParams
 from .model_type import ModelType
+from .network import Network
+from .network_visibility_type import NetworkVisibilityType
 from .node import Node
 from .node_status import NodeStatus
 from .noise_parameters import NoiseParameters
@@ -180,6 +187,7 @@ from .private_search_setup import PrivateSearchSetup
 from .project import Project
 from .project_base import ProjectBase
 from .project_base_workflow_type import ProjectBaseWorkflowType
+from .project_computation import ProjectComputation
 from .project_definition import ProjectDefinition
 from .project_status import ProjectStatus
 from .project_step_item import ProjectStepItem
@@ -201,6 +209,7 @@ from .result import Result
 from .result_content import ResultContent
 from .result_contextual_info import ResultContextualInfo
 from .result_definition import ResultDefinition
+from .result_metadata import ResultMetadata
 from .rot_key_gen import RotKeyGen
 from .rot_key_gen_rotations_item import RotKeyGenRotationsItem
 from .s3_parameters import S3Parameters
@@ -273,6 +282,9 @@ __all__ = (
     "ColumnInfo",
     "ColumnInfoScope",
     "ColumnInfoValueType",
+    "ColumnSchema",
+    "ColumnSchemaChecks",
+    "ColumnSchemaChecksInRange",
     "ColumnTypeGroup",
     "ComparisonType",
     "Computation",
@@ -300,7 +312,10 @@ __all__ = (
     "DataObjectCreationMethod",
     "DataObjectType",
     "DataObjectVisibilityStatus",
+    "DatasetSchema",
+    "DatasetSchemaColumns",
     "DatasetStatistics",
+    "DatasetValidation",
     "DataSource",
     "DataSourceBase",
     "DataSourceColumn",
@@ -347,7 +362,6 @@ __all__ = (
     "GetModelListOrder",
     "GetModelListSortBy",
     "GetNetworkMetadataResponse200",
-    "GetNetworkMetadataResponse200NodesItem",
     "GetParamsResponse200",
     "GetPrivateSearchDatabasesListOrder",
     "GetPrivateSearchDatabasesListSortBy",
@@ -382,6 +396,8 @@ __all__ = (
     "ModelMetadata",
     "ModelParams",
     "ModelType",
+    "Network",
+    "NetworkVisibilityType",
     "Node",
     "NodeStatus",
     "NoiseParameters",
@@ -419,6 +435,7 @@ __all__ = (
     "Project",
     "ProjectBase",
     "ProjectBaseWorkflowType",
+    "ProjectComputation",
     "ProjectDefinition",
     "ProjectStatus",
     "ProjectStepItem",
@@ -440,6 +457,7 @@ __all__ = (
     "ResultContent",
     "ResultContextualInfo",
     "ResultDefinition",
+    "ResultMetadata",
     "RotKeyGen",
     "RotKeyGenRotationsItem",
     "S3Parameters",

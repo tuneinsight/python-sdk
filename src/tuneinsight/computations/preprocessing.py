@@ -8,6 +8,7 @@ import pandas as pd
 from tuneinsight.api.sdk.types import UNSET
 from tuneinsight.api.sdk import models
 from tuneinsight.computations.survival import SurvivalParameters
+from tuneinsight.computations.dataset_schema import DatasetSchema
 from tuneinsight.api.sdk.models import PreprocessingOperationType as op_type
 
 
@@ -36,12 +37,19 @@ class PreprocessingBuilder:
     compound_chain: Dict[str, models.PreprocessingChain]
     output_selection: models.Select
     output_selection_set: bool
+    schema: DatasetSchema
 
     def __init__(self):
         self.chain = []
         self.compound_chain = {}
         self.output_selection = models.Select(type=models.PreprocessingOperationType.SELECT,cols=[])
         self.output_selection_set = False
+        self.schema = None
+
+
+    def new_schema(self) -> DatasetSchema:
+        self.schema = DatasetSchema()
+        return self.schema
 
 
     def new_chain(self, chain: List[models.PreprocessingOperation]):
@@ -278,7 +286,7 @@ class PreprocessingBuilder:
         self.append_to_chain(models.Quantiles(type=models.PreprocessingOperationType.QUANTILES,input_=input_,min_=min_v,max_=max_v),nodes=nodes)
         return self
 
-    def time_diff(self,start: str,end:str,output: str,unit: models.TimeUnit = models.TimeUnit.MONTHS,filter_na: bool = True, nodes: List[str] = None):
+    def time_diff(self,start: str,end:str,output: str,unit: models.TimeUnit = models.TimeUnit.MONTHS,unit_value=1,filter_na: bool = True, nodes: List[str] = None):
         '''
         time_diff computes the time difference between two datetime columns (must be parsable dates/times
 
@@ -286,14 +294,16 @@ class PreprocessingBuilder:
             start (str): the column indicating the start of the measurement
             end (str): the column indicating the end of the measurement
             output (str): the output column name
-            unit (models.TimeUnit, optional): the time unit to use. Defaults to models.TimeUnit.MONTHS.
+            unit (models.TimeUnit, optional): the time unit to use. Defaults to models.TimeUnit.WEEKS.
+            unit_value (int, optional): the value to use as interval for the time unit, defaults to 4.
             filter_na (bool, optional): whether to filter NaN values in both columns beforehand. Defaults to True.
             nodes (List[str], optional): the list of nodes to apply this preprocessing operation to. Defaults to None.
 
         Returns:
             _type_: _description_
         '''
-        self.append_to_chain(models.TimeDiff(type=models.PreprocessingOperationType.TIMEDIFF,start=start,end=end,output=output,unit=unit,filter_na=filter_na),nodes)
+        duration = models.Duration(unit=unit,value=unit_value)
+        self.append_to_chain(models.TimeDiff(type=models.PreprocessingOperationType.TIMEDIFF,start=start,end=end,output=output,interval=duration,filter_na=filter_na),nodes)
         return self
 
     def dropna(self,subset: List[str] = None,nodes: List[str] = None):
@@ -500,4 +510,7 @@ class PreprocessingBuilder:
             res.compound_preprocessing = compound_params
         if self.output_selection_set:
             res.select = self.output_selection
+
+        if self.schema is not None:
+            res.dataset_schema = self.schema.model
         return res

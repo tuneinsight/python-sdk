@@ -26,26 +26,26 @@ class LocalDataSelection:
         name (Union[Unset, str]): name given to the selection
         preprocessing (Union[Unset, ComputationPreprocessingParameters]): dataframe pre-processing parameters applied to
             the input retrieved from the datasource, if applicable
-        updated_at (Union[Unset, str]):
         created_at (Union[Unset, str]):
         created_by_user (Union[Unset, str]): creator of the selection
         data_source (Union[Unset, DataSource]):
         id (Union[Unset, str]): id of the selection
         preview (Union[Unset, DataSourceQueryPreview]): preview of a datasource query
         query (Union[Unset, Query]): Data source query
+        updated_at (Union[Unset, str]):
     """
 
     data_selection: Union[Unset, "ComputationDataSourceParameters"] = UNSET
     description: Union[Unset, str] = UNSET
     name: Union[Unset, str] = UNSET
     preprocessing: Union[Unset, "ComputationPreprocessingParameters"] = UNSET
-    updated_at: Union[Unset, str] = UNSET
     created_at: Union[Unset, str] = UNSET
     created_by_user: Union[Unset, str] = UNSET
     data_source: Union[Unset, "DataSource"] = UNSET
     id: Union[Unset, str] = UNSET
     preview: Union[Unset, "DataSourceQueryPreview"] = UNSET
     query: Union[Unset, "Query"] = UNSET
+    updated_at: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -59,7 +59,6 @@ class LocalDataSelection:
         if not isinstance(self.preprocessing, Unset):
             preprocessing = self.preprocessing.to_dict()
 
-        updated_at = self.updated_at
         created_at = self.created_at
         created_by_user = self.created_by_user
         data_source: Union[Unset, Dict[str, Any]] = UNSET
@@ -75,6 +74,8 @@ class LocalDataSelection:
         if not isinstance(self.query, Unset):
             query = self.query.to_dict()
 
+        updated_at = self.updated_at
+
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
@@ -86,8 +87,6 @@ class LocalDataSelection:
             field_dict["name"] = name
         if preprocessing is not UNSET:
             field_dict["preprocessing"] = preprocessing
-        if updated_at is not UNSET:
-            field_dict["updatedAt"] = updated_at
         if created_at is not UNSET:
             field_dict["createdAt"] = created_at
         if created_by_user is not UNSET:
@@ -100,6 +99,8 @@ class LocalDataSelection:
             field_dict["preview"] = preview
         if query is not UNSET:
             field_dict["query"] = query
+        if updated_at is not UNSET:
+            field_dict["updatedAt"] = updated_at
 
         return field_dict
 
@@ -130,8 +131,6 @@ class LocalDataSelection:
         else:
             preprocessing = ComputationPreprocessingParameters.from_dict(_preprocessing)
 
-        updated_at = d.pop("updatedAt", UNSET)
-
         created_at = d.pop("createdAt", UNSET)
 
         created_by_user = d.pop("createdByUser", UNSET)
@@ -159,18 +158,20 @@ class LocalDataSelection:
         else:
             query = Query.from_dict(_query)
 
+        updated_at = d.pop("updatedAt", UNSET)
+
         local_data_selection = cls(
             data_selection=data_selection,
             description=description,
             name=name,
             preprocessing=preprocessing,
-            updated_at=updated_at,
             created_at=created_at,
             created_by_user=created_by_user,
             data_source=data_source,
             id=id,
             preview=preview,
             query=query,
+            updated_at=updated_at,
         )
 
         local_data_selection.additional_properties = d

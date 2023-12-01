@@ -27,9 +27,10 @@ class SurvivalParameters:
     start_event: str
     end_event: str
     unit: models.TimeUnit
+    unit_value: int
     num_frames: int
 
-    def __init__(self, duration_col: str = UNSET, event_col: str = UNSET, event_val: str = UNSET, start_event: str = UNSET, end_event: str = UNSET, num_frames: int = UNSET, unit: models.TimeUnit = models.TimeUnit.MONTHS):
+    def __init__(self, duration_col: str = UNSET, event_col: str = UNSET, event_val: str = UNSET, start_event: str = UNSET, end_event: str = UNSET, num_frames: int = UNSET, unit: models.TimeUnit = models.TimeUnit.WEEKS,unit_value: int = 1):
         self.duration_col = duration_col
         self.event_col = event_col
         self.event_val = event_val
@@ -37,6 +38,7 @@ class SurvivalParameters:
         self.num_frames = num_frames
         self.end_event = end_event
         self.unit = unit
+        self.unit_value = unit_value
 
 
     def _resolve_duration_column(self) -> str:
@@ -44,7 +46,7 @@ class SurvivalParameters:
             return self.duration_col
         if str(self.unit) is not UNSET:
             return str(self.unit)
-        return str(models.TimeUnit.MONTHS)
+        return str(models.TimeUnit.WEEKS)
 
 
     def compute_survival(self,aggregation_output: pd.DataFrame) -> pd.DataFrame:
@@ -67,13 +69,14 @@ class SurvivalParameters:
         return final
 
     def get_preprocessing_op(self) -> models.PreprocessingOperation:
+        interval = models.Duration(unit=self.unit,value=self.unit_value)
         return models.Survival(models.PreprocessingOperationType.SURVIVAL,
                                duration_col=self.duration_col,
                                event_col=self.event_col,
                                event_val=self.event_val,
                                start_event=self.start_event,
                                end_event=self.end_event,
-                               unit=self.unit,
+                               interval=interval,
                                num_frames=self.num_frames)
 
     def get_target_columns(self) -> List[str]:

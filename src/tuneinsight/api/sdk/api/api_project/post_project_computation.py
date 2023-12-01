@@ -5,8 +5,9 @@ import httpx
 
 from ... import errors
 from ...client import Client
+from ...models.computation_definition import ComputationDefinition
 from ...models.error import Error
-from ...models.project import Project
+from ...models.project_computation import ProjectComputation
 from ...types import Response
 
 
@@ -14,11 +15,14 @@ def _get_kwargs(
     project_id: str,
     *,
     client: Client,
+    json_body: ComputationDefinition,
 ) -> Dict[str, Any]:
     url = "{}/projects/{projectId}/computation".format(client.base_url, projectId=project_id)
 
     headers: Dict[str, str] = client.get_headers()
     cookies: Dict[str, Any] = client.get_cookies()
+
+    json_json_body = json_body.to_dict()
 
     return {
         "method": "post",
@@ -26,12 +30,13 @@ def _get_kwargs(
         "headers": headers,
         "cookies": cookies,
         "timeout": client.get_timeout(),
+        "json": json_json_body,
     }
 
 
-def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[Error, Project]]:
+def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[Error, ProjectComputation]]:
     if response.status_code == HTTPStatus.CREATED:
-        response_201 = Project.from_dict(response.json())
+        response_201 = ProjectComputation.from_dict(response.json())
 
         return response_201
     if response.status_code == HTTPStatus.BAD_REQUEST:
@@ -46,6 +51,10 @@ def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Uni
         response_404 = Error.from_dict(response.json())
 
         return response_404
+    if response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
+        response_422 = Error.from_dict(response.json())
+
+        return response_422
     if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
         response_500 = Error.from_dict(response.json())
 
@@ -56,7 +65,7 @@ def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Uni
         return None
 
 
-def _build_response(*, client: Client, response: httpx.Response) -> Response[Union[Error, Project]]:
+def _build_response(*, client: Client, response: httpx.Response) -> Response[Union[Error, ProjectComputation]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -69,23 +78,26 @@ def sync_detailed(
     project_id: str,
     *,
     client: Client,
-) -> Response[Union[Error, Project]]:
+    json_body: ComputationDefinition,
+) -> Response[Union[Error, ProjectComputation]]:
     """Run the computation defined on the project
 
     Args:
         project_id (str):
+        json_body (ComputationDefinition): Generic computation.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Error, Project]]
+        Response[Union[Error, ProjectComputation]]
     """
 
     kwargs = _get_kwargs(
         project_id=project_id,
         client=client,
+        json_body=json_body,
     )
 
     response = httpx.request(
@@ -100,23 +112,26 @@ def sync(
     project_id: str,
     *,
     client: Client,
-) -> Optional[Union[Error, Project]]:
+    json_body: ComputationDefinition,
+) -> Optional[Union[Error, ProjectComputation]]:
     """Run the computation defined on the project
 
     Args:
         project_id (str):
+        json_body (ComputationDefinition): Generic computation.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Error, Project]]
+        Response[Union[Error, ProjectComputation]]
     """
 
     return sync_detailed(
         project_id=project_id,
         client=client,
+        json_body=json_body,
     ).parsed
 
 
@@ -124,23 +139,26 @@ async def asyncio_detailed(
     project_id: str,
     *,
     client: Client,
-) -> Response[Union[Error, Project]]:
+    json_body: ComputationDefinition,
+) -> Response[Union[Error, ProjectComputation]]:
     """Run the computation defined on the project
 
     Args:
         project_id (str):
+        json_body (ComputationDefinition): Generic computation.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Error, Project]]
+        Response[Union[Error, ProjectComputation]]
     """
 
     kwargs = _get_kwargs(
         project_id=project_id,
         client=client,
+        json_body=json_body,
     )
 
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
@@ -153,23 +171,26 @@ async def asyncio(
     project_id: str,
     *,
     client: Client,
-) -> Optional[Union[Error, Project]]:
+    json_body: ComputationDefinition,
+) -> Optional[Union[Error, ProjectComputation]]:
     """Run the computation defined on the project
 
     Args:
         project_id (str):
+        json_body (ComputationDefinition): Generic computation.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Error, Project]]
+        Response[Union[Error, ProjectComputation]]
     """
 
     return (
         await asyncio_detailed(
             project_id=project_id,
             client=client,
+            json_body=json_body,
         )
     ).parsed

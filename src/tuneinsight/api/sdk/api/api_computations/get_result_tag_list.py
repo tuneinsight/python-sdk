@@ -79,8 +79,8 @@ def sync_detailed(
     project_id: Union[Unset, None, str] = UNSET,
     owned: Union[Unset, None, bool] = UNSET,
 ) -> Response[Union[Error, List[str]]]:
-    """'get the list user-defined tags attached to results.
-    Filtered by results viewable by the calling user and sorted alphabetically by tag key.'
+    """Get the list of user-defined tags attached to results.
+    Filtered by results viewable by the calling user and sorted alphabetically by tag key.
 
     Args:
         project_id (Union[Unset, None, str]):
@@ -114,8 +114,8 @@ def sync(
     project_id: Union[Unset, None, str] = UNSET,
     owned: Union[Unset, None, bool] = UNSET,
 ) -> Optional[Union[Error, List[str]]]:
-    """'get the list user-defined tags attached to results.
-    Filtered by results viewable by the calling user and sorted alphabetically by tag key.'
+    """Get the list of user-defined tags attached to results.
+    Filtered by results viewable by the calling user and sorted alphabetically by tag key.
 
     Args:
         project_id (Union[Unset, None, str]):
@@ -142,8 +142,8 @@ async def asyncio_detailed(
     project_id: Union[Unset, None, str] = UNSET,
     owned: Union[Unset, None, bool] = UNSET,
 ) -> Response[Union[Error, List[str]]]:
-    """'get the list user-defined tags attached to results.
-    Filtered by results viewable by the calling user and sorted alphabetically by tag key.'
+    """Get the list of user-defined tags attached to results.
+    Filtered by results viewable by the calling user and sorted alphabetically by tag key.
 
     Args:
         project_id (Union[Unset, None, str]):
@@ -175,8 +175,8 @@ async def asyncio(
     project_id: Union[Unset, None, str] = UNSET,
     owned: Union[Unset, None, bool] = UNSET,
 ) -> Optional[Union[Error, List[str]]]:
-    """'get the list user-defined tags attached to results.
-    Filtered by results viewable by the calling user and sorted alphabetically by tag key.'
+    """Get the list of user-defined tags attached to results.
+    Filtered by results viewable by the calling user and sorted alphabetically by tag key.
 
     Args:
         project_id (Union[Unset, None, str]):

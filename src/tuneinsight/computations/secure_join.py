@@ -65,7 +65,7 @@ class SecureJoin(ComputationRunner):
         model.join_columns = join_columns
         model.project_id = self.project_id
         model.missing_patterns = ["","NaN"]
-        dataobjects = super().run_computation(comp=model,local=False,keyswitch=False,decrypt=False)
+        dataobjects = super().run_computation(comp=model,local=False,release=True)
         self.join_id = dataobjects[0].get_id()
 
     def new_sample_extraction(self) -> SampleExtraction:

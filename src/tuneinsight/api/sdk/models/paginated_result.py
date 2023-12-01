@@ -11,41 +11,40 @@ T = TypeVar("T", bound="PaginatedResult")
 class PaginatedResult:
     """
     Attributes:
-        items (Union[Unset, List[Any]]):
         total (Union[Unset, int]):
+        items (Union[Unset, List[Any]]):
     """
 
-    items: Union[Unset, List[Any]] = UNSET
     total: Union[Unset, int] = UNSET
+    items: Union[Unset, List[Any]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        total = self.total
         items: Union[Unset, List[Any]] = UNSET
         if not isinstance(self.items, Unset):
             items = self.items
 
-        total = self.total
-
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if items is not UNSET:
-            field_dict["items"] = items
         if total is not UNSET:
             field_dict["total"] = total
+        if items is not UNSET:
+            field_dict["items"] = items
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        items = cast(List[Any], d.pop("items", UNSET))
-
         total = d.pop("total", UNSET)
 
+        items = cast(List[Any], d.pop("items", UNSET))
+
         paginated_result = cls(
-            items=items,
             total=total,
+            items=items,
         )
 
         paginated_result.additional_properties = d

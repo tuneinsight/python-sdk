@@ -86,6 +86,15 @@ class DatasetStatistics(ComputationRunner):
 
 
     def new_variable(self,name: str,variable: str,min_bound: float = 0.0,max_bound: float = 200.0):
+        """
+        new_variable adds a new variable for the statistics computation.
+
+        Args:
+            name (str): The name of the variable.
+            variable (str): The variable to compute statistics for.
+            min_bound (float, optional): The minimum bound for the variable. Defaults to 0.0.
+            max_bound (float, optional): The maximum bound for the variable. Defaults to 200.0.
+        """
         self.variables[name] = models.StatisticDefinition(name=name,variable=variable,min_bound=min_bound,max_bound=max_bound,quantiles_k_value=1)
 
 
@@ -104,11 +113,20 @@ class DatasetStatistics(ComputationRunner):
 
 
     def compute(self,local: bool=False) -> Statistics:
+        """
+        Computes the statistics for the variables added to the computation.
+
+        Args:
+            local (bool, optional): Whether to run the computation locally or collectively. Defaults to False.
+
+        Returns:
+            Statistics: A Statistics object representing the computed statistics.
+        """
         if len(self.variables) == 0:
             raise Exception("at least one variable must be added to the computation")
         model = self.get_model()
         self.max_timeout = 30 * time.minute
-        results = super().run_computation(comp=model,local=local,keyswitch=not local,decrypt=not local)
+        results = super().run_computation(comp=model,local=local,release=True)
         return Statistics(results[0].get_stats().results)
 
 

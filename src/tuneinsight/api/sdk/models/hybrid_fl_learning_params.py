@@ -13,11 +13,8 @@ class HybridFLLearningParams:
     """Hyperparameters for the Hybrid Federated Learning
 
     Attributes:
-        add_noise (Union[Unset, bool]): Whether to add differential privacy or not to the HybridFL Default: True.
-        encrypt_aggregation (Union[Unset, bool]): Whether to to the aggregation encrypted or not in HybridFL Default:
-            True.
+        epsilon (Union[Unset, float]): Epsilon parameter of the differential privacy in HybridFL
         fl_rounds (Union[Unset, int]): Number of federated rounds of the Hybrid FL
-        gradient_clipping (Union[Unset, float]): Gradient clipping to apply for the training and the noise computation
         momentum (Union[Unset, float]): Momentum of the optimizer in the python-server
         strategy (Union[Unset, AggregationStrategy]): weighting aggregation strategy Default:
             AggregationStrategy.CONSTANT.
@@ -25,32 +22,33 @@ class HybridFLLearningParams:
             layer Default: True.
         batch_size (Union[Unset, int]): Batch size for the training in the python-server
         delta (Union[Unset, float]): Delta parameter of the differential privacy in HybridFL
-        epsilon (Union[Unset, float]): Epsilon parameter of the differential privacy in HybridFL
+        encrypt_aggregation (Union[Unset, bool]): Whether to to the aggregation encrypted or not in HybridFL Default:
+            True.
+        gradient_clipping (Union[Unset, float]): Gradient clipping to apply for the training and the noise computation
         learning_rate (Union[Unset, float]): Learning rate of the optimizer in the python-server
         local_epochs (Union[Unset, int]): Number of local epochs of the Hybrid FL between aggregations
         num_workers (Union[Unset, int]): Number of workers loading the data for training in the python-server
+        add_noise (Union[Unset, bool]): Whether to add differential privacy or not to the HybridFL Default: True.
     """
 
-    add_noise: Union[Unset, bool] = True
-    encrypt_aggregation: Union[Unset, bool] = True
+    epsilon: Union[Unset, float] = UNSET
     fl_rounds: Union[Unset, int] = UNSET
-    gradient_clipping: Union[Unset, float] = UNSET
     momentum: Union[Unset, float] = UNSET
     strategy: Union[Unset, AggregationStrategy] = AggregationStrategy.CONSTANT
     use_clipping_factor: Union[Unset, bool] = True
     batch_size: Union[Unset, int] = UNSET
     delta: Union[Unset, float] = UNSET
-    epsilon: Union[Unset, float] = UNSET
+    encrypt_aggregation: Union[Unset, bool] = True
+    gradient_clipping: Union[Unset, float] = UNSET
     learning_rate: Union[Unset, float] = UNSET
     local_epochs: Union[Unset, int] = UNSET
     num_workers: Union[Unset, int] = UNSET
+    add_noise: Union[Unset, bool] = True
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        add_noise = self.add_noise
-        encrypt_aggregation = self.encrypt_aggregation
+        epsilon = self.epsilon
         fl_rounds = self.fl_rounds
-        gradient_clipping = self.gradient_clipping
         momentum = self.momentum
         strategy: Union[Unset, str] = UNSET
         if not isinstance(self.strategy, Unset):
@@ -59,22 +57,20 @@ class HybridFLLearningParams:
         use_clipping_factor = self.use_clipping_factor
         batch_size = self.batch_size
         delta = self.delta
-        epsilon = self.epsilon
+        encrypt_aggregation = self.encrypt_aggregation
+        gradient_clipping = self.gradient_clipping
         learning_rate = self.learning_rate
         local_epochs = self.local_epochs
         num_workers = self.num_workers
+        add_noise = self.add_noise
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if add_noise is not UNSET:
-            field_dict["addNoise"] = add_noise
-        if encrypt_aggregation is not UNSET:
-            field_dict["encryptAggregation"] = encrypt_aggregation
+        if epsilon is not UNSET:
+            field_dict["epsilon"] = epsilon
         if fl_rounds is not UNSET:
             field_dict["flRounds"] = fl_rounds
-        if gradient_clipping is not UNSET:
-            field_dict["gradientClipping"] = gradient_clipping
         if momentum is not UNSET:
             field_dict["momentum"] = momentum
         if strategy is not UNSET:
@@ -85,27 +81,27 @@ class HybridFLLearningParams:
             field_dict["batchSize"] = batch_size
         if delta is not UNSET:
             field_dict["delta"] = delta
-        if epsilon is not UNSET:
-            field_dict["epsilon"] = epsilon
+        if encrypt_aggregation is not UNSET:
+            field_dict["encryptAggregation"] = encrypt_aggregation
+        if gradient_clipping is not UNSET:
+            field_dict["gradientClipping"] = gradient_clipping
         if learning_rate is not UNSET:
             field_dict["learningRate"] = learning_rate
         if local_epochs is not UNSET:
             field_dict["localEpochs"] = local_epochs
         if num_workers is not UNSET:
             field_dict["numWorkers"] = num_workers
+        if add_noise is not UNSET:
+            field_dict["addNoise"] = add_noise
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        add_noise = d.pop("addNoise", UNSET)
-
-        encrypt_aggregation = d.pop("encryptAggregation", UNSET)
+        epsilon = d.pop("epsilon", UNSET)
 
         fl_rounds = d.pop("flRounds", UNSET)
-
-        gradient_clipping = d.pop("gradientClipping", UNSET)
 
         momentum = d.pop("momentum", UNSET)
 
@@ -122,7 +118,9 @@ class HybridFLLearningParams:
 
         delta = d.pop("delta", UNSET)
 
-        epsilon = d.pop("epsilon", UNSET)
+        encrypt_aggregation = d.pop("encryptAggregation", UNSET)
+
+        gradient_clipping = d.pop("gradientClipping", UNSET)
 
         learning_rate = d.pop("learningRate", UNSET)
 
@@ -130,20 +128,22 @@ class HybridFLLearningParams:
 
         num_workers = d.pop("numWorkers", UNSET)
 
+        add_noise = d.pop("addNoise", UNSET)
+
         hybrid_fl_learning_params = cls(
-            add_noise=add_noise,
-            encrypt_aggregation=encrypt_aggregation,
+            epsilon=epsilon,
             fl_rounds=fl_rounds,
-            gradient_clipping=gradient_clipping,
             momentum=momentum,
             strategy=strategy,
             use_clipping_factor=use_clipping_factor,
             batch_size=batch_size,
             delta=delta,
-            epsilon=epsilon,
+            encrypt_aggregation=encrypt_aggregation,
+            gradient_clipping=gradient_clipping,
             learning_rate=learning_rate,
             local_epochs=local_epochs,
             num_workers=num_workers,
+            add_noise=add_noise,
         )
 
         hybrid_fl_learning_params.additional_properties = d

@@ -18,13 +18,13 @@ T = TypeVar("T", bound="DataSource")
 class DataSource:
     """
     Attributes:
-        unique_id (Union[Unset, None, str]): Unique identifier of a data source.
         access_scope (Union[Unset, AccessScope]): defines the scope of access given to a resource
         attributes (Union[Unset, List[str]]):
         authorized_users (Union[Unset, List[str]]):
         consent_type (Union[Unset, DataSourceConsentType]): Consent type given to the data source.
         name (Union[Unset, str]):
         type (Union[Unset, str]):
+        unique_id (Union[Unset, None, str]): Unique identifier of a data source.
         created_at (Union[Unset, str]):
         metadata (Union[Unset, DataSourceMetadata]): metadata about a datasource
         selections (Union[Unset, List['LocalDataSelection']]): list of local data selections associated with the data
@@ -32,13 +32,13 @@ class DataSource:
         updated_at (Union[Unset, str]):
     """
 
-    unique_id: Union[Unset, None, str] = UNSET
     access_scope: Union[Unset, AccessScope] = UNSET
     attributes: Union[Unset, List[str]] = UNSET
     authorized_users: Union[Unset, List[str]] = UNSET
     consent_type: Union[Unset, DataSourceConsentType] = UNSET
     name: Union[Unset, str] = UNSET
     type: Union[Unset, str] = UNSET
+    unique_id: Union[Unset, None, str] = UNSET
     created_at: Union[Unset, str] = UNSET
     metadata: Union[Unset, "DataSourceMetadata"] = UNSET
     selections: Union[Unset, List["LocalDataSelection"]] = UNSET
@@ -46,7 +46,6 @@ class DataSource:
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        unique_id = self.unique_id
         access_scope: Union[Unset, str] = UNSET
         if not isinstance(self.access_scope, Unset):
             access_scope = self.access_scope.value
@@ -65,6 +64,7 @@ class DataSource:
 
         name = self.name
         type = self.type
+        unique_id = self.unique_id
         created_at = self.created_at
         metadata: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.metadata, Unset):
@@ -83,8 +83,6 @@ class DataSource:
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if unique_id is not UNSET:
-            field_dict["uniqueId"] = unique_id
         if access_scope is not UNSET:
             field_dict["accessScope"] = access_scope
         if attributes is not UNSET:
@@ -97,6 +95,8 @@ class DataSource:
             field_dict["name"] = name
         if type is not UNSET:
             field_dict["type"] = type
+        if unique_id is not UNSET:
+            field_dict["uniqueId"] = unique_id
         if created_at is not UNSET:
             field_dict["createdAt"] = created_at
         if metadata is not UNSET:
@@ -114,8 +114,6 @@ class DataSource:
         from ..models.local_data_selection import LocalDataSelection
 
         d = src_dict.copy()
-        unique_id = d.pop("uniqueId", UNSET)
-
         _access_scope = d.pop("accessScope", UNSET)
         access_scope: Union[Unset, AccessScope]
         if isinstance(_access_scope, Unset):
@@ -138,6 +136,8 @@ class DataSource:
 
         type = d.pop("type", UNSET)
 
+        unique_id = d.pop("uniqueId", UNSET)
+
         created_at = d.pop("createdAt", UNSET)
 
         _metadata = d.pop("metadata", UNSET)
@@ -157,13 +157,13 @@ class DataSource:
         updated_at = d.pop("updatedAt", UNSET)
 
         data_source = cls(
-            unique_id=unique_id,
             access_scope=access_scope,
             attributes=attributes,
             authorized_users=authorized_users,
             consent_type=consent_type,
             name=name,
             type=type,
+            unique_id=unique_id,
             created_at=created_at,
             metadata=metadata,
             selections=selections,

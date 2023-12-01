@@ -5,7 +5,8 @@ import attr
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.get_network_metadata_response_200_nodes_item import GetNetworkMetadataResponse200NodesItem
+    from ..models.network import Network
+    from ..models.node import Node
 
 
 T = TypeVar("T", bound="GetNetworkMetadataResponse200")
@@ -15,77 +16,90 @@ T = TypeVar("T", bound="GetNetworkMetadataResponse200")
 class GetNetworkMetadataResponse200:
     """
     Attributes:
-        nodes (List['GetNetworkMetadataResponse200NodesItem']):
-        public_key (str): Aggregated public key of the collective authority.
+        compound_queries_enabled (Union[Unset, bool]): Indicates if compound queries are enabled. If true, the data
+            source queries can be composed of multiple queries.
         default_topology (Union[Unset, str]): Indicates the default topology of the network used when creating a
             project. Values can be "star" or "tree".
-        dpo_authorization_enabled (Union[Unset, bool]):
-        initiated (Union[Unset, bool]): Indicates if the session has been initiated. Meaning that the collective public
-            key and relinearization key have been generated and shared across all nodes.
+        dpo_authorization_enabled (Union[Unset, bool]): Indicates if collective projects require authorization.
+        networks (Union[Unset, List['Network']]):
+        nodes (Union[Unset, List['Node']]):
     """
 
-    nodes: List["GetNetworkMetadataResponse200NodesItem"]
-    public_key: str
+    compound_queries_enabled: Union[Unset, bool] = UNSET
     default_topology: Union[Unset, str] = UNSET
     dpo_authorization_enabled: Union[Unset, bool] = UNSET
-    initiated: Union[Unset, bool] = UNSET
+    networks: Union[Unset, List["Network"]] = UNSET
+    nodes: Union[Unset, List["Node"]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        nodes = []
-        for nodes_item_data in self.nodes:
-            nodes_item = nodes_item_data.to_dict()
-
-            nodes.append(nodes_item)
-
-        public_key = self.public_key
+        compound_queries_enabled = self.compound_queries_enabled
         default_topology = self.default_topology
         dpo_authorization_enabled = self.dpo_authorization_enabled
-        initiated = self.initiated
+        networks: Union[Unset, List[Dict[str, Any]]] = UNSET
+        if not isinstance(self.networks, Unset):
+            networks = []
+            for networks_item_data in self.networks:
+                networks_item = networks_item_data.to_dict()
+
+                networks.append(networks_item)
+
+        nodes: Union[Unset, List[Dict[str, Any]]] = UNSET
+        if not isinstance(self.nodes, Unset):
+            nodes = []
+            for nodes_item_data in self.nodes:
+                nodes_item = nodes_item_data.to_dict()
+
+                nodes.append(nodes_item)
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "nodes": nodes,
-                "public-key": public_key,
-            }
-        )
+        field_dict.update({})
+        if compound_queries_enabled is not UNSET:
+            field_dict["compoundQueriesEnabled"] = compound_queries_enabled
         if default_topology is not UNSET:
             field_dict["default-topology"] = default_topology
         if dpo_authorization_enabled is not UNSET:
             field_dict["dpoAuthorizationEnabled"] = dpo_authorization_enabled
-        if initiated is not UNSET:
-            field_dict["initiated"] = initiated
+        if networks is not UNSET:
+            field_dict["networks"] = networks
+        if nodes is not UNSET:
+            field_dict["nodes"] = nodes
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.get_network_metadata_response_200_nodes_item import GetNetworkMetadataResponse200NodesItem
+        from ..models.network import Network
+        from ..models.node import Node
 
         d = src_dict.copy()
-        nodes = []
-        _nodes = d.pop("nodes")
-        for nodes_item_data in _nodes:
-            nodes_item = GetNetworkMetadataResponse200NodesItem.from_dict(nodes_item_data)
-
-            nodes.append(nodes_item)
-
-        public_key = d.pop("public-key")
+        compound_queries_enabled = d.pop("compoundQueriesEnabled", UNSET)
 
         default_topology = d.pop("default-topology", UNSET)
 
         dpo_authorization_enabled = d.pop("dpoAuthorizationEnabled", UNSET)
 
-        initiated = d.pop("initiated", UNSET)
+        networks = []
+        _networks = d.pop("networks", UNSET)
+        for networks_item_data in _networks or []:
+            networks_item = Network.from_dict(networks_item_data)
+
+            networks.append(networks_item)
+
+        nodes = []
+        _nodes = d.pop("nodes", UNSET)
+        for nodes_item_data in _nodes or []:
+            nodes_item = Node.from_dict(nodes_item_data)
+
+            nodes.append(nodes_item)
 
         get_network_metadata_response_200 = cls(
-            nodes=nodes,
-            public_key=public_key,
+            compound_queries_enabled=compound_queries_enabled,
             default_topology=default_topology,
             dpo_authorization_enabled=dpo_authorization_enabled,
-            initiated=initiated,
+            networks=networks,
+            nodes=nodes,
         )
 
         get_network_metadata_response_200.additional_properties = d

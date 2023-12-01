@@ -14,28 +14,28 @@ class ExtractDictField:
     Attributes:
         type (PreprocessingOperationType): type of preprocessing operation
         field (str): name of the dictionary field to extract
-        cols (Union[Unset, List[str]]): cols from which to extract field
         names (Union[Unset, List[str]]): names of new columns with extracted fields (if none, no new columns are
             created)
+        cols (Union[Unset, List[str]]): cols from which to extract field
     """
 
     type: PreprocessingOperationType
     field: str
-    cols: Union[Unset, List[str]] = UNSET
     names: Union[Unset, List[str]] = UNSET
+    cols: Union[Unset, List[str]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         type = self.type.value
 
         field = self.field
-        cols: Union[Unset, List[str]] = UNSET
-        if not isinstance(self.cols, Unset):
-            cols = self.cols
-
         names: Union[Unset, List[str]] = UNSET
         if not isinstance(self.names, Unset):
             names = self.names
+
+        cols: Union[Unset, List[str]] = UNSET
+        if not isinstance(self.cols, Unset):
+            cols = self.cols
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -45,10 +45,10 @@ class ExtractDictField:
                 "field": field,
             }
         )
-        if cols is not UNSET:
-            field_dict["cols"] = cols
         if names is not UNSET:
             field_dict["names"] = names
+        if cols is not UNSET:
+            field_dict["cols"] = cols
 
         return field_dict
 
@@ -59,15 +59,15 @@ class ExtractDictField:
 
         field = d.pop("field")
 
-        cols = cast(List[str], d.pop("cols", UNSET))
-
         names = cast(List[str], d.pop("names", UNSET))
+
+        cols = cast(List[str], d.pop("cols", UNSET))
 
         extract_dict_field = cls(
             type=type,
             field=field,
-            cols=cols,
             names=names,
+            cols=cols,
         )
 
         extract_dict_field.additional_properties = d

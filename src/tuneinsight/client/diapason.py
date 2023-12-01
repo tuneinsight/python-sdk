@@ -1,4 +1,6 @@
 from typing import List
+import warnings
+
 from keycloak.exceptions import KeycloakConnectionError
 import attr
 import pandas as pd
@@ -46,7 +48,7 @@ class Diapason:
                             verify_ssl=self.conf.security.verify_ssl)
 
     @classmethod
-    def from_config_path(cls,path: str):
+    def from_config_path(cls, path: str, url: str = None):
         """
         from_config_path creates a client from a configuration file
 
@@ -57,6 +59,8 @@ class Diapason:
             Diapason: the configured diapason client
         """
         conf = config.LoadClient(path)
+        if url is not None:
+            conf.url = url
         return cls(conf = conf)
 
     @classmethod
@@ -159,13 +163,16 @@ class Diapason:
 
         Args:
             name (str): name of the project
-            clear_if_exists (bool, optional): remove existing projects with the same name before creating it. Defaults to False.
+            clear_if_exists (bool, optional): remove existing projects with the same name on this node before creating it. Defaults to False.
+                Warning: this will cause issues when multiple nodes are involved in the project, as the same-named projects are
+                not removed on other nodes. A warning will be raised explaining alternatives.
             topology (Union[Unset, Topology]): Network Topologies. 'star' or 'tree'. In star topology all nodes are
             connected to a central node. In tree topology all nodes are connected and aware of each other.
             authorized_users (Union[Unset, List[str]]): The IDs of the users who can run the project
 
         Raises:
-            Exception: in case the project already exists and clear_if_exists is False
+            Exception: in case the project already exists and clear_if_exists is False.
+            Warning: in case the project already exists and clear_if_exists is True.
 
         Returns:
             Project: the newly created project
@@ -176,6 +183,9 @@ class Diapason:
 
         if name in [p.get_name() for p in self.get_projects()]:
             if clear_if_exists:
+                warnings.warn("""A project with the same name was removed on this node, but has not have been deleted on other nodes. \
+This can cause an error when attempting to share the project, because of conflicting names. \
+To avoid this, delete the project on other nodes, or create a differently-named project instead.""")
                 self.clear_project(name=name)
             else:
                 raise ValueError(f"project {name} already exists")

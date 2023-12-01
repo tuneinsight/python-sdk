@@ -33,7 +33,7 @@ class Aggregation(ComputationRunner):
         return res
 
     def run(self,comp: models.StatisticalAggregation,local: bool) -> models.FloatMatrix:
-        dataobjects = super().run_computation(comp=comp,local=local,keyswitch= not local,decrypt=True)
+        dataobjects = super().run_computation(comp=comp,local=local,release=True)
         return dataobjects[0].get_float_matrix()
 
     @staticmethod

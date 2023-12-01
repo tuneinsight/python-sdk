@@ -20,37 +20,33 @@ class Model:
     """Machine learning model metadata definition
 
     Attributes:
-        metadata (Union[Unset, ModelMetadata]): public metadata about the model
-        model_id (Union[Unset, str]): Unique identifier of a model.
+        computation_id (Union[Unset, str]): Computation that created this model if collective model
         model_params (Union[Unset, ModelParams]): detailed parameters about the model, only returned when getting
             specific model
         training_algorithm (Union[Unset, TrainingAlgorithm]): the algorithm used to train the model
         type (Union[Unset, ModelType]): whether the model is local (plaintext) or collective (ciphertext)
         updated_at (Union[Unset, str]):
-        computation_id (Union[Unset, str]): Computation that created this model if collective model
-        data_object (Union[Unset, DataObject]): A data object definition.
-        name (Union[Unset, str]): common name for the model
         created_at (Union[Unset, str]):
+        data_object (Union[Unset, DataObject]): A data object definition.
+        metadata (Union[Unset, ModelMetadata]): public metadata about the model
+        model_id (Union[Unset, str]): Unique identifier of a model.
+        name (Union[Unset, str]): common name for the model
     """
 
-    metadata: Union[Unset, "ModelMetadata"] = UNSET
-    model_id: Union[Unset, str] = UNSET
+    computation_id: Union[Unset, str] = UNSET
     model_params: Union[Unset, "ModelParams"] = UNSET
     training_algorithm: Union[Unset, TrainingAlgorithm] = UNSET
     type: Union[Unset, ModelType] = UNSET
     updated_at: Union[Unset, str] = UNSET
-    computation_id: Union[Unset, str] = UNSET
-    data_object: Union[Unset, "DataObject"] = UNSET
-    name: Union[Unset, str] = UNSET
     created_at: Union[Unset, str] = UNSET
+    data_object: Union[Unset, "DataObject"] = UNSET
+    metadata: Union[Unset, "ModelMetadata"] = UNSET
+    model_id: Union[Unset, str] = UNSET
+    name: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        metadata: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.metadata, Unset):
-            metadata = self.metadata.to_dict()
-
-        model_id = self.model_id
+        computation_id = self.computation_id
         model_params: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.model_params, Unset):
             model_params = self.model_params.to_dict()
@@ -64,21 +60,23 @@ class Model:
             type = self.type.value
 
         updated_at = self.updated_at
-        computation_id = self.computation_id
+        created_at = self.created_at
         data_object: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.data_object, Unset):
             data_object = self.data_object.to_dict()
 
+        metadata: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.metadata, Unset):
+            metadata = self.metadata.to_dict()
+
+        model_id = self.model_id
         name = self.name
-        created_at = self.created_at
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if metadata is not UNSET:
-            field_dict["metadata"] = metadata
-        if model_id is not UNSET:
-            field_dict["modelID"] = model_id
+        if computation_id is not UNSET:
+            field_dict["computationId"] = computation_id
         if model_params is not UNSET:
             field_dict["modelParams"] = model_params
         if training_algorithm is not UNSET:
@@ -87,14 +85,16 @@ class Model:
             field_dict["type"] = type
         if updated_at is not UNSET:
             field_dict["updatedAt"] = updated_at
-        if computation_id is not UNSET:
-            field_dict["computationId"] = computation_id
-        if data_object is not UNSET:
-            field_dict["dataObject"] = data_object
-        if name is not UNSET:
-            field_dict["name"] = name
         if created_at is not UNSET:
             field_dict["createdAt"] = created_at
+        if data_object is not UNSET:
+            field_dict["dataObject"] = data_object
+        if metadata is not UNSET:
+            field_dict["metadata"] = metadata
+        if model_id is not UNSET:
+            field_dict["modelID"] = model_id
+        if name is not UNSET:
+            field_dict["name"] = name
 
         return field_dict
 
@@ -105,14 +105,7 @@ class Model:
         from ..models.model_params import ModelParams
 
         d = src_dict.copy()
-        _metadata = d.pop("metadata", UNSET)
-        metadata: Union[Unset, ModelMetadata]
-        if isinstance(_metadata, Unset):
-            metadata = UNSET
-        else:
-            metadata = ModelMetadata.from_dict(_metadata)
-
-        model_id = d.pop("modelID", UNSET)
+        computation_id = d.pop("computationId", UNSET)
 
         _model_params = d.pop("modelParams", UNSET)
         model_params: Union[Unset, ModelParams]
@@ -137,7 +130,7 @@ class Model:
 
         updated_at = d.pop("updatedAt", UNSET)
 
-        computation_id = d.pop("computationId", UNSET)
+        created_at = d.pop("createdAt", UNSET)
 
         _data_object = d.pop("dataObject", UNSET)
         data_object: Union[Unset, DataObject]
@@ -146,21 +139,28 @@ class Model:
         else:
             data_object = DataObject.from_dict(_data_object)
 
+        _metadata = d.pop("metadata", UNSET)
+        metadata: Union[Unset, ModelMetadata]
+        if isinstance(_metadata, Unset):
+            metadata = UNSET
+        else:
+            metadata = ModelMetadata.from_dict(_metadata)
+
+        model_id = d.pop("modelID", UNSET)
+
         name = d.pop("name", UNSET)
 
-        created_at = d.pop("createdAt", UNSET)
-
         model = cls(
-            metadata=metadata,
-            model_id=model_id,
+            computation_id=computation_id,
             model_params=model_params,
             training_algorithm=training_algorithm,
             type=type,
             updated_at=updated_at,
-            computation_id=computation_id,
-            data_object=data_object,
-            name=name,
             created_at=created_at,
+            data_object=data_object,
+            metadata=metadata,
+            model_id=model_id,
+            name=name,
         )
 
         model.additional_properties = d

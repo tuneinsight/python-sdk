@@ -64,7 +64,7 @@ def sync_detailed(
     *,
     client: Client,
 ) -> Response[Union[Error, GetNetworkMetadataResponse200]]:
-    """Get network metadata (nodes URLs, public keys, etc.).
+    """Get network metadata: local instance configuration and nodes of the network
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -90,7 +90,7 @@ def sync(
     *,
     client: Client,
 ) -> Optional[Union[Error, GetNetworkMetadataResponse200]]:
-    """Get network metadata (nodes URLs, public keys, etc.).
+    """Get network metadata: local instance configuration and nodes of the network
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -109,7 +109,7 @@ async def asyncio_detailed(
     *,
     client: Client,
 ) -> Response[Union[Error, GetNetworkMetadataResponse200]]:
-    """Get network metadata (nodes URLs, public keys, etc.).
+    """Get network metadata: local instance configuration and nodes of the network
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -133,7 +133,7 @@ async def asyncio(
     *,
     client: Client,
 ) -> Optional[Union[Error, GetNetworkMetadataResponse200]]:
-    """Get network metadata (nodes URLs, public keys, etc.).
+    """Get network metadata: local instance configuration and nodes of the network
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

@@ -13,35 +13,34 @@ class Duration:
     """definition of a date-independent time interval
 
     Attributes:
-        value (Union[Unset, float]): integer value of the duration
         unit (Union[Unset, TimeUnit]): encoded unit of time
+        value (Union[Unset, float]): integer value of the duration
     """
 
-    value: Union[Unset, float] = UNSET
     unit: Union[Unset, TimeUnit] = UNSET
+    value: Union[Unset, float] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        value = self.value
         unit: Union[Unset, str] = UNSET
         if not isinstance(self.unit, Unset):
             unit = self.unit.value
 
+        value = self.value
+
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if value is not UNSET:
-            field_dict["value"] = value
         if unit is not UNSET:
             field_dict["unit"] = unit
+        if value is not UNSET:
+            field_dict["value"] = value
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        value = d.pop("value", UNSET)
-
         _unit = d.pop("unit", UNSET)
         unit: Union[Unset, TimeUnit]
         if isinstance(_unit, Unset):
@@ -49,9 +48,11 @@ class Duration:
         else:
             unit = TimeUnit(_unit)
 
+        value = d.pop("value", UNSET)
+
         duration = cls(
-            value=value,
             unit=unit,
+            value=value,
         )
 
         duration.additional_properties = d

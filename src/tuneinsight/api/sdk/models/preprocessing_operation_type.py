@@ -23,6 +23,7 @@ class PreprocessingOperationType(str, Enum):
     CUT = "cut"
     DEVIATIONSQUARES = "deviationSquares"
     ADDCOLUMNS = "addColumns"
+    DATASETVALIDATION = "datasetValidation"
     CUSTOM = "custom"
 
     def __str__(self) -> str:

@@ -1,10 +1,13 @@
-from typing import Any, Dict, List, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
 from ..models.preprocessing_operation_type import PreprocessingOperationType
-from ..models.time_unit import TimeUnit
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.duration import Duration
+
 
 T = TypeVar("T", bound="TimeDiff")
 
@@ -14,32 +17,32 @@ class TimeDiff:
     """
     Attributes:
         type (PreprocessingOperationType): type of preprocessing operation
+        end (Union[Unset, str]): column that contains timestamps representing the end of the measured difference
         filter_na (Union[Unset, bool]): whether or not to filter null values
+        interval (Union[Unset, Duration]): definition of a date-independent time interval
         output (Union[Unset, str]): the output column that stores the numerical values for the time difference
         start (Union[Unset, str]): column that contains timestamps representing the start of the measured difference
-        unit (Union[Unset, TimeUnit]): encoded unit of time
-        end (Union[Unset, str]): column that contains timestamps representing the end of the measured difference
     """
 
     type: PreprocessingOperationType
+    end: Union[Unset, str] = UNSET
     filter_na: Union[Unset, bool] = UNSET
+    interval: Union[Unset, "Duration"] = UNSET
     output: Union[Unset, str] = UNSET
     start: Union[Unset, str] = UNSET
-    unit: Union[Unset, TimeUnit] = UNSET
-    end: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         type = self.type.value
 
+        end = self.end
         filter_na = self.filter_na
+        interval: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.interval, Unset):
+            interval = self.interval.to_dict()
+
         output = self.output
         start = self.start
-        unit: Union[Unset, str] = UNSET
-        if not isinstance(self.unit, Unset):
-            unit = self.unit.value
-
-        end = self.end
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -48,46 +51,48 @@ class TimeDiff:
                 "type": type,
             }
         )
+        if end is not UNSET:
+            field_dict["end"] = end
         if filter_na is not UNSET:
             field_dict["filterNA"] = filter_na
+        if interval is not UNSET:
+            field_dict["interval"] = interval
         if output is not UNSET:
             field_dict["output"] = output
         if start is not UNSET:
             field_dict["start"] = start
-        if unit is not UNSET:
-            field_dict["unit"] = unit
-        if end is not UNSET:
-            field_dict["end"] = end
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.duration import Duration
+
         d = src_dict.copy()
         type = PreprocessingOperationType(d.pop("type"))
 
+        end = d.pop("end", UNSET)
+
         filter_na = d.pop("filterNA", UNSET)
+
+        _interval = d.pop("interval", UNSET)
+        interval: Union[Unset, Duration]
+        if isinstance(_interval, Unset):
+            interval = UNSET
+        else:
+            interval = Duration.from_dict(_interval)
 
         output = d.pop("output", UNSET)
 
         start = d.pop("start", UNSET)
 
-        _unit = d.pop("unit", UNSET)
-        unit: Union[Unset, TimeUnit]
-        if isinstance(_unit, Unset):
-            unit = UNSET
-        else:
-            unit = TimeUnit(_unit)
-
-        end = d.pop("end", UNSET)
-
         time_diff = cls(
             type=type,
+            end=end,
             filter_na=filter_na,
+            interval=interval,
             output=output,
             start=start,
-            unit=unit,
-            end=end,
         )
 
         time_diff.additional_properties = d

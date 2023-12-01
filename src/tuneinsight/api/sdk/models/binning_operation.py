@@ -17,6 +17,7 @@ class BinningOperation:
     """Dataset binning operation definition
 
     Attributes:
+        target_column (Union[Unset, str]): column targeted by the binning operation
         aggregated_columns (Union[Unset, List[str]]): list of numerical columns to aggregate per bin when binning is
             done, if unspecified binning only counts the number of rows
         categories (Union[Unset, List[str]]): list of categories when groupByType is 'category'
@@ -25,18 +26,18 @@ class BinningOperation:
         group_by_type (Union[Unset, GroupByType]): type of the groupBy operation specified
         range_values (Union[Unset, List[float]]): list of cuts to use when groupByType is 'range' ([x,y] => creating 3
             bins [v < x, x <= v < y, y <= v])
-        target_column (Union[Unset, str]): column targeted by the binning operation
     """
 
+    target_column: Union[Unset, str] = UNSET
     aggregated_columns: Union[Unset, List[str]] = UNSET
     categories: Union[Unset, List[str]] = UNSET
     count_columns: Union[Unset, List["CategoricalColumn"]] = UNSET
     group_by_type: Union[Unset, GroupByType] = UNSET
     range_values: Union[Unset, List[float]] = UNSET
-    target_column: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        target_column = self.target_column
         aggregated_columns: Union[Unset, List[str]] = UNSET
         if not isinstance(self.aggregated_columns, Unset):
             aggregated_columns = self.aggregated_columns
@@ -61,11 +62,11 @@ class BinningOperation:
         if not isinstance(self.range_values, Unset):
             range_values = self.range_values
 
-        target_column = self.target_column
-
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if target_column is not UNSET:
+            field_dict["targetColumn"] = target_column
         if aggregated_columns is not UNSET:
             field_dict["aggregatedColumns"] = aggregated_columns
         if categories is not UNSET:
@@ -76,8 +77,6 @@ class BinningOperation:
             field_dict["groupByType"] = group_by_type
         if range_values is not UNSET:
             field_dict["rangeValues"] = range_values
-        if target_column is not UNSET:
-            field_dict["targetColumn"] = target_column
 
         return field_dict
 
@@ -86,6 +85,8 @@ class BinningOperation:
         from ..models.categorical_column import CategoricalColumn
 
         d = src_dict.copy()
+        target_column = d.pop("targetColumn", UNSET)
+
         aggregated_columns = cast(List[str], d.pop("aggregatedColumns", UNSET))
 
         categories = cast(List[str], d.pop("categories", UNSET))
@@ -106,15 +107,13 @@ class BinningOperation:
 
         range_values = cast(List[float], d.pop("rangeValues", UNSET))
 
-        target_column = d.pop("targetColumn", UNSET)
-
         binning_operation = cls(
+            target_column=target_column,
             aggregated_columns=aggregated_columns,
             categories=categories,
             count_columns=count_columns,
             group_by_type=group_by_type,
             range_values=range_values,
-            target_column=target_column,
         )
 
         binning_operation.additional_properties = d

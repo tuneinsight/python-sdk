@@ -17,11 +17,14 @@ class ProtocolDefinition:
 
     Attributes:
         computation (Union[Unset, ComputationDefinition]): Generic computation.
-        service_id (Union[Unset, str]): id of the protocol service
+        computation_id (Union[Unset, str]): Identifier of a computation, unique across all computing nodes.
+        requesting_instance (Union[Unset, str]): identifier/alias/name of the instance that has requested the
+            computation
     """
 
     computation: Union[Unset, "ComputationDefinition"] = UNSET
-    service_id: Union[Unset, str] = UNSET
+    computation_id: Union[Unset, str] = UNSET
+    requesting_instance: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -29,15 +32,18 @@ class ProtocolDefinition:
         if not isinstance(self.computation, Unset):
             computation = self.computation.to_dict()
 
-        service_id = self.service_id
+        computation_id = self.computation_id
+        requesting_instance = self.requesting_instance
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
         if computation is not UNSET:
             field_dict["computation"] = computation
-        if service_id is not UNSET:
-            field_dict["serviceId"] = service_id
+        if computation_id is not UNSET:
+            field_dict["computationId"] = computation_id
+        if requesting_instance is not UNSET:
+            field_dict["requestingInstance"] = requesting_instance
 
         return field_dict
 
@@ -53,11 +59,14 @@ class ProtocolDefinition:
         else:
             computation = ComputationDefinition.from_dict(_computation)
 
-        service_id = d.pop("serviceId", UNSET)
+        computation_id = d.pop("computationId", UNSET)
+
+        requesting_instance = d.pop("requestingInstance", UNSET)
 
         protocol_definition = cls(
             computation=computation,
-            service_id=service_id,
+            computation_id=computation_id,
+            requesting_instance=requesting_instance,
         )
 
         protocol_definition.additional_properties = d

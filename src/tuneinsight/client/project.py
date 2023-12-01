@@ -19,6 +19,7 @@ from tuneinsight.computations.hybrid_fl import HybridFL
 from tuneinsight.computations.stats import DatasetStatistics
 from tuneinsight.computations.policy import Policy,display_policy
 from tuneinsight.computations.types import Type
+from tuneinsight.computations.dataset_schema import DatasetSchema
 from tuneinsight.client.validation import validate_response
 from tuneinsight.computations.statistical_aggregation import Aggregation
 from tuneinsight.client.computations import ComputationRunner
@@ -54,6 +55,7 @@ class Project:
         res = ""
         res += f"id: {self.get_id()} \n"
         res += f"name: {self.get_name()} \n"
+        res += f"topology: {self.get_topology()} \n"
         res += "participants:\n"
         participants: List[models.Participant] = self.model.participants
         for p in participants:
@@ -63,7 +65,9 @@ class Project:
                 res += f" (organization: {org.name})"
             res += "\n"
 
-            if p.input_metadata != UNSET and UNSET not in (p.input_metadata,p.input_metadata.tables):
+            if p.input_metadata != UNSET\
+                and UNSET not in (p.input_metadata,p.input_metadata.tables)\
+                and len(p.input_metadata.tables):
                 res += "\tinput tables :\n"
                 tables: List[models.DataSourceTable] = p.input_metadata.tables
                 for table in tables:
@@ -90,7 +94,17 @@ class Project:
         """
         return self.model.name
 
+    def get_topology(self) -> str:
+        """
+        get_topology returns the topology of the project
+
+        Returns:
+            str: the topology of the project
+        """
+        return str(self.model.topology)
+
     def display_datasources(self):
+        self.refresh()
         participants = self.model.participants
         for p in participants:
             tables = p.input_metadata.tables
@@ -106,6 +120,18 @@ class Project:
                 df = pd.DataFrame(data['Type'], index=data['Column']).T
                 display(HTML(df.to_html(index=False)))
             print("\n")
+
+
+    def set_input_schema(self,schema: DatasetSchema):
+        '''
+        set_input_schema sets an expected schema to enforce on the inputs.
+
+        Args:
+            schema (DatasetSchema): the schema definition
+        '''
+        lds = self.local_data_selection()
+        lds.preprocessing.schema = schema
+        lds.save()
 
     def delete(self):
         resp: Response[str] = delete_project.sync_detailed(client=self.client,project_id=self.get_id())
@@ -248,7 +274,11 @@ class Project:
         Returns:
             models.Project: Project Computation Created
         """
-        response : Response[models.Project] = post_project_computation.sync_detailed(project_id=self.get_id(), client=self.client)
+        response : Response[models.Project] = post_project_computation.sync_detailed(
+            project_id=self.get_id(),
+            client=self.client,
+            json_body=None
+        )
         validate_response(response)
         return response.parsed
 
@@ -395,7 +425,9 @@ class Project:
             self.refresh()
             return self.model.local_data_selection_definition
 
-        return LocalDataSelection(update_func)
+        lds = LocalDataSelection(update_func)
+        self.refresh()
+        return lds
 
 
     def display_workflow(self):

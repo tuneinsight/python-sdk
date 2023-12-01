@@ -11,38 +11,38 @@ T = TypeVar("T", bound="DocumentationResponse200")
 class DocumentationResponse200:
     """
     Attributes:
-        name (Union[Unset, str]): readable name for the computation
         description (Union[Unset, str]): description of the computation
+        name (Union[Unset, str]): readable name for the computation
     """
 
-    name: Union[Unset, str] = UNSET
     description: Union[Unset, str] = UNSET
+    name: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        name = self.name
         description = self.description
+        name = self.name
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if name is not UNSET:
-            field_dict["name"] = name
         if description is not UNSET:
             field_dict["description"] = description
+        if name is not UNSET:
+            field_dict["name"] = name
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        name = d.pop("name", UNSET)
-
         description = d.pop("description", UNSET)
 
+        name = d.pop("name", UNSET)
+
         documentation_response_200 = cls(
-            name=name,
             description=description,
+            name=name,
         )
 
         documentation_response_200.additional_properties = d

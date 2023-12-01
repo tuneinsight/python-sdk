@@ -74,7 +74,7 @@ def sync_detailed(
     *,
     client: Client,
 ) -> Response[Union[Error, ResultContent]]:
-    """get the results contents and related computation
+    """Get the results contents and related computation
 
     Args:
         result_id (str):
@@ -105,7 +105,7 @@ def sync(
     *,
     client: Client,
 ) -> Optional[Union[Error, ResultContent]]:
-    """get the results contents and related computation
+    """Get the results contents and related computation
 
     Args:
         result_id (str):
@@ -129,7 +129,7 @@ async def asyncio_detailed(
     *,
     client: Client,
 ) -> Response[Union[Error, ResultContent]]:
-    """get the results contents and related computation
+    """Get the results contents and related computation
 
     Args:
         result_id (str):
@@ -158,7 +158,7 @@ async def asyncio(
     *,
     client: Client,
 ) -> Optional[Union[Error, ResultContent]]:
-    """get the results contents and related computation
+    """Get the results contents and related computation
 
     Args:
         result_id (str):

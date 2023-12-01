@@ -8,6 +8,7 @@ if TYPE_CHECKING:
     from ..models.computation_preprocessing_parameters_compound_preprocessing import (
         ComputationPreprocessingParametersCompoundPreprocessing,
     )
+    from ..models.dataset_schema import DatasetSchema
     from ..models.logical_formula import LogicalFormula
     from ..models.preprocessing_chain import PreprocessingChain
     from ..models.select import Select
@@ -23,6 +24,7 @@ class ComputationPreprocessingParameters:
     Attributes:
         compound_preprocessing (Union[Unset, ComputationPreprocessingParametersCompoundPreprocessing]): preprocessing to
             be applied for each node
+        dataset_schema (Union[Unset, DatasetSchema]): dataset schema definition used to validate input datasets.
         filters (Union[Unset, List['LogicalFormula']]): list of filters to apply to the input dataframe (applied after
             the preprocessing is run)
         global_preprocessing (Union[Unset, PreprocessingChain]): Chain of preprocessing operations applied to the input
@@ -31,6 +33,7 @@ class ComputationPreprocessingParameters:
     """
 
     compound_preprocessing: Union[Unset, "ComputationPreprocessingParametersCompoundPreprocessing"] = UNSET
+    dataset_schema: Union[Unset, "DatasetSchema"] = UNSET
     filters: Union[Unset, List["LogicalFormula"]] = UNSET
     global_preprocessing: Union[Unset, "PreprocessingChain"] = UNSET
     select: Union[Unset, "Select"] = UNSET
@@ -40,6 +43,10 @@ class ComputationPreprocessingParameters:
         compound_preprocessing: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.compound_preprocessing, Unset):
             compound_preprocessing = self.compound_preprocessing.to_dict()
+
+        dataset_schema: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.dataset_schema, Unset):
+            dataset_schema = self.dataset_schema.to_dict()
 
         filters: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.filters, Unset):
@@ -62,6 +69,8 @@ class ComputationPreprocessingParameters:
         field_dict.update({})
         if compound_preprocessing is not UNSET:
             field_dict["compoundPreprocessing"] = compound_preprocessing
+        if dataset_schema is not UNSET:
+            field_dict["datasetSchema"] = dataset_schema
         if filters is not UNSET:
             field_dict["filters"] = filters
         if global_preprocessing is not UNSET:
@@ -76,6 +85,7 @@ class ComputationPreprocessingParameters:
         from ..models.computation_preprocessing_parameters_compound_preprocessing import (
             ComputationPreprocessingParametersCompoundPreprocessing,
         )
+        from ..models.dataset_schema import DatasetSchema
         from ..models.logical_formula import LogicalFormula
         from ..models.preprocessing_chain import PreprocessingChain
         from ..models.select import Select
@@ -89,6 +99,13 @@ class ComputationPreprocessingParameters:
             compound_preprocessing = ComputationPreprocessingParametersCompoundPreprocessing.from_dict(
                 _compound_preprocessing
             )
+
+        _dataset_schema = d.pop("datasetSchema", UNSET)
+        dataset_schema: Union[Unset, DatasetSchema]
+        if isinstance(_dataset_schema, Unset):
+            dataset_schema = UNSET
+        else:
+            dataset_schema = DatasetSchema.from_dict(_dataset_schema)
 
         filters = []
         _filters = d.pop("filters", UNSET)
@@ -113,6 +130,7 @@ class ComputationPreprocessingParameters:
 
         computation_preprocessing_parameters = cls(
             compound_preprocessing=compound_preprocessing,
+            dataset_schema=dataset_schema,
             filters=filters,
             global_preprocessing=global_preprocessing,
             select=select,

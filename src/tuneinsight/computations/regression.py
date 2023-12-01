@@ -92,7 +92,7 @@ class Regression(ComputationRunner):
         self.predict_model.only_root_prediction = True
 
         # run predict comp
-        dataobjects = super().run_computation(comp=self.predict_model, local=False, keyswitch=True, decrypt=True)
+        dataobjects = super().run_computation(comp=self.predict_model, local=False, release=True)
         return dataobjects[0].get_float_matrix()
 
     def grid_search(self, feature_cols: List[str], label_cols: List[str], test_X: pd.DataFrame, test_Y:pd.DataFrame, param_dict:dict = None, log:bool = False) -> dict:

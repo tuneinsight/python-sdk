@@ -57,9 +57,19 @@ class QueryBuilder:
 
     def get_parameters(self) -> models.ComputationDataSourceParameters:
         params = ComputationDataSourceParameters()
-        params.data_source_query = self.global_query
-        params.compound_query = models.DataSourceCompoundQuery()
-        params.compound_query.additional_properties = self.compound_query
+        if self.query_set:
+            params.data_source_query = self.global_query
+            params.compound_query = models.DataSourceCompoundQuery()
+            params.compound_query.additional_properties = self.compound_query
         if len(self.compound_query) == 0:
             params.compound_disabled = True
         return params
+
+    def set_parameters(self,params :models.ComputationDataSourceParameters):
+        self.query_set = False
+        if isinstance(params.data_source_query,DataSourceQuery):
+            self.global_query = params.data_source_query
+            self.query_set = True
+        if isinstance(params.compound_query,models.DataSourceCompoundQuery):
+            self.compound_query = params.compound_query.additional_properties
+            self.query_set = True

@@ -135,21 +135,33 @@ class ComputationRunner():
 
         if comp.preprocessing_parameters == UNSET:
             comp.preprocessing_parameters = models.ComputationPreprocessingParameters()
+        comp.preprocessing_parameters = self.preprocessing.get_params()
 
-        if self.preprocessing.chain != []:
-            comp.preprocessing_parameters.global_preprocessing = models.PreprocessingChain(self.preprocessing.chain)
-        if self.preprocessing.compound_chain != {}:
-            compound_params =  models.ComputationPreprocessingParametersCompoundPreprocessing()
-            compound_params.additional_properties = self.preprocessing.compound_chain
-            comp.preprocessing_parameters.compound_preprocessing = compound_params
-        if self.preprocessing.output_selection_set:
-            comp.preprocessing_parameters.select = self.preprocessing.output_selection
+    def run_computation(self,comp: models.ComputationDefinition, local: bool=False, keyswitch: bool=True, decrypt: bool=True,release: bool = False) -> List[DataObject]:
+        """
+        Runs a computation using the given ComputationDefinition object.
 
-    def run_computation(self,comp: models.ComputationDefinition,local: bool=False,keyswitch: bool=True,decrypt: bool=True) -> List[DataObject]:
+        Args:
+            comp (models.ComputationDefinition): The definition of the computation.
+            local (bool, optional): Whether to run the computation locally or remotely. Defaults to False.
+            keyswitch (bool, optional): Whether to perform key switching on the results. Defaults to True.
+            decrypt (bool, optional): Whether to request the decryption on the results. Defaults to True.
+            release (bool, optional): Whether to release the results (overrides decrypt/keyswitch). If set, then encrypted results are automatically key switched and decrypted
+            and a Result entity is saved. Defaults to False.
+
+        Returns:
+            List[DataObject]: A list of DataObject objects representing the results of the computation.
+        """
         self.post_preprocessing(comp)
+
+        if release:
+            comp.release_results = True
+            # if release results is set override any faulty decrypt/keyswitch
+            decrypt = False
+            keyswitch = False
+
         computation = self.launch_computation(comp,local=local)
         results = self.poll_computation(comp=computation)
-
 
         if keyswitch:
             for i,dataobject in enumerate(results):

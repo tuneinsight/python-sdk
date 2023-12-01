@@ -19,20 +19,24 @@ class PrivacySummary:
     """Privacy summary for a project
 
     Attributes:
+        privacy_budget (Union[Unset, PrivacyBudget]): stores information about the status of the privacy budget
         authorization_status (Union[Unset, AuthorizationStatus]): Authorization status of the project
         computation (Union[Unset, PrivacySummaryComputation]): Description of the computation that will be run for the
             project
         data_source (Union[Unset, DataSource]):
-        privacy_budget (Union[Unset, PrivacyBudget]): stores information about the status of the privacy budget
     """
 
+    privacy_budget: Union[Unset, "PrivacyBudget"] = UNSET
     authorization_status: Union[Unset, AuthorizationStatus] = UNSET
     computation: Union[Unset, "PrivacySummaryComputation"] = UNSET
     data_source: Union[Unset, "DataSource"] = UNSET
-    privacy_budget: Union[Unset, "PrivacyBudget"] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        privacy_budget: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.privacy_budget, Unset):
+            privacy_budget = self.privacy_budget.to_dict()
+
         authorization_status: Union[Unset, str] = UNSET
         if not isinstance(self.authorization_status, Unset):
             authorization_status = self.authorization_status.value
@@ -45,21 +49,17 @@ class PrivacySummary:
         if not isinstance(self.data_source, Unset):
             data_source = self.data_source.to_dict()
 
-        privacy_budget: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.privacy_budget, Unset):
-            privacy_budget = self.privacy_budget.to_dict()
-
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if privacy_budget is not UNSET:
+            field_dict["privacyBudget"] = privacy_budget
         if authorization_status is not UNSET:
             field_dict["authorizationStatus"] = authorization_status
         if computation is not UNSET:
             field_dict["computation"] = computation
         if data_source is not UNSET:
             field_dict["dataSource"] = data_source
-        if privacy_budget is not UNSET:
-            field_dict["privacyBudget"] = privacy_budget
 
         return field_dict
 
@@ -70,6 +70,13 @@ class PrivacySummary:
         from ..models.privacy_summary_computation import PrivacySummaryComputation
 
         d = src_dict.copy()
+        _privacy_budget = d.pop("privacyBudget", UNSET)
+        privacy_budget: Union[Unset, PrivacyBudget]
+        if isinstance(_privacy_budget, Unset):
+            privacy_budget = UNSET
+        else:
+            privacy_budget = PrivacyBudget.from_dict(_privacy_budget)
+
         _authorization_status = d.pop("authorizationStatus", UNSET)
         authorization_status: Union[Unset, AuthorizationStatus]
         if isinstance(_authorization_status, Unset):
@@ -91,18 +98,11 @@ class PrivacySummary:
         else:
             data_source = DataSource.from_dict(_data_source)
 
-        _privacy_budget = d.pop("privacyBudget", UNSET)
-        privacy_budget: Union[Unset, PrivacyBudget]
-        if isinstance(_privacy_budget, Unset):
-            privacy_budget = UNSET
-        else:
-            privacy_budget = PrivacyBudget.from_dict(_privacy_budget)
-
         privacy_summary = cls(
+            privacy_budget=privacy_budget,
             authorization_status=authorization_status,
             computation=computation,
             data_source=data_source,
-            privacy_budget=privacy_budget,
         )
 
         privacy_summary.additional_properties = d

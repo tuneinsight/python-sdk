@@ -14,7 +14,7 @@ class PostProtocolMessageMultipartData:
     Attributes:
         request_data (File): Binary stream
         protocol_base (str): JSON of the protocol base request encoded in b64
-        service_id (str): id of the protocol service
+        computation_id (str): Identifier of a computation, unique across all computing nodes.
         name (str): name of the message channel
         id (str): id of the message used for chunking
         byte_length (int): total length of the message for chunking
@@ -24,7 +24,7 @@ class PostProtocolMessageMultipartData:
 
     request_data: File
     protocol_base: str
-    service_id: str
+    computation_id: str
     name: str
     id: str
     byte_length: int
@@ -36,7 +36,7 @@ class PostProtocolMessageMultipartData:
         request_data = self.request_data.to_tuple()
 
         protocol_base = self.protocol_base
-        service_id = self.service_id
+        computation_id = self.computation_id
         name = self.name
         id = self.id
         byte_length = self.byte_length
@@ -49,7 +49,7 @@ class PostProtocolMessageMultipartData:
             {
                 "requestData": request_data,
                 "protocolBase": protocol_base,
-                "serviceId": service_id,
+                "computationId": computation_id,
                 "name": name,
                 "id": id,
                 "byteLength": byte_length,
@@ -68,10 +68,10 @@ class PostProtocolMessageMultipartData:
             if isinstance(self.protocol_base, Unset)
             else (None, str(self.protocol_base).encode(), "text/plain")
         )
-        service_id = (
-            self.service_id
-            if isinstance(self.service_id, Unset)
-            else (None, str(self.service_id).encode(), "text/plain")
+        computation_id = (
+            self.computation_id
+            if isinstance(self.computation_id, Unset)
+            else (None, str(self.computation_id).encode(), "text/plain")
         )
         name = self.name if isinstance(self.name, Unset) else (None, str(self.name).encode(), "text/plain")
         id = self.id if isinstance(self.id, Unset) else (None, str(self.id).encode(), "text/plain")
@@ -91,7 +91,7 @@ class PostProtocolMessageMultipartData:
             {
                 "requestData": request_data,
                 "protocolBase": protocol_base,
-                "serviceId": service_id,
+                "computationId": computation_id,
                 "name": name,
                 "id": id,
                 "byteLength": byte_length,
@@ -109,7 +109,7 @@ class PostProtocolMessageMultipartData:
 
         protocol_base = d.pop("protocolBase")
 
-        service_id = d.pop("serviceId")
+        computation_id = d.pop("computationId")
 
         name = d.pop("name")
 
@@ -124,7 +124,7 @@ class PostProtocolMessageMultipartData:
         post_protocol_message_multipart_data = cls(
             request_data=request_data,
             protocol_base=protocol_base,
-            service_id=service_id,
+            computation_id=computation_id,
             name=name,
             id=id,
             byte_length=byte_length,

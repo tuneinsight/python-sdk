@@ -33,7 +33,7 @@ class Cohort(ComputationRunner):
         if local_input:
             model.local_input = local_input
 
-        dataobjects = super().run_computation(comp=model,local=False,keyswitch=False,decrypt=False)
+        dataobjects = super().run_computation(comp=model,local=False,release=True)
         self.cohort_id = dataobjects[0].get_id()
         return dataobjects
 

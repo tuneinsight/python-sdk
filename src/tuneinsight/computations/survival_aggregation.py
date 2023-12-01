@@ -14,8 +14,6 @@ class SurvivalAggregation(ComputationRunner):
     secure_matching: bool
     matching_columns: List[models.MatchingColumn]
 
-
-
     def __init__(self, project_id:str = "", client:Client = UNSET):
         self.subgroups = []
         self.secure_matching = False
@@ -49,7 +47,7 @@ class SurvivalAggregation(ComputationRunner):
         model.matching_organization = self.matching_organization
         model.project_id = self.project_id
         model.survival_parameters = survival_parameters.get_preprocessing_op()
-        dataobjects = super().run_computation(comp=model,local=False,keyswitch=True,decrypt=True)
+        dataobjects = super().run_computation(comp=model,local=False,release=True)
         # Compute Mapping for survival results
         fm =  dataobjects[0].get_float_matrix()
         if len(fm.data) != len(self.subgroups) + 1:

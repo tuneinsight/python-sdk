@@ -12,32 +12,30 @@ class Measurement:
     """measurement done during a specific part of a computation
 
     Attributes:
-        start (Union[Unset, str]): start time of the measurement. (RFC 3339 Nano format)
         allocated (Union[Unset, int]): total number of bytes allocated during this part.
         description (Union[Unset, str]): description of the computation part.
         end (Union[Unset, str]): end time of the measurement. (RFC 3339 Nano format)
         name (Union[Unset, str]): name of the computation part.
+        start (Union[Unset, str]): start time of the measurement. (RFC 3339 Nano format)
     """
 
-    start: Union[Unset, str] = UNSET
     allocated: Union[Unset, int] = UNSET
     description: Union[Unset, str] = UNSET
     end: Union[Unset, str] = UNSET
     name: Union[Unset, str] = UNSET
+    start: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        start = self.start
         allocated = self.allocated
         description = self.description
         end = self.end
         name = self.name
+        start = self.start
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if start is not UNSET:
-            field_dict["start"] = start
         if allocated is not UNSET:
             field_dict["allocated"] = allocated
         if description is not UNSET:
@@ -46,14 +44,14 @@ class Measurement:
             field_dict["end"] = end
         if name is not UNSET:
             field_dict["name"] = name
+        if start is not UNSET:
+            field_dict["start"] = start
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        start = d.pop("start", UNSET)
-
         allocated = d.pop("allocated", UNSET)
 
         description = d.pop("description", UNSET)
@@ -62,12 +60,14 @@ class Measurement:
 
         name = d.pop("name", UNSET)
 
+        start = d.pop("start", UNSET)
+
         measurement = cls(
-            start=start,
             allocated=allocated,
             description=description,
             end=end,
             name=name,
+            start=start,
         )
 
         measurement.additional_properties = d

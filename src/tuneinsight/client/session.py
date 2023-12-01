@@ -5,7 +5,7 @@ from tuneinsight.api.sdk.models import Session as APISession
 from tuneinsight.client.validation import validate_response
 from tuneinsight.api.sdk.api.api_sessions import post_session
 from tuneinsight.api.sdk.types import Response
-from tuneinsight.cryptolib.cryptolib import new_ckks_operator_from_b64_scheme_context,get_relin_key_bytes,PIRContext
+from tuneinsight.cryptolib.cryptolib import new_hefloat_operator_from_b64_scheme_context,get_relin_key_bytes,PIRContext
 from tuneinsight.client.dataobject import DataObject
 from tuneinsight.utils.io import data_from_bytes
 
@@ -48,7 +48,7 @@ class Session:
             bytes: cryptosystem id
         """
         # Load the parameters into a cryptosystem
-        cs_id = new_ckks_operator_from_b64_scheme_context(str(self.cryptolib_params))
+        cs_id = new_hefloat_operator_from_b64_scheme_context(str(self.cryptolib_params))
         # Generate and upload relinearization key
         rlk_bytes = get_relin_key_bytes(cs_id)
         key_info = KeyInfo(collective=False)
@@ -88,7 +88,7 @@ class PIRSession(Session):
         """
         evk = self.ctx.get_eva_key()
         key_info = KeyInfo(collective=False)
-        do_type = DataObjectType.RLWE_EVALUATION_KEY_SET
+        do_type = DataObjectType.RLWE_MEM_EVALUATION_KEY_SET
         DataObject.create(client=self.client, do_type=do_type,session_id=self.session_id,encrypted=False,key_info=key_info,data=evk)
 
 

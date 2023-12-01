@@ -100,7 +100,7 @@ class DataObject:
             models.Content the content which can be of multiple of types
         """
         response: Response[models.Content] = get_data_object_data.sync_detailed(client=self.client,data_object_id=self.get_id())
-        #validate_response(response)
+        validate_response(response)
         return response.parsed
 
     def get_float_matrix(self) -> models.FloatMatrix:
