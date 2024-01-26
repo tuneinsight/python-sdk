@@ -2,10 +2,9 @@ from contextlib import contextmanager
 from tuneinsight.api.sdk.client import Client
 
 
-
 @contextmanager
-def with_timeout(c: Client,timeout: int):
-    '''
+def with_timeout(c: Client, timeout: int):
+    """
     with_timeout sets a custom timeout to the client temporarily to be used in a with statement
 
     Args:
@@ -14,7 +13,7 @@ def with_timeout(c: Client,timeout: int):
 
     Yields:
         Client: the client with updated timeout
-    '''
+    """
     old_timeout = c.timeout
     c.timeout = timeout
     yield c

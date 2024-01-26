@@ -1,8 +1,9 @@
 from typing import List
+from dateutil.parser import isoparse
 import attr
 import pandas as pd
 from IPython.display import display, HTML, Markdown
-from tuneinsight.api.sdk.types import UNSET,Unset
+from tuneinsight.api.sdk.types import UNSET, Unset
 from tuneinsight.api.sdk.types import Response
 from tuneinsight.api.sdk import models
 from tuneinsight.api.sdk.api.api_project import patch_project, post_project_computation
@@ -10,14 +11,20 @@ from tuneinsight.api.sdk.api.api_project import get_project
 from tuneinsight.api.sdk.api.api_project import delete_project
 from tuneinsight.api.sdk.api.api_datasource import get_data_source
 from tuneinsight.computations.enc_aggregation import EncryptedAggregation
+from tuneinsight.computations.encrypted_mean import EncryptedMean
 from tuneinsight.computations.gwas import GWAS
+from tuneinsight.computations.intersection import SetIntersection
 from tuneinsight.computations.survival_aggregation import SurvivalAggregation
-from tuneinsight.computations.regression import LinearRegression, LogisticRegression, PoissonRegression
+from tuneinsight.computations.regression import (
+    LinearRegression,
+    LogisticRegression,
+    PoissonRegression,
+)
 from tuneinsight.computations.cohort import Cohort
 from tuneinsight.computations.secure_join import SecureJoin
 from tuneinsight.computations.hybrid_fl import HybridFL
 from tuneinsight.computations.stats import DatasetStatistics
-from tuneinsight.computations.policy import Policy,display_policy
+from tuneinsight.computations.policy import Policy, display_policy
 from tuneinsight.computations.types import Type
 from tuneinsight.computations.dataset_schema import DatasetSchema
 from tuneinsight.client.validation import validate_response
@@ -26,15 +33,17 @@ from tuneinsight.client.computations import ComputationRunner
 from tuneinsight.client.datasource import DataSource
 from tuneinsight.client.dataobject import DataObject
 from tuneinsight.client.local_data_selection import LocalDataSelection
+from tuneinsight.api.sdk.api.api_computations import documentation
 
 
 @attr.s(auto_attribs=True)
 class Project:
     """
-    Represents a project from the backend Agent
+    Represents a project saved in the Tune Insight instance
     """
-    model: models.Project # The underlying model
-    client: UNSET # the client used to access the api
+
+    model: models.Project  # The underlying model
+    client: UNSET  # the client used to access the api
 
     def get_id(self) -> str:
         """
@@ -65,18 +74,20 @@ class Project:
                 res += f" (organization: {org.name})"
             res += "\n"
 
-            if p.input_metadata != UNSET\
-                and UNSET not in (p.input_metadata,p.input_metadata.tables)\
-                and len(p.input_metadata.tables):
+            if (
+                p.input_metadata != UNSET
+                and UNSET not in (p.input_metadata, p.input_metadata.tables)
+                and len(p.input_metadata.tables)
+            ):
                 res += "\tinput tables :\n"
                 tables: List[models.DataSourceTable] = p.input_metadata.tables
                 for table in tables:
-                    res += f'\t\ttable name: {table.name}\n'
-                    res += '\t\tcolumns:\n'
+                    res += f"\t\ttable name: {table.name}\n"
+                    res += "\t\tcolumns:\n"
                     cols: List[models.DataSourceColumn] = table.columns
                     for col in cols:
-                        res += f'\t\t\tname: {col.name}, type: {col.type} type group: {col.type_group}\n'
-                    res += '\n'
+                        res += f"\t\t\tname: {col.name}, type: {col.type} type group: {col.type_group}\n"
+                    res += "\n"
             res += "\n"
         if self.model.computations != UNSET and len(self.model.computations) > 0:
             res += "computations: \n"
@@ -94,6 +105,15 @@ class Project:
         """
         return self.model.name
 
+    def get_description(self) -> str:
+        """
+        get_description returns the description of the project
+
+        Returns:
+            str: the description of the project
+        """
+        return self.model.description
+
     def get_topology(self) -> str:
         """
         get_topology returns the topology of the project
@@ -104,6 +124,9 @@ class Project:
         return str(self.model.topology)
 
     def display_datasources(self):
+        """
+        display_datasources lists the datasources linked to the project and the structure of their schemas.
+        """
         self.refresh()
         participants = self.model.participants
         for p in participants:
@@ -112,70 +135,99 @@ class Project:
             for t in tables:
                 # print(f"Table name: {t.name}")
                 display(Markdown("#### Table name: " + "`" + str(t.name) + "`"))
-                data={'Column': [], 'Type': []}
+                data = {"Column": [], "Type": []}
                 num_cols = len(t.columns)
                 for i in range(num_cols):
-                    data['Column'].append(t.columns[i].name)
-                    data['Type'].append(t.columns[i].type)
-                df = pd.DataFrame(data['Type'], index=data['Column']).T
+                    data["Column"].append(t.columns[i].name)
+                    data["Type"].append(t.columns[i].type)
+                df = pd.DataFrame(data["Type"], index=data["Column"]).T
                 display(HTML(df.to_html(index=False)))
             print("\n")
 
-
-    def set_input_schema(self,schema: DatasetSchema):
-        '''
+    def set_input_schema(self, schema: DatasetSchema):
+        """
         set_input_schema sets an expected schema to enforce on the inputs.
 
         Args:
             schema (DatasetSchema): the schema definition
-        '''
+        """
         lds = self.local_data_selection()
         lds.preprocessing.schema = schema
         lds.save()
 
     def delete(self):
-        resp: Response[str] = delete_project.sync_detailed(client=self.client,project_id=self.get_id())
+        """
+        deletes the project from the backend
+        """
+        resp: Response[str] = delete_project.sync_detailed(
+            client=self.client, project_id=self.get_id()
+        )
         validate_response(response=resp)
-
-
 
     def refresh(self):
         """
         refresh refreshes the project's model with its backend state
         """
-        resp: Response[models.Project] = get_project.sync_detailed(client=self.client,project_id=self.get_id())
+        resp: Response[models.Project] = get_project.sync_detailed(
+            client=self.client, project_id=self.get_id()
+        )
         validate_response(response=resp)
         self.model = resp.parsed
 
-
-    def query_datasource(self,query: str) -> pd.DataFrame:
+    def query_datasource(self, query: str) -> pd.DataFrame:
         ds = self.get_input_datasource()
         return ds.get_dataframe(query=query)
 
-
-    def patch(self,proj_def: models.ProjectDefinition):
+    def patch(self, proj_def: models.ProjectDefinition):
         """
         patch perform a patch operation on the project
 
         Args:
             proj_def (models.ProjectDefinition): the definition to patch with
         """
-        resp: Response[models.Project] = patch_project.sync_detailed(client=self.client,project_id=self.get_id(),json_body=proj_def)
+        resp: Response[models.Project] = patch_project.sync_detailed(
+            client=self.client, project_id=self.get_id(), json_body=proj_def
+        )
         validate_response(response=resp)
         self.model = resp.parsed
 
     def authorize(self):
-        self.patch(proj_def=models.ProjectDefinition(authorization_status=models.AuthorizationStatus.AUTHORIZED))
-
+        """
+        authorize authorizes the project.
+        This means that other participants will be able to run collective computations with it.
+        """
+        self.patch(
+            proj_def=models.ProjectDefinition(
+                authorization_status=models.AuthorizationStatus.AUTHORIZED
+            )
+        )
 
     def unauthorize(self):
-        self.patch(proj_def=models.ProjectDefinition(authorization_status=models.AuthorizationStatus.UNAUTHORIZED))
+        """
+        unauthorize sets the project to unauthorized.
+        This means that other participants will not be able to run collective computations with it.
+        """
+        self.patch(
+            proj_def=models.ProjectDefinition(
+                authorization_status=models.AuthorizationStatus.UNAUTHORIZED
+            )
+        )
+
+    def get_authorization_status(self) -> models.AuthorizationStatus:
+        """
+        get_authorization_status returns the project's authorization status
+
+        Returns:
+            models.AuthorizationStatus: the project's authorization status
+        """
+        self.refresh()
+        return self.model.authorization_status
 
     def share(self):
         """
         share shares the project with the network
         """
-        proj_def = models.ProjectDefinition(shared=True,local=False)
+        proj_def = models.ProjectDefinition(shared=True, local=False)
         self.patch(proj_def=proj_def)
 
     def unshare(self):
@@ -185,14 +237,28 @@ class Project:
         proj_def = models.ProjectDefinition(shared=False)
         self.patch(proj_def=proj_def)
 
-    def set_computation(self,definition: models.ComputationDefinition):
+    def set_computation(self, definition: models.ComputationDefinition):
         """
         set_computation Sets the project's current computation definition
 
         Args:
             definition (models.ComputationDefinition): the definition to apply
         """
-        self.patch(proj_def=models.ProjectDefinition(computation_definition=definition,broadcast=True))
+        self.patch(
+            proj_def=models.ProjectDefinition(
+                computation_definition=definition, broadcast=True
+            )
+        )
+
+    def get_computation(self) -> models.ComputationDefinition:
+        """
+        get_computation returns the project's current computation definition
+
+        Returns:
+            models.ComputationDefinition: the project's current computation definition
+        """
+        self.refresh()
+        return self.model.computation_definition
 
     def set_input_datasource_id(self, datasourceId: str):
         """
@@ -204,7 +270,7 @@ class Project:
         proj_def = models.ProjectDefinition(data_source_id=datasourceId)
         self.patch(proj_def=proj_def)
 
-    def set_input_datasource(self,ds: DataSource):
+    def set_input_datasource(self, ds: DataSource):
         """
         set_input_datasource sets the project's input datasource
 
@@ -213,7 +279,6 @@ class Project:
         """
         proj_def = models.ProjectDefinition(data_source_id=ds.get_id())
         self.patch(proj_def=proj_def)
-
 
     def get_input_datasource(self) -> DataSource:
         """
@@ -228,9 +293,11 @@ class Project:
         self.refresh()
         if self.model.data_source_id == "":
             raise Exception("no data source set to project")
-        resp: Response[models.DataSource] = get_data_source.sync_detailed(data_source_id=self.model.data_source_id,client=self.client)
+        resp: Response[models.DataSource] = get_data_source.sync_detailed(
+            data_source_id=self.model.data_source_id, client=self.client
+        )
         validate_response(resp)
-        return DataSource(model=resp.parsed,client=self.client)
+        return DataSource(model=resp.parsed, client=self.client)
 
     def get_runner(self) -> ComputationRunner:
         """
@@ -239,7 +306,7 @@ class Project:
         Returns:
             ComputationRunner: the computation runner set with the project id
         """
-        return ComputationRunner(client=self.client,project_id=self.get_id())
+        return ComputationRunner(client=self.client, project_id=self.get_id())
 
     def get_participants(self) -> List[str]:
         """
@@ -250,8 +317,22 @@ class Project:
         """
         return [p.node.name for p in self.model.participants]
 
+    def get_authorized_users(self) -> List[str]:
+        """
+        get_authorized_users returns the email addresses of the authorized users
 
-    def run_computation(self,comp: models.ComputationDefinition,local: bool=False,keyswitch: bool=True,decrypt: bool=True) -> List[DataObject]:
+        Returns:
+            List[str]: a list of the email addresses of the authorized users
+        """
+        return self.model.authorized_users
+
+    def run_computation(
+        self,
+        comp: models.ComputationDefinition,
+        local: bool = False,
+        keyswitch: bool = True,
+        decrypt: bool = True,
+    ) -> List[DataObject]:
         """
         run_computation runs the given computation definition and returns the list of resulting dataobjects
 
@@ -266,7 +347,9 @@ class Project:
         """
         runner = self.get_runner()
         comp.data_source_parameters = models.ComputationDataSourceParameters()
-        return runner.run_computation(comp=comp,local=local,keyswitch=keyswitch,decrypt=decrypt)
+        return runner.run_computation(
+            comp=comp, local=local, keyswitch=keyswitch, decrypt=decrypt
+        )
 
     def run_project(self) -> models.Project:
         """Run the computation defined on the project
@@ -274,14 +357,11 @@ class Project:
         Returns:
             models.Project: Project Computation Created
         """
-        response : Response[models.Project] = post_project_computation.sync_detailed(
-            project_id=self.get_id(),
-            client=self.client,
-            json_body=None
+        response: Response[models.Project] = post_project_computation.sync_detailed(
+            project_id=self.get_id(), client=self.client, json_body=None
         )
         validate_response(response)
         return response.parsed
-
 
     def new_aggregation(self) -> Aggregation:
         """
@@ -290,8 +370,7 @@ class Project:
         Returns:
             StatisticalAggregation: The aggregation computation
         """
-        return Aggregation(client=self.client,project_id=self.get_id())
-
+        return Aggregation(client=self.client, project_id=self.get_id())
 
     def new_enc_aggregation(self) -> EncryptedAggregation:
         """
@@ -300,8 +379,14 @@ class Project:
         Returns:
             Aggregation: The aggregation computation
         """
-        return EncryptedAggregation(client=self.client,project_id=self.get_id())
+        return EncryptedAggregation(client=self.client, project_id=self.get_id())
 
+    def new_enc_mean(self) -> EncryptedMean:
+        """
+        new_enc_mean returns a new EncryptedMean computation runner.
+
+        """
+        return EncryptedMean(client=self.client, project_id=self.get_id())
 
     def new_cohort(self) -> Cohort:
         """
@@ -310,7 +395,7 @@ class Project:
         Returns:
             Cohort: The cohort
         """
-        return Cohort(client=self.client,project_id=self.get_id())
+        return Cohort(client=self.client, project_id=self.get_id())
 
     def new_gwas(self) -> GWAS:
         """
@@ -319,23 +404,36 @@ class Project:
         Returns:
             GWAS: The GWAS computation
         """
-        return GWAS(client=self.client,project_id=self.get_id())
+        return GWAS(client=self.client, project_id=self.get_id())
 
-    def new_linear_regression(self, continuous_labels:bool = False) -> LinearRegression:
+    def new_linear_regression(
+        self, continuous_labels: bool = False
+    ) -> LinearRegression:
         """
         new_linear_regression returns a new LinearRegression which can be computed by running the project
         Returns:
             LinearRegression: The linear regression computation
         """
-        return LinearRegression(client=self.client,project_id=self.get_id(), continuous_labels=continuous_labels)
+        return LinearRegression(
+            client=self.client,
+            project_id=self.get_id(),
+            continuous_labels=continuous_labels,
+        )
 
-    def new_logistic_regression(self, approximation_params:models.approximation_params.ApproximationParams=UNSET) -> LogisticRegression:
+    def new_logistic_regression(
+        self,
+        approximation_params: models.approximation_params.ApproximationParams = UNSET,
+    ) -> LogisticRegression:
         """
         new_logistic_regression returns a new LogisticRegression which can be computed by running the project
         Returns:
             LogisticRegression: The logistic regression computation
         """
-        return LogisticRegression(client=self.client,project_id=self.get_id(), approximation_params=approximation_params)
+        return LogisticRegression(
+            client=self.client,
+            project_id=self.get_id(),
+            approximation_params=approximation_params,
+        )
 
     def new_poisson_regression(self) -> PoissonRegression:
         """
@@ -343,82 +441,89 @@ class Project:
         Returns:
             PoissonRegressor: The poisson regression computation
         """
-        return PoissonRegression(client=self.client,project_id=self.get_id())
-
+        return PoissonRegression(client=self.client, project_id=self.get_id())
 
     def new_survival_aggregation(self) -> SurvivalAggregation:
         """
-    new_survival_aggregation returns a new SurvivalAggregation which can be computed by running the project
-    Returns:
-        SurvivalAggregation: The survival aggregation computation
-    """
-        return SurvivalAggregation(client=self.client,project_id=self.get_id())
-
+        new_survival_aggregation returns a new SurvivalAggregation which can be computed by running the project
+        Returns:
+            SurvivalAggregation: The survival aggregation computation
+        """
+        return SurvivalAggregation(client=self.client, project_id=self.get_id())
 
     def new_secure_join(self) -> SecureJoin:
-        '''
+        """
         new_secure_join returns a new SecureJoin which can be computed by running the project
 
         Returns:
             SecureJoin: the secure join computation instance
-        '''
-        return SecureJoin(client=self.client,project_id=self.get_id())
+        """
+        return SecureJoin(client=self.client, project_id=self.get_id())
 
     def new_hybrid_fl(self) -> HybridFL:
-        '''
+        """
         new_hybrid_fl returns a new HybridFL which can be computed by running the project
 
         Returns:
             HybridFL: the hybrid federated learning computation instance
-        '''
+        """
         return HybridFL(client=self.client, project_id=self.get_id())
 
     def new_statistics(self) -> DatasetStatistics:
-        '''
+        """
         new_statistics returns a new DatasetStatistics instance which can run statistics on the project
 
         Returns:
             DatasetStatistics: the dataset statistics computation instance
-        '''
-        return DatasetStatistics(client=self.client,project_id=self.get_id())
+        """
+        return DatasetStatistics(client=self.client, project_id=self.get_id())
 
+    def new_intersection(self) -> SetIntersection:
+        """
+        new_intersection creates a new set intersection computation instance
 
-    def set_policy(self,policy: Policy):
-        '''
+        Returns:
+            SetIntersection: the set intersection computation instance
+        """
+        return SetIntersection(client=self.client, project_id=self.get_id())
+
+    def set_policy(self, policy: Policy):
+        """
         set_policy sets the policy to the project
 
         Args:
             policy (Policy): the policy to add to the project
-        '''
+        """
         proj_def = models.ProjectDefinition(policy=policy)
         self.patch(proj_def=proj_def)
 
-    def display_policy(self,detailed:bool = False,show_queries: bool = False):
-        '''
+    def display_policy(self, detailed: bool = False, show_queries: bool = False):
+        """
         display_policy displays the policies associated to the project
 
         Args:
             detailed (bool, optional): shows additional policy details if set to true such as the json of the policy. Defaults to False.
             show_queries (bool, optional): shows the set of authorized SQL queries. Defaults to False.
-        '''
+        """
         policy = self.model.policy
-        display(Markdown(f'# {self.model.name} Policy'))
+        display(Markdown(f"# {self.model.name} Policy"))
         if policy is Unset:
             print("project has no policy")
-        if isinstance(policy,Unset):
+        if isinstance(policy, Unset):
             return
-        display_policy(policy,detailed=detailed,show_queries=show_queries)
-
+        display_policy(policy, detailed=detailed, show_queries=show_queries)
 
     def local_data_selection(self) -> LocalDataSelection:
-        '''
+        """
         local_data_selection returns the local data selection settings for the project
 
         Returns:
             LocalDataSelection: the data selection settings that can be updated by the user
-        '''
+        """
 
-        def update_func(definition: models.LocalDataSelectionDefinition) -> models.LocalDataSelection:
+        def update_func(
+            definition: models.LocalDataSelectionDefinition,
+        ) -> models.LocalDataSelection:
             proj_def = models.ProjectDefinition()
             proj_def.local_data_selection_definition = definition
             self.patch(proj_def)
@@ -429,15 +534,83 @@ class Project:
         self.refresh()
         return lds
 
-
     def display_workflow(self):
-        '''
+        """
         display_workflow displays the workflow description for the project
-        '''
+        """
         self.refresh()
         display(Markdown(self.model.workflow_description))
 
+    def set_computation_type(self, comp_type: Type):
+        """set_computation_type sets the computation type of the project's computation definition
 
-    def set_computation_type(self,comp_type: Type):
+        Args:
+            comp_type (Type): _description_
+        """
         definition = models.ComputationDefinition(type=comp_type)
         self.set_computation(definition)
+
+    def set_contribution_status(self, contributes: bool):
+        """
+        set_contribution_status sets the local contributing status of the instance.
+        If 'contributes' is set to false, then the instance will not contribute any data when
+        running computation.
+
+        Args:
+            contributes (bool): whether the instance contributes data.
+        """
+        proj_def = models.ProjectDefinition()
+        proj_def.non_contributor = not contributes
+        self.patch(proj_def=proj_def)
+
+    def get_latest_measurements(self):
+        """
+        get_latest_measurements returns a dictionary that contains the benchmarking measurement of the last computation
+        that was run in the project. The dictionary contains benchmarking information about the processing time and
+        memory allocation at each phase of the computation.
+
+        Returns:
+            dict: a dictionary containing the measurements.
+        """
+        self.refresh()
+        res = {}
+        latest_comp = None
+        comps: List[models.Computation] = self.model.computations
+        for comp in comps:
+            if comp.definition.type != models.ComputationType.COLLECTIVEKEYSWITCH:
+                latest_comp = comp
+                break
+        if latest_comp is None:
+            return res
+        measurements: List[models.Measurement] = latest_comp.measurements
+        for measure in measurements:
+            start_datetime = isoparse(measure.start[:-1])
+            end_datetime = isoparse(measure.end[:-1])
+            time_diff_seconds = (end_datetime - start_datetime).total_seconds()
+            measurement = {
+                "Processing time (seconds)": round(time_diff_seconds, 3),
+                "Memory allocated (bytes)": measure.allocated,
+            }
+            res[measure.name] = measurement
+        start_datetime = isoparse(latest_comp.started_at[:-1])
+        end_datetime = isoparse(latest_comp.ended_at[:-1])
+        time_diff_seconds = (end_datetime - start_datetime).total_seconds()
+        res["Total time"] = round(time_diff_seconds, 3)
+        return res
+
+    def display_previous_workflow(self):
+        """
+        display_previous_workflow displays (compatible with jupyter notebooks) a markdown workflow summary of the last computation
+        that was run in the project.
+        """
+        self.refresh()
+        if len(self.model.computations) == 0:
+            display(Markdown("No computation have been run with this project"))
+            return
+        comp = self.model.computations[0].definition
+        response: Response[models.DocumentationResponse200] = (
+            documentation.sync_detailed(client=self.client, json_body=comp)
+        )
+        validate_response(response)
+        md_doc = response.parsed.description.replace("\n", "\n\n")
+        display(Markdown(md_doc))

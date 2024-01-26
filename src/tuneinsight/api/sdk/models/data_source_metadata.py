@@ -16,15 +16,16 @@ class DataSourceMetadata:
     """metadata about a datasource
 
     Attributes:
-        tables (Union[Unset, List['DataSourceTable']]):
         metadata_available (Union[Unset, bool]): whether or not the datasource supports returning metadata
+        tables (Union[Unset, List['DataSourceTable']]):
     """
 
-    tables: Union[Unset, List["DataSourceTable"]] = UNSET
     metadata_available: Union[Unset, bool] = UNSET
+    tables: Union[Unset, List["DataSourceTable"]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        metadata_available = self.metadata_available
         tables: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.tables, Unset):
             tables = []
@@ -33,15 +34,13 @@ class DataSourceMetadata:
 
                 tables.append(tables_item)
 
-        metadata_available = self.metadata_available
-
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if tables is not UNSET:
-            field_dict["tables"] = tables
         if metadata_available is not UNSET:
             field_dict["metadataAvailable"] = metadata_available
+        if tables is not UNSET:
+            field_dict["tables"] = tables
 
         return field_dict
 
@@ -50,6 +49,8 @@ class DataSourceMetadata:
         from ..models.data_source_table import DataSourceTable
 
         d = src_dict.copy()
+        metadata_available = d.pop("metadataAvailable", UNSET)
+
         tables = []
         _tables = d.pop("tables", UNSET)
         for tables_item_data in _tables or []:
@@ -57,11 +58,9 @@ class DataSourceMetadata:
 
             tables.append(tables_item)
 
-        metadata_available = d.pop("metadataAvailable", UNSET)
-
         data_source_metadata = cls(
-            tables=tables,
             metadata_available=metadata_available,
+            tables=tables,
         )
 
         data_source_metadata.additional_properties = d

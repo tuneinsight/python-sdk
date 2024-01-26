@@ -14,6 +14,7 @@ from ...models.dataset_statistics import DatasetStatistics
 from ...models.distributed_join import DistributedJoin
 from ...models.dummy import Dummy
 from ...models.encrypted_aggregation import EncryptedAggregation
+from ...models.encrypted_mean import EncryptedMean
 from ...models.encrypted_prediction import EncryptedPrediction
 from ...models.encrypted_regression import EncryptedRegression
 from ...models.error import Error
@@ -45,6 +46,7 @@ def _get_kwargs(
         "DistributedJoin",
         "Dummy",
         "EncryptedAggregation",
+        "EncryptedMean",
         "EncryptedPrediction",
         "EncryptedRegression",
         "GWAS",
@@ -135,6 +137,9 @@ def _get_kwargs(
     elif isinstance(json_body, PrivateSearch):
         json_json_body = json_body.to_dict()
 
+    elif isinstance(json_body, PrivateSearchSetup):
+        json_json_body = json_body.to_dict()
+
     else:
         json_json_body = json_body.to_dict()
 
@@ -196,6 +201,7 @@ def sync_detailed(
         "DistributedJoin",
         "Dummy",
         "EncryptedAggregation",
+        "EncryptedMean",
         "EncryptedPrediction",
         "EncryptedRegression",
         "GWAS",
@@ -218,9 +224,9 @@ def sync_detailed(
     Args:
         json_body (Union['AggregatedDatasetLength', 'Bootstrap', 'CollectiveKeyGen',
             'CollectiveKeySwitch', 'DatasetStatistics', 'DistributedJoin', 'Dummy',
-            'EncryptedAggregation', 'EncryptedPrediction', 'EncryptedRegression', 'GWAS', 'HybridFL',
-            'KeySwitchedComputation', 'PrivateSearch', 'PrivateSearchSetup', 'RelinKeyGen',
-            'RotKeyGen', 'SampleExtraction', 'SetIntersection', 'SetupSession',
+            'EncryptedAggregation', 'EncryptedMean', 'EncryptedPrediction', 'EncryptedRegression',
+            'GWAS', 'HybridFL', 'KeySwitchedComputation', 'PrivateSearch', 'PrivateSearchSetup',
+            'RelinKeyGen', 'RotKeyGen', 'SampleExtraction', 'SetIntersection', 'SetupSession',
             'StatisticalAggregation', 'SurvivalAggregation', 'VBinnedAggregation']):
 
     Raises:
@@ -256,6 +262,7 @@ def sync(
         "DistributedJoin",
         "Dummy",
         "EncryptedAggregation",
+        "EncryptedMean",
         "EncryptedPrediction",
         "EncryptedRegression",
         "GWAS",
@@ -278,9 +285,9 @@ def sync(
     Args:
         json_body (Union['AggregatedDatasetLength', 'Bootstrap', 'CollectiveKeyGen',
             'CollectiveKeySwitch', 'DatasetStatistics', 'DistributedJoin', 'Dummy',
-            'EncryptedAggregation', 'EncryptedPrediction', 'EncryptedRegression', 'GWAS', 'HybridFL',
-            'KeySwitchedComputation', 'PrivateSearch', 'PrivateSearchSetup', 'RelinKeyGen',
-            'RotKeyGen', 'SampleExtraction', 'SetIntersection', 'SetupSession',
+            'EncryptedAggregation', 'EncryptedMean', 'EncryptedPrediction', 'EncryptedRegression',
+            'GWAS', 'HybridFL', 'KeySwitchedComputation', 'PrivateSearch', 'PrivateSearchSetup',
+            'RelinKeyGen', 'RotKeyGen', 'SampleExtraction', 'SetIntersection', 'SetupSession',
             'StatisticalAggregation', 'SurvivalAggregation', 'VBinnedAggregation']):
 
     Raises:
@@ -309,6 +316,7 @@ async def asyncio_detailed(
         "DistributedJoin",
         "Dummy",
         "EncryptedAggregation",
+        "EncryptedMean",
         "EncryptedPrediction",
         "EncryptedRegression",
         "GWAS",
@@ -331,9 +339,9 @@ async def asyncio_detailed(
     Args:
         json_body (Union['AggregatedDatasetLength', 'Bootstrap', 'CollectiveKeyGen',
             'CollectiveKeySwitch', 'DatasetStatistics', 'DistributedJoin', 'Dummy',
-            'EncryptedAggregation', 'EncryptedPrediction', 'EncryptedRegression', 'GWAS', 'HybridFL',
-            'KeySwitchedComputation', 'PrivateSearch', 'PrivateSearchSetup', 'RelinKeyGen',
-            'RotKeyGen', 'SampleExtraction', 'SetIntersection', 'SetupSession',
+            'EncryptedAggregation', 'EncryptedMean', 'EncryptedPrediction', 'EncryptedRegression',
+            'GWAS', 'HybridFL', 'KeySwitchedComputation', 'PrivateSearch', 'PrivateSearchSetup',
+            'RelinKeyGen', 'RotKeyGen', 'SampleExtraction', 'SetIntersection', 'SetupSession',
             'StatisticalAggregation', 'SurvivalAggregation', 'VBinnedAggregation']):
 
     Raises:
@@ -367,6 +375,7 @@ async def asyncio(
         "DistributedJoin",
         "Dummy",
         "EncryptedAggregation",
+        "EncryptedMean",
         "EncryptedPrediction",
         "EncryptedRegression",
         "GWAS",
@@ -389,9 +398,9 @@ async def asyncio(
     Args:
         json_body (Union['AggregatedDatasetLength', 'Bootstrap', 'CollectiveKeyGen',
             'CollectiveKeySwitch', 'DatasetStatistics', 'DistributedJoin', 'Dummy',
-            'EncryptedAggregation', 'EncryptedPrediction', 'EncryptedRegression', 'GWAS', 'HybridFL',
-            'KeySwitchedComputation', 'PrivateSearch', 'PrivateSearchSetup', 'RelinKeyGen',
-            'RotKeyGen', 'SampleExtraction', 'SetIntersection', 'SetupSession',
+            'EncryptedAggregation', 'EncryptedMean', 'EncryptedPrediction', 'EncryptedRegression',
+            'GWAS', 'HybridFL', 'KeySwitchedComputation', 'PrivateSearch', 'PrivateSearchSetup',
+            'RelinKeyGen', 'RotKeyGen', 'SampleExtraction', 'SetIntersection', 'SetupSession',
             'StatisticalAggregation', 'SurvivalAggregation', 'VBinnedAggregation']):
 
     Raises:

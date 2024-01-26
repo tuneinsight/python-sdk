@@ -13,32 +13,32 @@ class Cut:
     """
     Attributes:
         type (PreprocessingOperationType): type of preprocessing operation
-        cuts (Union[Unset, List[float]]): cuts to use
-        input_ (Union[Unset, str]): column to use as input
         labels (Union[Unset, List[str]]): labels to use for the cuts
         output (Union[Unset, str]): column to use as output
+        cuts (Union[Unset, List[float]]): cuts to use
+        input_ (Union[Unset, str]): column to use as input
     """
 
     type: PreprocessingOperationType
-    cuts: Union[Unset, List[float]] = UNSET
-    input_: Union[Unset, str] = UNSET
     labels: Union[Unset, List[str]] = UNSET
     output: Union[Unset, str] = UNSET
+    cuts: Union[Unset, List[float]] = UNSET
+    input_: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         type = self.type.value
 
-        cuts: Union[Unset, List[float]] = UNSET
-        if not isinstance(self.cuts, Unset):
-            cuts = self.cuts
-
-        input_ = self.input_
         labels: Union[Unset, List[str]] = UNSET
         if not isinstance(self.labels, Unset):
             labels = self.labels
 
         output = self.output
+        cuts: Union[Unset, List[float]] = UNSET
+        if not isinstance(self.cuts, Unset):
+            cuts = self.cuts
+
+        input_ = self.input_
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -47,14 +47,14 @@ class Cut:
                 "type": type,
             }
         )
-        if cuts is not UNSET:
-            field_dict["cuts"] = cuts
-        if input_ is not UNSET:
-            field_dict["input"] = input_
         if labels is not UNSET:
             field_dict["labels"] = labels
         if output is not UNSET:
             field_dict["output"] = output
+        if cuts is not UNSET:
+            field_dict["cuts"] = cuts
+        if input_ is not UNSET:
+            field_dict["input"] = input_
 
         return field_dict
 
@@ -63,20 +63,20 @@ class Cut:
         d = src_dict.copy()
         type = PreprocessingOperationType(d.pop("type"))
 
-        cuts = cast(List[float], d.pop("cuts", UNSET))
-
-        input_ = d.pop("input", UNSET)
-
         labels = cast(List[str], d.pop("labels", UNSET))
 
         output = d.pop("output", UNSET)
 
+        cuts = cast(List[float], d.pop("cuts", UNSET))
+
+        input_ = d.pop("input", UNSET)
+
         cut = cls(
             type=type,
-            cuts=cuts,
-            input_=input_,
             labels=labels,
             output=output,
+            cuts=cuts,
+            input_=input_,
         )
 
         cut.additional_properties = d

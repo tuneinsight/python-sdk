@@ -22,24 +22,32 @@ class ComputationPreprocessingParameters:
     """dataframe pre-processing parameters applied to the input retrieved from the datasource, if applicable
 
     Attributes:
+        global_preprocessing (Union[Unset, PreprocessingChain]): Chain of preprocessing operations applied to the input
+            dataframe
+        select (Union[Unset, Select]):
         compound_preprocessing (Union[Unset, ComputationPreprocessingParametersCompoundPreprocessing]): preprocessing to
             be applied for each node
         dataset_schema (Union[Unset, DatasetSchema]): dataset schema definition used to validate input datasets.
         filters (Union[Unset, List['LogicalFormula']]): list of filters to apply to the input dataframe (applied after
             the preprocessing is run)
-        global_preprocessing (Union[Unset, PreprocessingChain]): Chain of preprocessing operations applied to the input
-            dataframe
-        select (Union[Unset, Select]):
     """
 
+    global_preprocessing: Union[Unset, "PreprocessingChain"] = UNSET
+    select: Union[Unset, "Select"] = UNSET
     compound_preprocessing: Union[Unset, "ComputationPreprocessingParametersCompoundPreprocessing"] = UNSET
     dataset_schema: Union[Unset, "DatasetSchema"] = UNSET
     filters: Union[Unset, List["LogicalFormula"]] = UNSET
-    global_preprocessing: Union[Unset, "PreprocessingChain"] = UNSET
-    select: Union[Unset, "Select"] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        global_preprocessing: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.global_preprocessing, Unset):
+            global_preprocessing = self.global_preprocessing.to_dict()
+
+        select: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.select, Unset):
+            select = self.select.to_dict()
+
         compound_preprocessing: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.compound_preprocessing, Unset):
             compound_preprocessing = self.compound_preprocessing.to_dict()
@@ -56,27 +64,19 @@ class ComputationPreprocessingParameters:
 
                 filters.append(filters_item)
 
-        global_preprocessing: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.global_preprocessing, Unset):
-            global_preprocessing = self.global_preprocessing.to_dict()
-
-        select: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.select, Unset):
-            select = self.select.to_dict()
-
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if global_preprocessing is not UNSET:
+            field_dict["globalPreprocessing"] = global_preprocessing
+        if select is not UNSET:
+            field_dict["select"] = select
         if compound_preprocessing is not UNSET:
             field_dict["compoundPreprocessing"] = compound_preprocessing
         if dataset_schema is not UNSET:
             field_dict["datasetSchema"] = dataset_schema
         if filters is not UNSET:
             field_dict["filters"] = filters
-        if global_preprocessing is not UNSET:
-            field_dict["globalPreprocessing"] = global_preprocessing
-        if select is not UNSET:
-            field_dict["select"] = select
 
         return field_dict
 
@@ -91,6 +91,20 @@ class ComputationPreprocessingParameters:
         from ..models.select import Select
 
         d = src_dict.copy()
+        _global_preprocessing = d.pop("globalPreprocessing", UNSET)
+        global_preprocessing: Union[Unset, PreprocessingChain]
+        if isinstance(_global_preprocessing, Unset):
+            global_preprocessing = UNSET
+        else:
+            global_preprocessing = PreprocessingChain.from_dict(_global_preprocessing)
+
+        _select = d.pop("select", UNSET)
+        select: Union[Unset, Select]
+        if isinstance(_select, Unset):
+            select = UNSET
+        else:
+            select = Select.from_dict(_select)
+
         _compound_preprocessing = d.pop("compoundPreprocessing", UNSET)
         compound_preprocessing: Union[Unset, ComputationPreprocessingParametersCompoundPreprocessing]
         if isinstance(_compound_preprocessing, Unset):
@@ -114,26 +128,12 @@ class ComputationPreprocessingParameters:
 
             filters.append(filters_item)
 
-        _global_preprocessing = d.pop("globalPreprocessing", UNSET)
-        global_preprocessing: Union[Unset, PreprocessingChain]
-        if isinstance(_global_preprocessing, Unset):
-            global_preprocessing = UNSET
-        else:
-            global_preprocessing = PreprocessingChain.from_dict(_global_preprocessing)
-
-        _select = d.pop("select", UNSET)
-        select: Union[Unset, Select]
-        if isinstance(_select, Unset):
-            select = UNSET
-        else:
-            select = Select.from_dict(_select)
-
         computation_preprocessing_parameters = cls(
+            global_preprocessing=global_preprocessing,
+            select=select,
             compound_preprocessing=compound_preprocessing,
             dataset_schema=dataset_schema,
             filters=filters,
-            global_preprocessing=global_preprocessing,
-            select=select,
         )
 
         computation_preprocessing_parameters.additional_properties = d

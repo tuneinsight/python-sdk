@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 
 from tuneinsight.api.sdk import models
-from tuneinsight.api.sdk.types import  Response
+from tuneinsight.api.sdk.types import Response
 from tuneinsight.api.sdk.api.api_private_search import get_private_search_database
 from tuneinsight.client.session import PIRSession
 from tuneinsight.client.project import Project
@@ -13,15 +13,13 @@ from tuneinsight.utils.plots import style_plot
 
 
 class PrivateSearch(ComputationRunner):
-    """ Private Search computation
-
-    """
+    """Private Search computation"""
 
     pir_db: models.PrivateSearchDatabase
-    pir_dataset_id: str = ''
+    pir_dataset_id: str = ""
     session: PIRSession
 
-    def __init__(self,project: Project, pir_dataset: str):
+    def __init__(self, project: Project, pir_dataset: str):
         """
         __init__ initializes the private search computation and the corresponding session
 
@@ -36,7 +34,6 @@ class PrivateSearch(ComputationRunner):
 
         self.session = PIRSession(self.client, self.pir_db)
         self.session.upload_eval_keys()
-
 
     def query(self, query: str) -> pd.DataFrame:
         """Perform a private search query
@@ -53,12 +50,17 @@ class PrivateSearch(ComputationRunner):
             pir.pir_search_object_id = self.session.encrypt_query(query)
         except ValueError:
             return pd.DataFrame()
-        dataobjects = super().run_computation(comp=pir,keyswitch=False,decrypt=False)
+        dataobjects = super().run_computation(comp=pir, keyswitch=False, decrypt=False)
         result = dataobjects[0].get_raw_data()
         return self.session.decrypt_response(result)
 
     @staticmethod
-    def filter_result(result: pd.DataFrame, start: str = None, end: str = None, granularity: str = None) -> pd.DataFrame:
+    def filter_result(
+        result: pd.DataFrame,
+        start: str = None,
+        end: str = None,
+        granularity: str = None,
+    ) -> pd.DataFrame:
         """Filter the query result on dates
 
         Args:
@@ -77,12 +79,19 @@ class PrivateSearch(ComputationRunner):
             filtered_result = filtered_result.loc[:end]
         if granularity is not None:
             filtered_result = filtered_result.reset_index()
-            filtered_result['Date'] = pd.to_datetime(filtered_result['index'])
-            filtered_result = filtered_result.resample(granularity, on='Date').sum()
+            filtered_result["Date"] = pd.to_datetime(filtered_result["index"])
+            filtered_result = filtered_result.resample(granularity, on="Date").sum()
         return filtered_result.transpose()
 
     @staticmethod
-    def plot_result(result: pd.DataFrame, title:str,x_label:str, y_label:str, size:tuple=(8,4),timestamps: bool = False):
+    def plot_result(
+        result: pd.DataFrame,
+        title: str,
+        x_label: str,
+        y_label: str,
+        size: tuple = (8, 4),
+        timestamps: bool = False,
+    ):
         """Plot the private search result
 
         Args:
@@ -109,7 +118,6 @@ class PrivateSearch(ComputationRunner):
 
         plt.show()
 
-
     def get_pir_db(self) -> models.PrivateSearchDatabase:
         """Retrieve the private search database given the client and database id
 
@@ -117,6 +125,10 @@ class PrivateSearch(ComputationRunner):
             models.PrivateSearchDatabase: the private search database
         """
         self.client.timeout = 30
-        response: Response[models.PrivateSearchDatabase] = get_private_search_database.sync_detailed(client=self.client,database_id=self.pir_dataset_id)
+        response: Response[models.PrivateSearchDatabase] = (
+            get_private_search_database.sync_detailed(
+                client=self.client, database_id=self.pir_dataset_id
+            )
+        )
         validate_response(response)
         return response.parsed

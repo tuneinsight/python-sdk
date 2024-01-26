@@ -18,21 +18,17 @@ class ResultContent:
     """result along with content and computation details
 
     Attributes:
-        computation (Union[Unset, Computation]): Metadata of a computation.
         content (Union[Unset, Content]): Content that can be retrieved and displayed for the user
         result (Union[Unset, Result]):
+        computation (Union[Unset, Computation]): Metadata of a computation.
     """
 
-    computation: Union[Unset, "Computation"] = UNSET
     content: Union[Unset, "Content"] = UNSET
     result: Union[Unset, "Result"] = UNSET
+    computation: Union[Unset, "Computation"] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        computation: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.computation, Unset):
-            computation = self.computation.to_dict()
-
         content: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.content, Unset):
             content = self.content.to_dict()
@@ -41,15 +37,19 @@ class ResultContent:
         if not isinstance(self.result, Unset):
             result = self.result.to_dict()
 
+        computation: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.computation, Unset):
+            computation = self.computation.to_dict()
+
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if computation is not UNSET:
-            field_dict["computation"] = computation
         if content is not UNSET:
             field_dict["content"] = content
         if result is not UNSET:
             field_dict["result"] = result
+        if computation is not UNSET:
+            field_dict["computation"] = computation
 
         return field_dict
 
@@ -60,13 +60,6 @@ class ResultContent:
         from ..models.result import Result
 
         d = src_dict.copy()
-        _computation = d.pop("computation", UNSET)
-        computation: Union[Unset, Computation]
-        if isinstance(_computation, Unset):
-            computation = UNSET
-        else:
-            computation = Computation.from_dict(_computation)
-
         _content = d.pop("content", UNSET)
         content: Union[Unset, Content]
         if isinstance(_content, Unset):
@@ -81,10 +74,17 @@ class ResultContent:
         else:
             result = Result.from_dict(_result)
 
+        _computation = d.pop("computation", UNSET)
+        computation: Union[Unset, Computation]
+        if isinstance(_computation, Unset):
+            computation = UNSET
+        else:
+            computation = Computation.from_dict(_computation)
+
         result_content = cls(
-            computation=computation,
             content=content,
             result=result,
+            computation=computation,
         )
 
         result_content.additional_properties = d

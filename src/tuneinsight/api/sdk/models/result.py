@@ -20,29 +20,29 @@ class Result:
         tags (Union[Unset, List[str]]):
         title (Union[Unset, str]): title given to the result
         is_large (Union[Unset, None, bool]): format to display the result
-        metadata (Union[Unset, ResultMetadata]): various metadata field along with the result to provide additional
-            context
-        owner (Union[Unset, str]):
-        updated_at (Union[Unset, str]):
         computation_id (Union[Unset, str]): Identifier of a computation, unique across all computing nodes.
         computation_type (Union[Unset, ComputationType]): Type of the computation.
         created_at (Union[Unset, str]):
         data_object_id (Union[Unset, str]): Unique identifier of a data object.
         id (Union[Unset, str]): Unique identifier of a result.
+        metadata (Union[Unset, ResultMetadata]): various metadata field along with the result to provide additional
+            context
+        owner (Union[Unset, str]):
+        updated_at (Union[Unset, str]):
     """
 
     shared: Union[Unset, None, bool] = UNSET
     tags: Union[Unset, List[str]] = UNSET
     title: Union[Unset, str] = UNSET
     is_large: Union[Unset, None, bool] = UNSET
-    metadata: Union[Unset, "ResultMetadata"] = UNSET
-    owner: Union[Unset, str] = UNSET
-    updated_at: Union[Unset, str] = UNSET
     computation_id: Union[Unset, str] = UNSET
     computation_type: Union[Unset, ComputationType] = UNSET
     created_at: Union[Unset, str] = UNSET
     data_object_id: Union[Unset, str] = UNSET
     id: Union[Unset, str] = UNSET
+    metadata: Union[Unset, "ResultMetadata"] = UNSET
+    owner: Union[Unset, str] = UNSET
+    updated_at: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -53,12 +53,6 @@ class Result:
 
         title = self.title
         is_large = self.is_large
-        metadata: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.metadata, Unset):
-            metadata = self.metadata.to_dict()
-
-        owner = self.owner
-        updated_at = self.updated_at
         computation_id = self.computation_id
         computation_type: Union[Unset, str] = UNSET
         if not isinstance(self.computation_type, Unset):
@@ -67,6 +61,12 @@ class Result:
         created_at = self.created_at
         data_object_id = self.data_object_id
         id = self.id
+        metadata: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.metadata, Unset):
+            metadata = self.metadata.to_dict()
+
+        owner = self.owner
+        updated_at = self.updated_at
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -79,12 +79,6 @@ class Result:
             field_dict["title"] = title
         if is_large is not UNSET:
             field_dict["isLarge"] = is_large
-        if metadata is not UNSET:
-            field_dict["metadata"] = metadata
-        if owner is not UNSET:
-            field_dict["owner"] = owner
-        if updated_at is not UNSET:
-            field_dict["updatedAt"] = updated_at
         if computation_id is not UNSET:
             field_dict["computationId"] = computation_id
         if computation_type is not UNSET:
@@ -95,6 +89,12 @@ class Result:
             field_dict["dataObjectId"] = data_object_id
         if id is not UNSET:
             field_dict["id"] = id
+        if metadata is not UNSET:
+            field_dict["metadata"] = metadata
+        if owner is not UNSET:
+            field_dict["owner"] = owner
+        if updated_at is not UNSET:
+            field_dict["updatedAt"] = updated_at
 
         return field_dict
 
@@ -111,17 +111,6 @@ class Result:
 
         is_large = d.pop("isLarge", UNSET)
 
-        _metadata = d.pop("metadata", UNSET)
-        metadata: Union[Unset, ResultMetadata]
-        if isinstance(_metadata, Unset):
-            metadata = UNSET
-        else:
-            metadata = ResultMetadata.from_dict(_metadata)
-
-        owner = d.pop("owner", UNSET)
-
-        updated_at = d.pop("updatedAt", UNSET)
-
         computation_id = d.pop("computationId", UNSET)
 
         _computation_type = d.pop("computationType", UNSET)
@@ -137,19 +126,30 @@ class Result:
 
         id = d.pop("id", UNSET)
 
+        _metadata = d.pop("metadata", UNSET)
+        metadata: Union[Unset, ResultMetadata]
+        if isinstance(_metadata, Unset):
+            metadata = UNSET
+        else:
+            metadata = ResultMetadata.from_dict(_metadata)
+
+        owner = d.pop("owner", UNSET)
+
+        updated_at = d.pop("updatedAt", UNSET)
+
         result = cls(
             shared=shared,
             tags=tags,
             title=title,
             is_large=is_large,
-            metadata=metadata,
-            owner=owner,
-            updated_at=updated_at,
             computation_id=computation_id,
             computation_type=computation_type,
             created_at=created_at,
             data_object_id=data_object_id,
             id=id,
+            metadata=metadata,
+            owner=owner,
+            updated_at=updated_at,
         )
 
         result.additional_properties = d

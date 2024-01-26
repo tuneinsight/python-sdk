@@ -21,23 +21,28 @@ class PrivacyBudgetParameters:
     More precisely, if a computation adds noise that is equivalent ϵ=0.1 then 0.1 of the privacy budget is used.
 
         Attributes:
+            allocation (Union[Unset, float]): budget allocated initially.
+            allocation_interval (Union[Unset, Duration]): definition of a date-independent time interval
             increment (Union[Unset, float]): value incremented after each allocation interval
             max_allocation (Union[Unset, float]): maximum value that can be taken by the privacy budget
             scope (Union[Unset, PrivacyBudgetParametersScope]): scope of the budget
             start (Union[Unset, datetime.datetime]): date time at which the budget is effective
-            allocation (Union[Unset, float]): budget allocated initially.
-            allocation_interval (Union[Unset, Duration]): definition of a date-independent time interval
     """
 
+    allocation: Union[Unset, float] = UNSET
+    allocation_interval: Union[Unset, "Duration"] = UNSET
     increment: Union[Unset, float] = UNSET
     max_allocation: Union[Unset, float] = UNSET
     scope: Union[Unset, PrivacyBudgetParametersScope] = UNSET
     start: Union[Unset, datetime.datetime] = UNSET
-    allocation: Union[Unset, float] = UNSET
-    allocation_interval: Union[Unset, "Duration"] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        allocation = self.allocation
+        allocation_interval: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.allocation_interval, Unset):
+            allocation_interval = self.allocation_interval.to_dict()
+
         increment = self.increment
         max_allocation = self.max_allocation
         scope: Union[Unset, str] = UNSET
@@ -48,14 +53,13 @@ class PrivacyBudgetParameters:
         if not isinstance(self.start, Unset):
             start = self.start.isoformat()
 
-        allocation = self.allocation
-        allocation_interval: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.allocation_interval, Unset):
-            allocation_interval = self.allocation_interval.to_dict()
-
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if allocation is not UNSET:
+            field_dict["allocation"] = allocation
+        if allocation_interval is not UNSET:
+            field_dict["allocationInterval"] = allocation_interval
         if increment is not UNSET:
             field_dict["increment"] = increment
         if max_allocation is not UNSET:
@@ -64,10 +68,6 @@ class PrivacyBudgetParameters:
             field_dict["scope"] = scope
         if start is not UNSET:
             field_dict["start"] = start
-        if allocation is not UNSET:
-            field_dict["allocation"] = allocation
-        if allocation_interval is not UNSET:
-            field_dict["allocationInterval"] = allocation_interval
 
         return field_dict
 
@@ -76,6 +76,15 @@ class PrivacyBudgetParameters:
         from ..models.duration import Duration
 
         d = src_dict.copy()
+        allocation = d.pop("allocation", UNSET)
+
+        _allocation_interval = d.pop("allocationInterval", UNSET)
+        allocation_interval: Union[Unset, Duration]
+        if isinstance(_allocation_interval, Unset):
+            allocation_interval = UNSET
+        else:
+            allocation_interval = Duration.from_dict(_allocation_interval)
+
         increment = d.pop("increment", UNSET)
 
         max_allocation = d.pop("maxAllocation", UNSET)
@@ -94,22 +103,13 @@ class PrivacyBudgetParameters:
         else:
             start = isoparse(_start)
 
-        allocation = d.pop("allocation", UNSET)
-
-        _allocation_interval = d.pop("allocationInterval", UNSET)
-        allocation_interval: Union[Unset, Duration]
-        if isinstance(_allocation_interval, Unset):
-            allocation_interval = UNSET
-        else:
-            allocation_interval = Duration.from_dict(_allocation_interval)
-
         privacy_budget_parameters = cls(
+            allocation=allocation,
+            allocation_interval=allocation_interval,
             increment=increment,
             max_allocation=max_allocation,
             scope=scope,
             start=start,
-            allocation=allocation,
-            allocation_interval=allocation_interval,
         )
 
         privacy_budget_parameters.additional_properties = d

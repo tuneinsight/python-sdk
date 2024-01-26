@@ -7,17 +7,23 @@ from ... import errors
 from ...client import Client
 from ...models.error import Error
 from ...models.get_network_metadata_response_200 import GetNetworkMetadataResponse200
-from ...types import Response
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
     client: Client,
+    force_network_sync: Union[Unset, None, bool] = False,
 ) -> Dict[str, Any]:
     url = "{}/network".format(client.base_url)
 
     headers: Dict[str, str] = client.get_headers()
     cookies: Dict[str, Any] = client.get_cookies()
+
+    params: Dict[str, Any] = {}
+    params["forceNetworkSync"] = force_network_sync
+
+    params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
     return {
         "method": "get",
@@ -25,6 +31,7 @@ def _get_kwargs(
         "headers": headers,
         "cookies": cookies,
         "timeout": client.get_timeout(),
+        "params": params,
     }
 
 
@@ -63,8 +70,12 @@ def _build_response(
 def sync_detailed(
     *,
     client: Client,
+    force_network_sync: Union[Unset, None, bool] = False,
 ) -> Response[Union[Error, GetNetworkMetadataResponse200]]:
     """Get network metadata: local instance configuration and nodes of the network
+
+    Args:
+        force_network_sync (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -76,6 +87,7 @@ def sync_detailed(
 
     kwargs = _get_kwargs(
         client=client,
+        force_network_sync=force_network_sync,
     )
 
     response = httpx.request(
@@ -89,8 +101,12 @@ def sync_detailed(
 def sync(
     *,
     client: Client,
+    force_network_sync: Union[Unset, None, bool] = False,
 ) -> Optional[Union[Error, GetNetworkMetadataResponse200]]:
     """Get network metadata: local instance configuration and nodes of the network
+
+    Args:
+        force_network_sync (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -102,14 +118,19 @@ def sync(
 
     return sync_detailed(
         client=client,
+        force_network_sync=force_network_sync,
     ).parsed
 
 
 async def asyncio_detailed(
     *,
     client: Client,
+    force_network_sync: Union[Unset, None, bool] = False,
 ) -> Response[Union[Error, GetNetworkMetadataResponse200]]:
     """Get network metadata: local instance configuration and nodes of the network
+
+    Args:
+        force_network_sync (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -121,6 +142,7 @@ async def asyncio_detailed(
 
     kwargs = _get_kwargs(
         client=client,
+        force_network_sync=force_network_sync,
     )
 
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
@@ -132,8 +154,12 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: Client,
+    force_network_sync: Union[Unset, None, bool] = False,
 ) -> Optional[Union[Error, GetNetworkMetadataResponse200]]:
     """Get network metadata: local instance configuration and nodes of the network
+
+    Args:
+        force_network_sync (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -146,5 +172,6 @@ async def asyncio(
     return (
         await asyncio_detailed(
             client=client,
+            force_network_sync=force_network_sync,
         )
     ).parsed

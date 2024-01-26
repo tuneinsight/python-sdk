@@ -17,27 +17,19 @@ class LogicalFormula:
     """logical formula composing filters
 
     Attributes:
-        right_formula (Union[Unset, LogicalFormula]): logical formula composing filters
-        single_filter (Union[Unset, Filter]):
         left_formula (Union[Unset, LogicalFormula]): logical formula composing filters
         operator (Union[Unset, LogicalFormulaOperator]):
+        right_formula (Union[Unset, LogicalFormula]): logical formula composing filters
+        single_filter (Union[Unset, Filter]):
     """
 
-    right_formula: Union[Unset, "LogicalFormula"] = UNSET
-    single_filter: Union[Unset, "Filter"] = UNSET
     left_formula: Union[Unset, "LogicalFormula"] = UNSET
     operator: Union[Unset, LogicalFormulaOperator] = UNSET
+    right_formula: Union[Unset, "LogicalFormula"] = UNSET
+    single_filter: Union[Unset, "Filter"] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        right_formula: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.right_formula, Unset):
-            right_formula = self.right_formula.to_dict()
-
-        single_filter: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.single_filter, Unset):
-            single_filter = self.single_filter.to_dict()
-
         left_formula: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.left_formula, Unset):
             left_formula = self.left_formula.to_dict()
@@ -46,17 +38,25 @@ class LogicalFormula:
         if not isinstance(self.operator, Unset):
             operator = self.operator.value
 
+        right_formula: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.right_formula, Unset):
+            right_formula = self.right_formula.to_dict()
+
+        single_filter: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.single_filter, Unset):
+            single_filter = self.single_filter.to_dict()
+
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if right_formula is not UNSET:
-            field_dict["rightFormula"] = right_formula
-        if single_filter is not UNSET:
-            field_dict["singleFilter"] = single_filter
         if left_formula is not UNSET:
             field_dict["leftFormula"] = left_formula
         if operator is not UNSET:
             field_dict["operator"] = operator
+        if right_formula is not UNSET:
+            field_dict["rightFormula"] = right_formula
+        if single_filter is not UNSET:
+            field_dict["singleFilter"] = single_filter
 
         return field_dict
 
@@ -65,20 +65,6 @@ class LogicalFormula:
         from ..models.filter_ import Filter
 
         d = src_dict.copy()
-        _right_formula = d.pop("rightFormula", UNSET)
-        right_formula: Union[Unset, LogicalFormula]
-        if isinstance(_right_formula, Unset):
-            right_formula = UNSET
-        else:
-            right_formula = LogicalFormula.from_dict(_right_formula)
-
-        _single_filter = d.pop("singleFilter", UNSET)
-        single_filter: Union[Unset, Filter]
-        if isinstance(_single_filter, Unset):
-            single_filter = UNSET
-        else:
-            single_filter = Filter.from_dict(_single_filter)
-
         _left_formula = d.pop("leftFormula", UNSET)
         left_formula: Union[Unset, LogicalFormula]
         if isinstance(_left_formula, Unset):
@@ -93,11 +79,25 @@ class LogicalFormula:
         else:
             operator = LogicalFormulaOperator(_operator)
 
+        _right_formula = d.pop("rightFormula", UNSET)
+        right_formula: Union[Unset, LogicalFormula]
+        if isinstance(_right_formula, Unset):
+            right_formula = UNSET
+        else:
+            right_formula = LogicalFormula.from_dict(_right_formula)
+
+        _single_filter = d.pop("singleFilter", UNSET)
+        single_filter: Union[Unset, Filter]
+        if isinstance(_single_filter, Unset):
+            single_filter = UNSET
+        else:
+            single_filter = Filter.from_dict(_single_filter)
+
         logical_formula = cls(
-            right_formula=right_formula,
-            single_filter=single_filter,
             left_formula=left_formula,
             operator=operator,
+            right_formula=right_formula,
+            single_filter=single_filter,
         )
 
         logical_formula.additional_properties = d

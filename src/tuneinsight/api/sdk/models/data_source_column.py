@@ -13,40 +13,43 @@ class DataSourceColumn:
     """column of a datasource includes name and type
 
     Attributes:
-        type_group (Union[Unset, ColumnTypeGroup]): represents a type group indicating the way the data may actually be
-            processed
         name (Union[Unset, str]):
         type (Union[Unset, str]):
+        type_group (Union[Unset, ColumnTypeGroup]): represents a type group indicating the way the data may actually be
+            processed
     """
 
-    type_group: Union[Unset, ColumnTypeGroup] = UNSET
     name: Union[Unset, str] = UNSET
     type: Union[Unset, str] = UNSET
+    type_group: Union[Unset, ColumnTypeGroup] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        name = self.name
+        type = self.type
         type_group: Union[Unset, str] = UNSET
         if not isinstance(self.type_group, Unset):
             type_group = self.type_group.value
 
-        name = self.name
-        type = self.type
-
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if type_group is not UNSET:
-            field_dict["typeGroup"] = type_group
         if name is not UNSET:
             field_dict["name"] = name
         if type is not UNSET:
             field_dict["type"] = type
+        if type_group is not UNSET:
+            field_dict["typeGroup"] = type_group
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
+        name = d.pop("name", UNSET)
+
+        type = d.pop("type", UNSET)
+
         _type_group = d.pop("typeGroup", UNSET)
         type_group: Union[Unset, ColumnTypeGroup]
         if isinstance(_type_group, Unset):
@@ -54,14 +57,10 @@ class DataSourceColumn:
         else:
             type_group = ColumnTypeGroup(_type_group)
 
-        name = d.pop("name", UNSET)
-
-        type = d.pop("type", UNSET)
-
         data_source_column = cls(
-            type_group=type_group,
             name=name,
             type=type,
+            type_group=type_group,
         )
 
         data_source_column.additional_properties = d

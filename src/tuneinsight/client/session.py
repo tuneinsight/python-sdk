@@ -1,17 +1,26 @@
 import pandas as pd
 from tuneinsight.api.sdk import Client
-from tuneinsight.api.sdk.models import SessionDefinition,DataObjectType,KeyInfo,PrivateSearchDatabase
+from tuneinsight.api.sdk.models import (
+    SessionDefinition,
+    DataObjectType,
+    KeyInfo,
+    PrivateSearchDatabase,
+)
 from tuneinsight.api.sdk.models import Session as APISession
 from tuneinsight.client.validation import validate_response
 from tuneinsight.api.sdk.api.api_sessions import post_session
 from tuneinsight.api.sdk.types import Response
-from tuneinsight.cryptolib.cryptolib import new_hefloat_operator_from_b64_scheme_context,get_relin_key_bytes,PIRContext
+from tuneinsight.cryptolib.cryptolib import (
+    new_hefloat_operator_from_b64_scheme_context,
+    get_relin_key_bytes,
+    PIRContext,
+)
 from tuneinsight.client.dataobject import DataObject
 from tuneinsight.utils.io import data_from_bytes
 
-class Session:
 
-    session_id : str
+class Session:
+    session_id: str
     client: Client
     cryptolib_params: str
 
@@ -27,7 +36,6 @@ class Session:
         self.cryptolib_params = cryptolib_params
         self.session_id = self._new_session()
 
-
     def _new_session(self) -> str:
         """
         Creates a new session
@@ -36,7 +44,9 @@ class Session:
             str: id of the new session
         """
         sess_def = SessionDefinition(params=self.cryptolib_params)
-        sess_resp: Response[APISession] = post_session.sync_detailed(client=self.client,json_body=sess_def)
+        sess_resp: Response[APISession] = post_session.sync_detailed(
+            client=self.client, json_body=sess_def
+        )
         validate_response(sess_resp)
         s_id = sess_resp.parsed.id
         return s_id
@@ -53,7 +63,14 @@ class Session:
         rlk_bytes = get_relin_key_bytes(cs_id)
         key_info = KeyInfo(collective=False)
         do_type = DataObjectType.RLWE_RELINEARIZATION_KEY
-        DataObject.create(client=self.client, do_type=do_type,session_id=self.session_id,encrypted=False,key_info=key_info,data=rlk_bytes)
+        DataObject.create(
+            client=self.client,
+            do_type=do_type,
+            session_id=self.session_id,
+            encrypted=False,
+            key_info=key_info,
+            data=rlk_bytes,
+        )
         return cs_id
 
     def upload_data(self, data: bytes, do_type: DataObjectType) -> str:
@@ -66,33 +83,40 @@ class Session:
         Returns:
             str: id of the uploaded data object
         """
-        data_object = DataObject.create(client=self.client,do_type=do_type,session_id=self.session_id,encrypted=True,data=data)
+        data_object = DataObject.create(
+            client=self.client,
+            do_type=do_type,
+            session_id=self.session_id,
+            encrypted=True,
+            data=data,
+        )
         return data_object.model.unique_id
 
 
 class PIRSession(Session):
-    """Session for private information retrieval protocol
-
-    """
+    """Session for private information retrieval protocol"""
 
     ctx: PIRContext
 
-
     def __init__(self, client, pir_db: PrivateSearchDatabase):
-        super().__init__(client,pir_db.cryptosystem_params)
-        self.ctx = PIRContext(pir_db.database_params,pir_db.database_index)
-
+        super().__init__(client, pir_db.cryptosystem_params)
+        self.ctx = PIRContext(pir_db.database_params, pir_db.database_index)
 
     def upload_eval_keys(self):
-        """Upload evaluation keys to PIR session
-        """
+        """Upload evaluation keys to PIR session"""
         evk = self.ctx.get_eva_key()
         key_info = KeyInfo(collective=False)
         do_type = DataObjectType.RLWE_MEM_EVALUATION_KEY_SET
-        DataObject.create(client=self.client, do_type=do_type,session_id=self.session_id,encrypted=False,key_info=key_info,data=evk)
+        DataObject.create(
+            client=self.client,
+            do_type=do_type,
+            session_id=self.session_id,
+            encrypted=False,
+            key_info=key_info,
+            data=evk,
+        )
 
-
-    def encrypt_query(self,query:str) -> str:
+    def encrypt_query(self, query: str) -> str:
         """Encrypt a private search query
 
         Args:
@@ -104,8 +128,7 @@ class PIRSession(Session):
         query_data = self.ctx.encrypt_query(query)
         return self.upload_data(query_data, DataObjectType.ENCRYPTED_PIR_SEARCH)
 
-
-    def decrypt_response(self,response:bytes) -> pd.DataFrame:
+    def decrypt_response(self, response: bytes) -> pd.DataFrame:
         """Decrypt a private search response
 
         Args:

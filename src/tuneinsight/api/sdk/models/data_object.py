@@ -14,25 +14,27 @@ class DataObject:
     """A data object definition.
 
     Attributes:
+        encrypted (Union[Unset, bool]):
+        has_data (Union[Unset, bool]): whether the dataobject's data has been set
         session_id (Union[Unset, str]): Unique identifier of a session
         shared_id (Union[Unset, str]): Shared identifier of a data object.
         type (Union[Unset, DataObjectType]): type of the dataobject
         unique_id (Union[Unset, str]): Unique identifier of a data object.
         visibility_status (Union[Unset, DataObjectVisibilityStatus]): type of visibility set to the dataobject
-        encrypted (Union[Unset, bool]):
-        has_data (Union[Unset, bool]): whether the dataobject's data has been set
     """
 
+    encrypted: Union[Unset, bool] = UNSET
+    has_data: Union[Unset, bool] = UNSET
     session_id: Union[Unset, str] = UNSET
     shared_id: Union[Unset, str] = UNSET
     type: Union[Unset, DataObjectType] = UNSET
     unique_id: Union[Unset, str] = UNSET
     visibility_status: Union[Unset, DataObjectVisibilityStatus] = UNSET
-    encrypted: Union[Unset, bool] = UNSET
-    has_data: Union[Unset, bool] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        encrypted = self.encrypted
+        has_data = self.has_data
         session_id = self.session_id
         shared_id = self.shared_id
         type: Union[Unset, str] = UNSET
@@ -44,12 +46,13 @@ class DataObject:
         if not isinstance(self.visibility_status, Unset):
             visibility_status = self.visibility_status.value
 
-        encrypted = self.encrypted
-        has_data = self.has_data
-
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if encrypted is not UNSET:
+            field_dict["encrypted"] = encrypted
+        if has_data is not UNSET:
+            field_dict["hasData"] = has_data
         if session_id is not UNSET:
             field_dict["sessionId"] = session_id
         if shared_id is not UNSET:
@@ -60,16 +63,16 @@ class DataObject:
             field_dict["uniqueId"] = unique_id
         if visibility_status is not UNSET:
             field_dict["visibilityStatus"] = visibility_status
-        if encrypted is not UNSET:
-            field_dict["encrypted"] = encrypted
-        if has_data is not UNSET:
-            field_dict["hasData"] = has_data
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
+        encrypted = d.pop("encrypted", UNSET)
+
+        has_data = d.pop("hasData", UNSET)
+
         session_id = d.pop("sessionId", UNSET)
 
         shared_id = d.pop("sharedId", UNSET)
@@ -90,18 +93,14 @@ class DataObject:
         else:
             visibility_status = DataObjectVisibilityStatus(_visibility_status)
 
-        encrypted = d.pop("encrypted", UNSET)
-
-        has_data = d.pop("hasData", UNSET)
-
         data_object = cls(
+            encrypted=encrypted,
+            has_data=has_data,
             session_id=session_id,
             shared_id=shared_id,
             type=type,
             unique_id=unique_id,
             visibility_status=visibility_status,
-            encrypted=encrypted,
-            has_data=has_data,
         )
 
         data_object.additional_properties = d

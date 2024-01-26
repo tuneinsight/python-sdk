@@ -1,11 +1,11 @@
 from http import HTTPStatus
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Optional, Union
 
 import httpx
 
 from ... import errors
 from ...client import Client
-from ...models.computation import Computation
+from ...models.computation_list_response import ComputationListResponse
 from ...models.error import Error
 from ...models.get_computation_list_order import GetComputationListOrder
 from ...models.get_computation_list_sort_by import GetComputationListSortBy
@@ -15,10 +15,14 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     *,
     client: Client,
-    limit: Union[Unset, None, int] = 50,
-    sort_by: Union[Unset, None, GetComputationListSortBy] = UNSET,
+    page: Union[Unset, None, int] = 1,
+    per_page: Union[Unset, None, int] = 30,
+    with_total: Union[Unset, None, bool] = True,
     order: Union[Unset, None, GetComputationListOrder] = UNSET,
+    sort_by: Union[Unset, None, GetComputationListSortBy] = UNSET,
+    limit: Union[Unset, None, int] = 50,
     show_non_visible: Union[Unset, None, bool] = False,
+    project_id: Union[Unset, None, str] = UNSET,
 ) -> Dict[str, Any]:
     url = "{}/computations".format(client.base_url)
 
@@ -26,13 +30,11 @@ def _get_kwargs(
     cookies: Dict[str, Any] = client.get_cookies()
 
     params: Dict[str, Any] = {}
-    params["limit"] = limit
+    params["page"] = page
 
-    json_sort_by: Union[Unset, None, str] = UNSET
-    if not isinstance(sort_by, Unset):
-        json_sort_by = sort_by.value if sort_by else None
+    params["perPage"] = per_page
 
-    params["sortBy"] = json_sort_by
+    params["withTotal"] = with_total
 
     json_order: Union[Unset, None, str] = UNSET
     if not isinstance(order, Unset):
@@ -40,7 +42,17 @@ def _get_kwargs(
 
     params["order"] = json_order
 
+    json_sort_by: Union[Unset, None, str] = UNSET
+    if not isinstance(sort_by, Unset):
+        json_sort_by = sort_by.value if sort_by else None
+
+    params["sortBy"] = json_sort_by
+
+    params["limit"] = limit
+
     params["showNonVisible"] = show_non_visible
+
+    params["projectId"] = project_id
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
@@ -54,14 +66,9 @@ def _get_kwargs(
     }
 
 
-def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[Error, List["Computation"]]]:
+def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[ComputationListResponse, Error]]:
     if response.status_code == HTTPStatus.OK:
-        response_200 = []
-        _response_200 = response.json()
-        for response_200_item_data in _response_200:
-            response_200_item = Computation.from_dict(response_200_item_data)
-
-            response_200.append(response_200_item)
+        response_200 = ComputationListResponse.from_dict(response.json())
 
         return response_200
     if response.status_code == HTTPStatus.FORBIDDEN:
@@ -78,7 +85,7 @@ def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Uni
         return None
 
 
-def _build_response(*, client: Client, response: httpx.Response) -> Response[Union[Error, List["Computation"]]]:
+def _build_response(*, client: Client, response: httpx.Response) -> Response[Union[ComputationListResponse, Error]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -90,33 +97,45 @@ def _build_response(*, client: Client, response: httpx.Response) -> Response[Uni
 def sync_detailed(
     *,
     client: Client,
-    limit: Union[Unset, None, int] = 50,
-    sort_by: Union[Unset, None, GetComputationListSortBy] = UNSET,
+    page: Union[Unset, None, int] = 1,
+    per_page: Union[Unset, None, int] = 30,
+    with_total: Union[Unset, None, bool] = True,
     order: Union[Unset, None, GetComputationListOrder] = UNSET,
+    sort_by: Union[Unset, None, GetComputationListSortBy] = UNSET,
+    limit: Union[Unset, None, int] = 50,
     show_non_visible: Union[Unset, None, bool] = False,
-) -> Response[Union[Error, List["Computation"]]]:
+    project_id: Union[Unset, None, str] = UNSET,
+) -> Response[Union[ComputationListResponse, Error]]:
     """Get list of computations currently or previously running.
 
     Args:
-        limit (Union[Unset, None, int]):  Default: 50.
-        sort_by (Union[Unset, None, GetComputationListSortBy]):
+        page (Union[Unset, None, int]):  Default: 1.
+        per_page (Union[Unset, None, int]):  Default: 30.
+        with_total (Union[Unset, None, bool]):  Default: True.
         order (Union[Unset, None, GetComputationListOrder]):
+        sort_by (Union[Unset, None, GetComputationListSortBy]):
+        limit (Union[Unset, None, int]):  Default: 50.
         show_non_visible (Union[Unset, None, bool]):
+        project_id (Union[Unset, None, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Error, List['Computation']]]
+        Response[Union[ComputationListResponse, Error]]
     """
 
     kwargs = _get_kwargs(
         client=client,
-        limit=limit,
-        sort_by=sort_by,
+        page=page,
+        per_page=per_page,
+        with_total=with_total,
         order=order,
+        sort_by=sort_by,
+        limit=limit,
         show_non_visible=show_non_visible,
+        project_id=project_id,
     )
 
     response = httpx.request(
@@ -130,66 +149,90 @@ def sync_detailed(
 def sync(
     *,
     client: Client,
-    limit: Union[Unset, None, int] = 50,
-    sort_by: Union[Unset, None, GetComputationListSortBy] = UNSET,
+    page: Union[Unset, None, int] = 1,
+    per_page: Union[Unset, None, int] = 30,
+    with_total: Union[Unset, None, bool] = True,
     order: Union[Unset, None, GetComputationListOrder] = UNSET,
+    sort_by: Union[Unset, None, GetComputationListSortBy] = UNSET,
+    limit: Union[Unset, None, int] = 50,
     show_non_visible: Union[Unset, None, bool] = False,
-) -> Optional[Union[Error, List["Computation"]]]:
+    project_id: Union[Unset, None, str] = UNSET,
+) -> Optional[Union[ComputationListResponse, Error]]:
     """Get list of computations currently or previously running.
 
     Args:
-        limit (Union[Unset, None, int]):  Default: 50.
-        sort_by (Union[Unset, None, GetComputationListSortBy]):
+        page (Union[Unset, None, int]):  Default: 1.
+        per_page (Union[Unset, None, int]):  Default: 30.
+        with_total (Union[Unset, None, bool]):  Default: True.
         order (Union[Unset, None, GetComputationListOrder]):
+        sort_by (Union[Unset, None, GetComputationListSortBy]):
+        limit (Union[Unset, None, int]):  Default: 50.
         show_non_visible (Union[Unset, None, bool]):
+        project_id (Union[Unset, None, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Error, List['Computation']]]
+        Response[Union[ComputationListResponse, Error]]
     """
 
     return sync_detailed(
         client=client,
-        limit=limit,
-        sort_by=sort_by,
+        page=page,
+        per_page=per_page,
+        with_total=with_total,
         order=order,
+        sort_by=sort_by,
+        limit=limit,
         show_non_visible=show_non_visible,
+        project_id=project_id,
     ).parsed
 
 
 async def asyncio_detailed(
     *,
     client: Client,
-    limit: Union[Unset, None, int] = 50,
-    sort_by: Union[Unset, None, GetComputationListSortBy] = UNSET,
+    page: Union[Unset, None, int] = 1,
+    per_page: Union[Unset, None, int] = 30,
+    with_total: Union[Unset, None, bool] = True,
     order: Union[Unset, None, GetComputationListOrder] = UNSET,
+    sort_by: Union[Unset, None, GetComputationListSortBy] = UNSET,
+    limit: Union[Unset, None, int] = 50,
     show_non_visible: Union[Unset, None, bool] = False,
-) -> Response[Union[Error, List["Computation"]]]:
+    project_id: Union[Unset, None, str] = UNSET,
+) -> Response[Union[ComputationListResponse, Error]]:
     """Get list of computations currently or previously running.
 
     Args:
-        limit (Union[Unset, None, int]):  Default: 50.
-        sort_by (Union[Unset, None, GetComputationListSortBy]):
+        page (Union[Unset, None, int]):  Default: 1.
+        per_page (Union[Unset, None, int]):  Default: 30.
+        with_total (Union[Unset, None, bool]):  Default: True.
         order (Union[Unset, None, GetComputationListOrder]):
+        sort_by (Union[Unset, None, GetComputationListSortBy]):
+        limit (Union[Unset, None, int]):  Default: 50.
         show_non_visible (Union[Unset, None, bool]):
+        project_id (Union[Unset, None, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Error, List['Computation']]]
+        Response[Union[ComputationListResponse, Error]]
     """
 
     kwargs = _get_kwargs(
         client=client,
-        limit=limit,
-        sort_by=sort_by,
+        page=page,
+        per_page=per_page,
+        with_total=with_total,
         order=order,
+        sort_by=sort_by,
+        limit=limit,
         show_non_visible=show_non_visible,
+        project_id=project_id,
     )
 
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
@@ -201,33 +244,45 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: Client,
-    limit: Union[Unset, None, int] = 50,
-    sort_by: Union[Unset, None, GetComputationListSortBy] = UNSET,
+    page: Union[Unset, None, int] = 1,
+    per_page: Union[Unset, None, int] = 30,
+    with_total: Union[Unset, None, bool] = True,
     order: Union[Unset, None, GetComputationListOrder] = UNSET,
+    sort_by: Union[Unset, None, GetComputationListSortBy] = UNSET,
+    limit: Union[Unset, None, int] = 50,
     show_non_visible: Union[Unset, None, bool] = False,
-) -> Optional[Union[Error, List["Computation"]]]:
+    project_id: Union[Unset, None, str] = UNSET,
+) -> Optional[Union[ComputationListResponse, Error]]:
     """Get list of computations currently or previously running.
 
     Args:
-        limit (Union[Unset, None, int]):  Default: 50.
-        sort_by (Union[Unset, None, GetComputationListSortBy]):
+        page (Union[Unset, None, int]):  Default: 1.
+        per_page (Union[Unset, None, int]):  Default: 30.
+        with_total (Union[Unset, None, bool]):  Default: True.
         order (Union[Unset, None, GetComputationListOrder]):
+        sort_by (Union[Unset, None, GetComputationListSortBy]):
+        limit (Union[Unset, None, int]):  Default: 50.
         show_non_visible (Union[Unset, None, bool]):
+        project_id (Union[Unset, None, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Error, List['Computation']]]
+        Response[Union[ComputationListResponse, Error]]
     """
 
     return (
         await asyncio_detailed(
             client=client,
-            limit=limit,
-            sort_by=sort_by,
+            page=page,
+            per_page=per_page,
+            with_total=with_total,
             order=order,
+            sort_by=sort_by,
+            limit=limit,
             show_non_visible=show_non_visible,
+            project_id=project_id,
         )
     ).parsed

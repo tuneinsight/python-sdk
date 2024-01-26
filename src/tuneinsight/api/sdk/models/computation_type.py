@@ -25,6 +25,7 @@ class ComputationType(str, Enum):
     DATASETSTATISTICS = "datasetStatistics"
     PRIVATESEARCH = "privateSearch"
     PRIVATESEARCHSETUP = "privateSearchSetup"
+    ENCRYPTEDMEAN = "encryptedMean"
 
     def __str__(self) -> str:
         return str(self.value)

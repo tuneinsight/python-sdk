@@ -1,7 +1,8 @@
 from typing import List
 import warnings
+import webbrowser
 
-from keycloak.exceptions import KeycloakConnectionError
+from keycloak.exceptions import KeycloakConnectionError, KeycloakGetError
 import attr
 import pandas as pd
 
@@ -10,7 +11,11 @@ from tuneinsight.api.sdk import client as api_client
 from tuneinsight.api.sdk.api.api_project import post_project
 from tuneinsight.api.sdk.api.api_project import get_project
 from tuneinsight.api.sdk.api.api_project import get_project_list
-from tuneinsight.api.sdk.api.api_datasource import get_data_source_list, get_data_source, delete_data_source
+from tuneinsight.api.sdk.api.api_datasource import (
+    get_data_source_list,
+    get_data_source,
+    delete_data_source,
+)
 from tuneinsight.api.sdk.api.api_dataobject import get_data_object
 from tuneinsight.api.sdk import models
 from tuneinsight.client.dataobject import DataObject
@@ -33,19 +38,33 @@ class Diapason:
     Args:
         client (client.AuthenticatedClient): underlying client used to perform the requests
     """
+
     conf: config.Client
     client: api_client.Client = None
-    maas = None # expected type ModelManager not included to avoid cryptolib dependency
+    maas: "ModelManager" = (
+        None  # expected type ModelManager not included to avoid cryptolib dependency
+    )
 
     def __attrs_post_init__(self):
         if self.conf.security.static_token != "":
-            self.client = api_client.AuthenticatedClient(base_url=self.conf.url,token=self.conf.security.static_token,verify_ssl=self.conf.security.verify_ssl)
+            self.client = api_client.AuthenticatedClient(
+                base_url=self.conf.url,
+                token=self.conf.security.static_token,
+                verify_ssl=self.conf.security.verify_ssl,
+            )
         else:
-            self.client = auth.KeycloakClient(base_url=self.conf.url,token="",
-                            oidc_config=self.conf.security.oidc_config,
-                            username=self.conf.security.username,
-                            password=self.conf.security.password,
-                            verify_ssl=self.conf.security.verify_ssl)
+            self.client = auth.KeycloakClient(
+                base_url=self.conf.url,
+                token="",
+                oidc_config=self.conf.security.oidc_config,
+                username=self.conf.security.username,
+                password=self.conf.security.password,
+                verify_ssl=self.conf.security.verify_ssl,
+                proxies={
+                    "http": self.conf.http_proxy,
+                    "https": self.conf.https_proxy,
+                },
+            )
 
     @classmethod
     def from_config_path(cls, path: str, url: str = None):
@@ -61,10 +80,10 @@ class Diapason:
         conf = config.LoadClient(path)
         if url is not None:
             conf.url = url
-        return cls(conf = conf)
+        return cls(conf=conf)
 
     @classmethod
-    def from_env(cls,path: str = None):
+    def from_env(cls, path: str = None):
         """
         from_env creates a client from the environment variables or a "dotenv" file
 
@@ -72,12 +91,62 @@ class Diapason:
             path (str): path to the dotenv file. If None, it uses environment variables
         """
         conf = config.LoadEnvClient(path)
-        return cls(conf = conf)
+        return cls(conf=conf)
 
-    def login(self):
+    @classmethod
+    def from_config(
+        cls,
+        api_url: str,
+        oidc_client_id: str,
+        oidc_realm: str = "ti-realm",
+        oidc_url: str = "https://auth.tuneinsight.com/auth/",
+        http_proxy: str = "",
+        https_proxy: str = "",
+        verify_ssl: bool = True,
+    ):
+        """
+        from_config creates a client from the specified attributes.
+
+        This is meant as a convenient way to define a client when default settings apply.
+        Only the url endpoint and OIDC client ID need to be specified. Please use client.login()
+        after creating this object to authenticate this client to Keycloak.
+
+        Args:
+            api_url (str): the URL of the API endpoint.
+            oidc_client_id (str): the OIDC client ID of this user.
+            oidc_realm (str): the OIDC realm (default ti-realm).
+            oidc_url (str): where to find the OIDC auth server (default is the Tune Insight auth endpoint).
+            http_proxy (str): the HTTP proxy to use (default is none).
+            https_proxy (str): the HTTPS proxy to use (default is none).
+            verify_ssl (bool): whether to verify SSL certificates (default is True).
+
+        """
+        conf = {
+            "security": {
+                "oidc_config": {
+                    "oidc_client_id": oidc_client_id,
+                    "oidc_realm": oidc_realm,
+                    "oidc_url": oidc_url,
+                },
+                "verify_ssl": verify_ssl,
+            },
+            "url": api_url,
+            "http_proxy": http_proxy,
+            "https_proxy": https_proxy,
+        }
+        conf = config.Client.from_json(conf)
+        return cls(conf)
+
+    def login(self, open_page=True, blocking=True):
         """
         login provides users with a link to log in from a browser
 
+        Args:
+            open_page (bool, True): whether to use the browser to open the login link.
+            blocking (bool, True): whether to wait until the user has logged in.
+
+        Returns:
+            login_url (str): the URL to use to log in, or None if blocking is True.
         Raises:
             AttributeError: if the client is not a keycloak client
         """
@@ -85,8 +154,13 @@ class Diapason:
             raise AttributeError("client is not a KeycloakClient")
 
         device_resp = self.client.get_device_code()
-        login_url = device_resp['verification_uri_complete']
+        login_url = device_resp["verification_uri_complete"]
         print("Follow this link to login: " + login_url)
+        if open_page:
+            webbrowser.open(login_url)
+        if blocking:
+            self.wait_ready(sleep_seconds=1)
+            return None
         return login_url
 
     def get_client(self):
@@ -97,7 +171,9 @@ class Diapason:
     def add_models(self, model_manager):
         self.maas = model_manager
 
-    def new_datasource(self, dataframe: pd.DataFrame, name: str, clear_if_exists: bool = False) -> DataSource:
+    def new_datasource(
+        self, dataframe: pd.DataFrame, name: str, clear_if_exists: bool = False
+    ) -> DataSource:
         """
         new_datasource creates a new datasource from a dataframe. It uploads the dataframe to the created datasource.
 
@@ -109,9 +185,19 @@ class Diapason:
         Returns:
             DataSource: the newly created datasource
         """
-        return DataSource.from_dataframe(self.get_client(),dataframe,name,clear_if_exists)
+        return DataSource.from_dataframe(
+            self.get_client(), dataframe, name, clear_if_exists
+        )
 
-    def new_api_datasource(self, api_type: models.APIConnectionInfoType, api_url: str, name: str, api_token: str = "", clear_if_exists: bool = False, cert: str = "") -> DataSource:
+    def new_api_datasource(
+        self,
+        api_type: models.APIConnectionInfoType,
+        api_url: str,
+        name: str,
+        api_token: str = "",
+        clear_if_exists: bool = False,
+        cert: str = "",
+    ) -> DataSource:
         """
         new_api_datasource creates a new API datasource.
 
@@ -124,9 +210,13 @@ class Diapason:
         Returns:
             DataSource: the newly created datasource
         """
-        return DataSource.from_api(self.get_client(),api_type,api_url,api_token,name,clear_if_exists,cert)
+        return DataSource.from_api(
+            self.get_client(), api_type, api_url, api_token, name, clear_if_exists, cert
+        )
 
-    def new_csv_datasource(self,csv: str, name: str, clear_if_exists: bool = False) -> DataSource:
+    def new_csv_datasource(
+        self, csv: str, name: str, clear_if_exists: bool = False
+    ) -> DataSource:
         """
         new_csv_datasource creates a new datasource and upload the given csv file to it
 
@@ -139,11 +229,18 @@ class Diapason:
         Returns:
             DataSource: the newly created datasource
         """
-        ds =  DataSource.local(client= self.get_client(),name=name,clear_if_exists=clear_if_exists)
+        ds = DataSource.local(
+            client=self.get_client(), name=name, clear_if_exists=clear_if_exists
+        )
         ds.load_csv_data(path=csv)
         return ds
 
-    def new_database(self,pg_config: models.DatabaseConnectionInfo, name: str, clear_if_exists: bool = False) -> DataSource:
+    def new_database(
+        self,
+        pg_config: models.DatabaseConnectionInfo,
+        name: str,
+        clear_if_exists: bool = False,
+    ) -> DataSource:
         """
         new_database creates a new Postgres datasource
 
@@ -155,10 +252,22 @@ class Diapason:
         Returns:
             DataSource: the newly created datasource
         """
-        return DataSource.postgres(client=self.get_client(),config=pg_config,name=name,clear_if_exists=clear_if_exists)
+        return DataSource.postgres(
+            client=self.get_client(),
+            config=pg_config,
+            name=name,
+            clear_if_exists=clear_if_exists,
+        )
 
-    def new_project(self, name: str, clear_if_exists: bool = False,
-                    topology: models.Topology = UNSET, authorized_users: list = None) -> Project:
+    def new_project(
+        self,
+        name: str,
+        clear_if_exists: bool = False,
+        topology: models.Topology = UNSET,
+        authorized_users: list = None,
+        participants: list = None,
+        non_contributor: bool = False,
+    ) -> Project:
         """new_project creates a new project
 
         Args:
@@ -169,6 +278,8 @@ class Diapason:
             topology (Union[Unset, Topology]): Network Topologies. 'star' or 'tree'. In star topology all nodes are
             connected to a central node. In tree topology all nodes are connected and aware of each other.
             authorized_users (Union[Unset, List[str]]): The IDs of the users who can run the project
+            participants (Union[Unset, List[str]]): The IDs of the users who participate in the project.
+            non_contributor (bool, default False): indicates that this participant participates in the computations but does not contribute any data.
 
         Raises:
             Exception: in case the project already exists and clear_if_exists is False.
@@ -181,23 +292,39 @@ class Diapason:
         if authorized_users is None:
             authorized_users = []
 
+        if participants is None:
+            participants = []
+
         if name in [p.get_name() for p in self.get_projects()]:
             if clear_if_exists:
-                warnings.warn("""A project with the same name was removed on this node, but has not have been deleted on other nodes. \
+                warnings.warn(
+                    """A project with the same name was removed on this node, but has not have been deleted on other nodes. \
 This can cause an error when attempting to share the project, because of conflicting names. \
-To avoid this, delete the project on other nodes, or create a differently-named project instead.""")
+To avoid this, delete the project on other nodes, or create a differently-named project instead."""
+                )
                 self.clear_project(name=name)
             else:
                 raise ValueError(f"project {name} already exists")
 
-        proj_def = models.ProjectDefinition(name=name,local=True,allow_shared_edit=True,
-                                            topology=topology,created_with_client=models.Client.DIAPASON_PY,
-                                            authorized_users=authorized_users)
-        proj_response: Response[models.Project] = post_project.sync_detailed(client=self.client,json_body=proj_def)
+        proj_def = models.ProjectDefinition(
+            name=name,
+            local=True,
+            allow_shared_edit=True,
+            topology=topology,
+            created_with_client=models.Client.DIAPASON_PY,
+            authorized_users=authorized_users,
+            participants=participants,
+            non_contributor=non_contributor,
+        )
+        # authorization_status = models.AuthorizationStatus.UNAUTHORIZED)
+        proj_response: Response[models.Project] = post_project.sync_detailed(
+            client=self.client, json_body=proj_def
+        )
         validate_response(proj_response)
-        return Project(model=proj_response.parsed,client=self.client)
+        p = Project(model=proj_response.parsed, client=self.client)
+        return p
 
-    def get_project(self, project_id: str= "",name: str = "") -> Project:
+    def get_project(self, project_id: str = "", name: str = "") -> Project:
         """get_project returns a project by id or name
 
         Args:
@@ -209,9 +336,11 @@ To avoid this, delete the project on other nodes, or create a differently-named 
         """
         if project_id == "":
             return self.get_project_by_name(name=name)
-        proj_response: Response[models.Project] = get_project.sync_detailed(client=self.client,project_id=project_id)
+        proj_response: Response[models.Project] = get_project.sync_detailed(
+            client=self.client, project_id=project_id
+        )
         validate_response(proj_response)
-        return Project(model=proj_response.parsed,client=self.client)
+        return Project(model=proj_response.parsed, client=self.client)
 
     def get_projects(self) -> List[Project]:
         """
@@ -220,26 +349,51 @@ To avoid this, delete the project on other nodes, or create a differently-named 
         Returns:
             List[Project]: list of projects
         """
-        response: Response[List[models.Project]] = get_project_list.sync_detailed(client=self.client)
+        response: Response[List[models.Project]] = get_project_list.sync_detailed(
+            client=self.client
+        )
         validate_response(response)
         projects = []
         for project in response.parsed:
-            projects.append(Project(model=project,client=self.client))
+            projects.append(Project(model=project, client=self.client))
         return projects
 
-    def get_project_by_name(self, name:str) -> Project:
-        response: Response[List[models.Project]] = get_project_list.sync_detailed(client=self.client,name=name)
+    def get_project_by_name(self, name: str) -> Project:
+        """get_project_by_name returns a project by name
+
+        Args:
+            name (str): name of the project
+
+        Raises:
+            LookupError: if the project is not found
+
+        Returns:
+            Project: the project
+        """
+        response: Response[List[models.Project]] = get_project_list.sync_detailed(
+            client=self.client, name=name
+        )
         validate_response(response)
         if len(response.parsed):
-            return Project(model=response.parsed[0],client=self.client)
+            return Project(model=response.parsed[0], client=self.client)
         raise LookupError("project not found")
 
-    def get_datasources(self, name: str="") -> List[DataSource]:
-        response: Response[List[models.DataSource]] = get_data_source_list.sync_detailed(client=self.client, name=name)
+    def get_datasources(self, name: str = "") -> List[DataSource]:
+        """get_datasources returns all the datasources of the instance
+
+        Args:
+            name (str, optional): name of the datasource. If provided, it will be used to filter the datasources. Defaults to "".
+
+        Returns:
+            List[DataSource]: _description_
+        """
+        response: Response[List[models.DataSource]] = (
+            get_data_source_list.sync_detailed(client=self.client, name=name)
+        )
         validate_response(response)
         datasources = []
         for datasource in response.parsed:
-            datasources.append(DataSource(model=datasource,client=self.client))
+            datasources.append(DataSource(model=datasource, client=self.client))
         return datasources
 
     def delete_datasource(self, ds: DataSource) -> List[DataSource]:
@@ -251,10 +405,12 @@ To avoid this, delete the project on other nodes, or create a differently-named 
         Returns:
             List[DataSource]: updated list of datasources
         """
-        response = delete_data_source.sync_detailed(client=self.client, data_source_id=ds.get_id())
+        response = delete_data_source.sync_detailed(
+            client=self.client, data_source_id=ds.get_id()
+        )
         validate_response(response)
 
-    def get_datasource(self, ds_id: str= "", name: str = "") -> DataSource:
+    def get_datasource(self, ds_id: str = "", name: str = "") -> DataSource:
         """get_datasource returns a datasource by id or name
 
         Args:
@@ -266,11 +422,13 @@ To avoid this, delete the project on other nodes, or create a differently-named 
         """
         if ds_id == "":
             return self.get_datasources(name=name)[0]
-        ds_response: Response[models.DataSource] = get_data_source.sync_detailed(client=self.client,data_source_id=ds_id)
+        ds_response: Response[models.DataSource] = get_data_source.sync_detailed(
+            client=self.client, data_source_id=ds_id
+        )
         validate_response(ds_response)
-        return DataSource(model=ds_response.parsed,client=self.client)
+        return DataSource(model=ds_response.parsed, client=self.client)
 
-    def clear_project(self, project_id: str = "", name: str = "") :
+    def clear_project(self, project_id: str = "", name: str = ""):
         p = self.get_project(project_id=project_id, name=name)
         p.delete()
 
@@ -283,12 +441,14 @@ To avoid this, delete the project on other nodes, or create a differently-named 
         Returns:
             DataObject: the dataobject
         """
-        do_response: Response[models.DataObject] = get_data_object.sync_detailed(client=self.client,data_object_id=do_id)
+        do_response: Response[models.DataObject] = get_data_object.sync_detailed(
+            client=self.client, data_object_id=do_id
+        )
         validate_response(do_response)
-        return DataObject(model=do_response.parsed,client=self.client)
+        return DataObject(model=do_response.parsed, client=self.client)
 
-    def wait_ready(self,repeat: int = 50,sleep_seconds: int = 5):
-        '''
+    def wait_ready(self, repeat: int = 50, sleep_seconds: int = 5):
+        """
         wait_ready polls the API until it answers by using the get_projects() endpoint
 
         Args:
@@ -297,14 +457,21 @@ To avoid this, delete the project on other nodes, or create a differently-named 
 
         Raises:
             TimeoutError: if the API has not answered
-        '''
+        """
         num_tries = repeat
         sleep_time = sleep_seconds * time.second
+        last_ex = None
         for _ in range(num_tries):
             try:
                 self.get_projects()
                 return
-            except (ConnectionError,KeycloakConnectionError,InvalidResponseError):
+            except (
+                ConnectionError,
+                KeycloakConnectionError,
+                KeycloakGetError,
+                InvalidResponseError,
+            ) as ex:
                 time.sleep(sleep_time)
+                last_ex = ex
                 continue
-        raise TimeoutError()
+        raise last_ex

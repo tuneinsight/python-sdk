@@ -19,16 +19,16 @@ class Rename:
     Attributes:
         type (PreprocessingOperationType): type of preprocessing operation
         mapper (RenameMapper): transformations to apply to that axis’ values
+        axis (Union[Unset, RenameAxis]): axis to target with mapper
         copy (Union[Unset, bool]): whether to return a copy
         errors (Union[Unset, bool]): Control raising of exceptions on invalid data for provided dtype
-        axis (Union[Unset, RenameAxis]): axis to target with mapper
     """
 
     type: PreprocessingOperationType
     mapper: "RenameMapper"
+    axis: Union[Unset, RenameAxis] = UNSET
     copy: Union[Unset, bool] = UNSET
     errors: Union[Unset, bool] = UNSET
-    axis: Union[Unset, RenameAxis] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -36,11 +36,12 @@ class Rename:
 
         mapper = self.mapper.to_dict()
 
-        copy = self.copy
-        errors = self.errors
         axis: Union[Unset, str] = UNSET
         if not isinstance(self.axis, Unset):
             axis = self.axis.value
+
+        copy = self.copy
+        errors = self.errors
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -50,12 +51,12 @@ class Rename:
                 "mapper": mapper,
             }
         )
+        if axis is not UNSET:
+            field_dict["axis"] = axis
         if copy is not UNSET:
             field_dict["copy"] = copy
         if errors is not UNSET:
             field_dict["errors"] = errors
-        if axis is not UNSET:
-            field_dict["axis"] = axis
 
         return field_dict
 
@@ -68,10 +69,6 @@ class Rename:
 
         mapper = RenameMapper.from_dict(d.pop("mapper"))
 
-        copy = d.pop("copy", UNSET)
-
-        errors = d.pop("errors", UNSET)
-
         _axis = d.pop("axis", UNSET)
         axis: Union[Unset, RenameAxis]
         if isinstance(_axis, Unset):
@@ -79,12 +76,16 @@ class Rename:
         else:
             axis = RenameAxis(_axis)
 
+        copy = d.pop("copy", UNSET)
+
+        errors = d.pop("errors", UNSET)
+
         rename = cls(
             type=type,
             mapper=mapper,
+            axis=axis,
             copy=copy,
             errors=errors,
-            axis=axis,
         )
 
         rename.additional_properties = d

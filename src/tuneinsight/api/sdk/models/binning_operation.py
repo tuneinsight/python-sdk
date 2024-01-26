@@ -17,35 +17,29 @@ class BinningOperation:
     """Dataset binning operation definition
 
     Attributes:
+        count_columns (Union[Unset, List['CategoricalColumn']]): list of categorical on which to count the number of
+            records per bin per matching value
+        group_by_type (Union[Unset, GroupByType]): type of the groupBy operation specified
+        keep_non_categorized_items (Union[Unset, bool]): keeps items that do not fall in a specific category and stores
+            them in the default category "other" Default: True.
+        range_values (Union[Unset, List[float]]): list of cuts to use when groupByType is 'range' ([x,y] => creating 3
+            bins [v < x, x <= v < y, y <= v])
         target_column (Union[Unset, str]): column targeted by the binning operation
         aggregated_columns (Union[Unset, List[str]]): list of numerical columns to aggregate per bin when binning is
             done, if unspecified binning only counts the number of rows
         categories (Union[Unset, List[str]]): list of categories when groupByType is 'category'
-        count_columns (Union[Unset, List['CategoricalColumn']]): list of categorical on which to count the number of
-            records per bin per matching value
-        group_by_type (Union[Unset, GroupByType]): type of the groupBy operation specified
-        range_values (Union[Unset, List[float]]): list of cuts to use when groupByType is 'range' ([x,y] => creating 3
-            bins [v < x, x <= v < y, y <= v])
     """
 
+    count_columns: Union[Unset, List["CategoricalColumn"]] = UNSET
+    group_by_type: Union[Unset, GroupByType] = UNSET
+    keep_non_categorized_items: Union[Unset, bool] = True
+    range_values: Union[Unset, List[float]] = UNSET
     target_column: Union[Unset, str] = UNSET
     aggregated_columns: Union[Unset, List[str]] = UNSET
     categories: Union[Unset, List[str]] = UNSET
-    count_columns: Union[Unset, List["CategoricalColumn"]] = UNSET
-    group_by_type: Union[Unset, GroupByType] = UNSET
-    range_values: Union[Unset, List[float]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        target_column = self.target_column
-        aggregated_columns: Union[Unset, List[str]] = UNSET
-        if not isinstance(self.aggregated_columns, Unset):
-            aggregated_columns = self.aggregated_columns
-
-        categories: Union[Unset, List[str]] = UNSET
-        if not isinstance(self.categories, Unset):
-            categories = self.categories
-
         count_columns: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.count_columns, Unset):
             count_columns = []
@@ -58,25 +52,37 @@ class BinningOperation:
         if not isinstance(self.group_by_type, Unset):
             group_by_type = self.group_by_type.value
 
+        keep_non_categorized_items = self.keep_non_categorized_items
         range_values: Union[Unset, List[float]] = UNSET
         if not isinstance(self.range_values, Unset):
             range_values = self.range_values
 
+        target_column = self.target_column
+        aggregated_columns: Union[Unset, List[str]] = UNSET
+        if not isinstance(self.aggregated_columns, Unset):
+            aggregated_columns = self.aggregated_columns
+
+        categories: Union[Unset, List[str]] = UNSET
+        if not isinstance(self.categories, Unset):
+            categories = self.categories
+
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if count_columns is not UNSET:
+            field_dict["countColumns"] = count_columns
+        if group_by_type is not UNSET:
+            field_dict["groupByType"] = group_by_type
+        if keep_non_categorized_items is not UNSET:
+            field_dict["keepNonCategorizedItems"] = keep_non_categorized_items
+        if range_values is not UNSET:
+            field_dict["rangeValues"] = range_values
         if target_column is not UNSET:
             field_dict["targetColumn"] = target_column
         if aggregated_columns is not UNSET:
             field_dict["aggregatedColumns"] = aggregated_columns
         if categories is not UNSET:
             field_dict["categories"] = categories
-        if count_columns is not UNSET:
-            field_dict["countColumns"] = count_columns
-        if group_by_type is not UNSET:
-            field_dict["groupByType"] = group_by_type
-        if range_values is not UNSET:
-            field_dict["rangeValues"] = range_values
 
         return field_dict
 
@@ -85,12 +91,6 @@ class BinningOperation:
         from ..models.categorical_column import CategoricalColumn
 
         d = src_dict.copy()
-        target_column = d.pop("targetColumn", UNSET)
-
-        aggregated_columns = cast(List[str], d.pop("aggregatedColumns", UNSET))
-
-        categories = cast(List[str], d.pop("categories", UNSET))
-
         count_columns = []
         _count_columns = d.pop("countColumns", UNSET)
         for count_columns_item_data in _count_columns or []:
@@ -105,15 +105,24 @@ class BinningOperation:
         else:
             group_by_type = GroupByType(_group_by_type)
 
+        keep_non_categorized_items = d.pop("keepNonCategorizedItems", UNSET)
+
         range_values = cast(List[float], d.pop("rangeValues", UNSET))
 
+        target_column = d.pop("targetColumn", UNSET)
+
+        aggregated_columns = cast(List[str], d.pop("aggregatedColumns", UNSET))
+
+        categories = cast(List[str], d.pop("categories", UNSET))
+
         binning_operation = cls(
+            count_columns=count_columns,
+            group_by_type=group_by_type,
+            keep_non_categorized_items=keep_non_categorized_items,
+            range_values=range_values,
             target_column=target_column,
             aggregated_columns=aggregated_columns,
             categories=categories,
-            count_columns=count_columns,
-            group_by_type=group_by_type,
-            range_values=range_values,
         )
 
         binning_operation.additional_properties = d

@@ -1,37 +1,38 @@
-from typing import Dict,List,Any
+from typing import Dict, List, Any
 from tuneinsight.api.sdk import models
 
 
 class DatasetSchema:
-    '''
+    """
     DatasetSchema represents a user-defined dataset schema that inputs must comply to
-    '''
+    """
 
     model: models.DatasetSchema
-    '''
+    """
     API model for the schema
-    '''
-    cols: Dict[str,models.ColumnSchema]
-    '''
+    """
+    cols: Dict[str, models.ColumnSchema]
+    """
     Dictionary from column names to column schema
-    '''
-
-
+    """
 
     def __init__(self):
         self.cols = {}
         self.model = models.DatasetSchema(columns=models.DatasetSchemaColumns())
         self.model.columns.additional_properties = self.cols
 
-
-    def drop_invalid(self,drop: bool = True):
+    def drop_invalid(self, drop: bool = True):
         self.model.drop_invalid_rows = drop
 
-    def add_column(self,name:str,dtype: str = None,
-                   coerce: bool = False,
-                   nullable: bool = False,
-                   required: bool = True) -> models.ColumnSchema:
-        '''
+    def add_column(
+        self,
+        name: str,
+        dtype: str = None,
+        coerce: bool = False,
+        nullable: bool = False,
+        required: bool = True,
+    ) -> models.ColumnSchema:
+        """
         add_column creates a new column and adds it to the dataset schema
 
         Args:
@@ -43,16 +44,16 @@ class DatasetSchema:
 
         Returns:
             ColumnSchema: the newly created column schema model
-        '''
-        col = models.ColumnSchema(nullable=nullable,coerce=coerce,required=required)
+        """
+        col = models.ColumnSchema(nullable=nullable, coerce=coerce, required=required)
         if dtype is not None:
             col.dtype = dtype
         col.checks = models.ColumnSchemaChecks()
         self.cols[name] = col
         return col
 
-    def get_column(self,name:str) -> models.ColumnSchema:
-        '''
+    def get_column(self, name: str) -> models.ColumnSchema:
+        """
         get_column returns the corresponding column schema
 
         Args:
@@ -60,13 +61,13 @@ class DatasetSchema:
 
         Returns:
             models.ColumnSchema: the corresponding column schema
-        '''
+        """
         if name not in self.cols:
             return self.add_column(name=name)
         return self.cols[name]
 
-    def lt(self,name:str,val: Any):
-        '''
+    def lt(self, name: str, val: Any):
+        """
         lt requires values from the column to be less than 'val'
 
         Args:
@@ -74,13 +75,13 @@ class DatasetSchema:
             val (Any): the upper bound value
         Returns:
             self (DatasetSchema): the updated schema
-        '''
+        """
         col = self.get_column(name)
         col.checks.lt = val
         return self
 
-    def le(self,name:str,val: Any):
-        '''
+    def le(self, name: str, val: Any):
+        """
         le requires values from the column to be less than or equal to 'val'
 
         Args:
@@ -88,13 +89,13 @@ class DatasetSchema:
             val (Any): the upper bound value
         Returns:
             self (DatasetSchema): the updated schema
-        '''
+        """
         col = self.get_column(name)
         col.checks.le = val
         return self
 
-    def eq(self,name:str,val: Any):
-        '''
+    def eq(self, name: str, val: Any):
+        """
         eq requires values from the column to be equal to 'val'
 
         Args:
@@ -102,13 +103,13 @@ class DatasetSchema:
             val (Any): the value to compare with
         Returns:
             self (DatasetSchema): the updated schema
-        '''
+        """
         col = self.get_column(name)
         col.checks.eq = val
         return self
 
-    def ge(self,name:str,val: Any):
-        '''
+    def ge(self, name: str, val: Any):
+        """
         ge requires values from the column to be greater or equal to 'val'
 
         Args:
@@ -116,13 +117,13 @@ class DatasetSchema:
             val (Any): the lower bound value
         Returns:
             self (DatasetSchema): the updated schema
-        '''
+        """
         col = self.get_column(name)
         col.checks.ge = val
         return self
 
-    def gt(self,name:str,val: Any):
-        '''
+    def gt(self, name: str, val: Any):
+        """
         gt requires values from the column to be greater than 'val'
 
         Args:
@@ -130,13 +131,20 @@ class DatasetSchema:
             val (Any): the lower bound value
         Returns:
             self (DatasetSchema): the updated schema
-        '''
+        """
         col = self.get_column(name)
         col.checks.gt = val
         return self
 
-    def in_range(self,name:str,min_value: float,max_value: float,include_min: bool = True,include_max: bool = True):
-        '''
+    def in_range(
+        self,
+        name: str,
+        min_value: float,
+        max_value: float,
+        include_min: bool = True,
+        include_max: bool = True,
+    ):
+        """
         in_range requires values from the column to be in a specified range
 
         Args:
@@ -147,13 +155,18 @@ class DatasetSchema:
             include_max (bool, optional): whether the maximum value is included in the range. Defaults to True.
         Returns:
             self (DatasetSchema): the updated schema
-        '''
+        """
         col = self.get_column(name)
-        col.checks.in_range = models.ColumnSchemaChecksInRange(max_value=max_value,min_value=min_value,include_min=include_min,include_max=include_max)
+        col.checks.in_range = models.ColumnSchemaChecksInRange(
+            max_value=max_value,
+            min_value=min_value,
+            include_min=include_min,
+            include_max=include_max,
+        )
         return self
 
-    def str_startswith(self,name:str,val:str):
-        '''
+    def str_startswith(self, name: str, val: str):
+        """
         str_startswith requires that all values from the column start with a specific substring
 
         Args:
@@ -161,14 +174,13 @@ class DatasetSchema:
             val (str): the substring
         Returns:
             self (DatasetSchema): the updated schema
-        '''
+        """
         col = self.get_column(name)
         col.checks.str_startswith = val
         return self
 
-
-    def isin(self,name:str,vals: List[Any]):
-        '''
+    def isin(self, name: str, vals: List[Any]):
+        """
         isin requires that all values from the column are from a specified set of values
 
         Args:
@@ -176,13 +188,13 @@ class DatasetSchema:
             vals (List[Any]): the specified set of values
         Returns:
             self (DatasetSchema): the updated schema
-        '''
+        """
         col = self.get_column(name)
         col.checks.isin = vals
         return self
 
-    def notin(self,name:str,vals: List[Any]):
-        '''
+    def notin(self, name: str, vals: List[Any]):
+        """
         notin requires that all values from the column are excluded from specified set of values
 
         Args:
@@ -190,13 +202,13 @@ class DatasetSchema:
             vals (List[Any]): the set of values to exclude
         Returns:
             self (DatasetSchema): the updated schema
-        '''
+        """
         col = self.get_column(name)
         col.checks.isin = vals
         return self
 
-    def required(self,name:str,required: bool):
-        '''
+    def required(self, name: str, required: bool):
+        """
         required sets a column as required or optional
 
         Args:
@@ -204,13 +216,13 @@ class DatasetSchema:
             required (bool): whether the column is required
         Returns:
             self (DatasetSchema): the updated schema
-        '''
+        """
         col = self.get_column(name)
         col.required = required
         return self
 
-    def dtype(self,name:str, dtype: str):
-        '''
+    def dtype(self, name: str, dtype: str):
+        """
         dtype sets the required data type of the column
 
         Args:
@@ -218,13 +230,13 @@ class DatasetSchema:
             dtype (str): the required data type
         Returns:
             self (DatasetSchema): the updated schema
-        '''
+        """
         col = self.get_column(name)
         col.dtype = dtype
         return self
 
-    def nullable(self,name:str, nullable: bool):
-        '''
+    def nullable(self, name: str, nullable: bool):
+        """
         dtype sets the nullable status of the column
 
         Args:
@@ -232,13 +244,13 @@ class DatasetSchema:
             nullable (bool): whether the column is nullable
         Returns:
             self (DatasetSchema): the updated schema
-        '''
+        """
         col = self.get_column(name)
         col.nullable = nullable
         return self
 
-    def coerce(self,name:str, coerce: bool):
-        '''
+    def coerce(self, name: str, coerce: bool):
+        """
         dtype sets the coerce value of the column
 
         Args:
@@ -246,7 +258,7 @@ class DatasetSchema:
             coerce (bool): whether the validator should coerce invalid types
         Returns:
             self (DatasetSchema): the updated schema
-        '''
+        """
         col = self.get_column(name)
         col.coerce = coerce
         return self

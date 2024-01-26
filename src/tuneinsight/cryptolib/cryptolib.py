@@ -11,7 +11,9 @@ arch = platform.machine()
 os = platform.system().lower()
 cryptolib_path = cwd / f"cryptolib-{os}_{arch}.so"
 if not exists(cryptolib_path):
-    raise FileNotFoundError("Could not find the cryptolib library. Your platform might not be supported.")
+    raise FileNotFoundError(
+        "Could not find the cryptolib library. Your platform might not be supported."
+    )
 so = ctypes.cdll.LoadLibrary(cryptolib_path)
 
 
@@ -25,7 +27,10 @@ def go_error() -> Exception:
         return ValueError(error_message)
     return Exception(error_message)
 
-def new_hefloat_operator_from_b64_hefloat_parameters(hefloat_parameters_b64: str) -> bytes:
+
+def new_hefloat_operator_from_b64_hefloat_parameters(
+    hefloat_parameters_b64: str,
+) -> bytes:
     """Instantiates a new HeFloat Operator from a base64 encoded hefloat parameters.
 
     Args:
@@ -40,6 +45,7 @@ def new_hefloat_operator_from_b64_hefloat_parameters(hefloat_parameters_b64: str
     if hefloat_operator_id is None:
         raise go_error()
     return hefloat_operator_id
+
 
 def new_hefloat_operator_from_b64_scheme_context(scheme_context_b64: str) -> bytes:
     """Instantiates a new HEFloat Operator from a base64 encoded scheme.Context.
@@ -57,8 +63,9 @@ def new_hefloat_operator_from_b64_scheme_context(scheme_context_b64: str) -> byt
         raise go_error()
     return hefloat_operator_id
 
+
 def get_relin_key_bytes(hefloat_operator_id: bytes) -> bytes:
-    '''
+    """
     get_relin_key_bytes retrieves the relinearization key bytes from the cryptosystem
 
     Args:
@@ -66,14 +73,17 @@ def get_relin_key_bytes(hefloat_operator_id: bytes) -> bytes:
 
     Returns:
         bytes: the relinearization key bytes
-    '''
+    """
     get_relin_key = so.GetRelinearizationKeyBytes
     get_relin_key.restype = ctypes.c_void_p
     res = get_relin_key(hefloat_operator_id)
     return _handle_bytes_result(res)
 
-def encrypt_prediction_dataset(hefloat_operator_id:bytes,csv_bytes: bytes,b64_params: str,remove_header: bool) -> bytes:
-    '''
+
+def encrypt_prediction_dataset(
+    hefloat_operator_id: bytes, csv_bytes: bytes, b64_params: str, remove_header: bool
+) -> bytes:
+    """
     encrypt_prediction_dataset encrypts a provided dataset in prediction format using the secret key of the cryptosystem
 
     Args:
@@ -84,15 +94,21 @@ def encrypt_prediction_dataset(hefloat_operator_id:bytes,csv_bytes: bytes,b64_pa
 
     Returns:
         bytes: the encrypted version of the dataset that can be used as input to a encrypted prediction computation
-    '''
+    """
     encrypt_pred = so.EncryptPredictionDataset
     encrypt_pred.restype = ctypes.c_void_p
-    res = encrypt_pred(hefloat_operator_id,csv_bytes,len(csv_bytes),b64_params.encode(),ctypes.c_bool(remove_header))
+    res = encrypt_pred(
+        hefloat_operator_id,
+        csv_bytes,
+        len(csv_bytes),
+        b64_params.encode(),
+        ctypes.c_bool(remove_header),
+    )
     return _handle_bytes_result(res)
 
 
-def decrypt_prediction(hefloat_operator_id: bytes,ct: bytes) -> bytes:
-    '''
+def decrypt_prediction(hefloat_operator_id: bytes, ct: bytes) -> bytes:
+    """
     decrypt_prediction decrypts the encrypted prediction ciphertext
 
     Args:
@@ -101,11 +117,12 @@ def decrypt_prediction(hefloat_operator_id: bytes,ct: bytes) -> bytes:
 
     Returns:
         bytes: the decrypted predicted values as a csv in byte format
-    '''
+    """
     decrypt_pred = so.DecryptPredictionResult
     decrypt_pred.restype = ctypes.c_void_p
-    res = decrypt_pred(hefloat_operator_id,ct,len(ct))
+    res = decrypt_pred(hefloat_operator_id, ct, len(ct))
     return _handle_bytes_result(res)
+
 
 def key_generation(hefloat_operator_id: bytes) -> bytes:
     """Generate a key for a given cryptosystem.
@@ -122,6 +139,7 @@ def key_generation(hefloat_operator_id: bytes) -> bytes:
     if key_response is None:
         raise go_error()
     return key_response
+
 
 def relinearization_key_generation(hefloat_operator_id: bytes) -> bytes:
     """Generate a key for a given cryptosystem.
@@ -194,9 +212,10 @@ def encrypt_matrix(hefloat_operator_id: bytes, csv_string: bytes) -> bytes:
     ciphertext = ciphertext[8:]
     return ciphertext
 
-def decrypt_dataframe(hefloat_operator_id: bytes,
-                      dataframe_ciphertext: bytes,
-                      headers: List[str] = None) -> pd.DataFrame:
+
+def decrypt_dataframe(
+    hefloat_operator_id: bytes, dataframe_ciphertext: bytes, headers: List[str] = None
+) -> pd.DataFrame:
     """Turn an encrypted pandas dataframe into a new decrypted pandas dataframe.
     Indices are recovered, column names can optionally be provided by the user.
 
@@ -211,11 +230,11 @@ def decrypt_dataframe(hefloat_operator_id: bytes,
     plaintext_csv_bytes = decrypt_csv(hefloat_operator_id, dataframe_ciphertext)
     if plaintext_csv_bytes is None:
         raise go_error()
-    plaintext_csv = plaintext_csv_bytes.decode('utf8')
+    plaintext_csv = plaintext_csv_bytes.decode("utf8")
     plaintext_dataframe = pd.DataFrame(
-        [row.split(',') for row in plaintext_csv.split('\n')])
-    plaintext_dataframe = plaintext_dataframe.set_index(
-        plaintext_dataframe.columns[0])
+        [row.split(",") for row in plaintext_csv.split("\n")]
+    )
+    plaintext_dataframe = plaintext_dataframe.set_index(plaintext_dataframe.columns[0])
     plaintext_dataframe.index.name = None
     if headers is not None:
         if len(headers) != len(plaintext_dataframe.columns):
@@ -240,7 +259,8 @@ def decrypt_csv(hefloat_operator_id: bytes, csv_ciphertext: bytes) -> bytes:
     decrypt_cipher_table.restype = ctypes.c_char_p
     ctxt_length = len(csv_ciphertext)
     csv_plaintext = decrypt_cipher_table(
-        hefloat_operator_id, csv_ciphertext, ctxt_length)
+        hefloat_operator_id, csv_ciphertext, ctxt_length
+    )
     if csv_plaintext is None:
         raise go_error()
     return csv_plaintext
@@ -273,9 +293,10 @@ def test_polynomial_evaluation_hefloat_params() -> str:
         raise go_error()
     return cryptoparameters_b64
 
-def encrypted_addition(hefloat_operator_id: bytes,
-                       number1: bytes,
-                       number2: bytes) -> bytes:
+
+def encrypted_addition(
+    hefloat_operator_id: bytes, number1: bytes, number2: bytes
+) -> bytes:
     add = so.Add
     add.restype = ctypes.c_void_p
     number1_size = len(number1)
@@ -288,7 +309,10 @@ def encrypted_addition(hefloat_operator_id: bytes,
     ciphertext = ciphertext[8:]
     return ciphertext
 
-def encrypted_multiplication(hefloat_operator_id: bytes, number1: bytes, number2: bytes) -> bytes:
+
+def encrypted_multiplication(
+    hefloat_operator_id: bytes, number1: bytes, number2: bytes
+) -> bytes:
     multiply = so.Multiply
     multiply.restype = ctypes.c_void_p
     number1_size = len(number1)
@@ -301,17 +325,26 @@ def encrypted_multiplication(hefloat_operator_id: bytes, number1: bytes, number2
     ciphertext = ciphertext[8:]
     return ciphertext
 
-def encrypted_polynomial_evaluation(hefloat_operator_id: bytes, polynomial_coefficients: list[int, float], number: bytes) -> bytes:
+
+def encrypted_polynomial_evaluation(
+    hefloat_operator_id: bytes, polynomial_coefficients: list[int, float], number: bytes
+) -> bytes:
     polynomial_evaluation = so.PolynomialEvaluation
     polynomial_evaluation.restype = ctypes.c_void_p
     number_size = len(number)
 
     polynomial_coefficients = [str(i) for i in polynomial_coefficients]
     polynomial_coefficients = ",".join(polynomial_coefficients)
-    polynomial_coefficients = polynomial_coefficients.encode('UTF-8')
+    polynomial_coefficients = polynomial_coefficients.encode("UTF-8")
     polynomial_size = len(polynomial_coefficients)
 
-    result = polynomial_evaluation(hefloat_operator_id, polynomial_coefficients, polynomial_size, number, number_size)
+    result = polynomial_evaluation(
+        hefloat_operator_id,
+        polynomial_coefficients,
+        polynomial_size,
+        number,
+        number_size,
+    )
     if result is None:
         raise go_error()
     res_length = int.from_bytes(ctypes.string_at(result, 8), "little")
@@ -319,10 +352,11 @@ def encrypted_polynomial_evaluation(hefloat_operator_id: bytes, polynomial_coeff
     ciphertext = ciphertext[8:]
     return ciphertext
 
+
 def encrypt_number(hefloat_operator_id: bytes, number1: int) -> bytes:
     encrypt = so.EncryptNumber
     encrypt.restype = ctypes.c_void_p
-    byte_number = str(number1).encode('UTF-8')
+    byte_number = str(number1).encode("UTF-8")
     result = encrypt(hefloat_operator_id, byte_number)
     if result is None:
         raise go_error()
@@ -330,6 +364,7 @@ def encrypt_number(hefloat_operator_id: bytes, number1: int) -> bytes:
     ciphertext = ctypes.string_at(result, result_length + 8)
     ciphertext = ciphertext[8:]
     return ciphertext
+
 
 def decrypt_number(hefloat_operator_id: bytes, encrypted_number: bytes) -> int:
     decrypt = so.DecryptNumber
@@ -341,6 +376,7 @@ def decrypt_number(hefloat_operator_id: bytes, encrypted_number: bytes) -> int:
     result_length = int.from_bytes(ctypes.string_at(result, 8), "little")
     return result_length
 
+
 def _handle_bytes_result(result) -> bytes:
     if result is None:
         raise go_error()
@@ -349,21 +385,22 @@ def _handle_bytes_result(result) -> bytes:
     result_bytes = result_bytes[8:]
     return result_bytes
 
+
 ############################################### PIR ###############################################
 
+
 class PIRContext:
-    '''
+    """
     Represents a PIR context for client side PIR operations
 
     Raises:
         go_error: upon getting invalid parameters
-    '''
-
+    """
 
     ctx_id: bytes
 
-    def __init__(self,pir_b64:str,index_b64: str):
-        '''
+    def __init__(self, pir_b64: str, index_b64: str):
+        """
         __init__ initializes a PIR context
 
         Args:
@@ -372,28 +409,27 @@ class PIRContext:
 
         Raises:
             go_error: upon invalid parameters
-        '''
+        """
         func = so.NewPIRContext
         func.restype = ctypes.c_char_p
-        self.ctx_id = func(pir_b64.encode(),index_b64.encode())
+        self.ctx_id = func(pir_b64.encode(), index_b64.encode())
         if self.ctx_id is None:
             raise go_error()
 
-
     def get_eva_key(self) -> bytes:
-        '''
+        """
         get_eva_key returns the bytes of the evaluation key set
 
         Returns:
             bytes: the bytes of the evaluation key set
-        '''
+        """
         get_func = so.GetPIREvaluationKeyBytes
         get_func.restype = ctypes.c_void_p
         result = get_func(self.ctx_id)
         return _handle_bytes_result(result)
 
     def encrypt_query(self, query: str) -> bytes:
-        '''
+        """
         encrypt_query encrypts the given query
 
         Args:
@@ -401,14 +437,14 @@ class PIRContext:
 
         Returns:
             bytes: the encrypted query as bytes ready to be uploaded
-        '''
+        """
         encrypt_pir = so.EncryptPIRQuery
         encrypt_pir.restype = ctypes.c_void_p
         result = encrypt_pir(self.ctx_id, query.encode())
         return _handle_bytes_result(result)
 
     def decrypt_response(self, pir_result: bytes) -> bytes:
-        '''
+        """
         decrypt_response decrypts the encrypted bytes as a plaintext csv string
 
         Args:
@@ -416,7 +452,7 @@ class PIRContext:
 
         Returns:
             bytes: the decrypted csv as a byte string
-        '''
+        """
         decrypt_pir = so.DecryptPIRResult
         decrypt_pir.restype = ctypes.c_void_p
         result = decrypt_pir(self.ctx_id, pir_result, len(pir_result))

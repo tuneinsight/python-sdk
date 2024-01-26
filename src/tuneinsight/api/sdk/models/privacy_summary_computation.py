@@ -12,38 +12,38 @@ class PrivacySummaryComputation:
     """Description of the computation that will be run for the project
 
     Attributes:
-        description (Union[Unset, str]):
         name (Union[Unset, str]):
+        description (Union[Unset, str]):
     """
 
-    description: Union[Unset, str] = UNSET
     name: Union[Unset, str] = UNSET
+    description: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        description = self.description
         name = self.name
+        description = self.description
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if description is not UNSET:
-            field_dict["description"] = description
         if name is not UNSET:
             field_dict["name"] = name
+        if description is not UNSET:
+            field_dict["description"] = description
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        description = d.pop("description", UNSET)
-
         name = d.pop("name", UNSET)
 
+        description = d.pop("description", UNSET)
+
         privacy_summary_computation = cls(
-            description=description,
             name=name,
+            description=description,
         )
 
         privacy_summary_computation.additional_properties = d

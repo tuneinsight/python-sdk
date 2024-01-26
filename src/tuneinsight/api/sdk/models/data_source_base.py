@@ -14,29 +14,25 @@ class DataSourceBase:
     """Common fields for a data source GET/POST
 
     Attributes:
-        access_scope (Union[Unset, AccessScope]): defines the scope of access given to a resource
         attributes (Union[Unset, List[str]]):
         authorized_users (Union[Unset, List[str]]):
         consent_type (Union[Unset, DataSourceConsentType]): Consent type given to the data source.
         name (Union[Unset, str]):
         type (Union[Unset, str]):
         unique_id (Union[Unset, None, str]): Unique identifier of a data source.
+        access_scope (Union[Unset, AccessScope]): defines the scope of access given to a resource
     """
 
-    access_scope: Union[Unset, AccessScope] = UNSET
     attributes: Union[Unset, List[str]] = UNSET
     authorized_users: Union[Unset, List[str]] = UNSET
     consent_type: Union[Unset, DataSourceConsentType] = UNSET
     name: Union[Unset, str] = UNSET
     type: Union[Unset, str] = UNSET
     unique_id: Union[Unset, None, str] = UNSET
+    access_scope: Union[Unset, AccessScope] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        access_scope: Union[Unset, str] = UNSET
-        if not isinstance(self.access_scope, Unset):
-            access_scope = self.access_scope.value
-
         attributes: Union[Unset, List[str]] = UNSET
         if not isinstance(self.attributes, Unset):
             attributes = self.attributes
@@ -52,12 +48,13 @@ class DataSourceBase:
         name = self.name
         type = self.type
         unique_id = self.unique_id
+        access_scope: Union[Unset, str] = UNSET
+        if not isinstance(self.access_scope, Unset):
+            access_scope = self.access_scope.value
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if access_scope is not UNSET:
-            field_dict["accessScope"] = access_scope
         if attributes is not UNSET:
             field_dict["attributes"] = attributes
         if authorized_users is not UNSET:
@@ -70,19 +67,14 @@ class DataSourceBase:
             field_dict["type"] = type
         if unique_id is not UNSET:
             field_dict["uniqueId"] = unique_id
+        if access_scope is not UNSET:
+            field_dict["accessScope"] = access_scope
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        _access_scope = d.pop("accessScope", UNSET)
-        access_scope: Union[Unset, AccessScope]
-        if isinstance(_access_scope, Unset):
-            access_scope = UNSET
-        else:
-            access_scope = AccessScope(_access_scope)
-
         attributes = cast(List[str], d.pop("attributes", UNSET))
 
         authorized_users = cast(List[str], d.pop("authorizedUsers", UNSET))
@@ -100,14 +92,21 @@ class DataSourceBase:
 
         unique_id = d.pop("uniqueId", UNSET)
 
+        _access_scope = d.pop("accessScope", UNSET)
+        access_scope: Union[Unset, AccessScope]
+        if isinstance(_access_scope, Unset):
+            access_scope = UNSET
+        else:
+            access_scope = AccessScope(_access_scope)
+
         data_source_base = cls(
-            access_scope=access_scope,
             attributes=attributes,
             authorized_users=authorized_users,
             consent_type=consent_type,
             name=name,
             type=type,
             unique_id=unique_id,
+            access_scope=access_scope,
         )
 
         data_source_base.additional_properties = d

@@ -9,18 +9,25 @@ from tuneinsight.utils.plots import style_plot
 
 
 class GWAS(ComputationRunner):
-    """ Computation for a Genome-Wide Association Study (GWAS).
+    """Computation for a Genome-Wide Association Study (GWAS).
 
     Args:
         ComputationRunner (ComputationRunner): parent class for running computation through the REST API.
     """
 
-
     cohort_id: str = UNSET
     join_id: str = UNSET
 
-    def linear_regression(self, target_label:str = UNSET, variants_organization:str = UNSET, matching_params:models.MatchingParams = UNSET, covariates:List[str] = UNSET, locus_range:models.LocusRange = UNSET, local: bool = False) -> pd.DataFrame:
-        """ Run a linear regression for the GWAS.
+    def linear_regression(
+        self,
+        target_label: str = UNSET,
+        variants_organization: str = UNSET,
+        matching_params: models.MatchingParams = UNSET,
+        covariates: List[str] = UNSET,
+        locus_range: models.LocusRange = UNSET,
+        local: bool = False,
+    ) -> pd.DataFrame:
+        """Run a linear regression for the GWAS.
 
         Args:
             target_label (str, optional): name of the column containing the phenotypical trait to study. Defaults to UNSET.
@@ -45,12 +52,14 @@ class GWAS(ComputationRunner):
         model.timeout = 500
         # self.max_timeout = 5 * self.max_timeout
 
-        dataobjects = super().run_computation(comp=model,local=local,keyswitch= not local,decrypt=True)
+        dataobjects = super().run_computation(
+            comp=model, local=local, keyswitch=not local, decrypt=True
+        )
         result = dataobjects[0].get_float_matrix()
         p_values = result.data[0]
 
         if len(result.columns) == len(p_values):
-            data = {'locus': result.columns, 'p_value': p_values}
+            data = {"locus": result.columns, "p_value": p_values}
         else:
             data = p_values
 
@@ -58,38 +67,63 @@ class GWAS(ComputationRunner):
 
     @staticmethod
     def plot_manhattan(p_values: pd.DataFrame):
-        """ Display the GWAS result as a manhattan plot.
+        """Display the GWAS result as a manhattan plot.
 
         Args:
             p_values (pd.DataFrame): DataFrame containing p-values.
         """
 
         # Transform data for plot
-        p_values = p_values[['locus', 'p_value']]
-        p_values['chromosome'] = p_values[['locus']].applymap(lambda x: x.split(':')[0])
-        p_values['minuslog10pvalue'] = -np.log10(p_values.p_value)
-        p_values.chromosome = p_values.chromosome.astype('category')
-        p_values['ind'] = range(len(p_values))
-        p_grouped = p_values.groupby(('chromosome'))
-
+        p_values = p_values[["locus", "p_value"]]
+        p_values["chromosome"] = p_values[["locus"]].applymap(lambda x: x.split(":")[0])
+        p_values["minuslog10pvalue"] = -np.log10(p_values.p_value)
+        p_values.chromosome = p_values.chromosome.astype("category")
+        p_values["ind"] = range(len(p_values))
+        p_grouped = p_values.groupby(("chromosome"))
 
         plt.style.use("bmh")
 
         fig, ax = plt.subplots()
 
-
-        colors = ['#348ABD', '#A60628', '#7A68A6', '#467821', '#D55E00', '#CC79A7', '#56B4E9', '#009E73','#F0E442']
+        colors = [
+            "#348ABD",
+            "#A60628",
+            "#7A68A6",
+            "#467821",
+            "#D55E00",
+            "#CC79A7",
+            "#56B4E9",
+            "#009E73",
+            "#F0E442",
+        ]
         x_labels = []
         x_labels_pos = []
         for num, (name, group) in enumerate(p_grouped):
-            group.plot(kind='scatter', x='ind', y='minuslog10pvalue',color=colors[num % len(colors)], ax=ax)
+            group.plot(
+                kind="scatter",
+                x="ind",
+                y="minuslog10pvalue",
+                color=colors[num % len(colors)],
+                ax=ax,
+            )
             x_labels.append(name)
-            x_labels_pos.append((group['ind'].iloc[-1] - (group['ind'].iloc[-1] - group['ind'].iloc[0])/2))
+            x_labels_pos.append(
+                (
+                    group["ind"].iloc[-1]
+                    - (group["ind"].iloc[-1] - group["ind"].iloc[0]) / 2
+                )
+            )
         ax.set_xticks(x_labels_pos)
         ax.set_xticklabels(x_labels)
 
         ax.set_xlim([0, len(p_values)])
 
-        style_plot(axis=ax, fig=fig, title="Manhattan Plot for GWAS", x_label='Chromosome', y_label="P-value (-log10 scale)")
+        style_plot(
+            axis=ax,
+            fig=fig,
+            title="Manhattan Plot for GWAS",
+            x_label="Chromosome",
+            y_label="P-value (-log10 scale)",
+        )
 
         plt.show()

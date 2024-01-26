@@ -6,19 +6,25 @@ import httpx
 from ... import errors
 from ...client import Client
 from ...models.error import Error
-from ...models.participant import Participant
-from ...types import Response
+from ...models.get_project_status_response_200 import GetProjectStatusResponse200
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     project_id: str,
     *,
     client: Client,
+    remote: Union[Unset, None, bool] = UNSET,
 ) -> Dict[str, Any]:
     url = "{}/projects/{projectId}/status".format(client.base_url, projectId=project_id)
 
     headers: Dict[str, str] = client.get_headers()
     cookies: Dict[str, Any] = client.get_cookies()
+
+    params: Dict[str, Any] = {}
+    params["remote"] = remote
+
+    params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
     return {
         "method": "get",
@@ -26,12 +32,13 @@ def _get_kwargs(
         "headers": headers,
         "cookies": cookies,
         "timeout": client.get_timeout(),
+        "params": params,
     }
 
 
-def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[Error, Participant]]:
+def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[Error, GetProjectStatusResponse200]]:
     if response.status_code == HTTPStatus.OK:
-        response_200 = Participant.from_dict(response.json())
+        response_200 = GetProjectStatusResponse200.from_dict(response.json())
 
         return response_200
     if response.status_code == HTTPStatus.FORBIDDEN:
@@ -52,7 +59,7 @@ def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Uni
         return None
 
 
-def _build_response(*, client: Client, response: httpx.Response) -> Response[Union[Error, Participant]]:
+def _build_response(*, client: Client, response: httpx.Response) -> Response[Union[Error, GetProjectStatusResponse200]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -65,23 +72,26 @@ def sync_detailed(
     project_id: str,
     *,
     client: Client,
-) -> Response[Union[Error, Participant]]:
+    remote: Union[Unset, None, bool] = UNSET,
+) -> Response[Union[Error, GetProjectStatusResponse200]]:
     """Gets the various statuses of the project
 
     Args:
         project_id (str):
+        remote (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Error, Participant]]
+        Response[Union[Error, GetProjectStatusResponse200]]
     """
 
     kwargs = _get_kwargs(
         project_id=project_id,
         client=client,
+        remote=remote,
     )
 
     response = httpx.request(
@@ -96,23 +106,26 @@ def sync(
     project_id: str,
     *,
     client: Client,
-) -> Optional[Union[Error, Participant]]:
+    remote: Union[Unset, None, bool] = UNSET,
+) -> Optional[Union[Error, GetProjectStatusResponse200]]:
     """Gets the various statuses of the project
 
     Args:
         project_id (str):
+        remote (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Error, Participant]]
+        Response[Union[Error, GetProjectStatusResponse200]]
     """
 
     return sync_detailed(
         project_id=project_id,
         client=client,
+        remote=remote,
     ).parsed
 
 
@@ -120,23 +133,26 @@ async def asyncio_detailed(
     project_id: str,
     *,
     client: Client,
-) -> Response[Union[Error, Participant]]:
+    remote: Union[Unset, None, bool] = UNSET,
+) -> Response[Union[Error, GetProjectStatusResponse200]]:
     """Gets the various statuses of the project
 
     Args:
         project_id (str):
+        remote (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Error, Participant]]
+        Response[Union[Error, GetProjectStatusResponse200]]
     """
 
     kwargs = _get_kwargs(
         project_id=project_id,
         client=client,
+        remote=remote,
     )
 
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
@@ -149,23 +165,26 @@ async def asyncio(
     project_id: str,
     *,
     client: Client,
-) -> Optional[Union[Error, Participant]]:
+    remote: Union[Unset, None, bool] = UNSET,
+) -> Optional[Union[Error, GetProjectStatusResponse200]]:
     """Gets the various statuses of the project
 
     Args:
         project_id (str):
+        remote (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Error, Participant]]
+        Response[Union[Error, GetProjectStatusResponse200]]
     """
 
     return (
         await asyncio_detailed(
             project_id=project_id,
             client=client,
+            remote=remote,
         )
     ).parsed

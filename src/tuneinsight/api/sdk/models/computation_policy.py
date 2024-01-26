@@ -19,52 +19,37 @@ class ComputationPolicy:
     """policy to validate a specific computation
 
     Attributes:
-        flexible_parameters (Union[Unset, List[str]]): when validateParameters is enabled, specifies the set of
-            parameters for which to ignore validation
+        authorized_computation_types (Union[Unset, List[ComputationType]]): list of authorized computation types
+        fixed_parameters (Union[Unset, List[str]]): when validateParameters is enabled, specifies the set of parameters
+            that cannot be changed if empty, then all parameters are validated
         template (Union[Unset, ComputationDefinition]): Generic computation.
         validate_parameters (Union[Unset, bool]): whether or not to validate the parameters with the ones from the
             template
-        restrict_data_source_queries (Union[Unset, bool]): whether or not datasource queries should be restricted
-        restrict_preprocessing_operations (Union[Unset, bool]): whether or not datasource queries should be restricted
         dp_policy (Union[Unset, DPPolicy]): represents the disclosure prevention policy that enables toggling various
             disclosure prevention mechanisms
-        authorized_computation_types (Union[Unset, List[ComputationType]]): list of authorized computation types
         authorized_data_source_queries (Union[Unset, List[str]]): list of authorized datasource queries when
             restrictDataSourceQueries is set to true
         authorized_preprocessing_operations (Union[Unset, List[PreprocessingOperationType]]): list of authorized
             preprocessing operations types when restrictPreprocessingOperations is set to true
-        fixed_parameters (Union[Unset, List[str]]): when validateParameters is enabled, specifies the set of parameters
-            that cannot be changed if empty, then all parameters are validated
+        flexible_parameters (Union[Unset, List[str]]): when validateParameters is enabled, specifies the set of
+            parameters for which to ignore validation
+        restrict_data_source_queries (Union[Unset, bool]): whether or not datasource queries should be restricted
+        restrict_preprocessing_operations (Union[Unset, bool]): whether or not datasource queries should be restricted
     """
 
-    flexible_parameters: Union[Unset, List[str]] = UNSET
+    authorized_computation_types: Union[Unset, List[ComputationType]] = UNSET
+    fixed_parameters: Union[Unset, List[str]] = UNSET
     template: Union[Unset, "ComputationDefinition"] = UNSET
     validate_parameters: Union[Unset, bool] = UNSET
-    restrict_data_source_queries: Union[Unset, bool] = UNSET
-    restrict_preprocessing_operations: Union[Unset, bool] = UNSET
     dp_policy: Union[Unset, "DPPolicy"] = UNSET
-    authorized_computation_types: Union[Unset, List[ComputationType]] = UNSET
     authorized_data_source_queries: Union[Unset, List[str]] = UNSET
     authorized_preprocessing_operations: Union[Unset, List[PreprocessingOperationType]] = UNSET
-    fixed_parameters: Union[Unset, List[str]] = UNSET
+    flexible_parameters: Union[Unset, List[str]] = UNSET
+    restrict_data_source_queries: Union[Unset, bool] = UNSET
+    restrict_preprocessing_operations: Union[Unset, bool] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        flexible_parameters: Union[Unset, List[str]] = UNSET
-        if not isinstance(self.flexible_parameters, Unset):
-            flexible_parameters = self.flexible_parameters
-
-        template: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.template, Unset):
-            template = self.template.to_dict()
-
-        validate_parameters = self.validate_parameters
-        restrict_data_source_queries = self.restrict_data_source_queries
-        restrict_preprocessing_operations = self.restrict_preprocessing_operations
-        dp_policy: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.dp_policy, Unset):
-            dp_policy = self.dp_policy.to_dict()
-
         authorized_computation_types: Union[Unset, List[str]] = UNSET
         if not isinstance(self.authorized_computation_types, Unset):
             authorized_computation_types = []
@@ -72,6 +57,19 @@ class ComputationPolicy:
                 authorized_computation_types_item = authorized_computation_types_item_data.value
 
                 authorized_computation_types.append(authorized_computation_types_item)
+
+        fixed_parameters: Union[Unset, List[str]] = UNSET
+        if not isinstance(self.fixed_parameters, Unset):
+            fixed_parameters = self.fixed_parameters
+
+        template: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.template, Unset):
+            template = self.template.to_dict()
+
+        validate_parameters = self.validate_parameters
+        dp_policy: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.dp_policy, Unset):
+            dp_policy = self.dp_policy.to_dict()
 
         authorized_data_source_queries: Union[Unset, List[str]] = UNSET
         if not isinstance(self.authorized_data_source_queries, Unset):
@@ -85,33 +83,36 @@ class ComputationPolicy:
 
                 authorized_preprocessing_operations.append(authorized_preprocessing_operations_item)
 
-        fixed_parameters: Union[Unset, List[str]] = UNSET
-        if not isinstance(self.fixed_parameters, Unset):
-            fixed_parameters = self.fixed_parameters
+        flexible_parameters: Union[Unset, List[str]] = UNSET
+        if not isinstance(self.flexible_parameters, Unset):
+            flexible_parameters = self.flexible_parameters
+
+        restrict_data_source_queries = self.restrict_data_source_queries
+        restrict_preprocessing_operations = self.restrict_preprocessing_operations
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if flexible_parameters is not UNSET:
-            field_dict["flexibleParameters"] = flexible_parameters
+        if authorized_computation_types is not UNSET:
+            field_dict["authorizedComputationTypes"] = authorized_computation_types
+        if fixed_parameters is not UNSET:
+            field_dict["fixedParameters"] = fixed_parameters
         if template is not UNSET:
             field_dict["template"] = template
         if validate_parameters is not UNSET:
             field_dict["validateParameters"] = validate_parameters
-        if restrict_data_source_queries is not UNSET:
-            field_dict["restrictDataSourceQueries"] = restrict_data_source_queries
-        if restrict_preprocessing_operations is not UNSET:
-            field_dict["restrictPreprocessingOperations"] = restrict_preprocessing_operations
         if dp_policy is not UNSET:
             field_dict["DPPolicy"] = dp_policy
-        if authorized_computation_types is not UNSET:
-            field_dict["authorizedComputationTypes"] = authorized_computation_types
         if authorized_data_source_queries is not UNSET:
             field_dict["authorizedDataSourceQueries"] = authorized_data_source_queries
         if authorized_preprocessing_operations is not UNSET:
             field_dict["authorizedPreprocessingOperations"] = authorized_preprocessing_operations
-        if fixed_parameters is not UNSET:
-            field_dict["fixedParameters"] = fixed_parameters
+        if flexible_parameters is not UNSET:
+            field_dict["flexibleParameters"] = flexible_parameters
+        if restrict_data_source_queries is not UNSET:
+            field_dict["restrictDataSourceQueries"] = restrict_data_source_queries
+        if restrict_preprocessing_operations is not UNSET:
+            field_dict["restrictPreprocessingOperations"] = restrict_preprocessing_operations
 
         return field_dict
 
@@ -121,7 +122,14 @@ class ComputationPolicy:
         from ..models.dp_policy import DPPolicy
 
         d = src_dict.copy()
-        flexible_parameters = cast(List[str], d.pop("flexibleParameters", UNSET))
+        authorized_computation_types = []
+        _authorized_computation_types = d.pop("authorizedComputationTypes", UNSET)
+        for authorized_computation_types_item_data in _authorized_computation_types or []:
+            authorized_computation_types_item = ComputationType(authorized_computation_types_item_data)
+
+            authorized_computation_types.append(authorized_computation_types_item)
+
+        fixed_parameters = cast(List[str], d.pop("fixedParameters", UNSET))
 
         _template = d.pop("template", UNSET)
         template: Union[Unset, ComputationDefinition]
@@ -132,23 +140,12 @@ class ComputationPolicy:
 
         validate_parameters = d.pop("validateParameters", UNSET)
 
-        restrict_data_source_queries = d.pop("restrictDataSourceQueries", UNSET)
-
-        restrict_preprocessing_operations = d.pop("restrictPreprocessingOperations", UNSET)
-
         _dp_policy = d.pop("DPPolicy", UNSET)
         dp_policy: Union[Unset, DPPolicy]
         if isinstance(_dp_policy, Unset):
             dp_policy = UNSET
         else:
             dp_policy = DPPolicy.from_dict(_dp_policy)
-
-        authorized_computation_types = []
-        _authorized_computation_types = d.pop("authorizedComputationTypes", UNSET)
-        for authorized_computation_types_item_data in _authorized_computation_types or []:
-            authorized_computation_types_item = ComputationType(authorized_computation_types_item_data)
-
-            authorized_computation_types.append(authorized_computation_types_item)
 
         authorized_data_source_queries = cast(List[str], d.pop("authorizedDataSourceQueries", UNSET))
 
@@ -161,19 +158,23 @@ class ComputationPolicy:
 
             authorized_preprocessing_operations.append(authorized_preprocessing_operations_item)
 
-        fixed_parameters = cast(List[str], d.pop("fixedParameters", UNSET))
+        flexible_parameters = cast(List[str], d.pop("flexibleParameters", UNSET))
+
+        restrict_data_source_queries = d.pop("restrictDataSourceQueries", UNSET)
+
+        restrict_preprocessing_operations = d.pop("restrictPreprocessingOperations", UNSET)
 
         computation_policy = cls(
-            flexible_parameters=flexible_parameters,
+            authorized_computation_types=authorized_computation_types,
+            fixed_parameters=fixed_parameters,
             template=template,
             validate_parameters=validate_parameters,
-            restrict_data_source_queries=restrict_data_source_queries,
-            restrict_preprocessing_operations=restrict_preprocessing_operations,
             dp_policy=dp_policy,
-            authorized_computation_types=authorized_computation_types,
             authorized_data_source_queries=authorized_data_source_queries,
             authorized_preprocessing_operations=authorized_preprocessing_operations,
-            fixed_parameters=fixed_parameters,
+            flexible_parameters=flexible_parameters,
+            restrict_data_source_queries=restrict_data_source_queries,
+            restrict_preprocessing_operations=restrict_preprocessing_operations,
         )
 
         computation_policy.additional_properties = d

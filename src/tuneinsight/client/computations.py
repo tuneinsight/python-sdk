@@ -1,10 +1,15 @@
 from typing import Any, List, Callable, TypeVar
+import pandas as pd
 from IPython.display import display, Markdown
 from tuneinsight.api.sdk import models
 from tuneinsight.api.sdk import Client
 from tuneinsight.api.sdk.types import UNSET
-from tuneinsight.api.sdk.types import  Response
-from tuneinsight.api.sdk.api.api_computations import compute, get_computation, documentation
+from tuneinsight.api.sdk.types import Response
+from tuneinsight.api.sdk.api.api_computations import (
+    compute,
+    get_computation,
+    documentation,
+)
 from tuneinsight.api.sdk.api.api_dataobject import get_data_object
 from tuneinsight.computations.queries import QueryBuilder
 from tuneinsight.computations.preprocessing import PreprocessingBuilder
@@ -13,11 +18,14 @@ from tuneinsight.client.dataobject import DataObject
 from tuneinsight.computations.errors import raise_computation_error
 import tuneinsight.utils.time_tools as time
 
-ComputationLauncher = TypeVar("ComputationLauncher",bound=Callable[[models.ComputationDefinition,bool],models.Computation])
+ComputationLauncher = TypeVar(
+    "ComputationLauncher",
+    bound=Callable[[models.ComputationDefinition, bool], models.Computation],
+)
+
 
 # @attr.s(auto_attribs=True)
-class ComputationRunner():
-
+class ComputationRunner:
     client: Client
     project_id: str
     preprocessing: PreprocessingBuilder = None
@@ -26,9 +34,9 @@ class ComputationRunner():
     polling_initial_interval: int
     max_sleep_time: int
     recorded_computations: List[models.Computation]
+    local_input: models.LocalInput
 
-
-    def __init__(self, project_id:str = "", client:Client = UNSET):
+    def __init__(self, project_id: str = "", client: Client = UNSET):
         self.client = client
         self.project_id = project_id
         self.preprocessing = PreprocessingBuilder()
@@ -37,6 +45,7 @@ class ComputationRunner():
         self.polling_initial_interval = 100 * time.millisecond
         self.max_sleep_time = 30 * time.second
         self.recorded_computations = []
+        self.local_input = None
 
     @staticmethod
     def field_is_set(field: Any) -> bool:
@@ -44,9 +53,12 @@ class ComputationRunner():
             return False
         return True
 
-
-    def update_computation_input(self,comp: models.ComputationDefinition):
-        if comp.type in [models.ComputationType.COLLECTIVEKEYSWITCH, models.ComputationType.ENCRYPTEDPREDICTION, models.ComputationType.PRIVATESEARCH]:
+    def update_computation_input(self, comp: models.ComputationDefinition):
+        if comp.type in [
+            models.ComputationType.COLLECTIVEKEYSWITCH,
+            models.ComputationType.ENCRYPTEDPREDICTION,
+            models.ComputationType.PRIVATESEARCH,
+        ]:
             return
         if self.datasource.query_set:
             comp.data_source_parameters = self.datasource.get_parameters()
@@ -54,38 +66,46 @@ class ComputationRunner():
             if not self.field_is_set(comp.input_data_object):
                 comp.data_source_parameters = models.ComputationDataSourceParameters()
 
-
-    def update_computation_fields(self,comp: models.ComputationDefinition):
+    def update_computation_fields(self, comp: models.ComputationDefinition):
         comp.wait = False
         if not self.field_is_set(comp.project_id):
             comp.project_id = self.project_id
         comp.timeout = int(self.max_timeout / time.second)
         self.update_computation_input(comp=comp)
+        if self.local_input is not None:
+            comp.local_input = self.local_input
 
     def display_documentation(self, comp: models.ComputationDefinition):
-        '''
+        """
         display_documentation displays the documentation given a computation definition this first overrides the fields accordingly before calling POST documentation
 
         Args:
             comp (models.ComputationDefinition): the computation definition
-        '''
+        """
         self.post_preprocessing(comp)
         self.update_computation_fields(comp)
-        response : Response[models.DocumentationResponse200] = documentation.sync_detailed(client=self.client,json_body=comp)
+        response: Response[models.DocumentationResponse200] = (
+            documentation.sync_detailed(client=self.client, json_body=comp)
+        )
         validate_response(response)
         display(Markdown(response.parsed.description))
 
     @staticmethod
     def is_done(comp: models.Computation) -> bool:
-        waiting = comp.status not in (models.ComputationStatus.ERROR, models.ComputationStatus.SUCCESS)
+        waiting = comp.status not in (
+            models.ComputationStatus.ERROR,
+            models.ComputationStatus.SUCCESS,
+        )
         return not waiting
 
-    def refresh(self,comp: models.Computation) -> models.Computation:
-        response: Response[models.Computation] = get_computation.sync_detailed(client=self.client,computation_id=comp.id)
+    def refresh(self, comp: models.Computation) -> models.Computation:
+        response: Response[models.Computation] = get_computation.sync_detailed(
+            client=self.client, computation_id=comp.id
+        )
         validate_response(response)
         return response.parsed
 
-    def poll_computation(self,comp: models.Computation) -> List[DataObject]:
+    def poll_computation(self, comp: models.Computation) -> List[DataObject]:
         # define initial sleeping time and start time
         timeStart = time.now()
         sleep_time = self.polling_initial_interval
@@ -101,7 +121,9 @@ class ComputationRunner():
                 sleep_time = int(sleep_time * 1.05)
 
         # Raise an exception if there is an error
-        if (current_comp.status == models.ComputationStatus.ERROR) or (len(comp.errors) > 0):
+        if (current_comp.status == models.ComputationStatus.ERROR) or (
+            len(comp.errors) > 0
+        ):
             raise_computation_error(current_comp.errors)
 
         if len(current_comp.results) < 1:
@@ -110,23 +132,32 @@ class ComputationRunner():
         # Update recorded computation
         self.recorded_computations.append(current_comp)
         # Get Result models
-        results : List[DataObject] = []
+        results: List[DataObject] = []
         for doID in current_comp.results:
-            response: Response[models.DataObject] = get_data_object.sync_detailed(client=self.client,data_object_id=doID)
+            response: Response[models.DataObject] = get_data_object.sync_detailed(
+                client=self.client, data_object_id=doID
+            )
             validate_response(response)
-            results.append(DataObject(model=response.parsed,client=self.client))
+            results.append(DataObject(model=response.parsed, client=self.client))
         return results
 
-    def key_switch(self,dataObject: DataObject) -> DataObject:
-        ksDef = models.CollectiveKeySwitch(type=models.ComputationType.COLLECTIVEKEYSWITCH,cipher_vector=dataObject.get_id(),local=False)
-        computation = self.launch_computation(comp=ksDef,local=False)
+    def key_switch(self, dataObject: DataObject) -> DataObject:
+        ksDef = models.CollectiveKeySwitch(
+            type=models.ComputationType.COLLECTIVEKEYSWITCH,
+            cipher_vector=dataObject.get_id(),
+            local=False,
+        )
+        computation = self.launch_computation(comp=ksDef, local=False)
         return self.poll_computation(computation)[0]
 
-
-    def launch_computation(self,comp:models.ComputationDefinition,local:bool=False) -> models.Computation:
+    def launch_computation(
+        self, comp: models.ComputationDefinition, local: bool = False
+    ) -> models.Computation:
         comp.local = local
         self.update_computation_fields(comp=comp)
-        response : Response[models.Computation] = compute.sync_detailed(client=self.client,json_body=comp)
+        response: Response[models.Computation] = compute.sync_detailed(
+            client=self.client, json_body=comp
+        )
         validate_response(response)
         return response.parsed
 
@@ -137,7 +168,14 @@ class ComputationRunner():
             comp.preprocessing_parameters = models.ComputationPreprocessingParameters()
         comp.preprocessing_parameters = self.preprocessing.get_params()
 
-    def run_computation(self,comp: models.ComputationDefinition, local: bool=False, keyswitch: bool=True, decrypt: bool=True,release: bool = False) -> List[DataObject]:
+    def run_computation(
+        self,
+        comp: models.ComputationDefinition,
+        local: bool = False,
+        keyswitch: bool = True,
+        decrypt: bool = True,
+        release: bool = False,
+    ) -> List[DataObject]:
         """
         Runs a computation using the given ComputationDefinition object.
 
@@ -160,12 +198,28 @@ class ComputationRunner():
             decrypt = False
             keyswitch = False
 
-        computation = self.launch_computation(comp,local=local)
+        computation = self.launch_computation(comp, local=local)
         results = self.poll_computation(comp=computation)
 
         if keyswitch:
-            for i,dataobject in enumerate(results):
+            for i, dataobject in enumerate(results):
                 results[i] = self.key_switch(dataobject)
                 if decrypt:
                     results[i] = results[i].decrypt()
         return results
+
+    def set_local_input(self, df: pd.DataFrame):
+        """
+        set_local_input sets the local user-provided plaintext input to the computation (only shared with the requesting instance)
+
+        Args:
+            df (pd.DataFrame): the dataframe to use as a local input
+        """
+        cols = df.columns
+        local_input = models.LocalInput()
+        for col in cols:
+            col_list = df[col].to_list()
+            for i, v in enumerate(col_list):
+                col_list[i] = str(v)
+            local_input.additional_properties[str(col)] = col_list
+        self.local_input = local_input

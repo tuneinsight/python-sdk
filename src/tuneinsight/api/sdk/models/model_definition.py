@@ -17,22 +17,21 @@ class ModelDefinition:
     """Definition of a model to upload
 
     Attributes:
-        name (str): common name to give to the model
         prediction_params (PredictionParams): subset of parameters required for only the prediction
         weights (List[List[float]]): Plaintext weights of the model as a float matrix
-        metadata (Union[Unset, ModelMetadata]): public metadata about the model
+        name (str): common name to give to the model
         project_id (Union[Unset, str]): Unique identifier of a project.
+        metadata (Union[Unset, ModelMetadata]): public metadata about the model
     """
 
-    name: str
     prediction_params: "PredictionParams"
     weights: List[List[float]]
-    metadata: Union[Unset, "ModelMetadata"] = UNSET
+    name: str
     project_id: Union[Unset, str] = UNSET
+    metadata: Union[Unset, "ModelMetadata"] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        name = self.name
         prediction_params = self.prediction_params.to_dict()
 
         weights = []
@@ -41,25 +40,25 @@ class ModelDefinition:
 
             weights.append(weights_item)
 
+        name = self.name
+        project_id = self.project_id
         metadata: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.metadata, Unset):
             metadata = self.metadata.to_dict()
-
-        project_id = self.project_id
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "name": name,
                 "predictionParams": prediction_params,
                 "weights": weights,
+                "name": name,
             }
         )
-        if metadata is not UNSET:
-            field_dict["metadata"] = metadata
         if project_id is not UNSET:
             field_dict["projectId"] = project_id
+        if metadata is not UNSET:
+            field_dict["metadata"] = metadata
 
         return field_dict
 
@@ -69,8 +68,6 @@ class ModelDefinition:
         from ..models.prediction_params import PredictionParams
 
         d = src_dict.copy()
-        name = d.pop("name")
-
         prediction_params = PredictionParams.from_dict(d.pop("predictionParams"))
 
         weights = []
@@ -80,6 +77,10 @@ class ModelDefinition:
 
             weights.append(weights_item)
 
+        name = d.pop("name")
+
+        project_id = d.pop("projectId", UNSET)
+
         _metadata = d.pop("metadata", UNSET)
         metadata: Union[Unset, ModelMetadata]
         if isinstance(_metadata, Unset):
@@ -87,14 +88,12 @@ class ModelDefinition:
         else:
             metadata = ModelMetadata.from_dict(_metadata)
 
-        project_id = d.pop("projectId", UNSET)
-
         model_definition = cls(
-            name=name,
             prediction_params=prediction_params,
             weights=weights,
-            metadata=metadata,
+            name=name,
             project_id=project_id,
+            metadata=metadata,
         )
 
         model_definition.additional_properties = d

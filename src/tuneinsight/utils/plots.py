@@ -7,8 +7,16 @@ import matplotlib.pyplot as plt
 this_path = str(Path(__file__).parent)
 
 
-def style_plot(axis:plt.Axes, fig:plt.figure, title:str, x_label:str, y_label:str, size:tuple = (8,4), local=False):
-    """ Style a plot with Tune Insight branding
+def style_plot(
+    axis: plt.Axes,
+    fig: plt.figure,
+    title: str,
+    x_label: str,
+    y_label: str,
+    size: tuple = (8, 4),
+    local=False,
+):
+    """Style a plot with Tune Insight branding
 
     Args:
         axis (plt.Axes): axis on which to apply styling
@@ -30,24 +38,29 @@ def style_plot(axis:plt.Axes, fig:plt.figure, title:str, x_label:str, y_label:st
     plt.xticks(font=font_regular, fontsize=8)
     plt.yticks(font=font_regular, fontsize=8)
 
-    fig.set_size_inches(size[0],size[1])
+    fig.set_size_inches(size[0], size[1])
     fig.tight_layout()
 
     if not local:
-        plt.text(0.5, -0.15, "The computation of these results was made possible by Tune Insight's Federated Confidential Computing.", horizontalalignment='center',
-        verticalalignment='top',
-        transform=axis.transAxes,
-        font=font_light,
-        fontsize=8)
-
+        plt.text(
+            0.5,
+            -0.15,
+            "The computation of these results was made possible by Tune Insight's Federated Confidential Computing.",
+            horizontalalignment="center",
+            verticalalignment="top",
+            transform=axis.transAxes,
+            font=font_light,
+            fontsize=8,
+        )
 
     logo = Image.open(this_path + "/graphical/TuneInsight_logo.png")
-    rsize = logo.resize((np.array(logo.size)/4).astype(int))
+    rsize = logo.resize((np.array(logo.size) / 4).astype(int))
 
     axis.figure.figimage(rsize, 10, 0, alpha=0.9, zorder=1)
 
-def style_title(axis: plt.Axes, title:str = "", fontsize:int = 15):
-    """ Style plot title with Tune Insight branding font.
+
+def style_title(axis: plt.Axes, title: str = "", fontsize: int = 15):
+    """Style plot title with Tune Insight branding font.
 
     Args:
         axis (plt.Axes): axis on which to apply styling
@@ -58,13 +71,13 @@ def style_title(axis: plt.Axes, title:str = "", fontsize:int = 15):
     axis.set_title(title, font=font_regular, fontsize=fontsize)
 
 
-def style_suptitle(fig,title= "",fontsize=15):
+def style_suptitle(fig, title="", fontsize=15):
     font_regular = Path(this_path + "/graphical/MontserratRegular.ttf")
-    fig.suptitle(title,size=fontsize,font=font_regular)
+    fig.suptitle(title, size=fontsize, font=font_regular)
 
 
 def style_ylabel(axis: plt.Axes, y_label: str, fontsize: int = 10):
-    """ Style plot y label with Tune Insight branding font
+    """Style plot y label with Tune Insight branding font
 
     Args:
         axis (plt.Axes): axis on which to apply styling
@@ -74,8 +87,9 @@ def style_ylabel(axis: plt.Axes, y_label: str, fontsize: int = 10):
     font_med = Path(this_path + "/graphical/MontserratMedium.ttf")
     axis.set_ylabel(y_label, font=font_med, fontsize=fontsize)
 
-def add_ti_branding(axis: plt.Axes, x=1.5, ha='center', local=False):
-    """ Add Tune Insight logo and credits
+
+def add_ti_branding(axis: plt.Axes, x=1.5, ha="center", local=False):
+    """Add Tune Insight logo and credits
 
     Args:
         axis (plt.Axes): axis on which to add branding
@@ -86,20 +100,25 @@ def add_ti_branding(axis: plt.Axes, x=1.5, ha='center', local=False):
     if not local:
         font_light = Path(this_path + "/graphical/MontserratLight.ttf")
         ymin, ymax = axis.get_ylim()
-        adjust = 0.1 * (ymax-ymin)
-        plt.text(x, ymin - adjust, "The computation of these results was made possible by Tune Insight's Federated Confidential Computing.",
+        adjust = 0.1 * (ymax - ymin)
+        plt.text(
+            x,
+            ymin - adjust,
+            "The computation of these results was made possible by Tune Insight's Federated Confidential Computing.",
             horizontalalignment=ha,
-            verticalalignment='top',
+            verticalalignment="top",
             font=font_light,
-            fontsize=8)
+            fontsize=8,
+        )
 
     logo = Image.open(this_path + "/graphical/TuneInsight_logo.png")
-    rsize = logo.resize((np.array(logo.size)/4).astype(int))
+    rsize = logo.resize((np.array(logo.size) / 4).astype(int))
 
     axis.figure.figimage(rsize, 10, 0, alpha=0.9, zorder=1)
 
-def hist(x, title, bins=30, hist_range=(0,30), local=True):
-    """ Create histogram with Tune Insight branding.
+
+def hist(x, title, bins=30, hist_range=(0, 30), local=True):
+    """Create histogram with Tune Insight branding.
 
     Args:
         x (_type_): values to plot
@@ -114,13 +133,12 @@ def hist(x, title, bins=30, hist_range=(0,30), local=True):
     # plot
     fig, ax = plt.subplots()
 
+    ax.hist(x, bins=bins, range=hist_range, color="#D05F5C", edgecolor="black")
 
-    ax.hist(x,bins=bins,range=hist_range, color="#D05F5C", edgecolor='black')
-
-
-    style_plot(ax, fig, title, "","", size=(6,4), local=local)
+    style_plot(ax, fig, title, "", "", size=(6, 4), local=local)
 
     plt.show()
+
 
 def get_path():
     print(Path(__file__).parent)
