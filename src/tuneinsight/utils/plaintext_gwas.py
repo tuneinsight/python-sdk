@@ -1,14 +1,19 @@
-from math import erf, sqrt
+"""Utilities to compute a closed-form linear regression for a GWAS."""
+
+# This should probably move to the GWAS computations.py.
+
 import numpy as np
 
 
 def phi(x):
-    #'Cumulative distribution function for the standard normal distribution'
-    return (1.0 + erf(x / sqrt(2.0))) / 2.0
+    """Cumulative distribution function for the standard normal distribution."""
+    return (1.0 + np.erf(x / np.sqrt(2))) / 2
 
 
 def GWASLinReg(V, X, Y):
     """
+    Perform a closed-form linear regression for a GWAS.
+
     p: the number of patients
     v: the number of variants
     f: the number of covariates
@@ -28,11 +33,11 @@ def GWASLinReg(V, X, Y):
     p = V.shape[1]
     f = X.shape[1] - 1
 
-    assert f > -1  # X must include intercept
-    assert X.shape[0] == p
-    assert Y.shape[0] == p
+    assert f > -1, "X must include the intercept"
+    assert X.shape[0] == p, f"Shape mismatch for X (expected {p}x{f+1})"
+    assert Y.shape[0] == p, f"Shape mismatch for Y (expected 1x{p})"
 
-    P = [0 for i in range(v)]
+    P = np.zeros(shape=(v,))
 
     # Iterates over all the variants
     for i in range(v):

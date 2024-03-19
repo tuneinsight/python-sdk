@@ -1,11 +1,12 @@
 [tool.poetry]
 name = "tuneinsight"
-version = "0.6.2"
+version = "0.9.0"
 description = "Diapason is the official Python SDK for the Tune Insight API. Version 0.6.2 targets the API v0.8.0."
 authors = ["Tune Insight SA"]
 license = "Apache-2.0"
 include = [
     "src/tuneinsight/api/**/*.py",
+    "src/tuneinsight/api/api-checksum",
     "src/tuneinsight/cryptolib/*.so",
     "src/tuneinsight/cryptolib/*.dll"
 ]
@@ -13,7 +14,7 @@ readme = "src/tuneinsight/README.md"
 
 [tool.poetry.dependencies]
 python = ">= 3.8,<3.12"
-python-keycloak = "^0.27.0"
+python-keycloak = "^3.9.0"
 pandas = "^1.3.5"
 PyYAML = "^6.0"
 notebook = "^6.4.11"
@@ -26,7 +27,8 @@ typing-extensions = "^4.6.3"
 httpx = ">=0.15.4,<0.24.0"
 attrs = ">=21.3.0"
 certifi = "^2023.7.22"
-black = "^24.1.0"
+black = "24.2.0"
+handsdown = "^2.1.0"
 
 [tool.poetry.group.dev.dependencies]
 selenium = "^4.9.1"

@@ -1,11 +1,13 @@
+"""Classes managing authentication to Keycloak."""
+
 from typing import Dict
 
 
 from time import time
 from ast import literal_eval
 from attr import define
-from keycloak import KeycloakOpenID, raise_error_from_response
-from keycloak.exceptions import KeycloakError
+from keycloak import KeycloakOpenID
+from keycloak.exceptions import KeycloakError, raise_error_from_response
 
 from tuneinsight.api.sdk import client
 from tuneinsight.client import config

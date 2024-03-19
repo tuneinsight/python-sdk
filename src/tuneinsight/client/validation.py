@@ -1,16 +1,19 @@
+"""Utilities and errors to validate responses from the API."""
+
 from tuneinsight.api.sdk.types import Response
 from tuneinsight.utils.errors import hidden_traceback_scope
 
 
 def validate_response(response: Response):
     """
-    validate_response validates a given response, if the status code is erroneous it raises an InvalidResponse error
+    Validates a given response, raising Exceptions in case the response is not successful.
 
     Args:
         response (Response): the response
 
     Raises:
-        InvalidResponseError: the exception if the response's status code is not successful
+        AuthorizationError: if the response's status code is 403.
+        InvalidResponseError: if the response's status code is not successful.
     """
     if response.status_code < 200 or response.status_code > 210:
         with hidden_traceback_scope():
@@ -21,7 +24,7 @@ def validate_response(response: Response):
 
 class AuthorizationError(Exception):
     """
-    AuthorizationError is the exception used when the response status code is 403
+    AuthorizationError is the exception used when the response status code is 403.
 
     Args:
         Exception: the base exception class
@@ -38,7 +41,7 @@ class AuthorizationError(Exception):
 
 class InvalidResponseError(Exception):
     """
-    InvalidResponseError represents an exception when the response status code is erroneous
+    InvalidResponseError represents an exception when the response status code is erroneous.
 
     Args:
         Exception: the base exception class
@@ -50,7 +53,15 @@ class InvalidResponseError(Exception):
             b"when parsing token" in response.content
             or b"unsuccessful token validation" in response.content
         ):
-            message += "\n\nInvalid or expired token used. To obtain a valid token log in with your credentials at sdk.tuneinsight.com and insert the token in the static_token field of the sdk-config.yml file."
+            message += (
+                "\n\nInvalid or expired token used. To obtain a valid token log in"
+                + " with your credentials at sdk.tuneinsight.com and insert the token"
+                + " in the static_token field of the sdk-config.yml file."
+            )
         elif b"permission denied by the authorization provider" in response.content:
-            message += "\n\nCheck credentials or token validity. To obtain a valid token log in with your credentials at sdk.tuneinsight.com and insert the token in the static_token field of the sdk-config.yml file."
+            message += (
+                "\n\nCheck credentials or token validity. To obtain a valid token log"
+                + " in with your credentials at sdk.tuneinsight.com and insert the token"
+                + " in the static_token field of the sdk-config.yml file."
+            )
         super().__init__(message)

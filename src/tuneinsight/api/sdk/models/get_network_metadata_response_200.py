@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
 
 import attr
 
@@ -19,6 +19,7 @@ class GetNetworkMetadataResponse200:
         dpo_authorization_enabled (Union[Unset, bool]): Indicates if collective projects require authorization.
         networks (Union[Unset, List['Network']]):
         nodes (Union[Unset, List['Node']]):
+        warnings (Union[Unset, List[str]]):
         compound_queries_enabled (Union[Unset, bool]): Indicates if compound queries are enabled. If true, the data
             source queries can be composed of multiple queries.
         default_topology (Union[Unset, str]): Indicates the default topology of the network used when creating a
@@ -28,6 +29,7 @@ class GetNetworkMetadataResponse200:
     dpo_authorization_enabled: Union[Unset, bool] = UNSET
     networks: Union[Unset, List["Network"]] = UNSET
     nodes: Union[Unset, List["Node"]] = UNSET
+    warnings: Union[Unset, List[str]] = UNSET
     compound_queries_enabled: Union[Unset, bool] = UNSET
     default_topology: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
@@ -50,6 +52,10 @@ class GetNetworkMetadataResponse200:
 
                 nodes.append(nodes_item)
 
+        warnings: Union[Unset, List[str]] = UNSET
+        if not isinstance(self.warnings, Unset):
+            warnings = self.warnings
+
         compound_queries_enabled = self.compound_queries_enabled
         default_topology = self.default_topology
 
@@ -62,6 +68,8 @@ class GetNetworkMetadataResponse200:
             field_dict["networks"] = networks
         if nodes is not UNSET:
             field_dict["nodes"] = nodes
+        if warnings is not UNSET:
+            field_dict["warnings"] = warnings
         if compound_queries_enabled is not UNSET:
             field_dict["compoundQueriesEnabled"] = compound_queries_enabled
         if default_topology is not UNSET:
@@ -91,6 +99,8 @@ class GetNetworkMetadataResponse200:
 
             nodes.append(nodes_item)
 
+        warnings = cast(List[str], d.pop("warnings", UNSET))
+
         compound_queries_enabled = d.pop("compoundQueriesEnabled", UNSET)
 
         default_topology = d.pop("default-topology", UNSET)
@@ -99,6 +109,7 @@ class GetNetworkMetadataResponse200:
             dpo_authorization_enabled=dpo_authorization_enabled,
             networks=networks,
             nodes=nodes,
+            warnings=warnings,
             compound_queries_enabled=compound_queries_enabled,
             default_topology=default_topology,
         )

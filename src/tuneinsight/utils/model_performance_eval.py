@@ -1,29 +1,85 @@
+"""Utilities to measure the performances of a machine learning model.
+
+The metrics defined in this module all take two arguments: y_true (the
+true label) and y_pred (the predicted label), two arrays or array-like
+of the same shape. They function similarly to their implementation in
+sklearn.metrics, but without the dependency on scikit-learn.
+
+"""
+
 from typing import List
-import math
 import numpy as np
 
 
-def mse(y_true: List[float] = None, y_pred: List[float] = None) -> float:
-    return np.square(np.subtract(y_true, y_pred)).mean()
+def _check_arrays(y_true: List[float], y_pred: List[float]):
+    """
+    Check that inputs can be cast to np.arrays of the same size.
+
+    """
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+    assert (
+        y_true.shape == y_pred.shape
+    ), f"Input arrays have mismatching dimensions ({y_true.shape} >< {y_pred.shape})."
+    return y_true, y_pred
 
 
-def rmse(y_true: List[float] = None, y_pred: List[float] = None) -> float:
-    return math.sqrt(mse(y_true, y_pred))
+def mse(y_true: List[float], y_pred: List[float]) -> float:
+    """Computes the mean square error (same as sklearn.metrics.mse)."""
+    y_true, y_pred = _check_arrays(y_true, y_pred)
+    return np.square(y_true - y_pred).mean()
 
 
-def r2_score(y_true: List[float] = None, y_pred: List[float] = None) -> float:
-    if len(y_pred) != len(y_true):
-        raise Exception("Input sizes should be equal")
-    size = len(y_pred)
+def rmse(y_true: List[float], y_pred: List[float]) -> float:
+    """Computes the root mean square error (same as sklearn.metrics.rmse)."""
+    return np.sqrt(mse(y_true, y_pred))
 
-    ss_t = 0
-    ss_r = 0
 
-    mean_y = np.mean(y_true)
+def r2_score(y_true: List[float], y_pred: List[float]) -> float:
+    """Computes the R2 score  (same as sklearn.metrics.mse)."""
+    y_true, y_pred = _check_arrays(y_true, y_pred)
 
-    for i in range(size):
-        ss_t += (y_true[i] - mean_y) ** 2
-        ss_r += (y_true[i] - y_pred[i]) ** 2
+    ss_t = np.sum((y_true - np.mean(y_true)) ** 2)
+    ss_r = np.sum((y_true - y_pred) ** 2)
 
-    r2 = 1 - (ss_r / ss_t)
-    return r2
+    return 1 - (ss_r / ss_t)
+
+
+def sigmoid(z: np.ndarray) -> np.ndarray:
+    """
+    Applies the sigmoid activation on an array.
+
+    Args:
+        z (np.ndarray): the numpy representation of z
+
+    Returns:
+        np.ndarray: the transformed array
+    """
+    return 1 / (1 + np.exp(-z))
+
+
+def regression_prediction(
+    weights: np.ndarray,
+    bias: np.ndarray,
+    inputs: np.ndarray,
+    activation: callable = None,
+) -> np.ndarray:
+    """
+    Computes the regression prediction given the weights, bias and input datasets.
+
+    An additional optional activation function can be provided to be applied after
+    the linear transformation.
+
+    Args:
+        weights (np.ndarray): the model weights/coefficients
+        bias (np.ndarray): the model bias
+        inputs (np.ndarray): the input dataset
+        activation (callable, optional): the optional activation function. Defaults to None.
+
+    Returns:
+        np.ndarray: the numpy array of predicted values
+    """
+    z = np.dot(weights.T, inputs.T) + bias
+    if activation is not None:
+        return activation(z)
+    return z

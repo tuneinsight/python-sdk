@@ -12,46 +12,46 @@ class Log:
     """Definition of an audit log
 
     Attributes:
-        created_at (Union[Unset, str]):
         user (Union[Unset, str]): ID of user who generated the log
         value (Union[Unset, str]):
+        created_at (Union[Unset, str]):
     """
 
-    created_at: Union[Unset, str] = UNSET
     user: Union[Unset, str] = UNSET
     value: Union[Unset, str] = UNSET
+    created_at: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        created_at = self.created_at
         user = self.user
         value = self.value
+        created_at = self.created_at
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if created_at is not UNSET:
-            field_dict["createdAt"] = created_at
         if user is not UNSET:
             field_dict["user"] = user
         if value is not UNSET:
             field_dict["value"] = value
+        if created_at is not UNSET:
+            field_dict["createdAt"] = created_at
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        created_at = d.pop("createdAt", UNSET)
-
         user = d.pop("user", UNSET)
 
         value = d.pop("value", UNSET)
 
+        created_at = d.pop("createdAt", UNSET)
+
         log = cls(
-            created_at=created_at,
             user=user,
             value=value,
+            created_at=created_at,
         )
 
         log.additional_properties = d

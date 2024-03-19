@@ -5,9 +5,9 @@ import httpx
 
 from ... import errors
 from ...client import Client
-from ...models.computation_definition import ComputationDefinition
 from ...models.error import Error
 from ...models.project_computation import ProjectComputation
+from ...models.run_project_parameters import RunProjectParameters
 from ...types import Response
 
 
@@ -15,7 +15,7 @@ def _get_kwargs(
     project_id: str,
     *,
     client: Client,
-    json_body: ComputationDefinition,
+    json_body: RunProjectParameters,
 ) -> Dict[str, Any]:
     url = "{}/projects/{projectId}/computation".format(client.base_url, projectId=project_id)
 
@@ -78,13 +78,13 @@ def sync_detailed(
     project_id: str,
     *,
     client: Client,
-    json_body: ComputationDefinition,
+    json_body: RunProjectParameters,
 ) -> Response[Union[Error, ProjectComputation]]:
     """Run the computation defined on the project
 
     Args:
         project_id (str):
-        json_body (ComputationDefinition): Generic computation.
+        json_body (RunProjectParameters): parameters used to launch the project with.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -112,13 +112,13 @@ def sync(
     project_id: str,
     *,
     client: Client,
-    json_body: ComputationDefinition,
+    json_body: RunProjectParameters,
 ) -> Optional[Union[Error, ProjectComputation]]:
     """Run the computation defined on the project
 
     Args:
         project_id (str):
-        json_body (ComputationDefinition): Generic computation.
+        json_body (RunProjectParameters): parameters used to launch the project with.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -139,13 +139,13 @@ async def asyncio_detailed(
     project_id: str,
     *,
     client: Client,
-    json_body: ComputationDefinition,
+    json_body: RunProjectParameters,
 ) -> Response[Union[Error, ProjectComputation]]:
     """Run the computation defined on the project
 
     Args:
         project_id (str):
-        json_body (ComputationDefinition): Generic computation.
+        json_body (RunProjectParameters): parameters used to launch the project with.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -171,13 +171,13 @@ async def asyncio(
     project_id: str,
     *,
     client: Client,
-    json_body: ComputationDefinition,
+    json_body: RunProjectParameters,
 ) -> Optional[Union[Error, ProjectComputation]]:
     """Run the computation defined on the project
 
     Args:
         project_id (str):
-        json_body (ComputationDefinition): Generic computation.
+        json_body (RunProjectParameters): parameters used to launch the project with.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

@@ -18,21 +18,22 @@ class Network:
     """Network that represents a set of nodes
 
     Attributes:
+        name (Union[Unset, str]):
         nodes (Union[Unset, List['Node']]):
         topology (Union[Unset, Topology]): Network Topologies. 'star' or 'tree'. In star topology all nodes are
             connected to a central node. In tree topology all nodes are connected and aware of each other.
         visibility_type (Union[Unset, NetworkVisibilityType]): represents the type of visibility leaf nodes have in a
             network
-        name (Union[Unset, str]):
     """
 
+    name: Union[Unset, str] = UNSET
     nodes: Union[Unset, List["Node"]] = UNSET
     topology: Union[Unset, Topology] = UNSET
     visibility_type: Union[Unset, NetworkVisibilityType] = UNSET
-    name: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        name = self.name
         nodes: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.nodes, Unset):
             nodes = []
@@ -49,19 +50,17 @@ class Network:
         if not isinstance(self.visibility_type, Unset):
             visibility_type = self.visibility_type.value
 
-        name = self.name
-
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if name is not UNSET:
+            field_dict["name"] = name
         if nodes is not UNSET:
             field_dict["nodes"] = nodes
         if topology is not UNSET:
             field_dict["topology"] = topology
         if visibility_type is not UNSET:
             field_dict["visibilityType"] = visibility_type
-        if name is not UNSET:
-            field_dict["name"] = name
 
         return field_dict
 
@@ -70,6 +69,8 @@ class Network:
         from ..models.node import Node
 
         d = src_dict.copy()
+        name = d.pop("name", UNSET)
+
         nodes = []
         _nodes = d.pop("nodes", UNSET)
         for nodes_item_data in _nodes or []:
@@ -91,13 +92,11 @@ class Network:
         else:
             visibility_type = NetworkVisibilityType(_visibility_type)
 
-        name = d.pop("name", UNSET)
-
         network = cls(
+            name=name,
             nodes=nodes,
             topology=topology,
             visibility_type=visibility_type,
-            name=name,
         )
 
         network.additional_properties = d

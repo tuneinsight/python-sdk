@@ -9,6 +9,7 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.data_source_metadata import DataSourceMetadata
     from ..models.local_data_selection import LocalDataSelection
+    from ..models.project import Project
 
 
 T = TypeVar("T", bound="DataSource")
@@ -18,34 +19,41 @@ T = TypeVar("T", bound="DataSource")
 class DataSource:
     """
     Attributes:
+        unique_id (Union[Unset, None, str]): Unique identifier of a data source.
+        access_scope (Union[Unset, AccessScope]): defines the scope of access given to a resource
         attributes (Union[Unset, List[str]]):
         authorized_users (Union[Unset, List[str]]):
         consent_type (Union[Unset, DataSourceConsentType]): Consent type given to the data source.
         name (Union[Unset, str]):
         type (Union[Unset, str]):
-        unique_id (Union[Unset, None, str]): Unique identifier of a data source.
-        access_scope (Union[Unset, AccessScope]): defines the scope of access given to a resource
-        updated_at (Union[Unset, str]):
-        created_at (Union[Unset, str]):
         metadata (Union[Unset, DataSourceMetadata]): metadata about a datasource
+        projects (Union[Unset, List['Project']]): response for successfully retrieved projects
         selections (Union[Unset, List['LocalDataSelection']]): list of local data selections associated with the data
             source
+        updated_at (Union[Unset, str]):
+        created_at (Union[Unset, str]):
     """
 
+    unique_id: Union[Unset, None, str] = UNSET
+    access_scope: Union[Unset, AccessScope] = UNSET
     attributes: Union[Unset, List[str]] = UNSET
     authorized_users: Union[Unset, List[str]] = UNSET
     consent_type: Union[Unset, DataSourceConsentType] = UNSET
     name: Union[Unset, str] = UNSET
     type: Union[Unset, str] = UNSET
-    unique_id: Union[Unset, None, str] = UNSET
-    access_scope: Union[Unset, AccessScope] = UNSET
+    metadata: Union[Unset, "DataSourceMetadata"] = UNSET
+    projects: Union[Unset, List["Project"]] = UNSET
+    selections: Union[Unset, List["LocalDataSelection"]] = UNSET
     updated_at: Union[Unset, str] = UNSET
     created_at: Union[Unset, str] = UNSET
-    metadata: Union[Unset, "DataSourceMetadata"] = UNSET
-    selections: Union[Unset, List["LocalDataSelection"]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        unique_id = self.unique_id
+        access_scope: Union[Unset, str] = UNSET
+        if not isinstance(self.access_scope, Unset):
+            access_scope = self.access_scope.value
+
         attributes: Union[Unset, List[str]] = UNSET
         if not isinstance(self.attributes, Unset):
             attributes = self.attributes
@@ -60,16 +68,17 @@ class DataSource:
 
         name = self.name
         type = self.type
-        unique_id = self.unique_id
-        access_scope: Union[Unset, str] = UNSET
-        if not isinstance(self.access_scope, Unset):
-            access_scope = self.access_scope.value
-
-        updated_at = self.updated_at
-        created_at = self.created_at
         metadata: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.metadata, Unset):
             metadata = self.metadata.to_dict()
+
+        projects: Union[Unset, List[Dict[str, Any]]] = UNSET
+        if not isinstance(self.projects, Unset):
+            projects = []
+            for projects_item_data in self.projects:
+                projects_item = projects_item_data.to_dict()
+
+                projects.append(projects_item)
 
         selections: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.selections, Unset):
@@ -79,9 +88,16 @@ class DataSource:
 
                 selections.append(selections_item)
 
+        updated_at = self.updated_at
+        created_at = self.created_at
+
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if unique_id is not UNSET:
+            field_dict["uniqueId"] = unique_id
+        if access_scope is not UNSET:
+            field_dict["accessScope"] = access_scope
         if attributes is not UNSET:
             field_dict["attributes"] = attributes
         if authorized_users is not UNSET:
@@ -92,18 +108,16 @@ class DataSource:
             field_dict["name"] = name
         if type is not UNSET:
             field_dict["type"] = type
-        if unique_id is not UNSET:
-            field_dict["uniqueId"] = unique_id
-        if access_scope is not UNSET:
-            field_dict["accessScope"] = access_scope
+        if metadata is not UNSET:
+            field_dict["metadata"] = metadata
+        if projects is not UNSET:
+            field_dict["projects"] = projects
+        if selections is not UNSET:
+            field_dict["selections"] = selections
         if updated_at is not UNSET:
             field_dict["updatedAt"] = updated_at
         if created_at is not UNSET:
             field_dict["createdAt"] = created_at
-        if metadata is not UNSET:
-            field_dict["metadata"] = metadata
-        if selections is not UNSET:
-            field_dict["selections"] = selections
 
         return field_dict
 
@@ -111,8 +125,18 @@ class DataSource:
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         from ..models.data_source_metadata import DataSourceMetadata
         from ..models.local_data_selection import LocalDataSelection
+        from ..models.project import Project
 
         d = src_dict.copy()
+        unique_id = d.pop("uniqueId", UNSET)
+
+        _access_scope = d.pop("accessScope", UNSET)
+        access_scope: Union[Unset, AccessScope]
+        if isinstance(_access_scope, Unset):
+            access_scope = UNSET
+        else:
+            access_scope = AccessScope(_access_scope)
+
         attributes = cast(List[str], d.pop("attributes", UNSET))
 
         authorized_users = cast(List[str], d.pop("authorizedUsers", UNSET))
@@ -128,25 +152,19 @@ class DataSource:
 
         type = d.pop("type", UNSET)
 
-        unique_id = d.pop("uniqueId", UNSET)
-
-        _access_scope = d.pop("accessScope", UNSET)
-        access_scope: Union[Unset, AccessScope]
-        if isinstance(_access_scope, Unset):
-            access_scope = UNSET
-        else:
-            access_scope = AccessScope(_access_scope)
-
-        updated_at = d.pop("updatedAt", UNSET)
-
-        created_at = d.pop("createdAt", UNSET)
-
         _metadata = d.pop("metadata", UNSET)
         metadata: Union[Unset, DataSourceMetadata]
         if isinstance(_metadata, Unset):
             metadata = UNSET
         else:
             metadata = DataSourceMetadata.from_dict(_metadata)
+
+        projects = []
+        _projects = d.pop("projects", UNSET)
+        for projects_item_data in _projects or []:
+            projects_item = Project.from_dict(projects_item_data)
+
+            projects.append(projects_item)
 
         selections = []
         _selections = d.pop("selections", UNSET)
@@ -155,18 +173,23 @@ class DataSource:
 
             selections.append(selections_item)
 
+        updated_at = d.pop("updatedAt", UNSET)
+
+        created_at = d.pop("createdAt", UNSET)
+
         data_source = cls(
+            unique_id=unique_id,
+            access_scope=access_scope,
             attributes=attributes,
             authorized_users=authorized_users,
             consent_type=consent_type,
             name=name,
             type=type,
-            unique_id=unique_id,
-            access_scope=access_scope,
+            metadata=metadata,
+            projects=projects,
+            selections=selections,
             updated_at=updated_at,
             created_at=created_at,
-            metadata=metadata,
-            selections=selections,
         )
 
         data_source.additional_properties = d

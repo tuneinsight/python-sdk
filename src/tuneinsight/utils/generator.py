@@ -1,7 +1,20 @@
+"""
+Soon-to-be-deprecated module to generate mock patients data.
+
+This module will be removed in favour of the utils.datagen module for mock
+data generation on a Tune Insight instance.
+
+"""
+
 from typing import Any, Callable, List
 from random import Random
 
 import pandas as pd
+
+from tuneinsight.utils import deprecation
+
+
+deprecation.warn("custom_generator", "utils.datagen classes")
 
 
 class MixedGenerator(Random):
@@ -62,6 +75,7 @@ class PatientGenerator(MixedGenerator):
     origin_weights: List[float] = [20, 10, 2, 3, 7, 5, 1]
 
     def __init__(self):
+        deprecation.warn("PatientGenerator", "utils.datagen.PatientsGenerator")
         self.age_ranges = [[3, 15], [16, 45], [45, 70], [70, 105]]
         self.age_weights = [1, 2, 3, 2]
         self.gender_choices = ["female", "male", "agender", "bigender"]

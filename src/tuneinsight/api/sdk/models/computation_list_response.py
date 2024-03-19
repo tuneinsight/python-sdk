@@ -16,15 +16,16 @@ class ComputationListResponse:
     """List of available computations.
 
     Attributes:
-        items (Union[Unset, List['Computation']]):
         total (Union[Unset, int]):
+        items (Union[Unset, List['Computation']]):
     """
 
-    items: Union[Unset, List["Computation"]] = UNSET
     total: Union[Unset, int] = UNSET
+    items: Union[Unset, List["Computation"]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        total = self.total
         items: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.items, Unset):
             items = []
@@ -33,15 +34,13 @@ class ComputationListResponse:
 
                 items.append(items_item)
 
-        total = self.total
-
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if items is not UNSET:
-            field_dict["items"] = items
         if total is not UNSET:
             field_dict["total"] = total
+        if items is not UNSET:
+            field_dict["items"] = items
 
         return field_dict
 
@@ -50,6 +49,8 @@ class ComputationListResponse:
         from ..models.computation import Computation
 
         d = src_dict.copy()
+        total = d.pop("total", UNSET)
+
         items = []
         _items = d.pop("items", UNSET)
         for items_item_data in _items or []:
@@ -57,11 +58,9 @@ class ComputationListResponse:
 
             items.append(items_item)
 
-        total = d.pop("total", UNSET)
-
         computation_list_response = cls(
-            items=items,
             total=total,
+            items=items,
         )
 
         computation_list_response.additional_properties = d

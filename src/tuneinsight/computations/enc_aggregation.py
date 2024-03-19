@@ -2,58 +2,83 @@ from typing import List
 import pandas as pd
 import matplotlib.pyplot as plt
 from tuneinsight.api.sdk import models
-from tuneinsight.client.computations import ComputationRunner
+from tuneinsight.api.sdk.types import UNSET
+from tuneinsight.computations.base import ModelBasedComputation
+from tuneinsight.utils import deprecation
 from tuneinsight.utils.plots import style_plot
 
 
-def revert_quantiles(
-    quantiles: List[float], n: int, min_v: float, max_v: float
-) -> List[float]:
+class EncryptedAggregation(ModelBasedComputation):
     """
-    revert_quantiles reverts the averaged/normalized quantiles returned by the aggregation to their original value
+    An encrypted aggregation, computing the sum of each column in the collective dataset.
 
     Args:
-        quantiles (List[float]): the normalized aggregated quantiles
-        n (int): the total number of data points
-        min_v (float): the minimum value used for normalizing
-        max_v (float): the maximum value used for normalizing
-
-    Returns:
-        List[float]: the reverted quantiles list
-    """
-    res = []
-    for q in quantiles:
-        res.append(((q / n) * (max_v - min_v) + min_v))
-    return res
-
-
-class EncryptedAggregation(ComputationRunner):
-    """
-    EncryptedAggregation Represents the encrypted aggregation computation
-
-    Args:
-        ComputationRunner: Inherits all methods available from the computation runner parent class
+        Computation: Inherits all methods available from the computation runner parent class
     """
 
+    float_precision: int = 2
     cohort_id: str = ""
     join_id: str = ""
-    float_precision: int = 2
-    selected_cols: List[str] = None
+    selected_coselected_colsls: List[str] = None
+    dp_epsilon = None
+    lower_bounds = []
+    upper_bounds = []
 
-    def get_model(self) -> models.EncryptedAggregation:
-        model = models.EncryptedAggregation(
-            type=models.ComputationType.ENCRYPTEDAGGREGATION
+    def __init__(
+        self,
+        project: "Project",
+        selected_columns: List[str] = UNSET,
+        float_precision: int = 2,
+        cohort: "Cohort" = None,
+        dp_epsilon: float = UNSET,
+        lower_bounds: list = UNSET,
+        upper_bounds: list = UNSET,
+        **kwargs,
+    ):
+        """
+        Creates an EncryptedAggregation.
+
+        Args
+            project (client.Project): the project to which this computation belongs.
+            selected_columns (list of strings, or UNSET): the columns to aggregate.
+            float_precision (int, default 2): number of digits to round results to.
+            cohort (Cohort, default None): if specified, the cohort of records over
+                which this aggregation is computed.
+            dp_epsilon (float, default unset): if using differential privacy, the
+                privacy budget used by this computation.
+            lower_bounds (list, default unset): if using differential privacy, the lower
+                bounds on the values of each selected column.
+            upper_bounds (list, default unset): similarly, upper bounds.
+
+        """
+        super().__init__(
+            project,
+            models.EncryptedAggregation,
+            type=models.ComputationType.ENCRYPTEDAGGREGATION,
+            aggregate_columns=selected_columns,
+            dp_epsilon=dp_epsilon,
+            lower_bounds=lower_bounds,
+            upper_bounds=upper_bounds,
+            **kwargs,
         )
-        model.project_id = self.project_id
-        model.cohort_id = self.cohort_id
-        model.join_id = self.join_id
-        if self.selected_cols is not None and len(self.selected_cols) > 0:
-            model.aggregate_columns = self.selected_cols
-        return model
+        if cohort is not None:
+            self.model.cohort_id = cohort.cohort_id
+            self.model.join_id = cohort.join_id
+        self.float_precision = float_precision
+
+    def _process_results(self, dataobjects) -> pd.DataFrame:
+        result = dataobjects[0].get_float_matrix()
+        totals = result.data[0]
+        rounded_totals = [round(v, self.float_precision) for v in totals]
+        if len(result.columns) == len(rounded_totals):
+            data = {"Column": result.columns, "Total": rounded_totals}
+        else:
+            data = rounded_totals
+        return pd.DataFrame(data)
 
     def get_aggregation(self, local: bool = False) -> pd.DataFrame:
         """
-        get_aggregation computes the encrypted aggregation computation and returns the decrypted results as a dataframe
+        Performs the encrypted aggregation computation and returns the decrypted results.
 
         Args:
             local (bool, optional): whether or not to run the computation locally. Defaults to False.
@@ -61,25 +86,18 @@ class EncryptedAggregation(ComputationRunner):
         Returns:
             pd.DataFrame: the decrypted results as a dataframe
         """
-        model = self.get_model()
-        dataobjects = super().run_computation(comp=model, local=local, release=True)
-        result = dataobjects[0].get_float_matrix()
-        totals = result.data[0]
-        rounded_totals = [round(v, self.float_precision) for v in totals]
+        deprecation.warn(
+            "EncryptedAggregation.get_aggregation", "EncryptedAggregation.run"
+        )
+        return self.run(local=local, release=True)
 
-        if len(result.columns) == len(rounded_totals):
-            data = {"Column": result.columns, "Total": rounded_totals}
-        else:
-            data = rounded_totals
-
-        return pd.DataFrame(data)
-
-    def get_averaged_quantiles(
+    def compute_approximate_quantiles(
         self, column: str, min_v: float = 0, max_v: float = 200, local: bool = False
     ) -> pd.DataFrame:
         """
-        get_averaged_quantiles computes the averaged quantiles over all participants computed by aggregating (N * normalize_min_max(q_i,min,max))
+        Computes the approximated averaged quantiles over all participants computed by aggregating (N * normalize_min_max(q_i,min,max))
         across all participants, where N is the number of local data points and q_i is the i'th quantile.
+        This method enables fast approximation of the quantiles instead of going through the costly exact computation.
 
         Args:
             column (str): the column of the variable to compute the averaged quantiles from
@@ -90,12 +108,14 @@ class EncryptedAggregation(ComputationRunner):
         Returns:
             pd.DataFrame: a dataframe with one row recording all quantiles and the total number of data points
         """
+        # The .quantiles preprocessing operation
         self.preprocessing.quantiles(column, min_v, max_v)
-        df = self.get_aggregation(local=local)
-        quantiles = list(df.Total)[1:]
-        n = list(df.Total)[0]
+        df = self.run(local=local, release=True)
+        quantiles = list(df.Total)[1:]  # pylint: disable=no-member
+        n = list(df.Total)[0]  # pylint: disable=no-member
         new_row = [n]
-        new_row.extend(revert_quantiles(quantiles, n, min_v, max_v))
+        # Unnormalizes the normalized quantiles returned by the aggregation to their original value.
+        new_row.extend([(q / n) * (max_v - min_v) + min_v for q in quantiles])
         cols = ["n"]
         cols.extend([f"q{i}" for i in range(len(quantiles))])
         rounded_values = [round(v, self.float_precision) for v in new_row]
@@ -110,7 +130,7 @@ class EncryptedAggregation(ComputationRunner):
         size: tuple = (8, 4),
     ):
         """
-        plot_aggregation plots the results of the aggregation as a histogram
+        Plots the results of the aggregation as a bar plot.
 
         Args:
             result (pd.DataFrame): the aggregation result dataframe
@@ -131,8 +151,5 @@ class EncryptedAggregation(ComputationRunner):
 
         plt.show()
 
-    def display_workflow(self):
-        """
-        display_workflow displays the workflow of the encrypted aggregation
-        """
-        return super().display_documentation(self.get_model())
+
+Sum = EncryptedAggregation

@@ -1,3 +1,5 @@
+"""Classes to train and evaluate machine learning models in a Tune Insight instance."""
+
 from typing import Any, List
 from enum import Enum
 import numpy as np
@@ -9,8 +11,6 @@ from tuneinsight.api.sdk.models import (
     ModelDefinition,
     PredictionParams,
     ApproximationParams,
-    EncryptedPrediction,
-    ComputationType,
 )
 from tuneinsight.api.sdk.models import (
     SessionDefinition,
@@ -32,15 +32,15 @@ from tuneinsight.cryptolib.cryptolib import (
     encrypt_prediction_dataset,
     decrypt_prediction,
 )
+from tuneinsight.computations.regression import RegressionPredicting
 from tuneinsight.client.dataobject import DataObject
 from tuneinsight.api.sdk.types import Response
 from tuneinsight.utils.io import data_to_bytes, data_from_bytes
-from tuneinsight.client.computations import ComputationRunner
 
 
 class Type(Enum):
     """
-    Type enumerates the different machine learning model types
+    The different types of machine learning models.
     """
 
     LINEAR = RegressionType.LINEAR
@@ -48,9 +48,19 @@ class Type(Enum):
     POISSON = RegressionType.POISSON
 
 
+class _EmptyProject:
+    """Empty project (necessary to run the MaaS computations)."""
+
+    def __init__(self, client):
+        self.client = client
+
+    def get_id(self):
+        return ""
+
+
 class Model:
     """
-    Represents a model stored on the agent
+    A machine learning model stored on the agent.
     """
 
     client: Client
@@ -58,7 +68,7 @@ class Model:
 
     def __init__(self, client: Client, model: APIModel):
         """
-        __init__ initializes the model class given the client and API model
+        Initializes the model class given the client and API model.
 
         Args:
             client (Client): the client used to communicate with the corresponding agent
@@ -95,19 +105,24 @@ class Model:
         validate_response(resp)
         self.model = resp.parsed
 
-    def compute_prediction(self, data: Any) -> np.ndarray:
+    def compute_prediction(self, data: Any, project: "Project" = None) -> np.ndarray:
         """
-        compute_prediction computes an encrypted prediction on the model given the dataset
-        the dataset is first encrypted locally with ephemeral keys and then sent to the agent
+        Computes an encrypted prediction on the model given the dataset.
+
+        The dataset is first encrypted locally with ephemeral keys and then sent to the agent
         owning the model to compute the prediction homomorphically, the encrypted result is then
-        decrypted locally and returned as a numpy array
+        decrypted locally and returned as a numpy array.
 
         Args:
-            data (Any): the dataset to make the prediction on
+            data (Any): the dataset to make the prediction on.
+            project (Project): the project to run this prediction in.
 
         Returns:
             np.ndarray: the decrypted predicted values
         """
+        if project is None:
+            project = _EmptyProject(self.client)
+
         self.refresh()
         # Create a new session on the agent
         s_id = self._new_session()
@@ -120,7 +135,7 @@ class Model:
         input_id = self._upload_dataset(s_id, ct)
 
         # run the prediction computation
-        encrypted_pred = self._run_prediction(input_id)
+        encrypted_pred = self._run_prediction(project, input_id)
         # decrypt the encrypted result
         result_df = self._decrypt_prediction(cs_id, encrypted_pred)
 
@@ -174,15 +189,11 @@ class Model:
         )
         return data_object.model.unique_id
 
-    def _run_prediction(self, input_id: str) -> bytes:
-        comp_runner = ComputationRunner(project_id="", client=self.client)
-        definition = EncryptedPrediction(type=ComputationType.ENCRYPTEDPREDICTION)
-        definition.data = input_id
-        definition.model = self.model.data_object.unique_id
-        results = comp_runner.run_computation(
-            definition, local=True, keyswitch=False, decrypt=False
-        )
-        return results[0].get_raw_data()
+    def _run_prediction(self, project: "Project", input_id: str) -> bytes:
+        comp = RegressionPredicting(project)
+        comp["data"] = input_id
+        comp["model"] = self.model.data_object.unique_id
+        return comp.run(local=True, keyswitch=False, decrypt=False, release=False)
 
     @staticmethod
     def _decrypt_prediction(cs_id: bytes, ct: bytes) -> np.ndarray:
@@ -268,7 +279,7 @@ class ModelManager:
         delete_if_exists: bool = False,
     ) -> Model:
         """
-        new_model Uploads a new model to the agent
+        Uploads a new model to the agent.
 
         Args:
             name (str): the common name to give to the model
@@ -277,7 +288,7 @@ class ModelManager:
             delete_if_exists (bool, optional): if the model already exists on the backend, then attempts to delete it. Defaults to False.
 
         Raises:
-            AttributeError: _description_
+            AttributeError: if the model name is already taken.
 
         Returns:
             Model: _description_

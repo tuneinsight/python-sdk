@@ -1,12 +1,15 @@
+"""Utility to parse errors in computations and raise appropriate Python errors."""
+
 from typing import List
 from tuneinsight.utils.errors import hidden_traceback_scope
+
 from tuneinsight.api.sdk.models import ComputationError
 from tuneinsight.api.sdk.models import ComputationErrorType as ErrorType
 
 
 class DisclosurePreventionError(Exception):
     """
-    DisclosurePreventionError Exception class for the disclosure prevention error
+    Error raised when a computation is aborted because of a policy violation.
     """
 
     def __init__(self, comp_error: ComputationError):
@@ -16,7 +19,7 @@ class DisclosurePreventionError(Exception):
 
 class PreprocessingError(Exception):
     """
-    PreprocessingError is used to represent error that happen during preprocessing
+    Error that happens during preprocessing.
     """
 
     def __init__(self, comp_error: ComputationError):
@@ -25,6 +28,10 @@ class PreprocessingError(Exception):
 
 
 class QueryError(Exception):
+    """
+    Error that happens when querying the data.
+    """
+
     def __init__(self, comp_error: ComputationError):
         self.message = format_computation_error("error while querying data", comp_error)
         super().__init__(self.message)
@@ -32,7 +39,7 @@ class QueryError(Exception):
 
 class InternalError(Exception):
     """
-    InternalError is used represent unexpected errors that happened internally in the computation
+    Unexpected error that happened on the Tune Insight instance in the computation.
     """
 
     def __init__(self, comp_error: ComputationError):
@@ -42,7 +49,7 @@ class InternalError(Exception):
 
 class ValidationError(Exception):
     """
-    ValidationError is used represent unexpected errors that happened while validating the data or user-defined parameters
+    Error that happened while validating the data or user-defined parameters.
     """
 
     def __init__(self, comp_error: ComputationError):
@@ -66,7 +73,7 @@ Mapping from computation error type to the appropriate exception
 
 def format_computation_error(prefix: str, error: ComputationError) -> str:
     """
-    format_computation_error formats the computation error to a string that is displayed to the user
+    Formats the computation error to a string that is displayed to the user.
 
     Args:
         prefix (str): the prefix that depends on the error type
@@ -80,7 +87,10 @@ def format_computation_error(prefix: str, error: ComputationError) -> str:
 
 def raise_computation_error(errors: List[ComputationError]):
     """
-    raise_computation_error raises the appropriate given the list of errors from the computation and suppresses any traceback
+    Raises the appropriate Python error, given the list of errors from the computation.
+
+    The traceback of the errors is suppressed. If several errors are found, raise
+    a Python exception for the first error, errors[0].
 
     Args:
         errors (List[ComputationError]): the list of errors returned with the computation

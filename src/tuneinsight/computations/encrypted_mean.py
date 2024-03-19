@@ -1,54 +1,62 @@
-from typing import Union, List
-import pandas as pd
+"""Computing the mean and stddev of some variables after filtering outliers."""
+
+from typing import List
+from tuneinsight.computations.base import ModelBasedComputation
 from tuneinsight.api.sdk import models
-from tuneinsight.client.computations import ComputationRunner
-from tuneinsight.api.sdk.types import UNSET, Unset
+from tuneinsight.api.sdk.types import UNSET
 
 
-class EncryptedMean(ComputationRunner):
+class EncryptedMean(ModelBasedComputation):
     """
-    Computes the mean and standard deviation of a list of numbers, removes outliers, then returns the mean without outliers.
+    Computes the mean and standard deviation of a list of numbers without outliers.
+
+    This computation operates in three stages:
+        1. the mean and stddev are computed,
+        2. outliers are removed from the dataset (defined by some threshold),
+        3. the mean of the remaining samples is computed.
+
+    This computation assumes that multiple "participants" contribute records to the
+    dataset (identified by the `participant` column). Only one record per participant
+    per value in a set of grouping columns (grouping key) is used for the computation.
+
+    A value is marked as an outlier if it is more than a threshold (default 2) times
+    the standard deviation away from the mean.
 
     """
 
-    participant: Union[Unset, str] = UNSET
-    variables: Union[Unset, List[str]] = UNSET
-    grouping_keys: Union[Unset, List[str]] = UNSET
-    min_participants: Union[Unset, int] = 5
-    outlier_threshold: Union[Unset, float] = 2
-
-    def __init__(self, project_id: str = "", client=UNSET):
-        super().__init__(project_id=project_id, client=client)
-
-    def get_model(self) -> models.EncryptedMean:
+    def __init__(
+        self,
+        project,
+        variables: List[str],
+        participant: str,
+        grouping_keys: List[str] = UNSET,
+        min_participants: int = 5,
+        outlier_threshold: int = 2,
+    ):
         """
-        get_model initializes the computation definition given the parameters of this class
+        Creates an EncryptedMean computation.
 
-        Returns:
-            models.EncryptedMean: the API model for the computation definition
+        Args
+            project (client.Project): the project to which this computation belongs.
+            variables (list[str]): the variables for which to compute the mean and stddev.
+            participant (str): name of the participants column.
+            grouping_keys (list[str]): columns by which to disaggregate the mean (groupby).
+            min_participants (int, default 5): minimum number of participants required for
+                this computation. If less participants are available for a set of grouping
+                values, no result is returned for that set.
+            outlier_threshold (int, default 2): number of standard deviations that a value
+                must differ from the mean to be marked as an outlier.
         """
-        model = models.EncryptedMean(type=models.ComputationType.ENCRYPTEDMEAN)
-        model.project_id = self.project_id
-        model.participant = self.participant
-        model.grouping_keys = self.grouping_keys
-        model.min_participants = self.min_participants
-        model.outlier_threshold = self.outlier_threshold
-        model.variables = self.variables
-        return model
-
-    def compute_average(self, local: bool = False) -> pd.DataFrame:
-        """
-        compute_average runs the secure average computation.
-
-        Args:
-            local (bool, optional): defines whether the computation is run locally or collectively. Defaults to False.
-
-        Returns:
-            pd.DataFrame: the resulting dataset that contains all of the averages
-        """
-        model = self.get_model()
-        return (
-            super()
-            .run_computation(comp=model, local=local, release=True)[0]
-            .get_dataframe()
+        super().__init__(
+            project,
+            model_class=models.EncryptedMean,
+            type=models.ComputationType.ENCRYPTEDMEAN,
+            variables=variables,
+            participant=participant,
+            grouping_keys=grouping_keys,
+            min_participants=min_participants,
+            outlier_threshold=outlier_threshold,
         )
+
+    def _process_results(self, dataobjects):
+        return dataobjects[0].get_dataframe()

@@ -1,46 +1,52 @@
-from __future__ import print_function
 from contextlib import contextmanager
 import sys
 import warnings
+
 from IPython.core.getipython import get_ipython
 
-ipython_set = False
 
+# Whether iPython is used.
+IPYTHON_SET = False
 
 try:
     ipython = get_ipython()
     ipython_traceback = ipython._showtraceback  # pylint: disable=W0212
-    ipython_set = True
+    IPYTHON_SET = True
 except AttributeError:
     warnings.warn("unable to get ipython, traceback suppression is disabled")
 
 
 @contextmanager
-def except_handler(exc_handler):
-    "Sets a custom exception handler for the scope of a 'with' block."
+def _custom_exception_handler(exc_handler):
+    """Sets a custom exception handler for the scope of a 'with' block."""
     sys.excepthook = exc_handler
-    if ipython_set:
+    if IPYTHON_SET:
         ipython._showtraceback = exc_handler  # pylint: disable=W0212
     yield
 
 
-def hide_traceback(err_type, value, traceback):  # pylint: disable=W0613
+def _hiding_traceback(err_type, value, traceback):  # pylint: disable=W0613
     """
-    hide_traceback is a custom exception handler function which does not display the traceback
+    Custom exception handler function that does not display the traceback.
 
     Args:
-        err_type (_type_): the type of the exceptionc
+        err_type (_type_): the type of the exception
         value (_type_): the value of the exception
         traceback (_type_): the traceback which is not used
     """
     print(": ".join([str(err_type.__name__), str(value)]))
     sys.excepthook = sys.__excepthook__  # pylint: disable=W0212
-    if ipython_set:
+    if IPYTHON_SET:
         ipython._showtraceback = ipython_traceback  # pylint: disable=W0212
 
 
 def hidden_traceback_scope():
     """
-    hided_traceback_scope returns a hided traceback scope that is such that any error raised in this scope will have its traceback hideen
+    Hides the traceback of all errors occurring within the scope of a 'with' block.
+
+    Typically, use this as
+        with hidden_traceback_scope():
+            [your code here]
+
     """
-    return except_handler(hide_traceback)
+    return _custom_exception_handler(_hiding_traceback)

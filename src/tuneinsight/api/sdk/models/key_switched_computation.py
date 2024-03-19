@@ -2,7 +2,9 @@ from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
+from ..models.computation_definition_input_clipping_method import ComputationDefinitionInputClippingMethod
 from ..models.computation_type import ComputationType
+from ..models.run_mode import RunMode
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -21,103 +23,138 @@ class KeySwitchedComputation:
     """
     Attributes:
         type (ComputationType): Type of the computation.
-        local (Union[Unset, bool]): True if the project's computation should run only with local data (not configured
-            the network)
+        input_clipping_method (Union[Unset, ComputationDefinitionInputClippingMethod]): Optional method used for
+            clipping before encrypting values when running aggregation-based workflows.
+            The bounds are deduced based on the cryptographic parameters used for the aggregation.
+            It can take the following values:
+              - none: no clipping is applied and the output may contain overflowed values.
+              - silent: automatic clipping is applied silently locally.
+              - warning: automatic clipping is applied. If some values are clipped then a warning is issued (locally).
+            (default)
+              - error: if some values are out of bounds, then the computation is aborted.
+             Default: ComputationDefinitionInputClippingMethod.WARNING.
+        preprocessing_parameters (Union[Unset, ComputationPreprocessingParameters]): dataframe pre-processing parameters
+            applied to the input retrieved from the datasource, if applicable
+        wait (Union[Unset, bool]): Whether to wait synchronously for the computation result.
+        dp_policy (Union[Unset, DPPolicy]): represents the disclosure prevention policy that enables toggling various
+            disclosure prevention mechanisms
+        dp_epsilon (Union[Unset, float]): If positive, the privacy budget used by this computation. Used only in DP
+            mode. Default: -1.0.
+        join_id (Union[Unset, str]): Unique identifier of a data object.
+        local_input_id (Union[Unset, str]): Unique identifier of a data object.
+        maximum_aggregated_value (Union[Unset, None, float]): optional upper bound on the total expected value to be
+            aggregated collectively. If provided, the computation will automatically deduce
+            optimal cryptographic parameters in order to maximize precision while allowing encoding values up to this bound.
+            If this parameter is not specified, then the default parameters will be used, which can accommodate total values
+            up to 16 million.
+            For example, when using default parameters and running an aggregation with 4 participants, local aggregated
+            values cannot exceed 4 million.
+        cohort_id (Union[Unset, str]): Unique identifier of a data object.
         local_input (Union[Unset, LocalInput]): If a local input is provided, the node initiating the computation will
             use it instead of querying the datasource. This data is *not* shared to other nodes, only used for the duration
             of the computation. The local input columns/values must be in the form {<column1>: [<value1>, <value2>, ...],
             ...}
-        preprocessing_parameters (Union[Unset, ComputationPreprocessingParameters]): dataframe pre-processing parameters
-            applied to the input retrieved from the datasource, if applicable
-        cohort_id (Union[Unset, str]): Unique identifier of a data object.
+        owner (Union[Unset, str]): The username of the end user who requested the computation.
+        project_id (Union[Unset, str]): Unique identifier of a project.
+        run_mode (Union[Unset, RunMode]): Defines the mode in which to run a computation (local, collective, or both)
+        local (Union[Unset, bool]): True if the project's computation should run only with local data (not configured
+            the network)
+        encrypted (Union[Unset, bool]): True if computation result should be encrypted with the collective public key.
         end_to_end_encrypted (Union[Unset, bool]): if the end to end encrypted mode is set to true,
             then when release results is set to true and the output
             is initially encrypted with a network collective key, then it is key switched to
             the initiating user's public key.
-        local_input_id (Union[Unset, str]): Unique identifier of a data object.
-        wait (Union[Unset, bool]): Whether to wait synchronously for the computation result.
-        dp_policy (Union[Unset, DPPolicy]): represents the disclosure prevention policy that enables toggling various
-            disclosure prevention mechanisms
-        join_id (Union[Unset, str]): Unique identifier of a data object.
-        timeout (Union[Unset, int]): The maximum amount of time in seconds the computation is allowed to run.
-        encrypted (Union[Unset, bool]): True if computation result should be encrypted with the collective public key.
-        owner (Union[Unset, str]): The username of the end user who requested the computation.
-        project_id (Union[Unset, str]): Unique identifier of a project.
+        input_data_object (Union[Unset, str]): Shared identifier of a data object.
         release_results (Union[Unset, bool]): flag to set to true if the computation should directly release the output
             results.
             If set, then encrypted results are automatically key switched and decrypted
             and a Result entity is saved
+        timeout (Union[Unset, int]): The maximum amount of time in seconds the computation is allowed to run.
         data_source_parameters (Union[Unset, ComputationDataSourceParameters]): Parameters used to query the datasource
             from each node before the computation
-        input_data_object (Union[Unset, str]): Shared identifier of a data object.
-        target_public_key (Union[Unset, str]): Unique identifier of a data object.
-        computation (Union[Unset, ComputationDefinition]): Generic computation.
         decrypt_results (Union[Unset, bool]): if true, the key-switched results are decrypted using either the specified
             secret key or the secret key from the session
         secret_key (Union[Unset, str]): Unique identifier of a data object.
+        target_public_key (Union[Unset, str]): Unique identifier of a data object.
+        computation (Union[Unset, ComputationDefinition]): Generic computation.
     """
 
     type: ComputationType
-    local: Union[Unset, bool] = UNSET
-    local_input: Union[Unset, "LocalInput"] = UNSET
+    input_clipping_method: Union[Unset, ComputationDefinitionInputClippingMethod] = (
+        ComputationDefinitionInputClippingMethod.WARNING
+    )
     preprocessing_parameters: Union[Unset, "ComputationPreprocessingParameters"] = UNSET
-    cohort_id: Union[Unset, str] = UNSET
-    end_to_end_encrypted: Union[Unset, bool] = UNSET
-    local_input_id: Union[Unset, str] = UNSET
     wait: Union[Unset, bool] = UNSET
     dp_policy: Union[Unset, "DPPolicy"] = UNSET
+    dp_epsilon: Union[Unset, float] = -1.0
     join_id: Union[Unset, str] = UNSET
-    timeout: Union[Unset, int] = UNSET
-    encrypted: Union[Unset, bool] = UNSET
+    local_input_id: Union[Unset, str] = UNSET
+    maximum_aggregated_value: Union[Unset, None, float] = UNSET
+    cohort_id: Union[Unset, str] = UNSET
+    local_input: Union[Unset, "LocalInput"] = UNSET
     owner: Union[Unset, str] = UNSET
     project_id: Union[Unset, str] = UNSET
-    release_results: Union[Unset, bool] = UNSET
-    data_source_parameters: Union[Unset, "ComputationDataSourceParameters"] = UNSET
+    run_mode: Union[Unset, RunMode] = UNSET
+    local: Union[Unset, bool] = UNSET
+    encrypted: Union[Unset, bool] = UNSET
+    end_to_end_encrypted: Union[Unset, bool] = UNSET
     input_data_object: Union[Unset, str] = UNSET
-    target_public_key: Union[Unset, str] = UNSET
-    computation: Union[Unset, "ComputationDefinition"] = UNSET
+    release_results: Union[Unset, bool] = UNSET
+    timeout: Union[Unset, int] = UNSET
+    data_source_parameters: Union[Unset, "ComputationDataSourceParameters"] = UNSET
     decrypt_results: Union[Unset, bool] = UNSET
     secret_key: Union[Unset, str] = UNSET
+    target_public_key: Union[Unset, str] = UNSET
+    computation: Union[Unset, "ComputationDefinition"] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         type = self.type.value
 
-        local = self.local
-        local_input: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.local_input, Unset):
-            local_input = self.local_input.to_dict()
+        input_clipping_method: Union[Unset, str] = UNSET
+        if not isinstance(self.input_clipping_method, Unset):
+            input_clipping_method = self.input_clipping_method.value
 
         preprocessing_parameters: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.preprocessing_parameters, Unset):
             preprocessing_parameters = self.preprocessing_parameters.to_dict()
 
-        cohort_id = self.cohort_id
-        end_to_end_encrypted = self.end_to_end_encrypted
-        local_input_id = self.local_input_id
         wait = self.wait
         dp_policy: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.dp_policy, Unset):
             dp_policy = self.dp_policy.to_dict()
 
+        dp_epsilon = self.dp_epsilon
         join_id = self.join_id
-        timeout = self.timeout
-        encrypted = self.encrypted
+        local_input_id = self.local_input_id
+        maximum_aggregated_value = self.maximum_aggregated_value
+        cohort_id = self.cohort_id
+        local_input: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.local_input, Unset):
+            local_input = self.local_input.to_dict()
+
         owner = self.owner
         project_id = self.project_id
+        run_mode: Union[Unset, str] = UNSET
+        if not isinstance(self.run_mode, Unset):
+            run_mode = self.run_mode.value
+
+        local = self.local
+        encrypted = self.encrypted
+        end_to_end_encrypted = self.end_to_end_encrypted
+        input_data_object = self.input_data_object
         release_results = self.release_results
+        timeout = self.timeout
         data_source_parameters: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.data_source_parameters, Unset):
             data_source_parameters = self.data_source_parameters.to_dict()
 
-        input_data_object = self.input_data_object
+        decrypt_results = self.decrypt_results
+        secret_key = self.secret_key
         target_public_key = self.target_public_key
         computation: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.computation, Unset):
             computation = self.computation.to_dict()
-
-        decrypt_results = self.decrypt_results
-        secret_key = self.secret_key
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -126,46 +163,54 @@ class KeySwitchedComputation:
                 "type": type,
             }
         )
-        if local is not UNSET:
-            field_dict["local"] = local
-        if local_input is not UNSET:
-            field_dict["localInput"] = local_input
+        if input_clipping_method is not UNSET:
+            field_dict["inputClippingMethod"] = input_clipping_method
         if preprocessing_parameters is not UNSET:
             field_dict["preprocessingParameters"] = preprocessing_parameters
-        if cohort_id is not UNSET:
-            field_dict["cohortId"] = cohort_id
-        if end_to_end_encrypted is not UNSET:
-            field_dict["endToEndEncrypted"] = end_to_end_encrypted
-        if local_input_id is not UNSET:
-            field_dict["localInputID"] = local_input_id
         if wait is not UNSET:
             field_dict["wait"] = wait
         if dp_policy is not UNSET:
             field_dict["DPPolicy"] = dp_policy
+        if dp_epsilon is not UNSET:
+            field_dict["dpEpsilon"] = dp_epsilon
         if join_id is not UNSET:
             field_dict["joinId"] = join_id
-        if timeout is not UNSET:
-            field_dict["timeout"] = timeout
-        if encrypted is not UNSET:
-            field_dict["encrypted"] = encrypted
+        if local_input_id is not UNSET:
+            field_dict["localInputID"] = local_input_id
+        if maximum_aggregated_value is not UNSET:
+            field_dict["maximumAggregatedValue"] = maximum_aggregated_value
+        if cohort_id is not UNSET:
+            field_dict["cohortId"] = cohort_id
+        if local_input is not UNSET:
+            field_dict["localInput"] = local_input
         if owner is not UNSET:
             field_dict["owner"] = owner
         if project_id is not UNSET:
             field_dict["projectId"] = project_id
-        if release_results is not UNSET:
-            field_dict["releaseResults"] = release_results
-        if data_source_parameters is not UNSET:
-            field_dict["dataSourceParameters"] = data_source_parameters
+        if run_mode is not UNSET:
+            field_dict["runMode"] = run_mode
+        if local is not UNSET:
+            field_dict["local"] = local
+        if encrypted is not UNSET:
+            field_dict["encrypted"] = encrypted
+        if end_to_end_encrypted is not UNSET:
+            field_dict["endToEndEncrypted"] = end_to_end_encrypted
         if input_data_object is not UNSET:
             field_dict["inputDataObject"] = input_data_object
-        if target_public_key is not UNSET:
-            field_dict["targetPublicKey"] = target_public_key
-        if computation is not UNSET:
-            field_dict["computation"] = computation
+        if release_results is not UNSET:
+            field_dict["releaseResults"] = release_results
+        if timeout is not UNSET:
+            field_dict["timeout"] = timeout
+        if data_source_parameters is not UNSET:
+            field_dict["dataSourceParameters"] = data_source_parameters
         if decrypt_results is not UNSET:
             field_dict["decryptResults"] = decrypt_results
         if secret_key is not UNSET:
             field_dict["secretKey"] = secret_key
+        if target_public_key is not UNSET:
+            field_dict["targetPublicKey"] = target_public_key
+        if computation is not UNSET:
+            field_dict["computation"] = computation
 
         return field_dict
 
@@ -180,14 +225,12 @@ class KeySwitchedComputation:
         d = src_dict.copy()
         type = ComputationType(d.pop("type"))
 
-        local = d.pop("local", UNSET)
-
-        _local_input = d.pop("localInput", UNSET)
-        local_input: Union[Unset, LocalInput]
-        if isinstance(_local_input, Unset):
-            local_input = UNSET
+        _input_clipping_method = d.pop("inputClippingMethod", UNSET)
+        input_clipping_method: Union[Unset, ComputationDefinitionInputClippingMethod]
+        if isinstance(_input_clipping_method, Unset):
+            input_clipping_method = UNSET
         else:
-            local_input = LocalInput.from_dict(_local_input)
+            input_clipping_method = ComputationDefinitionInputClippingMethod(_input_clipping_method)
 
         _preprocessing_parameters = d.pop("preprocessingParameters", UNSET)
         preprocessing_parameters: Union[Unset, ComputationPreprocessingParameters]
@@ -195,12 +238,6 @@ class KeySwitchedComputation:
             preprocessing_parameters = UNSET
         else:
             preprocessing_parameters = ComputationPreprocessingParameters.from_dict(_preprocessing_parameters)
-
-        cohort_id = d.pop("cohortId", UNSET)
-
-        end_to_end_encrypted = d.pop("endToEndEncrypted", UNSET)
-
-        local_input_id = d.pop("localInputID", UNSET)
 
         wait = d.pop("wait", UNSET)
 
@@ -211,17 +248,45 @@ class KeySwitchedComputation:
         else:
             dp_policy = DPPolicy.from_dict(_dp_policy)
 
+        dp_epsilon = d.pop("dpEpsilon", UNSET)
+
         join_id = d.pop("joinId", UNSET)
 
-        timeout = d.pop("timeout", UNSET)
+        local_input_id = d.pop("localInputID", UNSET)
 
-        encrypted = d.pop("encrypted", UNSET)
+        maximum_aggregated_value = d.pop("maximumAggregatedValue", UNSET)
+
+        cohort_id = d.pop("cohortId", UNSET)
+
+        _local_input = d.pop("localInput", UNSET)
+        local_input: Union[Unset, LocalInput]
+        if isinstance(_local_input, Unset):
+            local_input = UNSET
+        else:
+            local_input = LocalInput.from_dict(_local_input)
 
         owner = d.pop("owner", UNSET)
 
         project_id = d.pop("projectId", UNSET)
 
+        _run_mode = d.pop("runMode", UNSET)
+        run_mode: Union[Unset, RunMode]
+        if isinstance(_run_mode, Unset):
+            run_mode = UNSET
+        else:
+            run_mode = RunMode(_run_mode)
+
+        local = d.pop("local", UNSET)
+
+        encrypted = d.pop("encrypted", UNSET)
+
+        end_to_end_encrypted = d.pop("endToEndEncrypted", UNSET)
+
+        input_data_object = d.pop("inputDataObject", UNSET)
+
         release_results = d.pop("releaseResults", UNSET)
+
+        timeout = d.pop("timeout", UNSET)
 
         _data_source_parameters = d.pop("dataSourceParameters", UNSET)
         data_source_parameters: Union[Unset, ComputationDataSourceParameters]
@@ -230,7 +295,9 @@ class KeySwitchedComputation:
         else:
             data_source_parameters = ComputationDataSourceParameters.from_dict(_data_source_parameters)
 
-        input_data_object = d.pop("inputDataObject", UNSET)
+        decrypt_results = d.pop("decryptResults", UNSET)
+
+        secret_key = d.pop("secretKey", UNSET)
 
         target_public_key = d.pop("targetPublicKey", UNSET)
 
@@ -241,32 +308,32 @@ class KeySwitchedComputation:
         else:
             computation = ComputationDefinition.from_dict(_computation)
 
-        decrypt_results = d.pop("decryptResults", UNSET)
-
-        secret_key = d.pop("secretKey", UNSET)
-
         key_switched_computation = cls(
             type=type,
-            local=local,
-            local_input=local_input,
+            input_clipping_method=input_clipping_method,
             preprocessing_parameters=preprocessing_parameters,
-            cohort_id=cohort_id,
-            end_to_end_encrypted=end_to_end_encrypted,
-            local_input_id=local_input_id,
             wait=wait,
             dp_policy=dp_policy,
+            dp_epsilon=dp_epsilon,
             join_id=join_id,
-            timeout=timeout,
-            encrypted=encrypted,
+            local_input_id=local_input_id,
+            maximum_aggregated_value=maximum_aggregated_value,
+            cohort_id=cohort_id,
+            local_input=local_input,
             owner=owner,
             project_id=project_id,
-            release_results=release_results,
-            data_source_parameters=data_source_parameters,
+            run_mode=run_mode,
+            local=local,
+            encrypted=encrypted,
+            end_to_end_encrypted=end_to_end_encrypted,
             input_data_object=input_data_object,
-            target_public_key=target_public_key,
-            computation=computation,
+            release_results=release_results,
+            timeout=timeout,
+            data_source_parameters=data_source_parameters,
             decrypt_results=decrypt_results,
             secret_key=secret_key,
+            target_public_key=target_public_key,
+            computation=computation,
         )
 
         key_switched_computation.additional_properties = d

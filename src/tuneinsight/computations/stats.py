@@ -1,20 +1,29 @@
-from typing import List, Dict, Any
+"""Simple univariate statistics."""
+
+from typing import List, Dict, Any, Union
 import math
 import pandas as pd
 import matplotlib.pyplot as plt
 from tuneinsight.api.sdk import models
-from tuneinsight.client.computations import ComputationRunner
-import tuneinsight.utils.time_tools as time
-from tuneinsight.utils.plots import style_title, style_ylabel, add_ti_branding
+from tuneinsight.api.sdk.types import UNSET
+from tuneinsight.computations.base import ModelBasedComputation, ComputationResult
+from tuneinsight.utils import time_tools
+from tuneinsight.utils.plots import style_plot, style_title
 
 
-class Statistics:
+# [Proposal]: Do we want to have approximate quantiles here? (even though it's another computation)
+
+
+class StatisticsResults(ComputationResult):
+    """Results of a Statistics computation."""
+
     results: List[models.StatisticResult]
 
     def __init__(self, results: List[models.StatisticResult]):
         self.results = results
 
     def as_table(self) -> pd.DataFrame:
+        """Returns a pandas DataFrame containing the statistics."""
         cols = ["name", "mean", "variance", "min", "median", "max", "IQR"]
         data = []
         for res in self.results:
@@ -32,15 +41,13 @@ class Statistics:
         return pd.DataFrame(data=data, columns=cols)
 
     def plot(self, metric: str = "", local=False):
+        """Creates a Figure and plots the statistics, using TI branding."""
         plt.style.use("bmh")
         boxes = []
         fig, ax = plt.subplots(1, 2, sharey=True)
         names = []
         means = []
         deviations = []
-        fig.set_figheight(5)
-        fig.set_figwidth(3.5 + 3 * len(self.results))
-        fig.tight_layout()
         c = "#DE5F5A"
         for res in self.results:
             tmp = res.name.split()
@@ -62,26 +69,88 @@ class Statistics:
 
         ax[0].errorbar(names, means, deviations, linestyle="None", marker="o", color=c)
         ax[1].bxp(boxes, showfliers=False, medianprops={"color": c})
-        style_title(ax[0], title="Mean & Standard Deviation")
+
+        # Apply Tune Insight styling to the plots.
+        style_plot(
+            ax[0],
+            fig,
+            "Mean & Standard Deviation",
+            None,
+            y_label=metric,
+            size=(3.5 + 3 * len(self.results), 5),
+            local=local,
+        )
         style_title(ax[1], title="Quantiles")
-        style_ylabel(ax[0], y_label=metric)
-        add_ti_branding(ax[0], ha="right", local=local)
         plt.show()
 
 
-class DatasetStatistics(ComputationRunner):
-    variables: Dict[str, models.StatisticDefinition] = {}
+class Statistics(ModelBasedComputation):
+    """
+    A computation of basic statistics about individual variables in a dataset.
+
+    The statistics that can be computed include the mean, variance, and quantiles
+    (min, 25%, median, 75%, max), as well as the IQR.
+
+    For each variable, a min and max bound need to be specified for the encrypted
+    computations. These bounds do not need to be very accurate. By default, each
+    variable is assumed to have bounds [0, 200]. Variables can be specified either
+    in the constructor, or using the `.add_variable` method.
+
+    """
+
+    _variables: Dict[str, models.StatisticDefinition] = {}
+
+    def __init__(
+        self,
+        project,
+        variables: List[Union[str, dict]] = None,
+        quantities: List[models.StatisticalQuantity] = UNSET,
+    ):
+        """
+        Create a Statistics Computation.
+
+        Args
+            project (client.Project): the project to which this computation belongs.
+            variables (list of str or dict): the variables to which this computation
+                should be applied. Each variable can be specified either as a string
+                (its name), in which case default bounds [0, 200] apply, or as a
+                dictionary with entry "name" and optional "min_bound" and "max_bound".
+            quantities (list of StatisticalQuantity): if provided, only compute the
+                restricted set of statistics. If not provided, all quantities (mean,
+                variance, and quantiles) will be computed.
+        """
+        super().__init__(
+            project,
+            models.DatasetStatistics,
+            type=models.ComputationType.DATASETSTATISTICS,
+        )
+        self.quantities = quantities
+        # The computation expects a dict mapping strings to models.StatisticDefinition
+        # as input containing min and max bounds. We implement a high-level interface
+        # where users can call add_variable to instantiate the variables.
+        self._variables = {}
+        for var in variables or []:
+            if isinstance(var, str):
+                self.add_variable(var, var)
+            elif isinstance(var, dict):
+                if "variable" not in var:
+                    var["variable"] = var["name"]
+                self.add_variable(**var)
+
+    # [Proposal]: Remove these two methods. We should encourage users to use preprocessing
+    # operations directly. Maybe I don't understand how this differs from just applying
+    # the filter operation of preprocessing directly.
 
     def create_subgroups(
         self, variable_name: str, column: str, values: List[str], numerical=False
     ):
-        if variable_name not in self.variables:
-            raise Exception(f"no such variable: {variable_name}")
+        if variable_name not in self._variables:
+            raise ValueError(f"no such variable: {variable_name}")
 
-        variable = self.variables[variable_name]
+        variable = self._variables[variable_name]
         for v in values:
             new_var_name = str(column) + "=" + str(v)
-            self.new_variable(
+            self.add_variable(
                 name=new_var_name,
                 variable=variable.variable,
                 min_bound=variable.min_bound,
@@ -103,8 +172,8 @@ class DatasetStatistics(ComputationRunner):
         value: Any,
         numerical: bool = True,
     ):
-        if variable_name not in self.variables:
-            raise Exception(f"no such variable: {variable_name}")
+        if variable_name not in self._variables:
+            raise ValueError(f"no such variable: {variable_name}")
         f = models.Filter(
             type=models.PreprocessingOperationType.FILTER,
             col_name=column,
@@ -112,13 +181,14 @@ class DatasetStatistics(ComputationRunner):
             value=str(value),
             numerical=numerical,
         )
-        self.variables[variable_name].filter_ = f
+        # Does this set a filter for the computation on one variable only? I.e. the filtering operation will be different on others?
+        self._variables[variable_name].filter_ = f
 
-    def new_variable(
+    def add_variable(
         self, name: str, variable: str, min_bound: float = 0.0, max_bound: float = 200.0
     ):
         """
-        new_variable adds a new variable for the statistics computation.
+        Adds a new variable for the statistics computation.
 
         Args:
             name (str): The name of the variable.
@@ -126,45 +196,32 @@ class DatasetStatistics(ComputationRunner):
             min_bound (float, optional): The minimum bound for the variable. Defaults to 0.0.
             max_bound (float, optional): The maximum bound for the variable. Defaults to 200.0.
         """
-        self.variables[name] = models.StatisticDefinition(
+        self._variables[name] = models.StatisticDefinition(
             name=name,
             variable=variable,
             min_bound=min_bound,
             max_bound=max_bound,
             quantiles_k_value=1,
+            quantities=self.quantities,
         )
 
-    def get_model(self) -> models.DatasetStatistics:
+    def _get_model(self) -> models.DatasetStatistics:
         """
-        get_model returns the api model definition of this computation
+        Returns the api model definition of this computation.
 
         Returns:
             models.DatasetStatistics: the computation definition
         """
-        model = models.DatasetStatistics(type=models.ComputationType.DATASETSTATISTICS)
-        model.statistics = list(self.variables.values())
-        model.project_id = self.project_id
-        return model
+        # Update the variables of this model.
+        self.model.statistics = list(self._variables.values())
+        return self.model
 
-    def compute(self, local: bool = False) -> Statistics:
-        """
-        Computes the statistics for the variables added to the computation.
+    def _pre_run_check(self):
+        """Checks that the user provided at least one variable to compute stats for."""
+        if len(self._variables) == 0:
+            raise ValueError("at least one variable must be added to the computation")
+        self.max_timeout = 30 * time_tools.MINUTE
 
-        Args:
-            local (bool, optional): Whether to run the computation locally or collectively. Defaults to False.
-
-        Returns:
-            Statistics: A Statistics object representing the computed statistics.
-        """
-        if len(self.variables) == 0:
-            raise Exception("at least one variable must be added to the computation")
-        model = self.get_model()
-        self.max_timeout = 30 * time.minute
-        results = super().run_computation(comp=model, local=local, release=True)
-        return Statistics(results[0].get_stats().results)
-
-    def display_workflow(self):
-        """
-        display_workflow displays a documentation of the computation workflow
-        """
-        return super().display_documentation(self.get_model())
+    def _process_results(self, dataobjects):
+        """Post-processes results by converting them to StatisticsResults."""
+        return StatisticsResults(dataobjects[0].get_stats().results)

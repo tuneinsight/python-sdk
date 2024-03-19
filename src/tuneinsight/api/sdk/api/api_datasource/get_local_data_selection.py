@@ -16,6 +16,7 @@ def _get_kwargs(
     selection_id: Union[Unset, None, str] = UNSET,
     project_id: Union[Unset, None, str] = UNSET,
     num_rows: Union[Unset, None, int] = UNSET,
+    preview: Union[Unset, None, bool] = UNSET,
 ) -> Dict[str, Any]:
     url = "{}/datasources/selections".format(client.base_url)
 
@@ -28,6 +29,8 @@ def _get_kwargs(
     params["projectId"] = project_id
 
     params["numRows"] = num_rows
+
+    params["preview"] = preview
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
@@ -87,6 +90,7 @@ def sync_detailed(
     selection_id: Union[Unset, None, str] = UNSET,
     project_id: Union[Unset, None, str] = UNSET,
     num_rows: Union[Unset, None, int] = UNSET,
+    preview: Union[Unset, None, bool] = UNSET,
 ) -> Response[Union[Error, LocalDataSelection]]:
     """retrieves the selection identified by selectionId
 
@@ -94,6 +98,7 @@ def sync_detailed(
         selection_id (Union[Unset, None, str]):
         project_id (Union[Unset, None, str]):
         num_rows (Union[Unset, None, int]):
+        preview (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -108,6 +113,7 @@ def sync_detailed(
         selection_id=selection_id,
         project_id=project_id,
         num_rows=num_rows,
+        preview=preview,
     )
 
     response = httpx.request(
@@ -124,6 +130,7 @@ def sync(
     selection_id: Union[Unset, None, str] = UNSET,
     project_id: Union[Unset, None, str] = UNSET,
     num_rows: Union[Unset, None, int] = UNSET,
+    preview: Union[Unset, None, bool] = UNSET,
 ) -> Optional[Union[Error, LocalDataSelection]]:
     """retrieves the selection identified by selectionId
 
@@ -131,6 +138,7 @@ def sync(
         selection_id (Union[Unset, None, str]):
         project_id (Union[Unset, None, str]):
         num_rows (Union[Unset, None, int]):
+        preview (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -145,6 +153,7 @@ def sync(
         selection_id=selection_id,
         project_id=project_id,
         num_rows=num_rows,
+        preview=preview,
     ).parsed
 
 
@@ -154,6 +163,7 @@ async def asyncio_detailed(
     selection_id: Union[Unset, None, str] = UNSET,
     project_id: Union[Unset, None, str] = UNSET,
     num_rows: Union[Unset, None, int] = UNSET,
+    preview: Union[Unset, None, bool] = UNSET,
 ) -> Response[Union[Error, LocalDataSelection]]:
     """retrieves the selection identified by selectionId
 
@@ -161,6 +171,7 @@ async def asyncio_detailed(
         selection_id (Union[Unset, None, str]):
         project_id (Union[Unset, None, str]):
         num_rows (Union[Unset, None, int]):
+        preview (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -175,6 +186,7 @@ async def asyncio_detailed(
         selection_id=selection_id,
         project_id=project_id,
         num_rows=num_rows,
+        preview=preview,
     )
 
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
@@ -189,6 +201,7 @@ async def asyncio(
     selection_id: Union[Unset, None, str] = UNSET,
     project_id: Union[Unset, None, str] = UNSET,
     num_rows: Union[Unset, None, int] = UNSET,
+    preview: Union[Unset, None, bool] = UNSET,
 ) -> Optional[Union[Error, LocalDataSelection]]:
     """retrieves the selection identified by selectionId
 
@@ -196,6 +209,7 @@ async def asyncio(
         selection_id (Union[Unset, None, str]):
         project_id (Union[Unset, None, str]):
         num_rows (Union[Unset, None, int]):
+        preview (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -211,5 +225,6 @@ async def asyncio(
             selection_id=selection_id,
             project_id=project_id,
             num_rows=num_rows,
+            preview=preview,
         )
     ).parsed

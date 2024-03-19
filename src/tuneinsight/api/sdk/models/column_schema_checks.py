@@ -18,23 +18,23 @@ class ColumnSchemaChecks:
     Attributes:
         in_range (Union[Unset, ColumnSchemaChecksInRange]):
         isin (Union[Unset, List[Any]]):
-        lt (Union[Unset, Any]): verifies that all values are less than this value.
         str_startswith (Union[Unset, str]):
         eq (Union[Unset, Any]): verifies that all values are equal to this value.
         ge (Union[Unset, Any]): verifies that all values are greater than or equal to this value.
         gt (Union[Unset, Any]): verifies that all values are greater than this value.
         le (Union[Unset, Any]): verifies that all values are less than or equal to this value.
+        lt (Union[Unset, Any]): verifies that all values are less than this value.
         notin (Union[Unset, List[Any]]):
     """
 
     in_range: Union[Unset, "ColumnSchemaChecksInRange"] = UNSET
     isin: Union[Unset, List[Any]] = UNSET
-    lt: Union[Unset, Any] = UNSET
     str_startswith: Union[Unset, str] = UNSET
     eq: Union[Unset, Any] = UNSET
     ge: Union[Unset, Any] = UNSET
     gt: Union[Unset, Any] = UNSET
     le: Union[Unset, Any] = UNSET
+    lt: Union[Unset, Any] = UNSET
     notin: Union[Unset, List[Any]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -47,12 +47,12 @@ class ColumnSchemaChecks:
         if not isinstance(self.isin, Unset):
             isin = self.isin
 
-        lt = self.lt
         str_startswith = self.str_startswith
         eq = self.eq
         ge = self.ge
         gt = self.gt
         le = self.le
+        lt = self.lt
         notin: Union[Unset, List[Any]] = UNSET
         if not isinstance(self.notin, Unset):
             notin = self.notin
@@ -64,8 +64,6 @@ class ColumnSchemaChecks:
             field_dict["in_range"] = in_range
         if isin is not UNSET:
             field_dict["isin"] = isin
-        if lt is not UNSET:
-            field_dict["lt"] = lt
         if str_startswith is not UNSET:
             field_dict["str_startswith"] = str_startswith
         if eq is not UNSET:
@@ -76,6 +74,8 @@ class ColumnSchemaChecks:
             field_dict["gt"] = gt
         if le is not UNSET:
             field_dict["le"] = le
+        if lt is not UNSET:
+            field_dict["lt"] = lt
         if notin is not UNSET:
             field_dict["notin"] = notin
 
@@ -95,8 +95,6 @@ class ColumnSchemaChecks:
 
         isin = cast(List[Any], d.pop("isin", UNSET))
 
-        lt = d.pop("lt", UNSET)
-
         str_startswith = d.pop("str_startswith", UNSET)
 
         eq = d.pop("eq", UNSET)
@@ -107,17 +105,19 @@ class ColumnSchemaChecks:
 
         le = d.pop("le", UNSET)
 
+        lt = d.pop("lt", UNSET)
+
         notin = cast(List[Any], d.pop("notin", UNSET))
 
         column_schema_checks = cls(
             in_range=in_range,
             isin=isin,
-            lt=lt,
             str_startswith=str_startswith,
             eq=eq,
             ge=ge,
             gt=gt,
             le=le,
+            lt=lt,
             notin=notin,
         )
 

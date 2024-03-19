@@ -6,7 +6,6 @@ import pandas as pd
 from tuneinsight.utils.code import get_code
 from tuneinsight.api.sdk.types import UNSET
 from tuneinsight.api.sdk import models
-from tuneinsight.computations.survival import SurvivalParameters
 from tuneinsight.computations.dataset_schema import DatasetSchema
 from tuneinsight.api.sdk.models import PreprocessingOperationType as op_type
 
@@ -28,7 +27,9 @@ class Operation(Enum):
 
 class PreprocessingBuilder:
     """
-    Pre-processing chain builder
+    Pre-processing chain builder. This class is used to build a sequence of preprocessing operations
+    that are applied sequentially on the local dataset before running the computations.
+
     """
 
     chain: List[models.PreprocessingOperation]
@@ -38,13 +39,7 @@ class PreprocessingBuilder:
     schema: DatasetSchema
 
     def __init__(self):
-        self.chain = []
-        self.compound_chain = {}
-        self.output_selection = models.Select(
-            type=models.PreprocessingOperationType.SELECT, cols=[]
-        )
-        self.output_selection_set = False
-        self.schema = None
+        self.reset()
 
     def new_schema(self) -> DatasetSchema:
         self.schema = DatasetSchema()
@@ -176,6 +171,30 @@ class PreprocessingBuilder:
                 comparator=comparator,
                 value=value,
                 numerical=numerical,
+            ),
+            nodes,
+        )
+        return self
+
+    def isin(self, target_column: str, values: List[str], nodes: List[str] = None):
+        """
+        Adds a filter operation to the preprocessing chain that filters any rows whose 'target_column' attribute is not present in the list of provided 'values'.
+
+        Args:
+            target_column (str): the column to check the membership with.
+            values (List[str]): the list of accepted values.
+            nodes (List[str], optional): list of the name of nodes to apply the operation on, applied to all if None. Defaults to None.
+
+        Returns:
+            self (PreprocessingBuilder): the updated PreprocessingBuilder
+        """
+        self.append_to_chain(
+            models.Filter(
+                type=models.PreprocessingOperationType.FILTER,
+                col_name=target_column,
+                comparator=models.ComparisonType.ISIN,
+                values=values,
+                value="",
             ),
             nodes,
         )
@@ -696,12 +715,12 @@ class PreprocessingBuilder:
         return self
 
     def create_survival_columns(
-        self, params: SurvivalParameters, nodes: List[str] = None
+        self, params: "SurvivalParameters", nodes: List[str] = None
     ):
         """Add the necessary preprocessing operations for a survival analysis.
 
         Args:
-            params (SurvivalParameters): parameters of the survival analysis.
+            params (computations.SurvivalParameters): parameters of the survival analysis.
             nodes (List[str], optional): list of the name of nodes to apply the operations on, applied to all if None. Defaults to None.
 
         Returns:
@@ -767,6 +786,7 @@ class PreprocessingBuilder:
         return one_hot_without_select
 
     def get_params(self) -> models.ComputationPreprocessingParameters:
+        """Returns these parameters as an API model."""
         res = models.ComputationPreprocessingParameters()
         self.check_validity()
         if self.chain != []:
@@ -783,3 +803,15 @@ class PreprocessingBuilder:
         if self.schema is not None:
             res.dataset_schema = self.schema.model
         return res
+
+    def reset(self):
+        """
+        Resets the preprocessing builder to the initial state.
+        """
+        self.chain = []
+        self.compound_chain = {}
+        self.output_selection = models.Select(
+            type=models.PreprocessingOperationType.SELECT, cols=[]
+        )
+        self.output_selection_set = False
+        self.schema = None

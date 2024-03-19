@@ -1,10 +1,20 @@
+"""
+Types of computation available in the SDK.
+
+This module is currently unused (except for one notebook), and will likely be
+deprecated soon, or revamped.
+
+"""
+
 from enum import Enum
 from tuneinsight.api.sdk.models import ComputationType as ct
+
+from tuneinsight.utils import deprecation
 
 
 class Type(Enum):
     """
-    Type Enumeration of all of the exposed distributed computations types
+    All of the exposed distributed computations types.
     """
 
     AGGREGATION = ct.ENCRYPTEDAGGREGATION
@@ -19,6 +29,8 @@ class Type(Enum):
     DATASET_STATISTICS = ct.DATASETSTATISTICS
 
     def to_computation_type(self) -> ct:
+        # The warning is here, because putting it at top-level causes the diapason import to print a warning.
+        deprecation.warn("computations.types.Type", "api.sdk.models.ComputationType")
         return ct(self.value)
 
 
@@ -34,3 +46,4 @@ displayed_types = {
     Type.SURVIVAL_ANALYSIS: "Survival Analysis",
     Type.DATASET_STATISTICS: "Secure Quantiles Computation",
 }
+"""Mapping from computation type to human-readable name."""

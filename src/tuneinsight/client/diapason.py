@@ -1,8 +1,12 @@
-from typing import List
+"""Module defining the Diapason class to interact with the Tune Insight instance."""
+
+from contextlib import contextmanager
+from typing import List, Union
 import warnings
 import webbrowser
+import os
 
-from keycloak.exceptions import KeycloakConnectionError, KeycloakGetError
+from keycloak.exceptions import KeycloakError
 import attr
 import pandas as pd
 
@@ -14,9 +18,9 @@ from tuneinsight.api.sdk.api.api_project import get_project_list
 from tuneinsight.api.sdk.api.api_datasource import (
     get_data_source_list,
     get_data_source,
-    delete_data_source,
 )
 from tuneinsight.api.sdk.api.api_dataobject import get_data_object
+from tuneinsight.api.sdk.api.api_infos import get_infos
 from tuneinsight.api.sdk import models
 from tuneinsight.client.dataobject import DataObject
 
@@ -27,23 +31,34 @@ from tuneinsight.client import config
 from tuneinsight.client import auth
 from tuneinsight.api.sdk.types import UNSET
 from tuneinsight.client.validation import InvalidResponseError
-import tuneinsight.utils.time_tools as time
+from tuneinsight.utils import time_tools
 
 
 @attr.s(auto_attribs=True)
 class Diapason:
     """
-    Client is a wrapper around the client.AuthenticatedClient providing some useful utilities for using the Geco server
+    Diapason is a client to interface with a Tune Insight instances.
 
-    Args:
-        client (client.AuthenticatedClient): underlying client used to perform the requests
+    This class offers many useful utilities from other modules in the api, including
+    authentication, datasource, dataobject, and project management.
+
+    To create a Diapason client, it is recommended to use one of the from_... class
+    methods to instantiate a client from a configuration.
+
+    Args for __init__ (if doing so manually):
+        conf (config.ClientConfiguration): URL and security configuration of the client.
+        client (api.sdk.client.AuthenticatedClient): underlying client used to perform the requests.
+        maas (client.models.ModelManager): model-as-a-service manager.
     """
 
-    conf: config.Client
+    conf: config.ClientConfiguration
     client: api_client.Client = None
     maas: "ModelManager" = (
         None  # expected type ModelManager not included to avoid cryptolib dependency
     )
+    # Whether the API versions of the SDK and server are compatible.
+    # This is None until the test is performed (either manually or in new/get_project).
+    _api_compatible: Union[bool, None] = None
 
     def __attrs_post_init__(self):
         if self.conf.security.static_token != "":
@@ -66,18 +81,29 @@ class Diapason:
                 },
             )
 
+    # Constructors.
+
     @classmethod
-    def from_config_path(cls, path: str, url: str = None):
+    def from_config_path(
+        cls, path: str, url: str = None, username: str = None, password: str = None
+    ):
         """
-        from_config_path creates a client from a configuration file
+        Creates a client from a configuration file.
 
         Args:
-            path (str): path to the yml configuration file
+            path (str): path to the yml configuration file.
+            url (str, optional): if provided, URL to overwrite the URL in the config.
+            username (str, optional): optional username to overwrite the configuration with. Defaults to None.
+            password (str, optional): optional password to overwrite the configuration with. Defaults to None.
 
         Returns:
-            Diapason: the configured diapason client
+            Diapason: the configured diapason client.
         """
-        conf = config.LoadClient(path)
+        conf = config.ClientConfiguration.from_path(path)
+        if username is not None:
+            conf.security.username = username
+        if password is not None:
+            conf.security.password = password
         if url is not None:
             conf.url = url
         return cls(conf=conf)
@@ -85,12 +111,15 @@ class Diapason:
     @classmethod
     def from_env(cls, path: str = None):
         """
-        from_env creates a client from the environment variables or a "dotenv" file
+        Creates a client from the environment variables or a "dotenv" file.
 
         Args:
-            path (str): path to the dotenv file. If None, it uses environment variables
+            path (str): path to the dotenv file. If None, it uses environment variables.
+
+        Returns:
+            Diapason: the configured diapason client.
         """
-        conf = config.LoadEnvClient(path)
+        conf = config.ClientConfiguration.from_env(path)
         return cls(conf=conf)
 
     @classmethod
@@ -105,7 +134,7 @@ class Diapason:
         verify_ssl: bool = True,
     ):
         """
-        from_config creates a client from the specified attributes.
+        Creates a client from the specified attributes.
 
         This is meant as a convenient way to define a client when default settings apply.
         Only the url endpoint and OIDC client ID need to be specified. Please use client.login()
@@ -134,12 +163,26 @@ class Diapason:
             "http_proxy": http_proxy,
             "https_proxy": https_proxy,
         }
-        conf = config.Client.from_json(conf)
+        conf = config.ClientConfiguration.from_json(conf)
         return cls(conf)
+
+    # Model interface.
+
+    def _get_client(self) -> api_client.AuthenticatedClient:
+        """Returns the API client that this object wraps."""
+        if self.client is None:
+            raise AttributeError("client has not been created")
+        return self.client
+
+    def add_model_manager(self, model_manager):
+        """Adds a ModelManager to this client."""
+        self.maas = model_manager
+
+    # User management.
 
     def login(self, open_page=True, blocking=True):
         """
-        login provides users with a link to log in from a browser
+        Provides users with a link to log in from a browser.
 
         Args:
             open_page (bool, True): whether to use the browser to open the login link.
@@ -147,8 +190,9 @@ class Diapason:
 
         Returns:
             login_url (str): the URL to use to log in, or None if blocking is True.
+
         Raises:
-            AttributeError: if the client is not a keycloak client
+            AttributeError: if the client is not a keycloak client.
         """
         if not isinstance(self.client, auth.KeycloakClient):
             raise AttributeError("client is not a KeycloakClient")
@@ -163,30 +207,73 @@ class Diapason:
             return None
         return login_url
 
-    def get_client(self):
-        if self.client is None:
-            raise AttributeError("client has not been created")
-        return self.client
+    def wait_ready(self, repeat: int = 50, sleep_seconds: int = 5):
+        """Polls the API until it answers by using the get_projects() endpoint.
 
-    def add_models(self, model_manager):
-        self.maas = model_manager
+        Args:
+            repeat (int, optional): maximum number of requests sent to the API. Defaults to 50.
+            sleep_seconds (int, optional): sleeping time between each request in seconds. Defaults to 5.
+
+        Raises:
+            TimeoutError: if the API has not answered.
+        """
+        num_tries = repeat
+        sleep_time = sleep_seconds * time_tools.SECOND
+        last_ex = None
+        # Disable API version checks while waiting for the server.
+        with self._disabled_api_check():
+            for _ in range(num_tries):
+                try:
+                    self.get_projects()
+                    return
+                except (
+                    ConnectionError,
+                    KeycloakError,
+                    InvalidResponseError,
+                ) as ex:
+                    time_tools.sleep(sleep_time)
+                    last_ex = ex
+                    continue
+        raise last_ex
+
+    @contextmanager
+    def timeout(self, timeout: int):
+        """
+        Sets a custom timeout to the client temporarily to be used in a with statement.
+
+        Use this as:
+            with client.timeout(600) as c:
+                [your code here using c as client]
+
+        Args:
+            timeout (int): the timeout in seconds
+
+        Yields:
+            Client: the client with updated timeout
+        """
+        old_timeout = self.client.timeout
+        self.client.timeout = timeout
+        yield self
+        self.client.timeout = old_timeout
+
+    # Datasource handlers.
 
     def new_datasource(
         self, dataframe: pd.DataFrame, name: str, clear_if_exists: bool = False
     ) -> DataSource:
         """
-        new_datasource creates a new datasource from a dataframe. It uploads the dataframe to the created datasource.
+        Creates a new datasource from a dataframe. It uploads the dataframe to the created datasource.
 
         Args:
             dataframe (pd.DataFrame): dataframe to upload.
-            name (str, required): name of the datasource to be created.
+            name (str): name of the datasource to be created.
             clear_if_exists (str, optional): overwrite datasource if it already exists.
 
         Returns:
-            DataSource: the newly created datasource
+            DataSource: the newly created datasource.
         """
         return DataSource.from_dataframe(
-            self.get_client(), dataframe, name, clear_if_exists
+            self._get_client(), dataframe, name, clear_if_exists
         )
 
     def new_api_datasource(
@@ -199,7 +286,7 @@ class Diapason:
         cert: str = "",
     ) -> DataSource:
         """
-        new_api_datasource creates a new API datasource.
+        Creates a new API datasource.
 
         Args:
             apiConfig (any): API configuration.
@@ -211,14 +298,20 @@ class Diapason:
             DataSource: the newly created datasource
         """
         return DataSource.from_api(
-            self.get_client(), api_type, api_url, api_token, name, clear_if_exists, cert
+            self._get_client(),
+            api_type,
+            api_url,
+            api_token,
+            name,
+            clear_if_exists,
+            cert,
         )
 
     def new_csv_datasource(
         self, csv: str, name: str, clear_if_exists: bool = False
     ) -> DataSource:
         """
-        new_csv_datasource creates a new datasource and upload the given csv file to it
+        Creates a new datasource and upload the given csv file to it.
 
         Args:
             csv (str): path to the csv file.
@@ -230,7 +323,7 @@ class Diapason:
             DataSource: the newly created datasource
         """
         ds = DataSource.local(
-            client=self.get_client(), name=name, clear_if_exists=clear_if_exists
+            client=self._get_client(), name=name, clear_if_exists=clear_if_exists
         )
         ds.load_csv_data(path=csv)
         return ds
@@ -240,24 +333,96 @@ class Diapason:
         pg_config: models.DatabaseConnectionInfo,
         name: str,
         clear_if_exists: bool = False,
+        secret_id: str = None,
     ) -> DataSource:
         """
-        new_database creates a new Postgres datasource
+        Creates a new Postgres datasource.
 
         Args:
             config (models.DatabaseConnectionInfo): Postgres configuration.
             name (str, required): name of the datasource to be created.
             clear_if_exists (str, optional): overwrite datasource if it already exists.
+            secret_id (str, optional): secret id that stores the database credentials on the KMS connected to the instance.
 
         Returns:
             DataSource: the newly created datasource
         """
-        return DataSource.postgres(
-            client=self.get_client(),
+        return DataSource.database(
+            client=self._get_client(),
             config=pg_config,
             name=name,
             clear_if_exists=clear_if_exists,
+            secret_id=secret_id,
         )
+
+    def get_datasources(self, name: str = "") -> List[DataSource]:
+        """Returns all the datasources of the instance.
+
+        Args:
+            name (str, optional): name of the datasource. If provided, it will be used to filter the datasources. Defaults to "".
+
+        Returns:
+            List[DataSource]: the datasources retrieved from the instance.
+        """
+        response: Response[List[models.DataSource]] = (
+            get_data_source_list.sync_detailed(client=self.client, name=name)
+        )
+        validate_response(response)
+        datasources = []
+        for datasource in response.parsed:
+            datasources.append(DataSource(model=datasource, client=self.client))
+        return datasources
+
+    def delete_datasource(self, ds: DataSource) -> List[DataSource]:
+        """Deletes a datasource.
+
+        Args:
+            ds (DataSource): the datasource to delete
+
+        Returns:
+            List[DataSource]: updated list of datasources
+        """
+        ds.delete()  # Do we want to keep this method ?
+
+    def get_datasource(self, ds_id: str = None, name: str = None) -> DataSource:
+        """
+        Returns a datasource by ID or name.
+
+        Args:
+            ds_id (str, optional): ID of the datasource.
+            name (str, optional): name of the datasource. If ds_id is not provided, it will be used to find the datasource
+
+        Returns:
+            DataSource: the datasource
+        """
+        if ds_id is None:
+            if name is None:
+                raise ValueError("At least one of ds_id or name must be provided.")
+            return self.get_datasources(name=name)[0]
+        ds_response: Response[models.DataSource] = get_data_source.sync_detailed(
+            client=self.client, data_source_id=ds_id
+        )
+        validate_response(ds_response)
+        return DataSource(model=ds_response.parsed, client=self.client)
+
+    # Dataobject management.
+
+    def get_dataobject(self, do_id: str) -> DataObject:
+        """Retrieves a dataobject, specified by ID.
+
+        Args:
+            do_id (str, optional): ID of the dataobject.
+
+        Returns:
+            DataObject: the dataobject.
+        """
+        do_response: Response[models.DataObject] = get_data_object.sync_detailed(
+            client=self.client, data_object_id=do_id
+        )
+        validate_response(do_response)
+        return DataObject(model=do_response.parsed, client=self.client)
+
+    # Project management.
 
     def new_project(
         self,
@@ -267,8 +432,9 @@ class Diapason:
         authorized_users: list = None,
         participants: list = None,
         non_contributor: bool = False,
+        run_async: bool = True,
     ) -> Project:
-        """new_project creates a new project
+        """Creates a new project.
 
         Args:
             name (str): name of the project
@@ -280,6 +446,7 @@ class Diapason:
             authorized_users (Union[Unset, List[str]]): The IDs of the users who can run the project
             participants (Union[Unset, List[str]]): The IDs of the users who participate in the project.
             non_contributor (bool, default False): indicates that this participant participates in the computations but does not contribute any data.
+            run_async (bool, default True): whether to run computations asynchronously.
 
         Raises:
             Exception: in case the project already exists and clear_if_exists is False.
@@ -288,6 +455,8 @@ class Diapason:
         Returns:
             Project: the newly created project
         """
+
+        self.check_api_compatibility()
 
         if authorized_users is None:
             authorized_users = []
@@ -315,6 +484,7 @@ To avoid this, delete the project on other nodes, or create a differently-named 
             authorized_users=authorized_users,
             participants=participants,
             non_contributor=non_contributor,
+            run_async=run_async,
         )
         # authorization_status = models.AuthorizationStatus.UNAUTHORIZED)
         proj_response: Response[models.Project] = post_project.sync_detailed(
@@ -324,17 +494,22 @@ To avoid this, delete the project on other nodes, or create a differently-named 
         p = Project(model=proj_response.parsed, client=self.client)
         return p
 
-    def get_project(self, project_id: str = "", name: str = "") -> Project:
-        """get_project returns a project by id or name
+    def get_project(self, project_id: str = None, name: str = None) -> Project:
+        """Returns a project, either by id or name.
 
         Args:
             project_id (str, optional): id of the project.
-            name (str, optional): name of the project. If project_id is not provided, it will be used to find the project
+            name (str, optional): name of the project. If project_id is not provided, it will be used to find the project.
 
         Returns:
             Project: the project
         """
-        if project_id == "":
+        self.check_api_compatibility()
+        if project_id is None:
+            if name is None:
+                raise ValueError(
+                    "At least one of of project_id or name must be specified."
+                )
             return self.get_project_by_name(name=name)
         proj_response: Response[models.Project] = get_project.sync_detailed(
             client=self.client, project_id=project_id
@@ -344,11 +519,12 @@ To avoid this, delete the project on other nodes, or create a differently-named 
 
     def get_projects(self) -> List[Project]:
         """
-        get_projects returns all the projects
+        Returns all the projects available to the client.
 
         Returns:
             List[Project]: list of projects
         """
+        self.check_api_compatibility()
         response: Response[List[models.Project]] = get_project_list.sync_detailed(
             client=self.client
         )
@@ -359,7 +535,7 @@ To avoid this, delete the project on other nodes, or create a differently-named 
         return projects
 
     def get_project_by_name(self, name: str) -> Project:
-        """get_project_by_name returns a project by name
+        """Returns a project by name.
 
         Args:
             name (str): name of the project
@@ -370,6 +546,7 @@ To avoid this, delete the project on other nodes, or create a differently-named 
         Returns:
             Project: the project
         """
+        self.check_api_compatibility()
         response: Response[List[models.Project]] = get_project_list.sync_detailed(
             client=self.client, name=name
         )
@@ -378,100 +555,63 @@ To avoid this, delete the project on other nodes, or create a differently-named 
             return Project(model=response.parsed[0], client=self.client)
         raise LookupError("project not found")
 
-    def get_datasources(self, name: str = "") -> List[DataSource]:
-        """get_datasources returns all the datasources of the instance
+    def clear_project(self, project_id: str = None, name: str = None):
+        """
+        Deletes a project, retrieved either by ID or name.
 
         Args:
-            name (str, optional): name of the datasource. If provided, it will be used to filter the datasources. Defaults to "".
-
-        Returns:
-            List[DataSource]: _description_
+            project_id (str, optional): the unique identifier of the project.
+            name (str, optional): name of the datasource. If provided, it will
+                be used to filter the datasources. Defaults to "".
         """
-        response: Response[List[models.DataSource]] = (
-            get_data_source_list.sync_detailed(client=self.client, name=name)
-        )
-        validate_response(response)
-        datasources = []
-        for datasource in response.parsed:
-            datasources.append(DataSource(model=datasource, client=self.client))
-        return datasources
-
-    def delete_datasource(self, ds: DataSource) -> List[DataSource]:
-        """delete_datasource deletes a datasource
-
-        Args:
-            ds (DataSource): the datasource to delete
-
-        Returns:
-            List[DataSource]: updated list of datasources
-        """
-        response = delete_data_source.sync_detailed(
-            client=self.client, data_source_id=ds.get_id()
-        )
-        validate_response(response)
-
-    def get_datasource(self, ds_id: str = "", name: str = "") -> DataSource:
-        """get_datasource returns a datasource by id or name
-
-        Args:
-            ds_id (str, optional): id of the datasource.
-            name (str, optional): name of the datasource. If ds_id is not provided, it will be used to find the datasource
-
-        Returns:
-            DataSource: the datasource
-        """
-        if ds_id == "":
-            return self.get_datasources(name=name)[0]
-        ds_response: Response[models.DataSource] = get_data_source.sync_detailed(
-            client=self.client, data_source_id=ds_id
-        )
-        validate_response(ds_response)
-        return DataSource(model=ds_response.parsed, client=self.client)
-
-    def clear_project(self, project_id: str = "", name: str = ""):
         p = self.get_project(project_id=project_id, name=name)
         p.delete()
 
-    def get_dataobject(self, do_id: str) -> DataObject:
-        """get_dataobject returns a dataobject by id
-
-        Args:
-            do_id (str, optional): id of the dataobject.
-
-        Returns:
-            DataObject: the dataobject
+    def check_api_compatibility(self, hard=False) -> bool:
         """
-        do_response: Response[models.DataObject] = get_data_object.sync_detailed(
-            client=self.client, data_object_id=do_id
-        )
-        validate_response(do_response)
-        return DataObject(model=do_response.parsed, client=self.client)
+        Checks that the server and client have the same API version.
 
-    def wait_ready(self, repeat: int = 50, sleep_seconds: int = 5):
+        Args
+            hard (bool, default False): if true, this will raise an error if the
+                connection fails or the API versions are found to be mismatching.
+                Otherwise, this will raise a warning instead.
         """
-        wait_ready polls the API until it answers by using the get_projects() endpoint
+        # This check is only performed once, for efficiency reasons.
+        if self._api_compatible is not None:
+            return self._api_compatible
+        # Fetch the version of the server at /infos
+        try:
+            # Many exceptions can occur here: connection issues, server-side issues
+            # (e.g. when running the server in different modes, or very ancient versions).
+            # This general catch-all allows the compatibility check to remain optional.
+            resp = get_infos.sync_detailed(client=self.client)
+            validate_response(resp)
+            api_checksum = resp.parsed.api_checksum
+        except Exception as err:  # pylint: disable=broad-exception-caught
+            if hard:
+                raise err
+            warnings.warn(
+                f"An exception occured while checking API compatibility ({err})."
+            )
+            return False
+        # Check that the version of this client from auto-generated file.
+        with open(
+            os.path.join(os.path.dirname(__file__), "..", "api", "api-checksum"),
+            encoding="utf-8",
+        ) as ff:
+            this_checksum = ff.read().strip(" \n")
+        if api_checksum != this_checksum:
+            warnings.warn(
+                "API version mismatch: the server and client use different versions "
+                + "of the API. Some functionalities might not work as intended."
+            )
+        self._api_compatible = api_checksum == this_checksum
+        return self._api_compatible
 
-        Args:
-            repeat (int, optional): maximum number of requests sent to the API. Defaults to 50.
-            sleep_seconds (int, optional): sleeping time between each request in seconds. Defaults to 5.
-
-        Raises:
-            TimeoutError: if the API has not answered
-        """
-        num_tries = repeat
-        sleep_time = sleep_seconds * time.second
-        last_ex = None
-        for _ in range(num_tries):
-            try:
-                self.get_projects()
-                return
-            except (
-                ConnectionError,
-                KeycloakConnectionError,
-                KeycloakGetError,
-                InvalidResponseError,
-            ) as ex:
-                time.sleep(sleep_time)
-                last_ex = ex
-                continue
-        raise last_ex
+    @contextmanager
+    def _disabled_api_check(self):
+        """Temporarily disables API version checks within a with statement."""
+        old_check = self._api_compatible
+        self._api_compatible = True
+        yield self
+        self._api_compatible = old_check

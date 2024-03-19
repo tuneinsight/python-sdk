@@ -5,6 +5,7 @@ class APIConnectionInfoType(str, Enum):
     ELASTIC = "elastic"
     MISP = "misp"
     HUBSPOT = "hubspot"
+    VIRTUOSO = "virtuoso"
     GENERIC = "generic"
 
     def __str__(self) -> str:

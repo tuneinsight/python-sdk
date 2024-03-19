@@ -15,27 +15,28 @@ T = TypeVar("T", bound="SurvivalAggregationSubgroupsItem")
 class SurvivalAggregationSubgroupsItem:
     """
     Attributes:
-        name (Union[Unset, str]):
         filter_ (Union[Unset, Filter]):
+        name (Union[Unset, str]):
     """
 
-    name: Union[Unset, str] = UNSET
     filter_: Union[Unset, "Filter"] = UNSET
+    name: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        name = self.name
         filter_: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.filter_, Unset):
             filter_ = self.filter_.to_dict()
 
+        name = self.name
+
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if name is not UNSET:
-            field_dict["name"] = name
         if filter_ is not UNSET:
             field_dict["filter"] = filter_
+        if name is not UNSET:
+            field_dict["name"] = name
 
         return field_dict
 
@@ -44,8 +45,6 @@ class SurvivalAggregationSubgroupsItem:
         from ..models.filter_ import Filter
 
         d = src_dict.copy()
-        name = d.pop("name", UNSET)
-
         _filter_ = d.pop("filter", UNSET)
         filter_: Union[Unset, Filter]
         if isinstance(_filter_, Unset):
@@ -53,9 +52,11 @@ class SurvivalAggregationSubgroupsItem:
         else:
             filter_ = Filter.from_dict(_filter_)
 
+        name = d.pop("name", UNSET)
+
         survival_aggregation_subgroups_item = cls(
-            name=name,
             filter_=filter_,
+            name=name,
         )
 
         survival_aggregation_subgroups_item.additional_properties = d

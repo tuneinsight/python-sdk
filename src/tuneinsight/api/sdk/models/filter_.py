@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Type, TypeVar, Union
+from typing import Any, Dict, List, Type, TypeVar, Union, cast
 
 import attr
 
@@ -14,42 +14,50 @@ class Filter:
     """
     Attributes:
         type (PreprocessingOperationType): type of preprocessing operation
-        value (str): value with which to compare
         col_name (str): name of column to filter on
-        numerical (Union[Unset, bool]): indicate whether the comparison is on numerical values
+        value (str): value with which to compare
         comparator (Union[Unset, ComparisonType]): type of comparison
+        numerical (Union[Unset, bool]): indicate whether the comparison is on numerical values
+        values (Union[Unset, List[str]]): list of values to pass in when comparison type is 'isin'.
     """
 
     type: PreprocessingOperationType
-    value: str
     col_name: str
-    numerical: Union[Unset, bool] = UNSET
+    value: str
     comparator: Union[Unset, ComparisonType] = UNSET
+    numerical: Union[Unset, bool] = UNSET
+    values: Union[Unset, List[str]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         type = self.type.value
 
-        value = self.value
         col_name = self.col_name
-        numerical = self.numerical
+        value = self.value
         comparator: Union[Unset, str] = UNSET
         if not isinstance(self.comparator, Unset):
             comparator = self.comparator.value
+
+        numerical = self.numerical
+        values: Union[Unset, List[str]] = UNSET
+        if not isinstance(self.values, Unset):
+            values = self.values
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "type": type,
-                "value": value,
                 "colName": col_name,
+                "value": value,
             }
         )
-        if numerical is not UNSET:
-            field_dict["numerical"] = numerical
         if comparator is not UNSET:
             field_dict["comparator"] = comparator
+        if numerical is not UNSET:
+            field_dict["numerical"] = numerical
+        if values is not UNSET:
+            field_dict["values"] = values
 
         return field_dict
 
@@ -58,11 +66,9 @@ class Filter:
         d = src_dict.copy()
         type = PreprocessingOperationType(d.pop("type"))
 
-        value = d.pop("value")
-
         col_name = d.pop("colName")
 
-        numerical = d.pop("numerical", UNSET)
+        value = d.pop("value")
 
         _comparator = d.pop("comparator", UNSET)
         comparator: Union[Unset, ComparisonType]
@@ -71,12 +77,17 @@ class Filter:
         else:
             comparator = ComparisonType(_comparator)
 
+        numerical = d.pop("numerical", UNSET)
+
+        values = cast(List[str], d.pop("values", UNSET))
+
         filter_ = cls(
             type=type,
-            value=value,
             col_name=col_name,
-            numerical=numerical,
+            value=value,
             comparator=comparator,
+            numerical=numerical,
+            values=values,
         )
 
         filter_.additional_properties = d
