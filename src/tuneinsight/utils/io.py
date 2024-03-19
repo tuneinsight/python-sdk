@@ -1,10 +1,12 @@
+"""Utilities to handle input-output to and from bytes."""
+
 import io
 import pandas as pd
 
 
 def data_to_bytes(data, remove_header: bool = False) -> bytes:
     """
-    data_to_bytes converts a dataset to csv bytes
+    Converts a dataset to CSV in bytes.
 
     Args:
         data (any): any 2-dimensional dataset, can be a dataframe
@@ -22,7 +24,7 @@ def data_to_bytes(data, remove_header: bool = False) -> bytes:
 
 def data_from_bytes(buf: bytes, no_header: bool = False) -> pd.DataFrame:
     """
-    data_from_bytes convert the provided csv bytes to a dataframe
+    Convert a CSV-encoded dataset in bytes to a dataframe.
 
     Args:
         buf (bytes): the csv in byte format

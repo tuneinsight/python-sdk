@@ -1,50 +1,27 @@
 """Utilities to define preprocessing operations using only Pandas operations.
 
 This module defines the RemoteDataFrame class, which provides a Pandas-like interface
-to the preprocessing operations supported by the API.
+to the preprocessing operations supported by the API. The goal is to enable users to
+seamlessly swap between local DataFrame objects and the RemoteDataFrame without
+changing the code. This enables them to test the code locally and immediately use it remotely.
 
-The goal is to enable users to seemlessly swap between local DataFrame objects and
-the RemoteDataFrame without changing the code. This enables them to test the code
-locally and immediately use it remotely.
+This module defines the following classes and functions:
+ - RemoteDataFrame, a pandas.DataFrame analogue connected to a Tune Insight instance. It
+    supports many operations available on a pd.DataFrame (see documentation).
+ - get_dummies, an analogue to pd.get_dummies that works on a RemoteDataFrame as well.
+ - cut, an analogue to pd.cut that works on a RemoteDataFrame as well.
+ - select, a utility to select a subset of columns on a DataFrame or RemoteDataFrame.
+ - custom, a decorator to write functions that operate over pandas.DataFrames locally or remotely.
 
 """
 
-from typing import Union
+from typing import Union, List
 
 import numpy as np
 import pandas as pd
 
 from tuneinsight.api.sdk import models
 from tuneinsight.computations.preprocessing import PreprocessingBuilder
-
-# Operations currently supported
-#   - add_columns
-#   - one_hot_encoding
-#   - counts
-#   - dropna
-#   - rename
-#   - set_index
-#   - reset_index
-#   - transpose
-#   - astype
-#   - apply_mapping
-#   - cut
-#   - set_columns // select (not sure what the difference is)
-#   - filter
-#   - custom (apply, sort of)
-
-# The following are not in native Pandas. We can add them to this file if we want, the easiest way
-# being to copy-paste the code from the preprocessing module.
-#   - apply_regex
-#   - extract
-#   - time_diff
-#   - *deviation_squares
-#   - *quantiles
-
-# The following operations are not even in preprocessing.py!
-#   - PHONETICENCODING
-#   - DROP
-#   - SURVIVAL (create_survival_columns is already a nice interface).
 
 
 # Internal classes that serve as holders for pending operations.
@@ -88,7 +65,8 @@ class _SelectedColumn:
 
 
 class _PendingOperation:
-    """Operations that have been initiated but still need to be added to the chain.
+    """
+    Operations that have been initiated but still need to be added to the chain.
 
     _PendingOperations are typically created when operations are performed on a
     _SelectedColumn object (e.g., a sum of two variables). These operations still
@@ -141,7 +119,7 @@ class _ApplyMappingOperation(_PendingOperation):
 class _CutOperation(_PendingOperation):
     """A pending cut operation on a column."""
 
-    def __init__(self, column: _SelectedColumn, bins: list[float], labels: list[str]):
+    def __init__(self, column: _SelectedColumn, bins: List[float], labels: List[str]):
         self.column = column
         self.bins = bins
         self.labels = labels
@@ -212,7 +190,7 @@ class RemoteDataFrame:
             raise ValueError(f"Invalid type for value {value} in assignment.")
 
     # Re-implementing Pandas methods.
-    def dropna(self, subset: list[str] = None, inplace=True):
+    def dropna(self, subset: List[str] = None, inplace=True):
         assert inplace is True, "dropna must be done inplace."
         self.builder.dropna(subset)
         return self
@@ -231,7 +209,7 @@ class RemoteDataFrame:
 
     def set_index(
         self,
-        keys: Union[str, list[str]],
+        keys: Union[str, List[str]],
         drop: bool = True,
         append: bool = False,
         inplace=True,
@@ -245,7 +223,7 @@ class RemoteDataFrame:
         self.builder.set_index(columns=keys, drop=drop, append=append)
         return self
 
-    def reset_index(self, drop: bool = False, level: list[str] = None, inplace=True):
+    def reset_index(self, drop: bool = False, level: List[str] = None, inplace=True):
         assert inplace is True, "reset_index must be done inplace."
         self.builder.reset_index(drop=drop, level=level)
         return self
@@ -271,7 +249,7 @@ def get_dummies(
     df: Union[pd.DataFrame, RemoteDataFrame],
     target_column: str,
     prefix: str,
-    specified_types: list[str],
+    specified_types: List[str],
 ):
     """Create dummies (one-hot encoding) for a given column and collection of values."""
     if isinstance(df, RemoteDataFrame):
@@ -291,8 +269,8 @@ def get_dummies(
 
 def cut(
     df: Union[pd.DataFrame, pd.Series, _SelectedColumn, RemoteDataFrame],
-    bins=list[float],
-    labels: list[str] = None,
+    bins=List[float],
+    labels: List[str] = None,
     column: str = None,
 ):
     """Discretize a continuous column into bins. Similar to pd.cut.
@@ -318,7 +296,7 @@ def cut(
 
 def select(
     df: Union[pd.DataFrame, RemoteDataFrame],
-    columns: list[str],
+    columns: List[str],
     create_if_missing: bool = False,
     dummy_value: str = "",
 ):

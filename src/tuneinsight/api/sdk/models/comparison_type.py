@@ -9,6 +9,7 @@ class ComparisonType(str, Enum):
     LESS = "less"
     LESSEQ = "lessEq"
     IN = "in"
+    ISIN = "isin"
 
     def __str__(self) -> str:
         return str(self.value)

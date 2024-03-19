@@ -12,38 +12,38 @@ class OrganizationCoordinates:
     """Coordinates of the organization. (Decimal degrees, WGS84)
 
     Attributes:
-        longitude (Union[Unset, float]):
         latitude (Union[Unset, float]):
+        longitude (Union[Unset, float]):
     """
 
-    longitude: Union[Unset, float] = UNSET
     latitude: Union[Unset, float] = UNSET
+    longitude: Union[Unset, float] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        longitude = self.longitude
         latitude = self.latitude
+        longitude = self.longitude
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if longitude is not UNSET:
-            field_dict["longitude"] = longitude
         if latitude is not UNSET:
             field_dict["latitude"] = latitude
+        if longitude is not UNSET:
+            field_dict["longitude"] = longitude
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        longitude = d.pop("longitude", UNSET)
-
         latitude = d.pop("latitude", UNSET)
 
+        longitude = d.pop("longitude", UNSET)
+
         organization_coordinates = cls(
-            longitude=longitude,
             latitude=latitude,
+            longitude=longitude,
         )
 
         organization_coordinates.additional_properties = d

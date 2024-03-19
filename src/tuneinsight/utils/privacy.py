@@ -1,4 +1,6 @@
-"""Utilities for Differential Privacy."""
+"""Utilities for Differential Privacy post-analysis."""
+
+from typing import List
 
 import numpy as np
 import pandas as pd
@@ -8,7 +10,8 @@ from tuneinsight.utils.plots import style_plot
 
 
 class RatioEstimator:
-    """Compute confidence intevals for the ratio of two values computed with differential privacy.
+    """
+    Compute confidence intervals for the ratio of two values computed with differential privacy.
 
     This class uses simulated samples to estimate various properties of the observed values.
 
@@ -38,12 +41,12 @@ class RatioEstimator:
         numerators = numerator + noise_scale * laplace_noises[0, :]
         if noise_scale_denominator is None:
             noise_scale_denominator = noise_scale
-        denominators = denominator + noise_scale * laplace_noises[1, :]
+        denominators = denominator + noise_scale_denominator * laplace_noises[1, :]
 
         self.observed = numerator / denominator
         self.samples = numerators / denominators
 
-    def confidence_intervals(self, p: list[float] = (95, 99)):
+    def confidence_intervals(self, p: List[float] = (95, 99)):
         """
         Estimate confidence intervals for the ratio.
 
@@ -92,7 +95,7 @@ class RatioEstimator:
             lw=1,
             alpha=0.8,
         )
-        # plt.violinplot(self.samples, vert=False, showextrema=False, positions=[0], widths=max_height)
+        # Plot confidence intervals.
         if ci_color is not None:
             for p, w in zip([95, 99], [0.1, 0.05]):
                 ci = self.confidence_intervals([p]).iloc[0]
@@ -114,5 +117,5 @@ class RatioEstimator:
             title="Distribution of true values",
             x_label="Possible values",
             y_label="Likelihood",
-            size=(6, 6),
+            size=(8, 6),
         )

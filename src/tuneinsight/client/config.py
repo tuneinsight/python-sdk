@@ -1,3 +1,5 @@
+"""Log-in configuration for Tune Insight clients."""
+
 import os
 import json
 from ast import literal_eval
@@ -23,6 +25,8 @@ def to_dict(obj):
 
 
 class OIDCConfiguration:
+    """OIDC parameters to log in to Keycloak."""
+
     oidc_client_id: str
     oidc_client_secret: str
     oidc_url: str
@@ -54,7 +58,9 @@ class OIDCConfiguration:
         )
 
 
-class Security:
+class SecurityConfiguration:
+    """Configuration of the security for a client connection."""
+
     static_token: str
     username: str
     password: str
@@ -78,7 +84,7 @@ class Security:
     @staticmethod
     def from_json(json_dct):
         oidc_config = OIDCConfiguration.from_json(json_dct.get("oidc_config"))
-        return Security(
+        return SecurityConfiguration(
             oidc_config,
             json_dct.get("static_token"),
             json_dct.get("username"),
@@ -87,9 +93,11 @@ class Security:
         )
 
 
-class Client:
+class ClientConfiguration:
+    """URL and security parameters of a client."""
+
     url: str
-    security: Security
+    security: SecurityConfiguration
     http_proxy: str
     https_proxy: str
 
@@ -109,6 +117,7 @@ class Client:
         self.https_proxy = https_proxy
 
     def save(self, filepath: str):
+        """Save this configuration to a file."""
         with open(filepath, "w", encoding="utf-8") as f:
             res = to_dict(self)
             yaml.safe_dump(res, f)
@@ -116,16 +125,14 @@ class Client:
     @staticmethod
     def from_json(json_dct):
         """
-        Create a Client object from a JSON dictionary.
+        Create a Client configuration from a JSON dictionary.
 
         Args:
             json_dct (dict): The JSON dictionary containing the client configuration.
 
-        Returns:
-            Client: The created Client object.
         """
-        security = Security.from_json(json_dct.get("security"))
-        client = Client(json_dct.get("url"), security)
+        security = SecurityConfiguration.from_json(json_dct.get("security"))
+        client = ClientConfiguration(json_dct.get("url"), security)
         client.http_proxy = (
             json_dct.get("http_proxy")
             if json_dct.get("http_proxy") is not None
@@ -138,62 +145,78 @@ class Client:
         )
         return client
 
+    @staticmethod
+    def from_path(filepath: str):
+        """
+        Create a Client configuration from a file.
 
-def LoadClient(filepath: str) -> Client:
-    with open(filepath, encoding="utf-8") as f:
-        dm = yaml.safe_load(f)
-        dumped = json.dumps(dm)
-        client = Client.from_json(json.loads(dumped))
-        return client
+        Args:
+            filepath: the path to the file to load from, a text file with a
+                configuration in JSON (as produced by ClientConfiguration.save).
+        """
+        with open(filepath, encoding="utf-8") as f:
+            dm = yaml.safe_load(f)
+            dumped = json.dumps(dm)
+            client = ClientConfiguration.from_json(json.loads(dumped))
+            return client
 
+    @staticmethod
+    def from_env(envpath: str = None):
+        """
+        Create a Client configuration from environment variables.
 
-def LoadEnvClient(envpath: str = None) -> Client:
-    if envpath is not None:
-        # Verify that the file exists
-        if not os.path.exists(envpath):
-            raise Exception("env file does not exist")
+        Args:
+            envpath (optional): path to a file containing environment variables
+                to use instead.
+        """
+        if envpath is not None:
+            # Verify that the file exists
+            if not os.path.exists(envpath):
+                raise LookupError("env file does not exist")
 
-        found = load_dotenv(dotenv_path=envpath)
-        if not found:
-            raise Exception("No environment variable found")
+            found = load_dotenv(dotenv_path=envpath)
+            if not found:
+                raise LookupError("No environment variable found")
 
-    # Verify that the environment variables are set
-    if os.getenv("NODE_URL") is None:
-        raise Exception("Missing environments: NODE_URL is not set")
-    if (
-        os.getenv("TI_USERNAME") is None
-        and os.getenv("TI_PASSWORD") is None
-        and os.getenv("TI_STATIC_TOKEN") is None
-    ):
-        raise Exception(
-            "Missing environments: need to set either TI_USERNAME and TI_PASSWORD or TI_STATIC_TOKEN"
+        # Verify that the environment variables are set
+        if os.getenv("NODE_URL") is None:
+            raise LookupError("Missing environments: NODE_URL is not set")
+        if (
+            os.getenv("TI_USERNAME") is None
+            and os.getenv("TI_PASSWORD") is None
+            and os.getenv("TI_STATIC_TOKEN") is None
+        ):
+            raise LookupError(
+                "Missing environments: need to set either TI_USERNAME and TI_PASSWORD or TI_STATIC_TOKEN"
+            )
+
+        oidc_config = OIDCConfiguration(
+            oidc_url=os.getenv("OIDC_URL"),
+            oidc_realm=os.getenv("OIDC_REALM"),
+            oidc_client_id=os.getenv("OIDC_CLIENT_ID"),
+            oidc_client_secret=os.getenv("OIDC_CLIENT_SECRET"),
         )
 
-    oidc_config = OIDCConfiguration(
-        oidc_url=os.getenv("OIDC_URL"),
-        oidc_realm=os.getenv("OIDC_REALM"),
-        oidc_client_id=os.getenv("OIDC_CLIENT_ID"),
-        oidc_client_secret=os.getenv("OIDC_CLIENT_SECRET"),
-    )
+        security_config = SecurityConfiguration(
+            username=os.getenv("TI_USERNAME"),
+            password=os.getenv("TI_PASSWORD"),
+            static_token=os.getenv("TI_STATIC_TOKEN"),
+            verify_ssl=literal_eval(os.getenv("TI_VERIFY_SSL")),
+            oidc_config=oidc_config,
+        )
+        client = ClientConfiguration(
+            url=os.getenv("NODE_URL"), security=security_config
+        )
 
-    security_config = Security(
-        username=os.getenv("TI_USERNAME"),
-        password=os.getenv("TI_PASSWORD"),
-        static_token=os.getenv("TI_STATIC_TOKEN"),
-        verify_ssl=literal_eval(os.getenv("TI_VERIFY_SSL")),
-        oidc_config=oidc_config,
-    )
-    client = Client(url=os.getenv("NODE_URL"), security=security_config)
+        client.http_proxy = (
+            os.getenv("HTTP_PROXY")
+            if os.getenv("HTTP_PROXY") is not None
+            else client.http_proxy
+        )
+        client.https_proxy = (
+            os.getenv("HTTPS_PROXY")
+            if os.getenv("HTTPS_PROXY") is not None
+            else client.https_proxy
+        )
 
-    client.http_proxy = (
-        os.getenv("HTTP_PROXY")
-        if os.getenv("HTTP_PROXY") is not None
-        else client.http_proxy
-    )
-    client.https_proxy = (
-        os.getenv("HTTPS_PROXY")
-        if os.getenv("HTTPS_PROXY") is not None
-        else client.https_proxy
-    )
-
-    return client
+        return client

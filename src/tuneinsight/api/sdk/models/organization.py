@@ -17,23 +17,25 @@ class Organization:
     """Organization taking part in a project
 
     Attributes:
+        group (Union[Unset, str]): Name of the corresponding keycloak group
+        name (Union[Unset, str]): Name of the organization
         authorization_status (Union[Unset, AuthorizationStatus]): Authorization status of the project
         coordinates (Union[Unset, OrganizationCoordinates]): Coordinates of the organization. (Decimal degrees, WGS84)
         country (Union[Unset, str]): Country code of the organization. (Lower case two-letter ISO 3166-1 alpha-2)
         data_officer (Union[Unset, str]): Name of the data officer in charge in the organization
-        group (Union[Unset, str]): Name of the corresponding keycloak group
-        name (Union[Unset, str]): Name of the organization
     """
 
+    group: Union[Unset, str] = UNSET
+    name: Union[Unset, str] = UNSET
     authorization_status: Union[Unset, AuthorizationStatus] = UNSET
     coordinates: Union[Unset, "OrganizationCoordinates"] = UNSET
     country: Union[Unset, str] = UNSET
     data_officer: Union[Unset, str] = UNSET
-    group: Union[Unset, str] = UNSET
-    name: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        group = self.group
+        name = self.name
         authorization_status: Union[Unset, str] = UNSET
         if not isinstance(self.authorization_status, Unset):
             authorization_status = self.authorization_status.value
@@ -44,12 +46,14 @@ class Organization:
 
         country = self.country
         data_officer = self.data_officer
-        group = self.group
-        name = self.name
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if group is not UNSET:
+            field_dict["group"] = group
+        if name is not UNSET:
+            field_dict["name"] = name
         if authorization_status is not UNSET:
             field_dict["authorizationStatus"] = authorization_status
         if coordinates is not UNSET:
@@ -58,10 +62,6 @@ class Organization:
             field_dict["country"] = country
         if data_officer is not UNSET:
             field_dict["dataOfficer"] = data_officer
-        if group is not UNSET:
-            field_dict["group"] = group
-        if name is not UNSET:
-            field_dict["name"] = name
 
         return field_dict
 
@@ -70,6 +70,10 @@ class Organization:
         from ..models.organization_coordinates import OrganizationCoordinates
 
         d = src_dict.copy()
+        group = d.pop("group", UNSET)
+
+        name = d.pop("name", UNSET)
+
         _authorization_status = d.pop("authorizationStatus", UNSET)
         authorization_status: Union[Unset, AuthorizationStatus]
         if isinstance(_authorization_status, Unset):
@@ -88,17 +92,13 @@ class Organization:
 
         data_officer = d.pop("dataOfficer", UNSET)
 
-        group = d.pop("group", UNSET)
-
-        name = d.pop("name", UNSET)
-
         organization = cls(
+            group=group,
+            name=name,
             authorization_status=authorization_status,
             coordinates=coordinates,
             country=country,
             data_officer=data_officer,
-            group=group,
-            name=name,
         )
 
         organization.additional_properties = d

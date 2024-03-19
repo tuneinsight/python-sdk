@@ -1,8 +1,12 @@
-from typing import Any, Dict, List, Type, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
 
 import attr
 
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.data_source_table import DataSourceTable
+
 
 T = TypeVar("T", bound="DataSourceQueryPreview")
 
@@ -14,10 +18,12 @@ class DataSourceQueryPreview:
     Attributes:
         columns (Union[Unset, List[str]]): columns of the queried table
         rows (Union[Unset, List[List[str]]]): previewed records
+        table_metadata (Union[Unset, DataSourceTable]): schema information for a table from a datasource
     """
 
     columns: Union[Unset, List[str]] = UNSET
     rows: Union[Unset, List[List[str]]] = UNSET
+    table_metadata: Union[Unset, "DataSourceTable"] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -33,6 +39,10 @@ class DataSourceQueryPreview:
 
                 rows.append(rows_item)
 
+        table_metadata: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.table_metadata, Unset):
+            table_metadata = self.table_metadata.to_dict()
+
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
@@ -40,11 +50,15 @@ class DataSourceQueryPreview:
             field_dict["columns"] = columns
         if rows is not UNSET:
             field_dict["rows"] = rows
+        if table_metadata is not UNSET:
+            field_dict["tableMetadata"] = table_metadata
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.data_source_table import DataSourceTable
+
         d = src_dict.copy()
         columns = cast(List[str], d.pop("columns", UNSET))
 
@@ -55,9 +69,17 @@ class DataSourceQueryPreview:
 
             rows.append(rows_item)
 
+        _table_metadata = d.pop("tableMetadata", UNSET)
+        table_metadata: Union[Unset, DataSourceTable]
+        if isinstance(_table_metadata, Unset):
+            table_metadata = UNSET
+        else:
+            table_metadata = DataSourceTable.from_dict(_table_metadata)
+
         data_source_query_preview = cls(
             columns=columns,
             rows=rows,
+            table_metadata=table_metadata,
         )
 
         data_source_query_preview.additional_properties = d

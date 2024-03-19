@@ -12,38 +12,38 @@ class ModelParams:
     """detailed parameters about the model, only returned when getting specific model
 
     Attributes:
-        prediction_params (Union[Unset, str]): base64 encoded prediction parameters
         cryptolib_params (Union[Unset, str]): cryptolib.Parameters marshaled and encoded in base64 for client operations
+        prediction_params (Union[Unset, str]): base64 encoded prediction parameters
     """
 
-    prediction_params: Union[Unset, str] = UNSET
     cryptolib_params: Union[Unset, str] = UNSET
+    prediction_params: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        prediction_params = self.prediction_params
         cryptolib_params = self.cryptolib_params
+        prediction_params = self.prediction_params
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if prediction_params is not UNSET:
-            field_dict["predictionParams"] = prediction_params
         if cryptolib_params is not UNSET:
             field_dict["cryptolibParams"] = cryptolib_params
+        if prediction_params is not UNSET:
+            field_dict["predictionParams"] = prediction_params
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        prediction_params = d.pop("predictionParams", UNSET)
-
         cryptolib_params = d.pop("cryptolibParams", UNSET)
 
+        prediction_params = d.pop("predictionParams", UNSET)
+
         model_params = cls(
-            prediction_params=prediction_params,
             cryptolib_params=cryptolib_params,
+            prediction_params=prediction_params,
         )
 
         model_params.additional_properties = d

@@ -11,33 +11,37 @@ T = TypeVar("T", bound="RealmRole")
 class RealmRole:
     """
     Attributes:
+        id (Union[Unset, str]):
+        name (Union[Unset, str]):
         client_role (Union[Unset, bool]):
         composite (Union[Unset, bool]):
         container_id (Union[Unset, str]):
         description (Union[Unset, str]):
-        id (Union[Unset, str]):
-        name (Union[Unset, str]):
     """
 
+    id: Union[Unset, str] = UNSET
+    name: Union[Unset, str] = UNSET
     client_role: Union[Unset, bool] = UNSET
     composite: Union[Unset, bool] = UNSET
     container_id: Union[Unset, str] = UNSET
     description: Union[Unset, str] = UNSET
-    id: Union[Unset, str] = UNSET
-    name: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        id = self.id
+        name = self.name
         client_role = self.client_role
         composite = self.composite
         container_id = self.container_id
         description = self.description
-        id = self.id
-        name = self.name
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if id is not UNSET:
+            field_dict["id"] = id
+        if name is not UNSET:
+            field_dict["name"] = name
         if client_role is not UNSET:
             field_dict["clientRole"] = client_role
         if composite is not UNSET:
@@ -46,16 +50,16 @@ class RealmRole:
             field_dict["containerId"] = container_id
         if description is not UNSET:
             field_dict["description"] = description
-        if id is not UNSET:
-            field_dict["id"] = id
-        if name is not UNSET:
-            field_dict["name"] = name
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
+        id = d.pop("id", UNSET)
+
+        name = d.pop("name", UNSET)
+
         client_role = d.pop("clientRole", UNSET)
 
         composite = d.pop("composite", UNSET)
@@ -64,17 +68,13 @@ class RealmRole:
 
         description = d.pop("description", UNSET)
 
-        id = d.pop("id", UNSET)
-
-        name = d.pop("name", UNSET)
-
         realm_role = cls(
+            id=id,
+            name=name,
             client_role=client_role,
             composite=composite,
             container_id=container_id,
             description=description,
-            id=id,
-            name=name,
         )
 
         realm_role.additional_properties = d

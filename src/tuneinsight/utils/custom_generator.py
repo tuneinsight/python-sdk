@@ -1,10 +1,23 @@
+"""
+Soon-to-be-deprecated module to generate mock patients data.
+
+This module will be removed in favour of the utils.datagen module for mock
+data generation on a Tune Insight instance.
+
+"""
+
 from typing import List, Any
 from random import Random
 from datetime import timedelta
 import uuid
 import math
+
 import pandas as pd
 import numpy as np
+
+from tuneinsight.utils import deprecation
+
+deprecation.warn("custom_generator", "utils.datagen classes")
 
 
 def inv_sigmoid(x, c1, c2):
@@ -51,6 +64,7 @@ class CustomGenerator(Random):
     rows: int
 
     def __init__(self, rows: int = 10):
+        Random.__init__(self)
         self.df = pd.DataFrame(index=range(rows))
         self.rows = rows
         self.np_rng = np.random.default_rng()

@@ -1,3 +1,5 @@
+"""Utilities for benchmarking memory usage of and time taken by computations."""
+
 from typing import List, Any, Dict, Tuple
 from dateutil.parser import parse
 
@@ -9,39 +11,39 @@ from tuneinsight.utils import time_tools
 from tuneinsight.utils.plots import style_title, style_suptitle
 
 
-bit = 1
-byte = 8 * bit
-kilobit = 1024 * bit
-kilobyte = 1024 * byte
-megabit = 1024 * kilobit
-megabyte = 1024 * kilobyte
-gigabit = 1024 * megabit
-gigabyte = 1024 * megabyte
+BIT = 1
+BYTE = 8 * BIT
+KILOBIT = 1024 * BIT
+KILOBYTE = 1024 * BYTE
+MEGABIT = 1024 * KILOBIT
+MEGABYTE = 1024 * KILOBYTE
+GIGABIT = 1024 * MEGABIT
+GIGABYTE = 1024 * MEGABYTE
 
 net_labels = {
-    bit: "b",
-    byte: "B",
-    kilobit: "Kb",
-    kilobyte: "KB",
-    megabit: "Mb",
-    megabyte: "MB",
-    gigabit: "Gb",
-    gigabyte: "GB",
+    BIT: "b",
+    BYTE: "B",
+    KILOBIT: "Kb",
+    KILOBYTE: "KB",
+    MEGABIT: "Mb",
+    MEGABYTE: "MB",
+    GIGABIT: "Gb",
+    GIGABYTE: "GB",
 }
 
 time_labels = {
-    time_tools.microsecond: "μs",
-    time_tools.millisecond: "ms",
-    time_tools.second: "s",
-    time_tools.minute: "min",
-    time_tools.hour: "hour",
-    time_tools.day: "day",
+    time_tools.MICROSECOND: "μs",
+    time_tools.MILLISECOND: "ms",
+    time_tools.SECOND: "s",
+    time_tools.MINUTE: "min",
+    time_tools.HOUR: "hour",
+    time_tools.DAY: "day",
 }
 
 
 def get_total_time(comp: models.Computation) -> int:
     """
-    get_total_time returns the total running time of the computation in microseconds
+    Computes the total running time of the computation in microseconds.
 
     Args:
         comp (models.Computation): the computation schema returned by the agent
@@ -52,12 +54,14 @@ def get_total_time(comp: models.Computation) -> int:
     start = parse(comp.started_at)
     end = parse(comp.ended_at)
     diff = end - start
-    return int(round((diff).total_seconds() * time_tools.second))
+    return int(round((diff).total_seconds() * time_tools.SECOND))
 
 
 def get_total_communication(comp: models.Computation) -> int:
     """
-    get_total_communication returns the total egress + ingress communication of the computation (recorded from the point of view of the node that returned the provided schema)
+    Returns the total egress + ingress communication of the computation.
+
+    This is recorded from the point of view of the node that returned the provided schema.
 
     Args:
         comp (models.Computation): the computation schema returned by the agent
@@ -65,26 +69,28 @@ def get_total_communication(comp: models.Computation) -> int:
     Returns:
         int: the total recorded communication in bits
     """
-    return comp.egress * byte + comp.ingress * byte
+    return comp.egress * BYTE + comp.ingress * BYTE
 
 
 def plot_benchmarks(
     x_values: List[Any],
     times: Dict[str, np.ndarray],
     nets: Dict[str, np.ndarray],
-    time_unit: int = time_tools.millisecond,
-    net_unit: int = kilobyte,
+    time_unit: int = time_tools.MILLISECOND,
+    net_unit: int = KILOBYTE,
     title: str = "",
     markers="",
     x_label="",
 ):
     """
-    plot_benchmarks plots the benchmarks results
+    Plots the results of a benchmark.
 
     Args:
         x_values (List[Any]): the x-axis variables/settings
-        times (Dict[str,np.ndarray]): the benchmarked times, expects a dictionary from computation type to numpy array storing the time values for each x value
-        nets (Dict[str,np.ndarray]): the benchmarked communications, expects a dictionary from computation type to numpy array storing the communication values for each x value
+        times (Dict[str,np.ndarray]): the benchmarked times, expects a dictionary from
+            computation type to numpy array storing the time values for each x value.
+        nets (Dict[str,np.ndarray]): the benchmarked communications, expects a dictionary
+            from computation type to numpy array storing the communication values for each x value.
         time_unit (int, optional): the time unit used. Defaults to time_tools.second.
         net_unit (int, optional): the communication size unit used. Defaults to kilobyte.
         title (str, optional): optional title to provide to the plot. Defaults to "".
@@ -106,10 +112,11 @@ def plot_benchmarks(
 
 def average_benchmarks(vals: List[Dict[str, np.ndarray]]) -> Dict[str, np.ndarray]:
     """
-    average_benchmarks averages a list of benchmark values
+    Averages a list of benchmark values.
 
     Args:
-        vals (List[Dict[str,np.ndarray]]): a list of benchmarks, expected to be a dictionary from computation type to numpy array of recorded values
+        vals (List[Dict[str,np.ndarray]]): a list of benchmarks, expected to be a
+            dictionary from computation type to numpy array of recorded values.
 
     Returns:
         Dict[str,np.ndarray]: the dictionary that averages the list given as argument
@@ -130,20 +137,24 @@ def average_benchmarks(vals: List[Dict[str, np.ndarray]]) -> Dict[str, np.ndarra
 def compute_benchmarks(
     x_values: List[Any],
     recordings: List[List[models.Computation]],
-    time_unit: int = time_tools.millisecond,
-    net_unit: int = kilobyte,
+    time_unit: int = time_tools.MILLISECOND,
+    net_unit: int = KILOBYTE,
 ) -> Tuple[Dict[str, np.ndarray], Dict[str, np.ndarray]]:
     """
-    compute_benchmarks computes the time/communication benchmarking results given a set of computation recordings
+    Computes the time/communication benchmarking results of a set of computations.
 
     Args:
         x_values (List[Any]): the x axis values/settings used for the benchmarks
-        recordings (List[List[models.Computation]]): the list of recordings with len(x_values) items (the list of recorded computations for each setting)
-        time_unit (int, optional): the time unit to use for the benchmarking. Defaults to time_tools.second.
-        net_unit (int, optional): the communication size unit to use for the benchmarking. Defaults to kilobyte.
+        recordings (List[List[models.Computation]]): the list of recordings with
+            len(x_values) items (the list of recorded computations for each setting).
+        time_unit (int, optional): the time unit to use for the benchmarking.
+            Defaults to time_tools.second.
+        net_unit (int, optional): the communication size unit to use for the benchmarking.
+            Defaults to kilobyte.
 
     Returns:
-        Tuple[Dict[str,np.ndarray],Dict[str,np.ndarray]]: a tuple (T,N) where T is the timings for each computation types and N is the communications for each computation types
+        Tuple[Dict[str,np.ndarray],Dict[str,np.ndarray]]: a tuple (T,N) where T is the timings
+            for each computation types and N is the communications for each computation types
     """
     all_comp_types = set()
     for recording in recordings:

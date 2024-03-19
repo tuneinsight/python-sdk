@@ -1,3 +1,5 @@
+"""Classes to interact with data objects (e.g., results) stored in a Tune Insight instance."""
+
 from __future__ import annotations
 import io
 from typing import Dict, Callable
@@ -18,7 +20,7 @@ from tuneinsight.client.validation import validate_response
 
 def float_matrix_to_dataframe(fm: models.FloatMatrix) -> pd.DataFrame:
     """
-    float_matrix_to_dataframe converts FloatMatrix content to a dataframe
+    Converts a FloatMatrix to a dataframe.
 
     Args:
         fm (models.FloatMatrix): the float matrix content
@@ -31,7 +33,7 @@ def float_matrix_to_dataframe(fm: models.FloatMatrix) -> pd.DataFrame:
 
 def string_matrix_to_dataframe(t: models.StringMatrix) -> pd.DataFrame:
     """
-    string_matrix_to_dataframe converts a StringMatrix content to a dataframe
+    Converts a StringMatrix to a dataframe.
 
     Args:
         t (models.StringMatrix): the input string matrix content
@@ -52,11 +54,10 @@ content_to_dataframe: Dict[type, Callable[[models.Content], pd.DataFrame]] = {
 @attr.s(auto_attribs=True)
 class DataObject:
     """
-     represents DataObject in Geco and its associated model
+    Represents a DataObject in a Tune Insight instance and its associated model.
 
     Raises:
         Exception: when requests performed result in an error
-
 
     """
 
@@ -73,6 +74,12 @@ class DataObject:
         key_info: models.KeyInfo = None,
         data: bytes = None,
     ):
+        """
+        Create a data object in the Tune Insight instance.
+
+        Returns:
+            The data object newly created.
+        """
         body = models.PostDataObjectJsonBody()
         body.method = models.DataObjectCreationMethod.CREATE
         body.encrypted = encrypted
@@ -92,7 +99,7 @@ class DataObject:
 
     def get_id(self) -> str:
         """
-        get_id returns the ID of the dataobject
+        Returns the unique ID of this dataobject.
 
         Returns:
             str: the ID
@@ -101,7 +108,7 @@ class DataObject:
 
     def get_content(self) -> models.Content:
         """
-        get_content returns the content of the dataobject
+        Returns the content of the dataobject.
 
         Returns:
             models.Content the content which can be of multiple of types
@@ -114,66 +121,79 @@ class DataObject:
 
     def get_float_matrix(self) -> models.FloatMatrix:
         """
-        get_float_matrix returns the content of the dataobject as a float matrix if possible
+        Returns the content of the dataobject as a float matrix, if possible.
 
         Returns:
             models.FloatMatrix: the float matrix of the dataobject
         """
         fm: models.FloatMatrix = self.get_content()
+        assert isinstance(fm, models.FloatMatrix), "Content is not a FloatMatrix."
         return fm
 
     def get_ml_result(self) -> models.ExternalMlResult:
         """
-        get_ml_result returns the content of the dataobject as an external ml result if possible
+        Returns the content of the dataobject as an external ML result, if possible.
 
         Returns:
-            models.ExternalMlResult: the external ml result of the dataobject
+            models.ExternalMlResult: the external ML result of the dataobject
         """
         fm: models.ExternalMlResult = self.get_content()
+        assert isinstance(
+            fm, models.ExternalMlResult
+        ), "Content is not a ExternalMlResult."
         return fm
 
     def get_string_matrix(self) -> models.StringMatrix:
         """
-        get_string_matrix returns the content of the dataobject as a string matrix if possible
+        Returns the content of the dataobject as a string matrix, if possible.
+
         Returns:
             models.StringMatrix: the string matrix of the dataobject
         """
         sm: models.StringMatrix = self.get_content()
+        assert isinstance(sm, models.StringMatrix), "Content is not a StringMatrix."
         return sm
 
     def get_stats(self) -> models.Statistics:
+        """
+        Returns the content of the dataobject as a models.Statistics, if possible.
+        """
         stats: models.Statistics = self.get_content()
+        assert isinstance(
+            stats, models.Statistics
+        ), "Content is not a models.Statistics."
         return stats
 
     def get_dataframe(self) -> pd.DataFrame:
         """
-        get_dataframe returns the content of the dataobject as a dataframe
+        Returns the content of the dataobject as a dataframe.
 
         Raises:
-            Exception: if the content type returned is not registered in this library
+            ValueError: if the content type returned is not supported.
 
         Returns:
-            pd.DataFrame: dataframe containing the data from the dataobject, format depends on the content type
+            pd.DataFrame: dataframe containing the data from the dataobject, format depending on the content type.
         """
         content = self.get_content()
         content_type = type(content)
         if not content_type in content_to_dataframe:
-            raise Exception(f"invalid content type: {content_type}")
+            raise ValueError(f"invalid content type: {content_type}")
         converter = content_to_dataframe[content_type]
         return converter(content)
 
     def delete(self):
         """
-        delete requests a deletion of the dataobject
+        Requests the deletion of the dataobject.
+
         """
         response: Response["models.Any"] = delete_data_object.sync_detailed(
             client=self.client, data_object_id=self.get_id()
-        )  # pylint: disable=no-member
+        )
         validate_response(response)
 
     def decrypt(self) -> DataObject:
         """
-        decrypt requests a decryption of the dataobject yielding a new decrypted dataobject
+        Requests the decryption of the dataobject, yielding a new decrypted dataobject.
 
         Returns:
             DataObject: the decrypted dataobject
@@ -184,23 +204,36 @@ class DataObject:
         definition = models.PostDataObjectJsonBody(
             method=method, data_object_id=self.get_id()
         )
-        doResp: Response[models.DataObject] = post_data_object.sync_detailed(
+        do_resp: Response[models.DataObject] = post_data_object.sync_detailed(
             client=self.client, json_body=definition
         )
-        validate_response(doResp)
-        return DataObject(model=doResp.parsed, client=self.client)
+        validate_response(do_resp)
+        return DataObject(model=do_resp.parsed, client=self.client)
 
     def load_data_from_bytes(self, data: bytes):
+        """
+        Set the content of this data object.
+
+        Args:
+            data: the (raw) bytes to set the content to.
+
+        """
         definition = models.PutDataObjectDataMultipartData(
             File(payload=io.BytesIO(initial_bytes=data), file_name="test")
         )
-        doResp: Response[models.DataObject] = put_data_object_data.sync_detailed(
+        do_resp: Response[models.DataObject] = put_data_object_data.sync_detailed(
             data_object_id=self.get_id(), client=self.client, multipart_data=definition
         )
-        validate_response(doResp)
-        self.model = doResp.parsed
+        validate_response(do_resp)
+        self.model = do_resp.parsed
 
     def get_raw_data(self) -> bytes:
+        """
+        Returns the raw content of this data object.
+
+        Returns
+            bytes: the raw content.
+        """
         resp: Response[File] = get_data_object_raw_data.sync_detailed(
             data_object_id=self.get_id(), client=self.client
         )

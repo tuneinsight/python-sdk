@@ -1,3 +1,5 @@
+"""Encrypted training and evaluation of regressions."""
+
 import time
 import itertools
 import uuid
@@ -5,47 +7,78 @@ from typing import List, Dict
 from typing_extensions import Self
 import pandas as pd
 from tuneinsight.api.sdk import models
-from tuneinsight.api.sdk.models.computation_type import ComputationType
-from tuneinsight.api.sdk import Client
 from tuneinsight.api.sdk.models.encrypted_regression_params import (
     EncryptedRegressionParams,
 )
-from tuneinsight.api.sdk.types import UNSET
-from tuneinsight.client.computations import ComputationRunner
+from tuneinsight.computations.base import ModelBasedComputation
 from tuneinsight.client.datasource import DataSource
 from tuneinsight.utils.model_performance_eval import r2_score, rmse
 
 
-class Regression(ComputationRunner):
-    """Regression computation"""
+class RegressionTraining(ModelBasedComputation):
+    """A computation that trains a regression."""
 
-    feature_columns: List[str]
-    label_columns: List[str]
-    model: models.EncryptedRegression
+    def __init__(self, project, regression_type):
+        self.params = EncryptedRegressionParams(type=regression_type, seed=0)
+        super().__init__(
+            project,
+            models.EncryptedRegression,
+            type=models.ComputationType.ENCRYPTEDREGRESSION,
+            params=self.params,
+        )
+
+    def _process_results(self, dataobjects) -> str:
+        return dataobjects[0].get_id()
+
+    def _process_encrypted_results(self, dataobjects) -> str:
+        return dataobjects[0].get_id()
+
+
+class RegressionPredicting(ModelBasedComputation):
+    """A computation that evaluates a regression over some inputs."""
+
+    def __init__(self, project):
+        super().__init__(
+            project,
+            models.EncryptedPrediction,
+            type=models.ComputationType.ENCRYPTEDPREDICTION,
+        )
+
+    def _process_results(self, dataobjects) -> bytes:
+        return dataobjects[0].get_float_matrix()
+
+    def _process_encrypted_results(self, dataobjects) -> bytes:
+        return dataobjects[0].get_raw_data()
+
+
+class Regression:
+    """
+    Regression computations interface.
+
+    This class enables the training and evaluation of an encrypted regression model.
+    Note that this class is not itself a Computation, but more a "manager" for two
+    different computation classes (since fit and predict are two different computations).
+
+    """
+
+    fit_model: models.EncryptedRegression
     predict_model: models.EncryptedPrediction
     encrypted_model_dataobject_id: str
-    type: models.RegressionType
+    regression_type: models.RegressionType
 
     def __init__(
         self,
         reg_type: models.RegressionType,
-        client: Client = UNSET,
-        project_id: str = "",
+        project: "Project",
     ):
-        self.type = reg_type
-        self.model = models.EncryptedRegression(
-            type=models.ComputationType.ENCRYPTEDREGRESSION
-        )
-        self.predict_model = models.EncryptedPrediction(
-            type=ComputationType.ENCRYPTEDPREDICTION
-        )
-        self.model.params = EncryptedRegressionParams(type=reg_type, seed=0)
-        super().__init__(client=client, project_id=project_id)
-        self.max_timeout = self.max_timeout * 10
-        self.model.timeout = 500
+        self.project = project
+        self.regression_type = reg_type
+        self.fit_model = RegressionTraining(project, reg_type)
+        self.predict_model = RegressionPredicting(project)
+        self.fit_model["timeout"] = 500
 
     def copy(self):
-        return type(self)(self.type, self.client, self.project_id)
+        return type(self)(self.regression_type, self.project)
 
     def fit(
         self,
@@ -57,7 +90,8 @@ class Regression(ComputationRunner):
         elastic=0.85,
         momentum=0.92,
     ) -> Self:
-        """Fit the regression model
+        """
+        Trains the regression model.
 
         Args:
             X (List[str]): Column names of the features
@@ -69,26 +103,25 @@ class Regression(ComputationRunner):
             momentum (float, optional):The momentum rate of the regression. Defaults to 0.92.
 
         Returns:
-            Self: Fitted model
+            self: this object.
         """
-        self.model.feature_columns = X
-        self.model.label_columns = y
-        self.model.params.learning_rate = learning_rate
-        self.model.params.network_iteration_count = network_iteration_count
-        self.model.params.seed = seed
-        self.model.params.elastic_rate = elastic
-        self.model.params.momentum = momentum
-
-        dataobjects = super().run_computation(
-            comp=self.model, local=False, keyswitch=False, decrypt=False
+        self.fit_model["feature_columns"] = X
+        self.fit_model["label_columns"] = y
+        self.fit_model.params.learning_rate = learning_rate
+        self.fit_model.params.network_iteration_count = network_iteration_count
+        self.fit_model.params.seed = seed
+        self.fit_model.params.elastic_rate = elastic
+        self.fit_model.params.momentum = momentum
+        # Run this model, which returns the ID of the result.
+        self.encrypted_model_dataobject_id = self.fit_model.run(
+            local=False, keyswitch=False, decrypt=False
         )
-
-        self.encrypted_model_dataobject_id = dataobjects[0].get_id()
 
         return self
 
     def predict(self, X: pd.DataFrame) -> models.FloatMatrix:
-        """Predict using the model
+        """
+        Predicts the target class for attributes X using the model.
 
         Args:
             X (pd.DataFrame): Test data
@@ -96,25 +129,23 @@ class Regression(ComputationRunner):
         Returns:
             models.FloatMatrix: Predicted labels
         """
-        # set predict params
-        self.predict_model.model = self.encrypted_model_dataobject_id
-
+        # Create a dataobject holding the data to predict for.
         ds_uid = uuid.uuid4()
         ds = DataSource.from_dataframe(
-            client=self.client, dataframe=X, name="predict_data_" + str(ds_uid)
+            client=self.project.client, dataframe=X, name="predict_data_" + str(ds_uid)
         )
         do = ds.adapt(models.DataObjectType.TABLE)
         ds.delete()
-        self.predict_model.data = do.get_id()
 
-        self.predict_model.feature_columns = self.model.feature_columns
-        self.predict_model.only_root_prediction = True
+        # Setup the parameters of the prediction model.
+        self.predict_model["model"] = self.encrypted_model_dataobject_id
+        self.predict_model["data"] = do.get_id()
+        self.predict_model["feature_columns"] = self.fit_model["feature_columns"]
+        self.predict_model["only_root_prediction"] = True
 
         # run predict comp
-        dataobjects = super().run_computation(
-            comp=self.predict_model, local=False, release=True
-        )
-        return dataobjects[0].get_float_matrix()
+        # self.fit_model = self.predict_model
+        return self.predict_model.run(local=False, release=False)
 
     def grid_search(
         self,
@@ -125,7 +156,8 @@ class Regression(ComputationRunner):
         param_dict: dict = None,
         log: bool = False,
     ) -> dict:
-        """Performs a grid search on parameters to fine-tune the model
+        """
+        Performs a grid search on model parameters to fine-tune the model
 
         Args:
             feature_cols (List[str]): Column names of the features
@@ -144,7 +176,7 @@ class Regression(ComputationRunner):
                 "network_iteration_count": [1, 2],
                 "elastic": [0.85, 0.98],
             }
-        param_grid = self.generate_param_grid(param_dict)
+        param_grid = self._generate_param_grid(param_dict)
         default_params = {
             "learning_rate": 0.0045,
             "elastic": 0.85,
@@ -205,8 +237,9 @@ class Regression(ComputationRunner):
         return best_params
 
     @staticmethod
-    def generate_param_grid(param_dict: Dict) -> List[dict]:
-        """Generates a grid of parameter combinations
+    def _generate_param_grid(param_dict: Dict) -> List[dict]:
+        """
+        Generates a grid of parameter combinations
 
         Args:
             param_dict (dict): dictionary of different parameter values to include in the parameter grid
@@ -228,17 +261,20 @@ class LinearRegression(Regression):
 
     continuous_labels: bool
 
-    def __init__(
-        self, continuous_labels: bool, client: Client = UNSET, project_id: str = ""
-    ):
-        super().__init__(reg_type=self.type, client=client, project_id=project_id)
+    def __init__(self, project: "Project", continuous_labels: bool):
+        """
+        Args
+            continuous_labels (bool): If true, then expects continuous labels (i.e. not binary).
+
+        """
+        super().__init__(reg_type=self.type, project=project)
         self.continuous_labels = continuous_labels
-        self.model.params.linear = models.EncryptedRegressionParamsLinear(
+        self.fit_model.params.linear = models.EncryptedRegressionParamsLinear(
             continuous_labels=continuous_labels
         )
 
     def copy(self):
-        return type(self)(self.continuous_labels, self.client, self.project_id)
+        return type(self)(self.project, self.continuous_labels)
 
 
 class LogisticRegression(Regression):
@@ -250,12 +286,21 @@ class LogisticRegression(Regression):
 
     def __init__(
         self,
+        project: "Project",
         approximation_params: models.approximation_params.ApproximationParams,
-        client: Client = UNSET,
-        project_id: str = "",
     ):
-        super().__init__(reg_type=self.type, client=client, project_id=project_id)
-        self.model.params.approximation_params = approximation_params
+        """
+        Args:
+            approximation_params: parameters of the sigmoid approximation.
+
+        """
+        super().__init__(reg_type=self.type, project=project)
+        self.fit_model.params.approximation_params = self.approximation_params = (
+            approximation_params
+        )
+
+    def copy(self):
+        return type(self)(self.project, self.approximation_params)
 
 
 class PoissonRegression(Regression):
@@ -263,5 +308,5 @@ class PoissonRegression(Regression):
 
     type: models.RegressionType = models.RegressionType.POISSON
 
-    def __init__(self, client: Client = UNSET, project_id: str = ""):
-        super().__init__(reg_type=self.type, client=client, project_id=project_id)
+    def __init__(self, project: "Project"):
+        super().__init__(reg_type=self.type, project=project)

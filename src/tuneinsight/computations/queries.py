@@ -1,3 +1,5 @@
+"""Class used to define the data source query for each participant in the project."""
+
 from typing import Dict, List
 from tuneinsight.api.sdk import models
 from tuneinsight.api.sdk.models.computation_data_source_parameters import (
@@ -7,6 +9,12 @@ from tuneinsight.api.sdk.models.data_source_query import DataSourceQuery
 
 
 class QueryBuilder:
+    """
+    Data Source retrieval parameters that define both the global or compound (per-participant)
+    query that will be executed at the data sources of each participant to retrieve the data
+    before the computations.
+    """
+
     global_query: DataSourceQuery
     compound_query: Dict[str, DataSourceQuery]
     query_set: bool

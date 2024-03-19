@@ -20,27 +20,23 @@ class Participant:
     """Node participating in a project
 
     Attributes:
-        authorization_status (Union[Unset, AuthorizationStatus]): Authorization status of the project
         input_metadata (Union[Unset, DataSourceMetadata]): metadata about a datasource
         is_contributor (Union[Unset, None, bool]):
         node (Union[Unset, Node]): Node or agent of the network
         participation_status (Union[Unset, ParticipationStatus]): participation state of a project's participant
         status (Union[Unset, ProjectStatus]): Stages of a project workflow
+        authorization_status (Union[Unset, AuthorizationStatus]): Authorization status of the project
     """
 
-    authorization_status: Union[Unset, AuthorizationStatus] = UNSET
     input_metadata: Union[Unset, "DataSourceMetadata"] = UNSET
     is_contributor: Union[Unset, None, bool] = UNSET
     node: Union[Unset, "Node"] = UNSET
     participation_status: Union[Unset, ParticipationStatus] = UNSET
     status: Union[Unset, ProjectStatus] = UNSET
+    authorization_status: Union[Unset, AuthorizationStatus] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        authorization_status: Union[Unset, str] = UNSET
-        if not isinstance(self.authorization_status, Unset):
-            authorization_status = self.authorization_status.value
-
         input_metadata: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.input_metadata, Unset):
             input_metadata = self.input_metadata.to_dict()
@@ -58,11 +54,13 @@ class Participant:
         if not isinstance(self.status, Unset):
             status = self.status.value
 
+        authorization_status: Union[Unset, str] = UNSET
+        if not isinstance(self.authorization_status, Unset):
+            authorization_status = self.authorization_status.value
+
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if authorization_status is not UNSET:
-            field_dict["authorizationStatus"] = authorization_status
         if input_metadata is not UNSET:
             field_dict["inputMetadata"] = input_metadata
         if is_contributor is not UNSET:
@@ -73,6 +71,8 @@ class Participant:
             field_dict["participationStatus"] = participation_status
         if status is not UNSET:
             field_dict["status"] = status
+        if authorization_status is not UNSET:
+            field_dict["authorizationStatus"] = authorization_status
 
         return field_dict
 
@@ -82,13 +82,6 @@ class Participant:
         from ..models.node import Node
 
         d = src_dict.copy()
-        _authorization_status = d.pop("authorizationStatus", UNSET)
-        authorization_status: Union[Unset, AuthorizationStatus]
-        if isinstance(_authorization_status, Unset):
-            authorization_status = UNSET
-        else:
-            authorization_status = AuthorizationStatus(_authorization_status)
-
         _input_metadata = d.pop("inputMetadata", UNSET)
         input_metadata: Union[Unset, DataSourceMetadata]
         if isinstance(_input_metadata, Unset):
@@ -119,13 +112,20 @@ class Participant:
         else:
             status = ProjectStatus(_status)
 
+        _authorization_status = d.pop("authorizationStatus", UNSET)
+        authorization_status: Union[Unset, AuthorizationStatus]
+        if isinstance(_authorization_status, Unset):
+            authorization_status = UNSET
+        else:
+            authorization_status = AuthorizationStatus(_authorization_status)
+
         participant = cls(
-            authorization_status=authorization_status,
             input_metadata=input_metadata,
             is_contributor=is_contributor,
             node=node,
             participation_status=participation_status,
             status=status,
+            authorization_status=authorization_status,
         )
 
         participant.additional_properties = d

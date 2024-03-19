@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional, Union, cast
 
 import httpx
 
@@ -19,6 +19,8 @@ def _get_kwargs(
     name: Union[Unset, None, str] = UNSET,
     numrows: int,
     seed: Union[Unset, None, str] = UNSET,
+    create_datasource: Union[Unset, None, bool] = UNSET,
+    clear_if_exists: Union[Unset, None, bool] = UNSET,
 ) -> Dict[str, Any]:
     url = "{}/mock/dataset".format(client.base_url)
 
@@ -36,6 +38,10 @@ def _get_kwargs(
 
     params["seed"] = seed
 
+    params["createDatasource"] = create_datasource
+
+    params["clearIfExists"] = clear_if_exists
+
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
     json_json_body = json_body
@@ -51,7 +57,10 @@ def _get_kwargs(
     }
 
 
-def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[DataSource, Error]]:
+def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[Any, DataSource, Error]]:
+    if response.status_code == HTTPStatus.OK:
+        response_200 = cast(Any, None)
+        return response_200
     if response.status_code == HTTPStatus.CREATED:
         response_201 = DataSource.from_dict(response.json())
 
@@ -74,7 +83,7 @@ def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Uni
         return None
 
 
-def _build_response(*, client: Client, response: httpx.Response) -> Response[Union[DataSource, Error]]:
+def _build_response(*, client: Client, response: httpx.Response) -> Response[Union[Any, DataSource, Error]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -91,7 +100,9 @@ def sync_detailed(
     name: Union[Unset, None, str] = UNSET,
     numrows: int,
     seed: Union[Unset, None, str] = UNSET,
-) -> Response[Union[DataSource, Error]]:
+    create_datasource: Union[Unset, None, bool] = UNSET,
+    clear_if_exists: Union[Unset, None, bool] = UNSET,
+) -> Response[Union[Any, DataSource, Error]]:
     """Request the creation of a mock dataset.
 
     Args:
@@ -99,6 +110,8 @@ def sync_detailed(
         name (Union[Unset, None, str]):
         numrows (int):
         seed (Union[Unset, None, str]):
+        create_datasource (Union[Unset, None, bool]):
+        clear_if_exists (Union[Unset, None, bool]):
         json_body (str):
 
     Raises:
@@ -106,7 +119,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[DataSource, Error]]
+        Response[Union[Any, DataSource, Error]]
     """
 
     kwargs = _get_kwargs(
@@ -116,6 +129,8 @@ def sync_detailed(
         name=name,
         numrows=numrows,
         seed=seed,
+        create_datasource=create_datasource,
+        clear_if_exists=clear_if_exists,
     )
 
     response = httpx.request(
@@ -134,7 +149,9 @@ def sync(
     name: Union[Unset, None, str] = UNSET,
     numrows: int,
     seed: Union[Unset, None, str] = UNSET,
-) -> Optional[Union[DataSource, Error]]:
+    create_datasource: Union[Unset, None, bool] = UNSET,
+    clear_if_exists: Union[Unset, None, bool] = UNSET,
+) -> Optional[Union[Any, DataSource, Error]]:
     """Request the creation of a mock dataset.
 
     Args:
@@ -142,6 +159,8 @@ def sync(
         name (Union[Unset, None, str]):
         numrows (int):
         seed (Union[Unset, None, str]):
+        create_datasource (Union[Unset, None, bool]):
+        clear_if_exists (Union[Unset, None, bool]):
         json_body (str):
 
     Raises:
@@ -149,7 +168,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[DataSource, Error]]
+        Response[Union[Any, DataSource, Error]]
     """
 
     return sync_detailed(
@@ -159,6 +178,8 @@ def sync(
         name=name,
         numrows=numrows,
         seed=seed,
+        create_datasource=create_datasource,
+        clear_if_exists=clear_if_exists,
     ).parsed
 
 
@@ -170,7 +191,9 @@ async def asyncio_detailed(
     name: Union[Unset, None, str] = UNSET,
     numrows: int,
     seed: Union[Unset, None, str] = UNSET,
-) -> Response[Union[DataSource, Error]]:
+    create_datasource: Union[Unset, None, bool] = UNSET,
+    clear_if_exists: Union[Unset, None, bool] = UNSET,
+) -> Response[Union[Any, DataSource, Error]]:
     """Request the creation of a mock dataset.
 
     Args:
@@ -178,6 +201,8 @@ async def asyncio_detailed(
         name (Union[Unset, None, str]):
         numrows (int):
         seed (Union[Unset, None, str]):
+        create_datasource (Union[Unset, None, bool]):
+        clear_if_exists (Union[Unset, None, bool]):
         json_body (str):
 
     Raises:
@@ -185,7 +210,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[DataSource, Error]]
+        Response[Union[Any, DataSource, Error]]
     """
 
     kwargs = _get_kwargs(
@@ -195,6 +220,8 @@ async def asyncio_detailed(
         name=name,
         numrows=numrows,
         seed=seed,
+        create_datasource=create_datasource,
+        clear_if_exists=clear_if_exists,
     )
 
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
@@ -211,7 +238,9 @@ async def asyncio(
     name: Union[Unset, None, str] = UNSET,
     numrows: int,
     seed: Union[Unset, None, str] = UNSET,
-) -> Optional[Union[DataSource, Error]]:
+    create_datasource: Union[Unset, None, bool] = UNSET,
+    clear_if_exists: Union[Unset, None, bool] = UNSET,
+) -> Optional[Union[Any, DataSource, Error]]:
     """Request the creation of a mock dataset.
 
     Args:
@@ -219,6 +248,8 @@ async def asyncio(
         name (Union[Unset, None, str]):
         numrows (int):
         seed (Union[Unset, None, str]):
+        create_datasource (Union[Unset, None, bool]):
+        clear_if_exists (Union[Unset, None, bool]):
         json_body (str):
 
     Raises:
@@ -226,7 +257,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[DataSource, Error]]
+        Response[Union[Any, DataSource, Error]]
     """
 
     return (
@@ -237,5 +268,7 @@ async def asyncio(
             name=name,
             numrows=numrows,
             seed=seed,
+            create_datasource=create_datasource,
+            clear_if_exists=clear_if_exists,
         )
     ).parsed

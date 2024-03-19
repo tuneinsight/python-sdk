@@ -1,80 +1,35 @@
+"""Classes for Genome-Wide Association Studies (GWAS)."""
+
 from typing import List
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from tuneinsight.api.sdk import models
 from tuneinsight.api.sdk.types import UNSET
-from tuneinsight.client.computations import ComputationRunner
+from tuneinsight.computations.base import ModelBasedComputation, ComputationResult
+from tuneinsight.utils import deprecation
 from tuneinsight.utils.plots import style_plot
 
 
-class GWAS(ComputationRunner):
-    """Computation for a Genome-Wide Association Study (GWAS).
+class GWASResults(ComputationResult):
+    """Results from a GWAS computation."""
 
-    Args:
-        ComputationRunner (ComputationRunner): parent class for running computation through the REST API.
-    """
-
-    cohort_id: str = UNSET
-    join_id: str = UNSET
-
-    def linear_regression(
-        self,
-        target_label: str = UNSET,
-        variants_organization: str = UNSET,
-        matching_params: models.MatchingParams = UNSET,
-        covariates: List[str] = UNSET,
-        locus_range: models.LocusRange = UNSET,
-        local: bool = False,
-    ) -> pd.DataFrame:
-        """Run a linear regression for the GWAS.
-
-        Args:
-            target_label (str, optional): name of the column containing the phenotypical trait to study. Defaults to UNSET.
-            variants_organization (str, optional): name of the nodes containing data on variants. Defaults to UNSET.
-            matching_params (models.MatchingParams, optional): parameters to match the patients across the genomic and clinical data. Defaults to UNSET.
-            covariates (List[str], optional): list of column names containing the covariates. Defaults to UNSET.
-            locus_range (models.LocusRange, optional): locus range to analyse. Defaults to UNSET.
-            local (bool, optional): whether to perform the computation locally. Defaults to False.
-
-        Returns:
-            pd.DataFrame: resulting p-values
-        """
-        model = models.GWAS(type=models.ComputationType.GWAS)
-        model.project_id = self.project_id
-        model.covariates = covariates
-        model.locus_range = locus_range
-        model.target_label = target_label
-        model.variants_organization = variants_organization
-        model.matching_params = matching_params
-        model.cohort_id = self.cohort_id
-        model.join_id = self.join_id
-        model.timeout = 500
-        # self.max_timeout = 5 * self.max_timeout
-
-        dataobjects = super().run_computation(
-            comp=model, local=local, keyswitch=not local, decrypt=True
-        )
-        result = dataobjects[0].get_float_matrix()
+    def __init__(self, dataobject):
+        result = dataobject.get_float_matrix()
         p_values = result.data[0]
-
         if len(result.columns) == len(p_values):
             data = {"locus": result.columns, "p_value": p_values}
         else:
             data = p_values
+        self.result = pd.DataFrame(data)
 
-        return pd.DataFrame(data)
+    def as_table(self) -> pd.DataFrame:
+        return self.result
 
-    @staticmethod
-    def plot_manhattan(p_values: pd.DataFrame):
-        """Display the GWAS result as a manhattan plot.
-
-        Args:
-            p_values (pd.DataFrame): DataFrame containing p-values.
-        """
-
+    def plot(self):
+        """Displays the GWAS result as a TI-branded manhattan plot."""
         # Transform data for plot
-        p_values = p_values[["locus", "p_value"]]
+        p_values = self.result[["locus", "p_value"]]
         p_values["chromosome"] = p_values[["locus"]].applymap(lambda x: x.split(":")[0])
         p_values["minuslog10pvalue"] = -np.log10(p_values.p_value)
         p_values.chromosome = p_values.chromosome.astype("category")
@@ -82,7 +37,6 @@ class GWAS(ComputationRunner):
         p_grouped = p_values.groupby(("chromosome"))
 
         plt.style.use("bmh")
-
         fig, ax = plt.subplots()
 
         colors = [
@@ -115,7 +69,6 @@ class GWAS(ComputationRunner):
             )
         ax.set_xticks(x_labels_pos)
         ax.set_xticklabels(x_labels)
-
         ax.set_xlim([0, len(p_values)])
 
         style_plot(
@@ -123,7 +76,73 @@ class GWAS(ComputationRunner):
             fig=fig,
             title="Manhattan Plot for GWAS",
             x_label="Chromosome",
-            y_label="P-value (-log10 scale)",
+            y_label="p-value (-log10 scale)",
         )
 
         plt.show()
+
+
+class GWAS(ModelBasedComputation):
+    """
+    Computation for a Genome-Wide Association Study (GWAS).
+
+    Computes a linear regression over locuses in a GWAS, where different instances
+    can hold different parts of the data (vertically partitioned data), and
+    returns the p-values of the regression for each locus.
+
+    """
+
+    def __init__(
+        self,
+        project: "Project",
+        target_label: str = UNSET,
+        variants_organization: str = UNSET,
+        matching_params: models.MatchingParams = UNSET,
+        covariates: List[str] = UNSET,
+        locus_range: models.LocusRange = UNSET,
+        cohort: "Cohort" = None,
+    ):
+        """
+        Creates a GWAS computation.
+
+        Args
+            project (client.Project): the project to which this computation belongs.
+            target_label (str, optional): name of the column containing the phenotypical trait to study.
+            variants_organization (str, optional): name of the nodes containing data on variants.
+            matching_params (models.MatchingParams, optional): parameters to match the patients across
+                the genomic and clinical data.
+            covariates (List[str], optional): list of column names containing the covariates.
+            locus_range (models.LocusRange, optional): range specification for locus genomic positions.
+            cohort (Cohort, default None): if specified, the cohort of records over which this aggregation is computed.
+
+        """
+        super().__init__(
+            project,
+            models.GWAS,
+            type=models.ComputationType.GWAS,
+            target_label=target_label,
+            variants_organization=variants_organization,
+            matching_params=matching_params,
+            covariates=covariates,
+            locus_range=locus_range,
+        )
+        if cohort is not None:
+            self.model.cohort_id = cohort.cohort_id
+            self.model.join_id = cohort.join_id
+
+    def _process_results(self, dataobjects) -> pd.DataFrame:
+        """Returns the p-values of the GWAS linear regression."""
+        return GWASResults(dataobjects[0])
+
+    @staticmethod
+    def plot_manhattan(p_values: pd.DataFrame):
+        """
+        Displays the GWAS result as a TI-branded manhattan plot.
+
+        Args:
+            p_values (pd.DataFrame): DataFrame containing p-values.
+
+        """
+        deprecation.warn("GWAS.plot_manhattan", "GWASResults.plot")
+        if isinstance(p_values, GWASResults):
+            p_values.plot()

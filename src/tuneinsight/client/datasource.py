@@ -1,7 +1,8 @@
+"""Classes to interact with datasources in a Tune Insight instance."""
+
 from typing import Any
 from io import StringIO
 import pandas as pd
-import attr
 
 from tuneinsight.api.sdk.types import Response
 from tuneinsight.api.sdk.types import File
@@ -15,19 +16,30 @@ from tuneinsight.client.validation import validate_response
 from tuneinsight.client.dataobject import DataObject
 
 
-@attr.define
 class DataSource:
     """
-    DataSource represents a datasource stored on geco
+    DataSource represents a datasource stored on a Tune Insight instance.
+
+    The data used for computations in a Tune Insight instance is represented by
+    a generic interface (datasource), which abstracts from how the data is
+    actually stored and managed. Each datasource has a unique name.
+
+    Class methods can be used to instantiate datasources of various types,
+    including CSV files, PostgreS databases, APIs, and Pandas DataFrame.
+
     """
 
-    model: models.DataSource
-    client: Client
+    model: models.DataSource = None
+    client: Client = None
+
+    def __init__(self, model: models.DataSource, client: Client):
+        self.model = model
+        self.client = client
 
     @classmethod
-    def from_definition(cls, client: Client, definition: models.DataSourceDefinition):
+    def _from_definition(cls, client: Client, definition: models.DataSourceDefinition):
         """
-        from_definition creates a new datasource on the backend given the data source definition
+        Creates a new datasource on the backend given the data source definition.
 
         Args:
             client (Client): the client to use to interact with the datasource
@@ -42,11 +54,12 @@ class DataSource:
     @classmethod
     def local(cls, client: Client, name: str, clear_if_exists: bool = False):
         """
-        local creates a new local datasource without any data
+        Creates a new local datasource without any data.
 
         Args:
             client (Client): the client to use to interact with the datasource
-            name (str, optional): the name to give to the datasource. Defaults to "".
+            name (str): the name to give to the datasource.
+            clear_if_exists (bool, optional): whether to replace an existing datasource with the same name.
         """
         definition = default_datasource_definition()
         definition.name = name
@@ -56,43 +69,57 @@ class DataSource:
         definition.config = ds_conf
         definition.type = "local"
 
-        return cls.from_definition(client, definition=definition)
+        return cls._from_definition(client, definition=definition)
 
     @classmethod
-    def postgres(
+    def database(
         cls,
         client: Client,
         config: models.DatabaseConnectionInfo,
         name: str,
         clear_if_exists: bool = False,
+        secret_id: str = None,
     ):
         """
-        postgres creates a new postgres database datasource
+        Creates a new postgres database datasource.
 
         Args:
             client (Client): the client to use to interact with the datasource
-            config (models.PostgresDatabaseConfig): the postgres configuration
+            config (models.DatabaseConnectionInfo): the database configuration
             name (str, optional): the name to give to the datasource. Defaults to "".
+            clear_if_exists (bool, optional): whether to try to clear any existing data source with the same name.
+            secret_id (str, optional): secret id that stores the database credentials on the KMS connected to the instance.
         """
         definition = default_datasource_definition()
         definition.name = name
         definition.clear_if_exists = clear_if_exists
         definition.type = "database"
         ds_config_type = models.DataSourceConfigType.DATABASEDATASOURCECONFIG
-        credentials = models.Credentials(
-            username=config.user, password=config.password, id="db-creds"
-        )
-        local_creds = models.LocalCredentialsProvider(
-            type=models.CredentialsProviderType.LOCALCREDENTIALSPROVIDER,
-            credentials=[credentials],
-        )
+
+        cred_id = "db-creds"
+        if secret_id is None:
+            credentials = models.Credentials(
+                username=config.user, password=config.password, id=cred_id
+            )
+            credential_provider = models.LocalCredentialsProvider(
+                type=models.CredentialsProviderType.LOCALCREDENTIALSPROVIDER,
+                credentials=[credentials],
+            )
+        else:
+            credentials = models.AzureKeyVaultCredentialsProviderMappingsItem(
+                creds_id=cred_id, secret_id=secret_id
+            )
+            credential_provider = models.AzureKeyVaultCredentialsProvider(
+                type=models.CredentialsProviderType.AZUREKEYVAULTCREDENTIALSPROVIDER,
+                mappings=[credentials],
+            )
         ds_config = models.DatabaseDataSourceConfig(
             type=ds_config_type, connection_info=config
         )
-        definition.credentials_provider = local_creds
+        definition.credentials_provider = credential_provider
         definition.config = ds_config
 
-        return cls.from_definition(client, definition=definition)
+        return cls._from_definition(client, definition=definition)
 
     @classmethod
     def from_api(
@@ -106,14 +133,15 @@ class DataSource:
         cert: str = "",
     ):
         """
-        from_api creates a new api datasource
+        Creates a new API datasource.
 
         Args:
             client (Client): the client to use to interact with the datasource
             config (models.PostgresDatabaseConfig): the postgres configuration
-            name (str, optional): the name to give to the datasource. Defaults to "".
-            clear_if_exists (str, optional): overwrite datasource if it already exists.
-            cert (str, optional): name of the certificate to use for this datasource (must be accessible in note at "/usr/local/share/datasource-certificates/{cert}.pem,.key").
+            name (str): the name to give to the datasource.
+            clear_if_exists (bool, optional): whether to replace an existing datasource with the same name.
+            cert (str, optional): name of the certificate to use for this datasource
+                (must be accessible in note at "/usr/local/share/datasource-certificates/{cert}.pem,.key").
         """
         definition = default_datasource_definition()
         definition.name = name
@@ -128,7 +156,7 @@ class DataSource:
         )
         definition.config = ds_config
 
-        return cls.from_definition(client, definition=definition)
+        return cls._from_definition(client, definition=definition)
 
     @classmethod
     def from_dataframe(
@@ -138,6 +166,15 @@ class DataSource:
         name: str,
         clear_if_exists: bool = False,
     ):
+        """
+        Creates a new datasource from a Pandas DataFrame.
+
+        Args:
+            client (Client): the client to use to interact with the datasource
+            dataframe (pd.DataFrame): the data to upload in the newly created datasource.
+            name (str): the name to give to the datasource.
+            clear_if_exists (bool, optional): whether to replace an existing datasource with the same name.
+        """
         ds = cls.local(client, name, clear_if_exists)
         ds.load_dataframe(df=dataframe)
         return ds
@@ -148,7 +185,7 @@ class DataSource:
 
     def get_id(self) -> str:
         """
-        get_id returns the id of the datasource
+        Returns the unique id of this datasource.
 
         Returns:
             str: the id as a a string
@@ -159,14 +196,16 @@ class DataSource:
         self, do_type: models.DataObjectType, query: Any = "", json_path: str = ""
     ) -> DataObject:
         """
-        adapt adapts the data source into a dataobject
+        Creates a dataobject from the data in this datasource (or the output of a query on it).
 
         Args:
-            do_type (models.DataObjectType): _description_
-            query (Any, optional): _description_. Defaults to "".
+            do_type (models.DataObjectType): the type of DataObject to create.
+            query (str, optional): a query selecting a subset of the data. The default is "" for CSV datasource (all records),
+                but note that this is an invalid query for database datasources.
+            json_path (str, optional): JsonPath expression to retrieve data from within JSON-structured data. Defaults to "".
 
         Returns:
-            DataObject: _description_
+            DataObject: The newly created dataobject holding the data.
         """
         method = models.DataObjectCreationMethod.DATASOURCE
         definition = models.PostDataObjectJsonBody(
@@ -184,15 +223,15 @@ class DataSource:
 
     def load_csv_data(self, path: str):
         """
-        loadData loads csv data stored in the file "path" to the datasources
+        Loads the data in a CSV file (at "path") to this datasource.
 
         Args:
-            path (_type_): path to the csv file
+            path (str): path to the CSV file.
         """
         with open(path, mode="+rb") as f:
-            fileType = File(payload=f, file_name="test")
+            file_type = File(payload=f, file_name="test")
             mpd = models.PutDataSourceDataMultipartData(
-                data_source_request_data=fileType
+                data_source_request_data=file_type
             )
             response: Response[models.DataSource] = put_data_source_data.sync_detailed(
                 client=self.client,
@@ -203,6 +242,12 @@ class DataSource:
             validate_response(response)
 
     def load_dataframe(self, df: pd.DataFrame):
+        """
+        Uploads a dataframe to use as datasource content.
+
+        Args:
+            df (pd.DataFrame): the data to upload.
+        """
         f = StringIO(initial_value="")
         df.to_csv(f, index=False)
         mpd = models.PutDataSourceDataMultipartData(
@@ -214,6 +259,17 @@ class DataSource:
         validate_response(response)
 
     def get_dataframe(self, query: Any = "", json_path: str = "") -> pd.DataFrame:
+        """
+        Returns the data contained in the datasource as a pd.DataFrame.
+
+        Args:
+            query (str, optional): a query selecting a subset of the data. The default is "" for CSV datasource (all records),
+                but note that this is an invalid query for database datasources.
+            json_path (str, optional): JsonPath expression to retrieve data from within JSON-structured data. Defaults to "".
+
+        Raises:
+            AuthorizationError: if the client is not the owner of the datasource.
+        """
         do = self.adapt(
             do_type=models.DataObjectType.TABLE, query=query, json_path=json_path
         )
@@ -223,7 +279,7 @@ class DataSource:
 
     def delete(self):
         """
-        delete deletes the datasource
+        Deletes this datasource.
         """
         response: Response[Any] = delete_data_source.sync_detailed(
             client=self.client, data_source_id=self.model.unique_id
@@ -231,9 +287,12 @@ class DataSource:
         validate_response(response)
 
 
+## Internal methods to manipulate configurations.
+
+
 def default_datasource_definition() -> models.DataSourceDefinition:
     """
-    default_datasource_definition returns a default-valued DataSourceDefinition
+    Returns a default-valued DataSourceDefinition.
 
     Returns:
         models.DataSourceDefinition: the definition with default values
@@ -246,6 +305,7 @@ def default_datasource_definition() -> models.DataSourceDefinition:
 def new_postgres_config(
     host: str, port: str, name: str, user: str, password: str
 ) -> models.DatabaseConnectionInfo:
+    """Convert a Postgres configuration to a models.DatabaseConnectionInfo."""
     return models.DatabaseConnectionInfo(
         type=models.DatabaseType.POSTGRES,
         host=host,
@@ -263,6 +323,7 @@ def new_mariadb_config(
     user: str = "geco",
     password: str = "geco",
 ) -> models.DatabaseConnectionInfo:
+    """Convert a MariaDB configuration to a models.DatabaseConnectionInfo."""
     return models.DatabaseConnectionInfo(
         type=models.DatabaseType.MYSQL,
         host=host,

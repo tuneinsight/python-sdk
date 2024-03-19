@@ -1,22 +1,35 @@
 from http import HTTPStatus
-from typing import Any, Dict, Optional, Union, cast
+from typing import Any, Dict, List, Optional, Union, cast
 
 import httpx
 
 from ... import errors
 from ...client import Client
 from ...models.error import Error
-from ...types import Response
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
     client: Client,
+    whitelisted_types: Union[Unset, None, List[str]] = UNSET,
 ) -> Dict[str, Any]:
     url = "{}/dataobjects".format(client.base_url)
 
     headers: Dict[str, str] = client.get_headers()
     cookies: Dict[str, Any] = client.get_cookies()
+
+    params: Dict[str, Any] = {}
+    json_whitelisted_types: Union[Unset, None, List[str]] = UNSET
+    if not isinstance(whitelisted_types, Unset):
+        if whitelisted_types is None:
+            json_whitelisted_types = None
+        else:
+            json_whitelisted_types = whitelisted_types
+
+    params["whitelistedTypes"] = json_whitelisted_types
+
+    params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
     return {
         "method": "delete",
@@ -24,6 +37,7 @@ def _get_kwargs(
         "headers": headers,
         "cookies": cookies,
         "timeout": client.get_timeout(),
+        "params": params,
     }
 
 
@@ -61,8 +75,12 @@ def _build_response(*, client: Client, response: httpx.Response) -> Response[Uni
 def sync_detailed(
     *,
     client: Client,
+    whitelisted_types: Union[Unset, None, List[str]] = UNSET,
 ) -> Response[Union[Any, Error]]:
     """Delete all data objects and their associated data.
+
+    Args:
+        whitelisted_types (Union[Unset, None, List[str]]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -74,6 +92,7 @@ def sync_detailed(
 
     kwargs = _get_kwargs(
         client=client,
+        whitelisted_types=whitelisted_types,
     )
 
     response = httpx.request(
@@ -87,8 +106,12 @@ def sync_detailed(
 def sync(
     *,
     client: Client,
+    whitelisted_types: Union[Unset, None, List[str]] = UNSET,
 ) -> Optional[Union[Any, Error]]:
     """Delete all data objects and their associated data.
+
+    Args:
+        whitelisted_types (Union[Unset, None, List[str]]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -100,14 +123,19 @@ def sync(
 
     return sync_detailed(
         client=client,
+        whitelisted_types=whitelisted_types,
     ).parsed
 
 
 async def asyncio_detailed(
     *,
     client: Client,
+    whitelisted_types: Union[Unset, None, List[str]] = UNSET,
 ) -> Response[Union[Any, Error]]:
     """Delete all data objects and their associated data.
+
+    Args:
+        whitelisted_types (Union[Unset, None, List[str]]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -119,6 +147,7 @@ async def asyncio_detailed(
 
     kwargs = _get_kwargs(
         client=client,
+        whitelisted_types=whitelisted_types,
     )
 
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
@@ -130,8 +159,12 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: Client,
+    whitelisted_types: Union[Unset, None, List[str]] = UNSET,
 ) -> Optional[Union[Any, Error]]:
     """Delete all data objects and their associated data.
+
+    Args:
+        whitelisted_types (Union[Unset, None, List[str]]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -144,5 +177,6 @@ async def asyncio(
     return (
         await asyncio_detailed(
             client=client,
+            whitelisted_types=whitelisted_types,
         )
     ).parsed

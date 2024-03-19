@@ -17,15 +17,18 @@ class DataSourceMetadata:
 
     Attributes:
         metadata_available (Union[Unset, bool]): whether or not the datasource supports returning metadata
+        stores_templates (Union[Unset, bool]): whether the data source stores template tables.
         tables (Union[Unset, List['DataSourceTable']]):
     """
 
     metadata_available: Union[Unset, bool] = UNSET
+    stores_templates: Union[Unset, bool] = UNSET
     tables: Union[Unset, List["DataSourceTable"]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         metadata_available = self.metadata_available
+        stores_templates = self.stores_templates
         tables: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.tables, Unset):
             tables = []
@@ -39,6 +42,8 @@ class DataSourceMetadata:
         field_dict.update({})
         if metadata_available is not UNSET:
             field_dict["metadataAvailable"] = metadata_available
+        if stores_templates is not UNSET:
+            field_dict["storesTemplates"] = stores_templates
         if tables is not UNSET:
             field_dict["tables"] = tables
 
@@ -51,6 +56,8 @@ class DataSourceMetadata:
         d = src_dict.copy()
         metadata_available = d.pop("metadataAvailable", UNSET)
 
+        stores_templates = d.pop("storesTemplates", UNSET)
+
         tables = []
         _tables = d.pop("tables", UNSET)
         for tables_item_data in _tables or []:
@@ -60,6 +67,7 @@ class DataSourceMetadata:
 
         data_source_metadata = cls(
             metadata_available=metadata_available,
+            stores_templates=stores_templates,
             tables=tables,
         )
 

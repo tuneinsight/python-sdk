@@ -12,38 +12,38 @@ class Error:
     """standard error response format with status and message
 
     Attributes:
-        message (Union[Unset, str]): error message
         code (Union[Unset, int]): status code for the error
+        message (Union[Unset, str]): error message
     """
 
-    message: Union[Unset, str] = UNSET
     code: Union[Unset, int] = UNSET
+    message: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        message = self.message
         code = self.code
+        message = self.message
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if message is not UNSET:
-            field_dict["message"] = message
         if code is not UNSET:
             field_dict["code"] = code
+        if message is not UNSET:
+            field_dict["message"] = message
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        message = d.pop("message", UNSET)
-
         code = d.pop("code", UNSET)
 
+        message = d.pop("message", UNSET)
+
         error = cls(
-            message=message,
             code=code,
+            message=message,
         )
 
         error.additional_properties = d

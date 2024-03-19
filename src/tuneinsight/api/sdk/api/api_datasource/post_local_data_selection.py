@@ -15,6 +15,7 @@ def _get_kwargs(
     *,
     client: Client,
     num_rows: Union[Unset, None, int] = UNSET,
+    tolerate_query_errors: Union[Unset, None, bool] = UNSET,
 ) -> Dict[str, Any]:
     url = "{}/datasources/{dataSourceId}/selection".format(client.base_url, dataSourceId=data_source_id)
 
@@ -23,6 +24,8 @@ def _get_kwargs(
 
     params: Dict[str, Any] = {}
     params["numRows"] = num_rows
+
+    params["tolerateQueryErrors"] = tolerate_query_errors
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
@@ -81,12 +84,14 @@ def sync_detailed(
     *,
     client: Client,
     num_rows: Union[Unset, None, int] = UNSET,
+    tolerate_query_errors: Union[Unset, None, bool] = UNSET,
 ) -> Response[Union[Error, LocalDataSelection]]:
     """saves the data selection for a datasource, runs the query first to verify that the selection work
 
     Args:
         data_source_id (str):
         num_rows (Union[Unset, None, int]):
+        tolerate_query_errors (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -100,6 +105,7 @@ def sync_detailed(
         data_source_id=data_source_id,
         client=client,
         num_rows=num_rows,
+        tolerate_query_errors=tolerate_query_errors,
     )
 
     response = httpx.request(
@@ -115,12 +121,14 @@ def sync(
     *,
     client: Client,
     num_rows: Union[Unset, None, int] = UNSET,
+    tolerate_query_errors: Union[Unset, None, bool] = UNSET,
 ) -> Optional[Union[Error, LocalDataSelection]]:
     """saves the data selection for a datasource, runs the query first to verify that the selection work
 
     Args:
         data_source_id (str):
         num_rows (Union[Unset, None, int]):
+        tolerate_query_errors (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -134,6 +142,7 @@ def sync(
         data_source_id=data_source_id,
         client=client,
         num_rows=num_rows,
+        tolerate_query_errors=tolerate_query_errors,
     ).parsed
 
 
@@ -142,12 +151,14 @@ async def asyncio_detailed(
     *,
     client: Client,
     num_rows: Union[Unset, None, int] = UNSET,
+    tolerate_query_errors: Union[Unset, None, bool] = UNSET,
 ) -> Response[Union[Error, LocalDataSelection]]:
     """saves the data selection for a datasource, runs the query first to verify that the selection work
 
     Args:
         data_source_id (str):
         num_rows (Union[Unset, None, int]):
+        tolerate_query_errors (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -161,6 +172,7 @@ async def asyncio_detailed(
         data_source_id=data_source_id,
         client=client,
         num_rows=num_rows,
+        tolerate_query_errors=tolerate_query_errors,
     )
 
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
@@ -174,12 +186,14 @@ async def asyncio(
     *,
     client: Client,
     num_rows: Union[Unset, None, int] = UNSET,
+    tolerate_query_errors: Union[Unset, None, bool] = UNSET,
 ) -> Optional[Union[Error, LocalDataSelection]]:
     """saves the data selection for a datasource, runs the query first to verify that the selection work
 
     Args:
         data_source_id (str):
         num_rows (Union[Unset, None, int]):
+        tolerate_query_errors (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -194,5 +208,6 @@ async def asyncio(
             data_source_id=data_source_id,
             client=client,
             num_rows=num_rows,
+            tolerate_query_errors=tolerate_query_errors,
         )
     ).parsed

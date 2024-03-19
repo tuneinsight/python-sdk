@@ -15,15 +15,19 @@ T = TypeVar("T", bound="GetProjectStatusResponse200")
 class GetProjectStatusResponse200:
     """
     Attributes:
-        remote_participants (Union[Unset, List['Participant']]):
         participant (Union[Unset, Participant]): Node participating in a project
+        remote_participants (Union[Unset, List['Participant']]):
     """
 
-    remote_participants: Union[Unset, List["Participant"]] = UNSET
     participant: Union[Unset, "Participant"] = UNSET
+    remote_participants: Union[Unset, List["Participant"]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        participant: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.participant, Unset):
+            participant = self.participant.to_dict()
+
         remote_participants: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.remote_participants, Unset):
             remote_participants = []
@@ -32,17 +36,13 @@ class GetProjectStatusResponse200:
 
                 remote_participants.append(remote_participants_item)
 
-        participant: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.participant, Unset):
-            participant = self.participant.to_dict()
-
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if remote_participants is not UNSET:
-            field_dict["remoteParticipants"] = remote_participants
         if participant is not UNSET:
             field_dict["participant"] = participant
+        if remote_participants is not UNSET:
+            field_dict["remoteParticipants"] = remote_participants
 
         return field_dict
 
@@ -51,13 +51,6 @@ class GetProjectStatusResponse200:
         from ..models.participant import Participant
 
         d = src_dict.copy()
-        remote_participants = []
-        _remote_participants = d.pop("remoteParticipants", UNSET)
-        for remote_participants_item_data in _remote_participants or []:
-            remote_participants_item = Participant.from_dict(remote_participants_item_data)
-
-            remote_participants.append(remote_participants_item)
-
         _participant = d.pop("participant", UNSET)
         participant: Union[Unset, Participant]
         if isinstance(_participant, Unset):
@@ -65,9 +58,16 @@ class GetProjectStatusResponse200:
         else:
             participant = Participant.from_dict(_participant)
 
+        remote_participants = []
+        _remote_participants = d.pop("remoteParticipants", UNSET)
+        for remote_participants_item_data in _remote_participants or []:
+            remote_participants_item = Participant.from_dict(remote_participants_item_data)
+
+            remote_participants.append(remote_participants_item)
+
         get_project_status_response_200 = cls(
-            remote_participants=remote_participants,
             participant=participant,
+            remote_participants=remote_participants,
         )
 
         get_project_status_response_200.additional_properties = d

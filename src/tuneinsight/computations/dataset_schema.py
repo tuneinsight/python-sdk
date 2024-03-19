@@ -1,10 +1,17 @@
+"""Classes defining dataset schemas to constrain acceptable data formats."""
+
 from typing import Dict, List, Any
 from tuneinsight.api.sdk import models
 
 
 class DatasetSchema:
     """
-    DatasetSchema represents a user-defined dataset schema that inputs must comply to
+    A user-defined dataset schema that constraints what the structure of inputs.
+
+    Schemas can be used to describe what variables a dataset is supposed to have,
+    what types these variables take, and additional constraints on their values.
+    This class offers high-level methods to build a schema.
+
     """
 
     model: models.DatasetSchema
@@ -21,7 +28,8 @@ class DatasetSchema:
         self.model = models.DatasetSchema(columns=models.DatasetSchemaColumns())
         self.model.columns.additional_properties = self.cols
 
-    def drop_invalid(self, drop: bool = True):
+    def set_drop_invalid(self, drop: bool = True):
+        """Sets whether rows that do not match the schema should be dropped."""
         self.model.drop_invalid_rows = drop
 
     def add_column(
@@ -33,7 +41,7 @@ class DatasetSchema:
         required: bool = True,
     ) -> models.ColumnSchema:
         """
-        add_column creates a new column and adds it to the dataset schema
+        Creates a new column and adds it to the dataset schema.
 
         Args:
             name (str): the name of the column
@@ -54,7 +62,7 @@ class DatasetSchema:
 
     def get_column(self, name: str) -> models.ColumnSchema:
         """
-        get_column returns the corresponding column schema
+        Returns the corresponding column schema for the column identified by 'name'.
 
         Args:
             name (str): the name of the column
@@ -68,7 +76,7 @@ class DatasetSchema:
 
     def lt(self, name: str, val: Any):
         """
-        lt requires values from the column to be less than 'val'
+        Adds a requirement that checks that values from the column are less than 'val'
 
         Args:
             name (str): the column name
@@ -82,7 +90,7 @@ class DatasetSchema:
 
     def le(self, name: str, val: Any):
         """
-        le requires values from the column to be less than or equal to 'val'
+        Adds a requirement that checks that values from the column are less than or equal to 'val'
 
         Args:
             name (str): the column name
@@ -96,7 +104,7 @@ class DatasetSchema:
 
     def eq(self, name: str, val: Any):
         """
-        eq requires values from the column to be equal to 'val'
+        Adds a requirement that checks that values from the column are equal to 'val'
 
         Args:
             name (str): the column name
@@ -110,7 +118,7 @@ class DatasetSchema:
 
     def ge(self, name: str, val: Any):
         """
-        ge requires values from the column to be greater or equal to 'val'
+        Adds a requirement that checks that values from the column are greater or equal to 'val'.
 
         Args:
             name (str): the column name
@@ -124,7 +132,7 @@ class DatasetSchema:
 
     def gt(self, name: str, val: Any):
         """
-        gt requires values from the column to be greater than 'val'
+        Adds a requirement that checks that values from the column are greater than 'val'.
 
         Args:
             name (str): the column name
@@ -145,7 +153,7 @@ class DatasetSchema:
         include_max: bool = True,
     ):
         """
-        in_range requires values from the column to be in a specified range
+        Adds a requirement that checks that values from the column all belong to a specified range.
 
         Args:
             name (str): name of the column
@@ -167,7 +175,7 @@ class DatasetSchema:
 
     def str_startswith(self, name: str, val: str):
         """
-        str_startswith requires that all values from the column start with a specific substring
+        Adds a requirement that checks that all values from the column start with a specific substring.
 
         Args:
             name (str): the name of the column
@@ -181,7 +189,7 @@ class DatasetSchema:
 
     def isin(self, name: str, vals: List[Any]):
         """
-        isin requires that all values from the column are from a specified set of values
+        Adds a requirement that checks that all values from the column are from a specified set of values.
 
         Args:
             name (str): the name of the column
@@ -195,7 +203,7 @@ class DatasetSchema:
 
     def notin(self, name: str, vals: List[Any]):
         """
-        notin requires that all values from the column are excluded from specified set of values
+        Adds a requirement that checks that all values from the column are excluded from specified set of values.
 
         Args:
             name (str): the name of the column
@@ -209,7 +217,7 @@ class DatasetSchema:
 
     def required(self, name: str, required: bool):
         """
-        required sets a column as required or optional
+        Sets a column as required or optional
 
         Args:
             name (str): the name of the column
@@ -223,7 +231,7 @@ class DatasetSchema:
 
     def dtype(self, name: str, dtype: str):
         """
-        dtype sets the required data type of the column
+        Sets the required data type of the column
 
         Args:
             name (str): the name of the column
@@ -237,7 +245,7 @@ class DatasetSchema:
 
     def nullable(self, name: str, nullable: bool):
         """
-        dtype sets the nullable status of the column
+        Sets the nullable status of the column
 
         Args:
             name (str): the name of the column
@@ -251,7 +259,7 @@ class DatasetSchema:
 
     def coerce(self, name: str, coerce: bool):
         """
-        dtype sets the coerce value of the column
+        Sets the coerce value of the column
 
         Args:
             name (str): the name of the column

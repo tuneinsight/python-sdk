@@ -14,6 +14,8 @@ from .approximation_params import ApproximationParams
 from .as_type import AsType
 from .as_type_type_map import AsTypeTypeMap
 from .authorization_status import AuthorizationStatus
+from .azure_key_vault_credentials_provider import AzureKeyVaultCredentialsProvider
+from .azure_key_vault_credentials_provider_mappings_item import AzureKeyVaultCredentialsProviderMappingsItem
 from .backup_definition import BackupDefinition
 from .backup_type import BackupType
 from .binning_operation import BinningOperation
@@ -36,6 +38,7 @@ from .comparison_type import ComparisonType
 from .computation import Computation
 from .computation_data_source_parameters import ComputationDataSourceParameters
 from .computation_definition import ComputationDefinition
+from .computation_definition_input_clipping_method import ComputationDefinitionInputClippingMethod
 from .computation_error import ComputationError
 from .computation_error_type import ComputationErrorType
 from .computation_list_response import ComputationListResponse
@@ -58,6 +61,7 @@ from .data_object import DataObject
 from .data_object_creation_method import DataObjectCreationMethod
 from .data_object_type import DataObjectType
 from .data_object_visibility_status import DataObjectVisibilityStatus
+from .data_selection_type import DataSelectionType
 from .data_source import DataSource
 from .data_source_base import DataSourceBase
 from .data_source_column import DataSourceColumn
@@ -96,6 +100,9 @@ from .encrypted_regression_params import EncryptedRegressionParams
 from .encrypted_regression_params_linear import EncryptedRegressionParamsLinear
 from .encryption import Encryption
 from .error import Error
+from .execution_quota import ExecutionQuota
+from .execution_quota_parameters import ExecutionQuotaParameters
+from .execution_quota_parameters_scope import ExecutionQuotaParametersScope
 from .external_ml_history import ExternalMlHistory
 from .external_ml_result import ExternalMlResult
 from .extract_dict_field import ExtractDictField
@@ -166,6 +173,8 @@ from .post_data_source_query_json_body_output_data_objects_shared_i_ds import (
     PostDataSourceQueryJsonBodyOutputDataObjectsSharedIDs,
 )
 from .post_data_source_query_json_body_parameters import PostDataSourceQueryJsonBodyParameters
+from .post_llm_request_json_body import PostLlmRequestJsonBody
+from .post_llm_request_json_body_prompt_args import PostLlmRequestJsonBodyPromptArgs
 from .post_mock_dataset_method import PostMockDatasetMethod
 from .post_project_data_json_body import PostProjectDataJsonBody
 from .post_project_data_source_query_json_body import PostProjectDataSourceQueryJsonBody
@@ -181,9 +190,6 @@ from .prediction_params import PredictionParams
 from .preprocessing_chain import PreprocessingChain
 from .preprocessing_operation import PreprocessingOperation
 from .preprocessing_operation_type import PreprocessingOperationType
-from .privacy_budget import PrivacyBudget
-from .privacy_budget_parameters import PrivacyBudgetParameters
-from .privacy_budget_parameters_scope import PrivacyBudgetParametersScope
 from .privacy_summary import PrivacySummary
 from .privacy_summary_computation import PrivacySummaryComputation
 from .private_search import PrivateSearch
@@ -218,6 +224,8 @@ from .result_definition import ResultDefinition
 from .result_metadata import ResultMetadata
 from .rot_key_gen import RotKeyGen
 from .rot_key_gen_rotations_item import RotKeyGenRotationsItem
+from .run_mode import RunMode
+from .run_project_parameters import RunProjectParameters
 from .s3_parameters import S3Parameters
 from .sample_extraction import SampleExtraction
 from .select import Select
@@ -274,6 +282,8 @@ __all__ = (
     "AsType",
     "AsTypeTypeMap",
     "AuthorizationStatus",
+    "AzureKeyVaultCredentialsProvider",
+    "AzureKeyVaultCredentialsProviderMappingsItem",
     "BackupDefinition",
     "BackupType",
     "BinningOperation",
@@ -296,6 +306,7 @@ __all__ = (
     "Computation",
     "ComputationDataSourceParameters",
     "ComputationDefinition",
+    "ComputationDefinitionInputClippingMethod",
     "ComputationError",
     "ComputationErrorType",
     "ComputationListResponse",
@@ -319,6 +330,7 @@ __all__ = (
     "DataObjectCreationMethod",
     "DataObjectType",
     "DataObjectVisibilityStatus",
+    "DataSelectionType",
     "DatasetSchema",
     "DatasetSchemaColumns",
     "DatasetStatistics",
@@ -354,6 +366,9 @@ __all__ = (
     "EncVector",
     "EncVectorType",
     "Error",
+    "ExecutionQuota",
+    "ExecutionQuotaParameters",
+    "ExecutionQuotaParametersScope",
     "ExternalMlHistory",
     "ExternalMlResult",
     "ExtractDictField",
@@ -422,6 +437,8 @@ __all__ = (
     "PostDataSourceQueryJsonBody",
     "PostDataSourceQueryJsonBodyOutputDataObjectsSharedIDs",
     "PostDataSourceQueryJsonBodyParameters",
+    "PostLlmRequestJsonBody",
+    "PostLlmRequestJsonBodyPromptArgs",
     "PostMockDatasetMethod",
     "PostProjectDataJsonBody",
     "PostProjectDataSourceQueryJsonBody",
@@ -435,9 +452,6 @@ __all__ = (
     "PreprocessingChain",
     "PreprocessingOperation",
     "PreprocessingOperationType",
-    "PrivacyBudget",
-    "PrivacyBudgetParameters",
-    "PrivacyBudgetParametersScope",
     "PrivacySummary",
     "PrivacySummaryComputation",
     "PrivateSearch",
@@ -472,6 +486,8 @@ __all__ = (
     "ResultMetadata",
     "RotKeyGen",
     "RotKeyGenRotationsItem",
+    "RunMode",
+    "RunProjectParameters",
     "S3Parameters",
     "SampleExtraction",
     "Select",

@@ -17,25 +17,24 @@ class ComputationDataSourceParameters:
     """Parameters used to query the datasource from each node before the computation
 
     Attributes:
-        compound_disabled (Union[Unset, bool]): when true, then even if the compound query is specified, it is not taken
-            into account (enables keeping previously defined queries)
         compound_query (Union[Unset, DataSourceCompoundQuery]): definition of datasource queries for each node in the
             computation
         data_source_id (Union[Unset, None, str]): Unique identifier of a data source.
         data_source_query (Union[Unset, DataSourceQuery]): schema used for the query
         only_root_query (Union[Unset, bool]): Whether or not the query should only be executed at the root node of the
             computation
+        compound_disabled (Union[Unset, bool]): when true, then even if the compound query is specified, it is not taken
+            into account (enables keeping previously defined queries)
     """
 
-    compound_disabled: Union[Unset, bool] = UNSET
     compound_query: Union[Unset, "DataSourceCompoundQuery"] = UNSET
     data_source_id: Union[Unset, None, str] = UNSET
     data_source_query: Union[Unset, "DataSourceQuery"] = UNSET
     only_root_query: Union[Unset, bool] = UNSET
+    compound_disabled: Union[Unset, bool] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        compound_disabled = self.compound_disabled
         compound_query: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.compound_query, Unset):
             compound_query = self.compound_query.to_dict()
@@ -46,12 +45,11 @@ class ComputationDataSourceParameters:
             data_source_query = self.data_source_query.to_dict()
 
         only_root_query = self.only_root_query
+        compound_disabled = self.compound_disabled
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if compound_disabled is not UNSET:
-            field_dict["compoundDisabled"] = compound_disabled
         if compound_query is not UNSET:
             field_dict["compoundQuery"] = compound_query
         if data_source_id is not UNSET:
@@ -60,6 +58,8 @@ class ComputationDataSourceParameters:
             field_dict["dataSourceQuery"] = data_source_query
         if only_root_query is not UNSET:
             field_dict["onlyRootQuery"] = only_root_query
+        if compound_disabled is not UNSET:
+            field_dict["compoundDisabled"] = compound_disabled
 
         return field_dict
 
@@ -69,8 +69,6 @@ class ComputationDataSourceParameters:
         from ..models.data_source_query import DataSourceQuery
 
         d = src_dict.copy()
-        compound_disabled = d.pop("compoundDisabled", UNSET)
-
         _compound_query = d.pop("compoundQuery", UNSET)
         compound_query: Union[Unset, DataSourceCompoundQuery]
         if isinstance(_compound_query, Unset):
@@ -89,12 +87,14 @@ class ComputationDataSourceParameters:
 
         only_root_query = d.pop("onlyRootQuery", UNSET)
 
+        compound_disabled = d.pop("compoundDisabled", UNSET)
+
         computation_data_source_parameters = cls(
-            compound_disabled=compound_disabled,
             compound_query=compound_query,
             data_source_id=data_source_id,
             data_source_query=data_source_query,
             only_root_query=only_root_query,
+            compound_disabled=compound_disabled,
         )
 
         computation_data_source_parameters.additional_properties = d
