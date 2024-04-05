@@ -8,10 +8,16 @@ from tuneinsight.api.sdk.types import Response
 from tuneinsight.api.sdk.types import File
 from tuneinsight.api.sdk import Client
 from tuneinsight.api.sdk import models
-from tuneinsight.api.sdk.api.api_datasource import post_data_source
-from tuneinsight.api.sdk.api.api_datasource import put_data_source_data
-from tuneinsight.api.sdk.api.api_datasource import delete_data_source
+from tuneinsight.api.sdk.types import Unset, UNSET
+from tuneinsight.api.sdk.api.api_datagen import post_synthetic_dataset
+from tuneinsight.api.sdk.api.api_datasource import (
+    post_data_source,
+    put_data_source_data,
+    delete_data_source,
+    get_data_source,
+)
 from tuneinsight.api.sdk.api.api_dataobject import post_data_object
+
 from tuneinsight.client.validation import validate_response
 from tuneinsight.client.dataobject import DataObject
 
@@ -35,6 +41,24 @@ class DataSource:
     def __init__(self, model: models.DataSource, client: Client):
         self.model = model
         self.client = client
+        self.query_parameters = None
+
+    ## Methods to create a datasource.
+
+    @classmethod
+    def fetch_from_id(cls, client: Client, datasource_id: str):
+        """
+        Creates a datasource object relating to a datasource in the backend.
+
+        Args:
+            client (Client): the client to use to interact with the datasource
+            datasource_id (str): the unique identifier of the datasource.
+        """
+        ds_response: Response[models.DataSource] = get_data_source.sync_detailed(
+            client=client, data_source_id=datasource_id
+        )
+        validate_response(ds_response)
+        return cls(model=ds_response.parsed, client=client)
 
     @classmethod
     def _from_definition(cls, client: Client, definition: models.DataSourceDefinition):
@@ -64,60 +88,34 @@ class DataSource:
         definition = default_datasource_definition()
         definition.name = name
         definition.clear_if_exists = clear_if_exists
-        ds_config_type = models.DataSourceConfigType.LOCALDATASOURCECONFIG
-        ds_conf = models.LocalDataSourceConfig(type=ds_config_type)
-        definition.config = ds_conf
-        definition.type = "local"
-
+        definition.type = models.DataSourceType.LOCAL
         return cls._from_definition(client, definition=definition)
 
     @classmethod
     def database(
         cls,
         client: Client,
-        config: models.DatabaseConnectionInfo,
+        config: models.DataSourceConfig,
+        credentials: models.Credentials,
         name: str,
         clear_if_exists: bool = False,
-        secret_id: str = None,
     ):
         """
         Creates a new postgres database datasource.
 
         Args:
             client (Client): the client to use to interact with the datasource
-            config (models.DatabaseConnectionInfo): the database configuration
+            config (models.DataSourceConfig): the database configuration
             name (str, optional): the name to give to the datasource. Defaults to "".
             clear_if_exists (bool, optional): whether to try to clear any existing data source with the same name.
-            secret_id (str, optional): secret id that stores the database credentials on the KMS connected to the instance.
+            credentials_id (str, optional): secret id that stores the database credentials on the KMS connected to the instance.
         """
         definition = default_datasource_definition()
         definition.name = name
         definition.clear_if_exists = clear_if_exists
-        definition.type = "database"
-        ds_config_type = models.DataSourceConfigType.DATABASEDATASOURCECONFIG
-
-        cred_id = "db-creds"
-        if secret_id is None:
-            credentials = models.Credentials(
-                username=config.user, password=config.password, id=cred_id
-            )
-            credential_provider = models.LocalCredentialsProvider(
-                type=models.CredentialsProviderType.LOCALCREDENTIALSPROVIDER,
-                credentials=[credentials],
-            )
-        else:
-            credentials = models.AzureKeyVaultCredentialsProviderMappingsItem(
-                creds_id=cred_id, secret_id=secret_id
-            )
-            credential_provider = models.AzureKeyVaultCredentialsProvider(
-                type=models.CredentialsProviderType.AZUREKEYVAULTCREDENTIALSPROVIDER,
-                mappings=[credentials],
-            )
-        ds_config = models.DatabaseDataSourceConfig(
-            type=ds_config_type, connection_info=config
-        )
-        definition.credentials_provider = credential_provider
-        definition.config = ds_config
+        definition.type = models.DataSourceType.DATABASE
+        definition.configuration = config
+        definition.credentials = credentials
 
         return cls._from_definition(client, definition=definition)
 
@@ -125,7 +123,7 @@ class DataSource:
     def from_api(
         cls,
         client: Client,
-        api_type: models.APIConnectionInfoType,
+        api_type: models.APIType,
         api_url: str,
         api_token: str,
         name: str,
@@ -146,16 +144,11 @@ class DataSource:
         definition = default_datasource_definition()
         definition.name = name
         definition.clear_if_exists = clear_if_exists
-        definition.type = "api"
-
-        ds_config = models.ApiDataSourceConfig(
-            type=models.DataSourceConfigType.APIDATASOURCECONFIG
+        definition.type = models.DataSourceType.API
+        definition.configuration = models.DataSourceConfig(
+            api_url=api_url, api_type=api_type, cert=cert
         )
-        ds_config.connection_info = models.APIConnectionInfo(
-            api_token=api_token, api_url=api_url, type=api_type, cert=cert
-        )
-        definition.config = ds_config
-
+        definition.credentials = models.Credentials(api_token=api_token)
         return cls._from_definition(client, definition=definition)
 
     @classmethod
@@ -181,7 +174,7 @@ class DataSource:
 
     def __str__(self):
         model = self.model
-        return f"id: {model.unique_id}, name: {model.name}, type: {model.type}, createdAt: {model.created_at}"
+        return f"id: {model.id}, name: {model.name}, type: {model.type}, createdAt: {model.created_at}"
 
     def get_id(self) -> str:
         """
@@ -190,7 +183,9 @@ class DataSource:
         Returns:
             str: the id as a a string
         """
-        return self.model.unique_id
+        return self.model.id
+
+    ## Methods to manipulate a datasource object.
 
     def adapt(
         self, do_type: models.DataObjectType, query: Any = "", json_path: str = ""
@@ -235,7 +230,7 @@ class DataSource:
             )
             response: Response[models.DataSource] = put_data_source_data.sync_detailed(
                 client=self.client,
-                data_source_id=self.model.unique_id,
+                data_source_id=self.model.id,
                 multipart_data=mpd,
             )
             f.close()
@@ -254,7 +249,7 @@ class DataSource:
             data_source_request_data_raw=f.getvalue()
         )
         response: Response[models.DataSource] = put_data_source_data.sync_detailed(
-            client=self.client, data_source_id=self.model.unique_id, multipart_data=mpd
+            client=self.client, data_source_id=self.model.id, multipart_data=mpd
         )
         validate_response(response)
 
@@ -282,12 +277,70 @@ class DataSource:
         Deletes this datasource.
         """
         response: Response[Any] = delete_data_source.sync_detailed(
-            client=self.client, data_source_id=self.model.unique_id
+            client=self.client, data_source_id=self.model.id
         )
         validate_response(response)
 
+    def synthesize(
+        self,
+        table: str = UNSET,
+        query: str = UNSET,
+        name: str = UNSET,
+        num_rows: int = UNSET,
+    ) -> "DataSource":
+        """
+        Generates a synthetic dataset that mimics this datasource.
 
-## Internal methods to manipulate configurations.
+        This creates a new database datasource that contains synthetic data
+        with the same data structure (attributes and data types) as well as
+        some statistical properties of the data.
+
+        One of table or query must be specified to generate data from a
+        database datasource. If neither are provided, the datasource name
+        is used instead, but that can potentially cause issues.
+
+        Args:
+            table (str, optional): the table for which to generate synthetic data.
+            query (str, optional): the data query to perform on the data to get
+            name (str, optional): name of the synthetic datasource. If not provided,
+                synthetic_{datasource_name} is used instead.
+            num_rows (int, optional): number of rows to generate. If not provided,
+                the synthetic dataset will have the same number of rows as this datasource.
+        """
+        if isinstance(table, Unset) and isinstance(query, Unset):
+            table = self.model.name
+        if isinstance(name, Unset) and not isinstance(self.model.name, Unset):
+            name = f"synthetic_{self.model.name}"
+        response = post_synthetic_dataset.sync_detailed(
+            client=self.client,
+            data_source_id=self.model.unique_id,
+            num_rows=num_rows,
+            table=table,
+            query=query,
+            table_name=name,
+        )
+        validate_response(response)
+        return DataSource(response.parsed, self.client)
+
+    ## Methods to interact with queries etc.
+    def set_query(self, query: str):
+        """
+        Sets the database query to use for this datasource.
+
+        When this datasource is used in a project, its query will override the query defined
+        in the local data selection of the project (if any), but not the query defined in the
+        computation definition (which take precedence).
+
+        Note that this is specific to the Diapason implementation, and the query is not
+        persisted on the Tune Insight instance.
+
+        Args
+            query (str): the SQL query to use to fet the data from the datasource.
+        """
+        self.query_parameters = models.DataSourceQuery(database_query=query)
+
+
+## Internal functions to manipulate configurations.
 
 
 def default_datasource_definition() -> models.DataSourceDefinition:
@@ -302,17 +355,35 @@ def default_datasource_definition() -> models.DataSourceDefinition:
     )
 
 
-def new_postgres_config(
-    host: str, port: str, name: str, user: str, password: str
-) -> models.DatabaseConnectionInfo:
-    """Convert a Postgres configuration to a models.DatabaseConnectionInfo."""
-    return models.DatabaseConnectionInfo(
-        type=models.DatabaseType.POSTGRES,
+def new_credentials(
+    username: str = "", password: str = "", token: str = "", credentials_id: str = None
+):
+    """
+    Creates a new credentials class with the correct credentials type.
+
+    Args:
+        username (str, optional): the username. Defaults to "".
+        password (str, optional): the password. Defaults to "".
+        token (str, optional): the API token. Defaults to "".
+        credentials_id (str, optional): the secret ID to fetch the credentials remotely, if set, then the credentials type will be set to Azure Key Vault. Defaults to None.
+
+    Returns:
+        _type_: _description_
+    """
+    if credentials_id is None:
+        return models.Credentials(username=username, password=password, api_token=token)
+    return models.Credentials(
+        credentials_id=credentials_id, type=models.CredentialsType.AZUREKEYVAULT
+    )
+
+
+def new_postgres_config(host: str, port: str, name: str) -> models.DataSourceConfig:
+    """Convert a Postgres configuration to a models.DataSourceConfig."""
+    return models.DataSourceConfig(
+        database_type=models.DatabaseType.POSTGRES,
         host=host,
         port=port,
         database=name,
-        user=user,
-        password=password,
     )
 
 
@@ -320,15 +391,11 @@ def new_mariadb_config(
     host: str = "mariadb",
     port: str = "3306",
     name: str = "geco_0",
-    user: str = "geco",
-    password: str = "geco",
-) -> models.DatabaseConnectionInfo:
-    """Convert a MariaDB configuration to a models.DatabaseConnectionInfo."""
-    return models.DatabaseConnectionInfo(
-        type=models.DatabaseType.MYSQL,
+) -> models.DataSourceConfig:
+    """Convert a MariaDB configuration to a models.DataSourceConfig."""
+    return models.DataSourceConfig(
+        database_type=models.DatabaseType.MYSQL,
         host=host,
         port=port,
         database=name,
-        user=user,
-        password=password,
     )

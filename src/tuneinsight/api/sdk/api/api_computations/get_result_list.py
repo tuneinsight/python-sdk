@@ -16,12 +16,11 @@ def _get_kwargs(
     *,
     client: Client,
     project_id: Union[Unset, None, str] = UNSET,
-    session_id: Union[Unset, None, str] = UNSET,
     owned: Union[Unset, None, bool] = UNSET,
     tagged: Union[Unset, None, bool] = UNSET,
     tags: Union[Unset, None, List[str]] = UNSET,
     page: Union[Unset, None, int] = 1,
-    per_page: Union[Unset, None, int] = 30,
+    per_page: Union[Unset, None, int] = 50,
     with_total: Union[Unset, None, bool] = True,
     sort_by: Union[Unset, None, GetResultListSortBy] = UNSET,
     order: Union[Unset, None, GetResultListOrder] = UNSET,
@@ -33,8 +32,6 @@ def _get_kwargs(
 
     params: Dict[str, Any] = {}
     params["projectId"] = project_id
-
-    params["sessionId"] = session_id
 
     params["owned"] = owned
 
@@ -124,12 +121,11 @@ def sync_detailed(
     *,
     client: Client,
     project_id: Union[Unset, None, str] = UNSET,
-    session_id: Union[Unset, None, str] = UNSET,
     owned: Union[Unset, None, bool] = UNSET,
     tagged: Union[Unset, None, bool] = UNSET,
     tags: Union[Unset, None, List[str]] = UNSET,
     page: Union[Unset, None, int] = 1,
-    per_page: Union[Unset, None, int] = 30,
+    per_page: Union[Unset, None, int] = 50,
     with_total: Union[Unset, None, bool] = True,
     sort_by: Union[Unset, None, GetResultListSortBy] = UNSET,
     order: Union[Unset, None, GetResultListOrder] = UNSET,
@@ -138,12 +134,11 @@ def sync_detailed(
 
     Args:
         project_id (Union[Unset, None, str]):
-        session_id (Union[Unset, None, str]):
         owned (Union[Unset, None, bool]):
         tagged (Union[Unset, None, bool]):
         tags (Union[Unset, None, List[str]]):
         page (Union[Unset, None, int]):  Default: 1.
-        per_page (Union[Unset, None, int]):  Default: 30.
+        per_page (Union[Unset, None, int]):  Default: 50.
         with_total (Union[Unset, None, bool]):  Default: True.
         sort_by (Union[Unset, None, GetResultListSortBy]):
         order (Union[Unset, None, GetResultListOrder]):
@@ -159,7 +154,6 @@ def sync_detailed(
     kwargs = _get_kwargs(
         client=client,
         project_id=project_id,
-        session_id=session_id,
         owned=owned,
         tagged=tagged,
         tags=tags,
@@ -182,12 +176,11 @@ def sync(
     *,
     client: Client,
     project_id: Union[Unset, None, str] = UNSET,
-    session_id: Union[Unset, None, str] = UNSET,
     owned: Union[Unset, None, bool] = UNSET,
     tagged: Union[Unset, None, bool] = UNSET,
     tags: Union[Unset, None, List[str]] = UNSET,
     page: Union[Unset, None, int] = 1,
-    per_page: Union[Unset, None, int] = 30,
+    per_page: Union[Unset, None, int] = 50,
     with_total: Union[Unset, None, bool] = True,
     sort_by: Union[Unset, None, GetResultListSortBy] = UNSET,
     order: Union[Unset, None, GetResultListOrder] = UNSET,
@@ -196,12 +189,11 @@ def sync(
 
     Args:
         project_id (Union[Unset, None, str]):
-        session_id (Union[Unset, None, str]):
         owned (Union[Unset, None, bool]):
         tagged (Union[Unset, None, bool]):
         tags (Union[Unset, None, List[str]]):
         page (Union[Unset, None, int]):  Default: 1.
-        per_page (Union[Unset, None, int]):  Default: 30.
+        per_page (Union[Unset, None, int]):  Default: 50.
         with_total (Union[Unset, None, bool]):  Default: True.
         sort_by (Union[Unset, None, GetResultListSortBy]):
         order (Union[Unset, None, GetResultListOrder]):
@@ -217,7 +209,6 @@ def sync(
     return sync_detailed(
         client=client,
         project_id=project_id,
-        session_id=session_id,
         owned=owned,
         tagged=tagged,
         tags=tags,
@@ -233,12 +224,11 @@ async def asyncio_detailed(
     *,
     client: Client,
     project_id: Union[Unset, None, str] = UNSET,
-    session_id: Union[Unset, None, str] = UNSET,
     owned: Union[Unset, None, bool] = UNSET,
     tagged: Union[Unset, None, bool] = UNSET,
     tags: Union[Unset, None, List[str]] = UNSET,
     page: Union[Unset, None, int] = 1,
-    per_page: Union[Unset, None, int] = 30,
+    per_page: Union[Unset, None, int] = 50,
     with_total: Union[Unset, None, bool] = True,
     sort_by: Union[Unset, None, GetResultListSortBy] = UNSET,
     order: Union[Unset, None, GetResultListOrder] = UNSET,
@@ -247,12 +237,11 @@ async def asyncio_detailed(
 
     Args:
         project_id (Union[Unset, None, str]):
-        session_id (Union[Unset, None, str]):
         owned (Union[Unset, None, bool]):
         tagged (Union[Unset, None, bool]):
         tags (Union[Unset, None, List[str]]):
         page (Union[Unset, None, int]):  Default: 1.
-        per_page (Union[Unset, None, int]):  Default: 30.
+        per_page (Union[Unset, None, int]):  Default: 50.
         with_total (Union[Unset, None, bool]):  Default: True.
         sort_by (Union[Unset, None, GetResultListSortBy]):
         order (Union[Unset, None, GetResultListOrder]):
@@ -268,7 +257,6 @@ async def asyncio_detailed(
     kwargs = _get_kwargs(
         client=client,
         project_id=project_id,
-        session_id=session_id,
         owned=owned,
         tagged=tagged,
         tags=tags,
@@ -289,12 +277,11 @@ async def asyncio(
     *,
     client: Client,
     project_id: Union[Unset, None, str] = UNSET,
-    session_id: Union[Unset, None, str] = UNSET,
     owned: Union[Unset, None, bool] = UNSET,
     tagged: Union[Unset, None, bool] = UNSET,
     tags: Union[Unset, None, List[str]] = UNSET,
     page: Union[Unset, None, int] = 1,
-    per_page: Union[Unset, None, int] = 30,
+    per_page: Union[Unset, None, int] = 50,
     with_total: Union[Unset, None, bool] = True,
     sort_by: Union[Unset, None, GetResultListSortBy] = UNSET,
     order: Union[Unset, None, GetResultListOrder] = UNSET,
@@ -303,12 +290,11 @@ async def asyncio(
 
     Args:
         project_id (Union[Unset, None, str]):
-        session_id (Union[Unset, None, str]):
         owned (Union[Unset, None, bool]):
         tagged (Union[Unset, None, bool]):
         tags (Union[Unset, None, List[str]]):
         page (Union[Unset, None, int]):  Default: 1.
-        per_page (Union[Unset, None, int]):  Default: 30.
+        per_page (Union[Unset, None, int]):  Default: 50.
         with_total (Union[Unset, None, bool]):  Default: True.
         sort_by (Union[Unset, None, GetResultListSortBy]):
         order (Union[Unset, None, GetResultListOrder]):
@@ -325,7 +311,6 @@ async def asyncio(
         await asyncio_detailed(
             client=client,
             project_id=project_id,
-            session_id=session_id,
             owned=owned,
             tagged=tagged,
             tags=tags,

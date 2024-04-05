@@ -17,15 +17,18 @@ class RunProjectParameters:
     """parameters used to launch the project with.
 
     Attributes:
+        wait (Union[Unset, None, bool]): whether to run the computation synchronously
         computation_definition (Union[Unset, ComputationDefinition]): Generic computation.
         run_mode (Union[Unset, RunMode]): Defines the mode in which to run a computation (local, collective, or both)
     """
 
+    wait: Union[Unset, None, bool] = UNSET
     computation_definition: Union[Unset, "ComputationDefinition"] = UNSET
     run_mode: Union[Unset, RunMode] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        wait = self.wait
         computation_definition: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.computation_definition, Unset):
             computation_definition = self.computation_definition.to_dict()
@@ -37,6 +40,8 @@ class RunProjectParameters:
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if wait is not UNSET:
+            field_dict["wait"] = wait
         if computation_definition is not UNSET:
             field_dict["computationDefinition"] = computation_definition
         if run_mode is not UNSET:
@@ -49,6 +54,8 @@ class RunProjectParameters:
         from ..models.computation_definition import ComputationDefinition
 
         d = src_dict.copy()
+        wait = d.pop("wait", UNSET)
+
         _computation_definition = d.pop("computationDefinition", UNSET)
         computation_definition: Union[Unset, ComputationDefinition]
         if isinstance(_computation_definition, Unset):
@@ -64,6 +71,7 @@ class RunProjectParameters:
             run_mode = RunMode(_run_mode)
 
         run_project_parameters = cls(
+            wait=wait,
             computation_definition=computation_definition,
             run_mode=run_mode,
         )

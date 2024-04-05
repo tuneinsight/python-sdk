@@ -16,43 +16,43 @@ class ColumnSchemaChecks:
     """optional additional checks
 
     Attributes:
-        in_range (Union[Unset, ColumnSchemaChecksInRange]):
-        isin (Union[Unset, List[Any]]):
-        str_startswith (Union[Unset, str]):
         eq (Union[Unset, Any]): verifies that all values are equal to this value.
-        ge (Union[Unset, Any]): verifies that all values are greater than or equal to this value.
         gt (Union[Unset, Any]): verifies that all values are greater than this value.
-        le (Union[Unset, Any]): verifies that all values are less than or equal to this value.
+        in_range (Union[Unset, ColumnSchemaChecksInRange]):
         lt (Union[Unset, Any]): verifies that all values are less than this value.
+        str_startswith (Union[Unset, str]):
+        ge (Union[Unset, Any]): verifies that all values are greater than or equal to this value.
+        isin (Union[Unset, List[Any]]):
+        le (Union[Unset, Any]): verifies that all values are less than or equal to this value.
         notin (Union[Unset, List[Any]]):
     """
 
-    in_range: Union[Unset, "ColumnSchemaChecksInRange"] = UNSET
-    isin: Union[Unset, List[Any]] = UNSET
-    str_startswith: Union[Unset, str] = UNSET
     eq: Union[Unset, Any] = UNSET
-    ge: Union[Unset, Any] = UNSET
     gt: Union[Unset, Any] = UNSET
-    le: Union[Unset, Any] = UNSET
+    in_range: Union[Unset, "ColumnSchemaChecksInRange"] = UNSET
     lt: Union[Unset, Any] = UNSET
+    str_startswith: Union[Unset, str] = UNSET
+    ge: Union[Unset, Any] = UNSET
+    isin: Union[Unset, List[Any]] = UNSET
+    le: Union[Unset, Any] = UNSET
     notin: Union[Unset, List[Any]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        eq = self.eq
+        gt = self.gt
         in_range: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.in_range, Unset):
             in_range = self.in_range.to_dict()
 
+        lt = self.lt
+        str_startswith = self.str_startswith
+        ge = self.ge
         isin: Union[Unset, List[Any]] = UNSET
         if not isinstance(self.isin, Unset):
             isin = self.isin
 
-        str_startswith = self.str_startswith
-        eq = self.eq
-        ge = self.ge
-        gt = self.gt
         le = self.le
-        lt = self.lt
         notin: Union[Unset, List[Any]] = UNSET
         if not isinstance(self.notin, Unset):
             notin = self.notin
@@ -60,22 +60,22 @@ class ColumnSchemaChecks:
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if in_range is not UNSET:
-            field_dict["in_range"] = in_range
-        if isin is not UNSET:
-            field_dict["isin"] = isin
-        if str_startswith is not UNSET:
-            field_dict["str_startswith"] = str_startswith
         if eq is not UNSET:
             field_dict["eq"] = eq
-        if ge is not UNSET:
-            field_dict["ge"] = ge
         if gt is not UNSET:
             field_dict["gt"] = gt
-        if le is not UNSET:
-            field_dict["le"] = le
+        if in_range is not UNSET:
+            field_dict["in_range"] = in_range
         if lt is not UNSET:
             field_dict["lt"] = lt
+        if str_startswith is not UNSET:
+            field_dict["str_startswith"] = str_startswith
+        if ge is not UNSET:
+            field_dict["ge"] = ge
+        if isin is not UNSET:
+            field_dict["isin"] = isin
+        if le is not UNSET:
+            field_dict["le"] = le
         if notin is not UNSET:
             field_dict["notin"] = notin
 
@@ -86,6 +86,10 @@ class ColumnSchemaChecks:
         from ..models.column_schema_checks_in_range import ColumnSchemaChecksInRange
 
         d = src_dict.copy()
+        eq = d.pop("eq", UNSET)
+
+        gt = d.pop("gt", UNSET)
+
         _in_range = d.pop("in_range", UNSET)
         in_range: Union[Unset, ColumnSchemaChecksInRange]
         if isinstance(_in_range, Unset):
@@ -93,31 +97,27 @@ class ColumnSchemaChecks:
         else:
             in_range = ColumnSchemaChecksInRange.from_dict(_in_range)
 
-        isin = cast(List[Any], d.pop("isin", UNSET))
+        lt = d.pop("lt", UNSET)
 
         str_startswith = d.pop("str_startswith", UNSET)
 
-        eq = d.pop("eq", UNSET)
-
         ge = d.pop("ge", UNSET)
 
-        gt = d.pop("gt", UNSET)
+        isin = cast(List[Any], d.pop("isin", UNSET))
 
         le = d.pop("le", UNSET)
-
-        lt = d.pop("lt", UNSET)
 
         notin = cast(List[Any], d.pop("notin", UNSET))
 
         column_schema_checks = cls(
-            in_range=in_range,
-            isin=isin,
-            str_startswith=str_startswith,
             eq=eq,
-            ge=ge,
             gt=gt,
-            le=le,
+            in_range=in_range,
             lt=lt,
+            str_startswith=str_startswith,
+            ge=ge,
+            isin=isin,
+            le=le,
             notin=notin,
         )
 

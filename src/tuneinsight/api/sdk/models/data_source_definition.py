@@ -4,10 +4,11 @@ import attr
 
 from ..models.access_scope import AccessScope
 from ..models.data_source_consent_type import DataSourceConsentType
+from ..models.data_source_type import DataSourceType
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.credentials_provider import CredentialsProvider
+    from ..models.credentials import Credentials
     from ..models.data_source_config import DataSourceConfig
 
 
@@ -16,38 +17,38 @@ T = TypeVar("T", bound="DataSourceDefinition")
 
 @attr.s(auto_attribs=True)
 class DataSourceDefinition:
-    """
+    """parameters used to create and modify a data source
+
     Attributes:
-        unique_id (Union[Unset, None, str]): Unique identifier of a data source.
-        access_scope (Union[Unset, AccessScope]): defines the scope of access given to a resource
-        attributes (Union[Unset, List[str]]):
-        authorized_users (Union[Unset, List[str]]):
-        consent_type (Union[Unset, DataSourceConsentType]): Consent type given to the data source.
         name (Union[Unset, str]):
-        type (Union[Unset, str]):
+        type (Union[Unset, DataSourceType]):
+        attributes (Union[Unset, List[str]]): optional list of attributes.
+        authorized_users (Union[Unset, List[str]]):
+        credentials (Union[Unset, Credentials]): The credentials needed to access the data source.
+        id (Union[Unset, None, str]): Unique identifier of a data source.
+        access_scope (Union[Unset, AccessScope]): defines the scope of access given to a resource
         clear_if_exists (Union[Unset, bool]): If true and a data source with the same name already exists, delete it.
-        config (Union[Unset, DataSourceConfig]): Configuration of data source that depends on the type.
-        credentials_provider (Union[Unset, CredentialsProvider]): The provider of the credentials needed to access the
-            data source.
+        configuration (Union[Unset, DataSourceConfig]): data source configuration
+        consent_type (Union[Unset, DataSourceConsentType]): Consent type given to the data source.
     """
 
-    unique_id: Union[Unset, None, str] = UNSET
-    access_scope: Union[Unset, AccessScope] = UNSET
+    name: Union[Unset, str] = UNSET
+    type: Union[Unset, DataSourceType] = UNSET
     attributes: Union[Unset, List[str]] = UNSET
     authorized_users: Union[Unset, List[str]] = UNSET
-    consent_type: Union[Unset, DataSourceConsentType] = UNSET
-    name: Union[Unset, str] = UNSET
-    type: Union[Unset, str] = UNSET
+    credentials: Union[Unset, "Credentials"] = UNSET
+    id: Union[Unset, None, str] = UNSET
+    access_scope: Union[Unset, AccessScope] = UNSET
     clear_if_exists: Union[Unset, bool] = False
-    config: Union[Unset, "DataSourceConfig"] = UNSET
-    credentials_provider: Union[Unset, "CredentialsProvider"] = UNSET
+    configuration: Union[Unset, "DataSourceConfig"] = UNSET
+    consent_type: Union[Unset, DataSourceConsentType] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        unique_id = self.unique_id
-        access_scope: Union[Unset, str] = UNSET
-        if not isinstance(self.access_scope, Unset):
-            access_scope = self.access_scope.value
+        name = self.name
+        type: Union[Unset, str] = UNSET
+        if not isinstance(self.type, Unset):
+            type = self.type.value
 
         attributes: Union[Unset, List[str]] = UNSET
         if not isinstance(self.attributes, Unset):
@@ -57,54 +58,77 @@ class DataSourceDefinition:
         if not isinstance(self.authorized_users, Unset):
             authorized_users = self.authorized_users
 
+        credentials: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.credentials, Unset):
+            credentials = self.credentials.to_dict()
+
+        id = self.id
+        access_scope: Union[Unset, str] = UNSET
+        if not isinstance(self.access_scope, Unset):
+            access_scope = self.access_scope.value
+
+        clear_if_exists = self.clear_if_exists
+        configuration: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.configuration, Unset):
+            configuration = self.configuration.to_dict()
+
         consent_type: Union[Unset, str] = UNSET
         if not isinstance(self.consent_type, Unset):
             consent_type = self.consent_type.value
 
-        name = self.name
-        type = self.type
-        clear_if_exists = self.clear_if_exists
-        config: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.config, Unset):
-            config = self.config.to_dict()
-
-        credentials_provider: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.credentials_provider, Unset):
-            credentials_provider = self.credentials_provider.to_dict()
-
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if unique_id is not UNSET:
-            field_dict["uniqueId"] = unique_id
-        if access_scope is not UNSET:
-            field_dict["accessScope"] = access_scope
-        if attributes is not UNSET:
-            field_dict["attributes"] = attributes
-        if authorized_users is not UNSET:
-            field_dict["authorizedUsers"] = authorized_users
-        if consent_type is not UNSET:
-            field_dict["consentType"] = consent_type
         if name is not UNSET:
             field_dict["name"] = name
         if type is not UNSET:
             field_dict["type"] = type
+        if attributes is not UNSET:
+            field_dict["attributes"] = attributes
+        if authorized_users is not UNSET:
+            field_dict["authorizedUsers"] = authorized_users
+        if credentials is not UNSET:
+            field_dict["credentials"] = credentials
+        if id is not UNSET:
+            field_dict["id"] = id
+        if access_scope is not UNSET:
+            field_dict["accessScope"] = access_scope
         if clear_if_exists is not UNSET:
             field_dict["clearIfExists"] = clear_if_exists
-        if config is not UNSET:
-            field_dict["config"] = config
-        if credentials_provider is not UNSET:
-            field_dict["credentialsProvider"] = credentials_provider
+        if configuration is not UNSET:
+            field_dict["configuration"] = configuration
+        if consent_type is not UNSET:
+            field_dict["consentType"] = consent_type
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.credentials_provider import CredentialsProvider
+        from ..models.credentials import Credentials
         from ..models.data_source_config import DataSourceConfig
 
         d = src_dict.copy()
-        unique_id = d.pop("uniqueId", UNSET)
+        name = d.pop("name", UNSET)
+
+        _type = d.pop("type", UNSET)
+        type: Union[Unset, DataSourceType]
+        if isinstance(_type, Unset):
+            type = UNSET
+        else:
+            type = DataSourceType(_type)
+
+        attributes = cast(List[str], d.pop("attributes", UNSET))
+
+        authorized_users = cast(List[str], d.pop("authorizedUsers", UNSET))
+
+        _credentials = d.pop("credentials", UNSET)
+        credentials: Union[Unset, Credentials]
+        if isinstance(_credentials, Unset):
+            credentials = UNSET
+        else:
+            credentials = Credentials.from_dict(_credentials)
+
+        id = d.pop("id", UNSET)
 
         _access_scope = d.pop("accessScope", UNSET)
         access_scope: Union[Unset, AccessScope]
@@ -113,9 +137,14 @@ class DataSourceDefinition:
         else:
             access_scope = AccessScope(_access_scope)
 
-        attributes = cast(List[str], d.pop("attributes", UNSET))
+        clear_if_exists = d.pop("clearIfExists", UNSET)
 
-        authorized_users = cast(List[str], d.pop("authorizedUsers", UNSET))
+        _configuration = d.pop("configuration", UNSET)
+        configuration: Union[Unset, DataSourceConfig]
+        if isinstance(_configuration, Unset):
+            configuration = UNSET
+        else:
+            configuration = DataSourceConfig.from_dict(_configuration)
 
         _consent_type = d.pop("consentType", UNSET)
         consent_type: Union[Unset, DataSourceConsentType]
@@ -124,37 +153,17 @@ class DataSourceDefinition:
         else:
             consent_type = DataSourceConsentType(_consent_type)
 
-        name = d.pop("name", UNSET)
-
-        type = d.pop("type", UNSET)
-
-        clear_if_exists = d.pop("clearIfExists", UNSET)
-
-        _config = d.pop("config", UNSET)
-        config: Union[Unset, DataSourceConfig]
-        if isinstance(_config, Unset):
-            config = UNSET
-        else:
-            config = DataSourceConfig.from_dict(_config)
-
-        _credentials_provider = d.pop("credentialsProvider", UNSET)
-        credentials_provider: Union[Unset, CredentialsProvider]
-        if isinstance(_credentials_provider, Unset):
-            credentials_provider = UNSET
-        else:
-            credentials_provider = CredentialsProvider.from_dict(_credentials_provider)
-
         data_source_definition = cls(
-            unique_id=unique_id,
-            access_scope=access_scope,
-            attributes=attributes,
-            authorized_users=authorized_users,
-            consent_type=consent_type,
             name=name,
             type=type,
+            attributes=attributes,
+            authorized_users=authorized_users,
+            credentials=credentials,
+            id=id,
+            access_scope=access_scope,
             clear_if_exists=clear_if_exists,
-            config=config,
-            credentials_provider=credentials_provider,
+            configuration=configuration,
+            consent_type=consent_type,
         )
 
         data_source_definition.additional_properties = d

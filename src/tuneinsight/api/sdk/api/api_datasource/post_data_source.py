@@ -81,7 +81,7 @@ def sync_detailed(
     """Add a new datasource.
 
     Args:
-        json_body (DataSourceDefinition):
+        json_body (DataSourceDefinition): parameters used to create and modify a data source
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -112,7 +112,7 @@ def sync(
     """Add a new datasource.
 
     Args:
-        json_body (DataSourceDefinition):
+        json_body (DataSourceDefinition): parameters used to create and modify a data source
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -136,7 +136,7 @@ async def asyncio_detailed(
     """Add a new datasource.
 
     Args:
-        json_body (DataSourceDefinition):
+        json_body (DataSourceDefinition): parameters used to create and modify a data source
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -165,7 +165,7 @@ async def asyncio(
     """Add a new datasource.
 
     Args:
-        json_body (DataSourceDefinition):
+        json_body (DataSourceDefinition): parameters used to create and modify a data source
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

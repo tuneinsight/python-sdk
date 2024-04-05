@@ -61,12 +61,14 @@ class MockGenerator:
             # Replace spaces by underscores and remove all non-word characters.
             table_name = table_name.replace(" ", "_")
             table_name = "".join(re.findall("[\\w]+", table_name))
+        else:
+            table_name = f"mock_{self.method}"
         config: str = json.dumps(self.get_config())
         response: Response = post_mock_dataset.sync_detailed(
             client=client,
             json_body=config,
             method=self.method,
-            name=table_name or f"mock_{self.method}",
+            name=table_name,
             numrows=num_rows,
             seed=seed,
             clear_if_exists=clear_if_exists,
@@ -74,6 +76,8 @@ class MockGenerator:
         validate_response(response=response)
         # The response contains the description of the datasource created by the call.
         self.datasource = DataSource(model=response.parsed, client=client)
+        # Set the query on the datasource (since we know what table we want).
+        self.datasource.set_query(f"select * from {table_name}")
         return self.datasource
 
     @property

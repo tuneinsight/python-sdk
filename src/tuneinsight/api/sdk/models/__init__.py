@@ -4,9 +4,7 @@ from .access_scope import AccessScope
 from .add_columns import AddColumns
 from .aggregated_dataset_length import AggregatedDatasetLength
 from .aggregation_strategy import AggregationStrategy
-from .api_connection_info import APIConnectionInfo
-from .api_connection_info_type import APIConnectionInfoType
-from .api_data_source_config import ApiDataSourceConfig
+from .api_type import APIType
 from .apply_mapping import ApplyMapping
 from .apply_reg_ex import ApplyRegEx
 from .apply_reg_ex_regex_type import ApplyRegExRegexType
@@ -14,8 +12,6 @@ from .approximation_params import ApproximationParams
 from .as_type import AsType
 from .as_type_type_map import AsTypeTypeMap
 from .authorization_status import AuthorizationStatus
-from .azure_key_vault_credentials_provider import AzureKeyVaultCredentialsProvider
-from .azure_key_vault_credentials_provider_mappings_item import AzureKeyVaultCredentialsProviderMappingsItem
 from .backup_definition import BackupDefinition
 from .backup_type import BackupType
 from .binning_operation import BinningOperation
@@ -53,8 +49,7 @@ from .content import Content
 from .content_type import ContentType
 from .counts import Counts
 from .credentials import Credentials
-from .credentials_provider import CredentialsProvider
-from .credentials_provider_type import CredentialsProviderType
+from .credentials_type import CredentialsType
 from .custom import Custom
 from .cut import Cut
 from .data_object import DataObject
@@ -63,20 +58,17 @@ from .data_object_type import DataObjectType
 from .data_object_visibility_status import DataObjectVisibilityStatus
 from .data_selection_type import DataSelectionType
 from .data_source import DataSource
-from .data_source_base import DataSourceBase
 from .data_source_column import DataSourceColumn
 from .data_source_compound_query import DataSourceCompoundQuery
 from .data_source_config import DataSourceConfig
-from .data_source_config_type import DataSourceConfigType
 from .data_source_consent_type import DataSourceConsentType
 from .data_source_definition import DataSourceDefinition
 from .data_source_metadata import DataSourceMetadata
 from .data_source_query import DataSourceQuery
 from .data_source_query_preview import DataSourceQueryPreview
 from .data_source_table import DataSourceTable
+from .data_source_type import DataSourceType
 from .data_source_types_info import DataSourceTypesInfo
-from .database_connection_info import DatabaseConnectionInfo
-from .database_data_source_config import DatabaseDataSourceConfig
 from .database_type import DatabaseType
 from .dataset_schema import DatasetSchema
 from .dataset_schema_columns import DatasetSchemaColumns
@@ -137,10 +129,9 @@ from .hybrid_fl import HybridFL
 from .hybrid_fl_learning_params import HybridFLLearningParams
 from .key_info import KeyInfo
 from .key_switched_computation import KeySwitchedComputation
-from .local_credentials_provider import LocalCredentialsProvider
 from .local_data_selection import LocalDataSelection
 from .local_data_selection_definition import LocalDataSelectionDefinition
-from .local_data_source_config import LocalDataSourceConfig
+from .local_data_source_type import LocalDataSourceType
 from .local_input import LocalInput
 from .locus_range import LocusRange
 from .log import Log
@@ -159,7 +150,7 @@ from .network import Network
 from .network_visibility_type import NetworkVisibilityType
 from .node import Node
 from .node_status import NodeStatus
-from .noise_parameters import NoiseParameters
+from .noise_distributions import NoiseDistributions
 from .one_hot_encoding import OneHotEncoding
 from .organization import Organization
 from .organization_coordinates import OrganizationCoordinates
@@ -168,21 +159,10 @@ from .participant import Participant
 from .participation_status import ParticipationStatus
 from .phonetic_encoding import PhoneticEncoding
 from .post_data_object_json_body import PostDataObjectJsonBody
-from .post_data_source_query_json_body import PostDataSourceQueryJsonBody
-from .post_data_source_query_json_body_output_data_objects_shared_i_ds import (
-    PostDataSourceQueryJsonBodyOutputDataObjectsSharedIDs,
-)
-from .post_data_source_query_json_body_parameters import PostDataSourceQueryJsonBodyParameters
 from .post_llm_request_json_body import PostLlmRequestJsonBody
 from .post_llm_request_json_body_prompt_args import PostLlmRequestJsonBodyPromptArgs
 from .post_mock_dataset_method import PostMockDatasetMethod
 from .post_project_data_json_body import PostProjectDataJsonBody
-from .post_project_data_source_query_json_body import PostProjectDataSourceQueryJsonBody
-from .post_project_data_source_query_json_body_aggregation_type import PostProjectDataSourceQueryJsonBodyAggregationType
-from .post_project_data_source_query_json_body_output_data_objects_shared_i_ds import (
-    PostProjectDataSourceQueryJsonBodyOutputDataObjectsSharedIDs,
-)
-from .post_project_data_source_query_json_body_parameters import PostProjectDataSourceQueryJsonBodyParameters
 from .post_protocol_message_multipart_data import PostProtocolMessageMultipartData
 from .post_user_response_201 import PostUserResponse201
 from .prediction import Prediction
@@ -198,7 +178,6 @@ from .private_search_query import PrivateSearchQuery
 from .private_search_setup import PrivateSearchSetup
 from .project import Project
 from .project_base import ProjectBase
-from .project_base_workflow_type import ProjectBaseWorkflowType
 from .project_computation import ProjectComputation
 from .project_definition import ProjectDefinition
 from .project_status import ProjectStatus
@@ -222,6 +201,7 @@ from .result_content import ResultContent
 from .result_contextual_info import ResultContextualInfo
 from .result_definition import ResultDefinition
 from .result_metadata import ResultMetadata
+from .result_release import ResultRelease
 from .rot_key_gen import RotKeyGen
 from .rot_key_gen_rotations_item import RotKeyGenRotationsItem
 from .run_mode import RunMode
@@ -234,6 +214,7 @@ from .session_definition import SessionDefinition
 from .set_index import SetIndex
 from .set_intersection import SetIntersection
 from .set_intersection_output_format import SetIntersectionOutputFormat
+from .settings import Settings
 from .setup_session import SetupSession
 from .statistic_base import StatisticBase
 from .statistic_definition import StatisticDefinition
@@ -266,15 +247,14 @@ from .v_binned_aggregation import VBinnedAggregation
 from .workflow_item import WorkflowItem
 from .workflow_item_data import WorkflowItemData
 from .workflow_item_position import WorkflowItemPosition
+from .workflow_type import WorkflowType
 
 __all__ = (
     "AccessScope",
     "AddColumns",
     "AggregatedDatasetLength",
     "AggregationStrategy",
-    "APIConnectionInfo",
-    "APIConnectionInfoType",
-    "ApiDataSourceConfig",
+    "APIType",
     "ApplyMapping",
     "ApplyRegEx",
     "ApplyRegExRegexType",
@@ -282,8 +262,6 @@ __all__ = (
     "AsType",
     "AsTypeTypeMap",
     "AuthorizationStatus",
-    "AzureKeyVaultCredentialsProvider",
-    "AzureKeyVaultCredentialsProviderMappingsItem",
     "BackupDefinition",
     "BackupType",
     "BinningOperation",
@@ -319,12 +297,9 @@ __all__ = (
     "ContentType",
     "Counts",
     "Credentials",
-    "CredentialsProvider",
-    "CredentialsProviderType",
+    "CredentialsType",
     "Custom",
     "Cut",
-    "DatabaseConnectionInfo",
-    "DatabaseDataSourceConfig",
     "DatabaseType",
     "DataObject",
     "DataObjectCreationMethod",
@@ -336,17 +311,16 @@ __all__ = (
     "DatasetStatistics",
     "DatasetValidation",
     "DataSource",
-    "DataSourceBase",
     "DataSourceColumn",
     "DataSourceCompoundQuery",
     "DataSourceConfig",
-    "DataSourceConfigType",
     "DataSourceConsentType",
     "DataSourceDefinition",
     "DataSourceMetadata",
     "DataSourceQuery",
     "DataSourceQueryPreview",
     "DataSourceTable",
+    "DataSourceType",
     "DataSourceTypesInfo",
     "DeviationSquares",
     "DistributedJoin",
@@ -403,10 +377,9 @@ __all__ = (
     "HybridFLLearningParams",
     "KeyInfo",
     "KeySwitchedComputation",
-    "LocalCredentialsProvider",
     "LocalDataSelection",
     "LocalDataSelectionDefinition",
-    "LocalDataSourceConfig",
+    "LocalDataSourceType",
     "LocalInput",
     "LocusRange",
     "Log",
@@ -425,7 +398,7 @@ __all__ = (
     "NetworkVisibilityType",
     "Node",
     "NodeStatus",
-    "NoiseParameters",
+    "NoiseDistributions",
     "OneHotEncoding",
     "Organization",
     "OrganizationCoordinates",
@@ -434,17 +407,10 @@ __all__ = (
     "ParticipationStatus",
     "PhoneticEncoding",
     "PostDataObjectJsonBody",
-    "PostDataSourceQueryJsonBody",
-    "PostDataSourceQueryJsonBodyOutputDataObjectsSharedIDs",
-    "PostDataSourceQueryJsonBodyParameters",
     "PostLlmRequestJsonBody",
     "PostLlmRequestJsonBodyPromptArgs",
     "PostMockDatasetMethod",
     "PostProjectDataJsonBody",
-    "PostProjectDataSourceQueryJsonBody",
-    "PostProjectDataSourceQueryJsonBodyAggregationType",
-    "PostProjectDataSourceQueryJsonBodyOutputDataObjectsSharedIDs",
-    "PostProjectDataSourceQueryJsonBodyParameters",
     "PostProtocolMessageMultipartData",
     "PostUserResponse201",
     "Prediction",
@@ -460,7 +426,6 @@ __all__ = (
     "PrivateSearchSetup",
     "Project",
     "ProjectBase",
-    "ProjectBaseWorkflowType",
     "ProjectComputation",
     "ProjectDefinition",
     "ProjectStatus",
@@ -484,6 +449,7 @@ __all__ = (
     "ResultContextualInfo",
     "ResultDefinition",
     "ResultMetadata",
+    "ResultRelease",
     "RotKeyGen",
     "RotKeyGenRotationsItem",
     "RunMode",
@@ -496,6 +462,7 @@ __all__ = (
     "SetIndex",
     "SetIntersection",
     "SetIntersectionOutputFormat",
+    "Settings",
     "SetupSession",
     "StatisticalAggregation",
     "StatisticalQuantity",
@@ -528,4 +495,5 @@ __all__ = (
     "WorkflowItem",
     "WorkflowItemData",
     "WorkflowItemPosition",
+    "WorkflowType",
 )

@@ -4,7 +4,6 @@ from typing import List, Union
 
 import json
 import datetime
-import pytz
 
 from tuneinsight.computations.preprocessing import Operation
 from tuneinsight.computations.types import Type, displayed_types
@@ -95,6 +94,27 @@ class Policy(models.ComputationPolicy):
             type=threshold_type,
         )
 
+    def enable_differential_privacy(self):
+        """
+        Enables the use of differential privacy (DP) in this project.
+
+        When using DP, additional randomness is added to the outputs of a project
+        in order to protect the privacy of data subjects. Only a subset of operations
+        are allowed when using differential privacy. Each computation exhausts a
+        fraction of the execution quota (called privacy budget).
+
+        See the documentation for more details.
+
+        """
+        self.dp_policy.use_differential_privacy = True
+
+    def disable_differential_privacy(self):
+        """
+        Disables the use of differential privacy (DP) in this project.
+
+        """
+        self.dp_policy.use_differential_privacy = False
+
     def set_max_columns(
         self, relative: bool = False, fixed_value: int = 5, relative_factor: float = 0.2
     ):
@@ -146,61 +166,45 @@ class Policy(models.ComputationPolicy):
             relative, fixed_value, relative_factor
         )
 
-    def set_output_noise(
-        self,
-        eps: float = 1,
-        sensitivity: float = 1,
-        discrete: bool = False,
-        delta: float = 1e-5,
-    ):
-        """
-        Sets the noise parameters for differential privacy.
-
-        When set, every computation output gets encrypted noise added to it.
-        If the noise is discrete, Gaussian noise is added, otherwise Laplace noise is used.
-
-        Args:
-            eps (float, optional): the value for the epsilon (privacy budget parameter). Defaults to 1.
-            sensitivity (float, optional): the sensitivity parameter should be equal to
-                the maximum difference expected between two neighboring datasets. Defaults to 1.
-            discrete (bool, optional): whether or not the noise should be discretized
-            delta (float,optional): the delta value when the noise is discrete. Defaults to 1e-5.
-        """
-        self.dp_policy.noise_parameters = models.NoiseParameters(
-            epsilon=eps, sensitivity=sensitivity, discrete=discrete, delta=delta
-        )
-
     def set_quota(
         self,
-        initial_queries: int,
+        initial: int,
         reallocation_amount: int = 0,
         reallocation_interval_hours: int = 24,
         max_quota: int = None,
     ):
         """
-        set_quota defines a quota for limiting the workflow executions in the project.
-        The quota is defined in terms of # of queries. By default, executing any distributed / collective workflow
         Defines a quota for limiting the workflow executions in the project.
 
-        - When running encrypted matching / set intersection workflows, the query cost is equal to the number of matching queries / set size.
+        By default, The quota is defined in terms of number of queries. Executing any distributed or
+        collective workflow exhausts some computation quota. Once the quota is exhausted, no (collective)
+        computation can be run until the quota is refreshed.
 
-        The quota is defined by specifying an initial amount of queries allocated globally for the project along with an optional reallocation amount and interval.
-        The quota can also be limited to a maximum amount of queries.
+        When using Differential Privacy, this is the total privacy budget that can be used in the project.
+
+        When running encrypted matching or set intersection workflows, the query cost is equal to the number
+        of matching queries / set size.
+
+        The quota is defined by specifying an initial amount allocated globally for the project, along with
+        an optional reallocation amount and interval.
 
         Args:
-            initial_queries (int): corresponds to the initial amount of queries that are allocated to the project.
-            reallocation_amount (int, optional): the amount of queries that are reallocated at every reallocation interval. Defaults to 0.
-            reallocation_interval_hours (int, optional): the interval in terms of hours at which the queries are reallocated. Defaults to 24.
-            max_quota (int, optional): the limit to the quota, if not specified it will be set to the initial allocated amount. Defaults to None.
+            initial (int): corresponds to the initial quota allocated to the project.
+            reallocation_amount (int, optional): the amount reallocated at every
+                reallocation interval. Defaults to 0.
+            reallocation_interval_hours (int, optional): the interval in terms of hours
+                at which the quota is reallocated. Defaults to 24.
+            max_quota (int, optional): the absolute limit to the quota. If not specified
+                it will be set to the initial allocated amount. Defaults to None.
         """
         if max_quota is None:
-            max_quota = initial_queries
-        start_time = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
+            max_quota = initial
+        start_time = datetime.datetime.now(datetime.timezone.utc)
         interval = models.Duration(
             unit=models.TimeUnit.HOURS, value=reallocation_interval_hours
         )
         self.dp_policy.execution_quota_parameters = models.ExecutionQuotaParameters(
-            allocation=initial_queries,
+            allocation=initial,
             increment=reallocation_amount,
             max_allocation=max_quota,
             scope=models.ExecutionQuotaParametersScope.PROJECT,
@@ -235,7 +239,6 @@ displayed_labels = {
     "minDatasetSize": "min rows",
     "minFrequencies": "min frequencies",
     "maxColumnCount": "max columns",
-    "noiseParameters": "noise",
 }
 
 
@@ -386,30 +389,16 @@ def display_dp_policy(dp: models.DPPolicy, r: Renderer = None):
             "Verifies for each categorical variable that the number of factors does not exceed the threshold"
         )
 
-    if not isinstance(dp.noise_parameters, Unset):
-        np = dp.noise_parameters
-        noise_type = "Laplacian Mechanism"
-        if np.discrete:
-            noise_type = "Discretized Gaussian Mechanism"
-        r.h3(f"Differential Privacy noise ({noise_type})")
+    use_dp = (
+        not isinstance(dp.use_differential_privacy, Unset)
+        and dp.use_differential_privacy
+    )
+    if use_dp:
+        r.h3("This project uses differential privacy.")
         r(
-            "This mechanism ensures that noise is added to the encrypted outputs in order to avoid individual information leakage when releasing the results to the users."
+            "Only computations that support differential privacy can be run on this project.",
+            "Each computation will use some of the budget.",
         )
-
-        r(
-            "The amount of noise is controlled through the `epsilon`, `delta` and sensitivity parameters:"
-        )
-
-        r("- `epsilon`:", r.code(np.epsilon), "(recommended values are below `1`)")
-        r("- `delta`:", r.code(np.delta), "(recommended to be set below `1e-5`)")
-        r(
-            "- sensitivity:",
-            r.code(np.sensitivity),
-            "(maximum difference of result when computing over two neighboring datasets)",
-        )
-
-        if np.discrete:
-            r("- Noise discretization is activated.")
     if not isinstance(dp.execution_quota_parameters, Unset):
         bp = dp.execution_quota_parameters
         r.h4("Query Limiting parameters")
@@ -421,18 +410,32 @@ def display_dp_policy(dp: models.DPPolicy, r: Renderer = None):
         if isinstance(allocated, Unset):
             allocated = 0
 
-        text = f"Query limits are enforced in this project through a quota that is allocated at the {scope} level."
-        text += f"Budgets represent the maximum amount of distributed workflows that can for each {scope}."
-        r(text)
+        quota = "budget $\\varepsilon$" if use_dp else "quota"
         r(
-            f"- A quota of {allocated} queries / computations is initially allocated at the following date `{alloc_start}`."
+            f"Query limits are enforced in this project through a {quota} that is allocated at the {scope} level.",
+        )
+        if use_dp:
+            r(
+                "Each distributed workflow run on this project consumes some user-defined amount of the budget."
+            )
+        else:
+            r(
+                f"Quotas represent the maximum amount of distributed workflows that can be run for each {scope}.",
+            )
+        r(
+            f"- A {quota} of {allocated} is initially allocated at the following date `{alloc_start}`."
         )
 
-        if bp.increment > 0 and not isinstance(bp.allocation_interval, Unset):
+        if (
+            not isinstance(bp.increment, Unset)
+            and bp.increment > 0
+            and not isinstance(bp.allocation_interval, Unset)
+        ):
             r(
-                f"- The quota is reallocated by {bp.increment} queries each {bp.allocation_interval.value} {bp.allocation_interval.unit} and cannot exceed {bp.max_allocation}."
+                f"- The {quota} is reallocated by {bp.increment} queries each {bp.allocation_interval.value} {bp.allocation_interval.unit} and cannot exceed {bp.max_allocation}."
             )
 
-        r(
-            "*Note that, depending on the specific workflow, the cost of a single workflow can exceed 1 in terms of quota.*"
-        )
+        if not use_dp:
+            r(
+                "*Note that, depending on the specific workflow, the cost of a single workflow can exceed 1 in terms of quota.*"
+            )

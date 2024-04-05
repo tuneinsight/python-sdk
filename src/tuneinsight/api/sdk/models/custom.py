@@ -13,27 +13,27 @@ class Custom:
     """
     Attributes:
         type (PreprocessingOperationType): type of preprocessing operation
+        name (Union[Unset, str]): name given to the operation. The name has no impact on the operation
+            and the name given to the function
         description (Union[Unset, str]): description given to the operation, for documentation purposes.
         function (Union[Unset, str]): function definition which must respect the following format:
             `def <custom_function_name>(df: pd.DataFrame) -> pd.DataFrame
                  <your code here>
                  return df`
-        name (Union[Unset, str]): name given to the operation. The name has no impact on the operation
-            and the name given to the function
     """
 
     type: PreprocessingOperationType
+    name: Union[Unset, str] = UNSET
     description: Union[Unset, str] = UNSET
     function: Union[Unset, str] = UNSET
-    name: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         type = self.type.value
 
+        name = self.name
         description = self.description
         function = self.function
-        name = self.name
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -42,12 +42,12 @@ class Custom:
                 "type": type,
             }
         )
+        if name is not UNSET:
+            field_dict["name"] = name
         if description is not UNSET:
             field_dict["description"] = description
         if function is not UNSET:
             field_dict["function"] = function
-        if name is not UNSET:
-            field_dict["name"] = name
 
         return field_dict
 
@@ -56,17 +56,17 @@ class Custom:
         d = src_dict.copy()
         type = PreprocessingOperationType(d.pop("type"))
 
+        name = d.pop("name", UNSET)
+
         description = d.pop("description", UNSET)
 
         function = d.pop("function", UNSET)
 
-        name = d.pop("name", UNSET)
-
         custom = cls(
             type=type,
+            name=name,
             description=description,
             function=function,
-            name=name,
         )
 
         custom.additional_properties = d

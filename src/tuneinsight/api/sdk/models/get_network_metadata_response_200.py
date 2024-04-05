@@ -16,7 +16,6 @@ T = TypeVar("T", bound="GetNetworkMetadataResponse200")
 class GetNetworkMetadataResponse200:
     """
     Attributes:
-        dpo_authorization_enabled (Union[Unset, bool]): Indicates if collective projects require authorization.
         networks (Union[Unset, List['Network']]):
         nodes (Union[Unset, List['Node']]):
         warnings (Union[Unset, List[str]]):
@@ -24,18 +23,18 @@ class GetNetworkMetadataResponse200:
             source queries can be composed of multiple queries.
         default_topology (Union[Unset, str]): Indicates the default topology of the network used when creating a
             project. Values can be "star" or "tree".
+        dpo_authorization_enabled (Union[Unset, bool]): Indicates if collective projects require authorization.
     """
 
-    dpo_authorization_enabled: Union[Unset, bool] = UNSET
     networks: Union[Unset, List["Network"]] = UNSET
     nodes: Union[Unset, List["Node"]] = UNSET
     warnings: Union[Unset, List[str]] = UNSET
     compound_queries_enabled: Union[Unset, bool] = UNSET
     default_topology: Union[Unset, str] = UNSET
+    dpo_authorization_enabled: Union[Unset, bool] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        dpo_authorization_enabled = self.dpo_authorization_enabled
         networks: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.networks, Unset):
             networks = []
@@ -58,12 +57,11 @@ class GetNetworkMetadataResponse200:
 
         compound_queries_enabled = self.compound_queries_enabled
         default_topology = self.default_topology
+        dpo_authorization_enabled = self.dpo_authorization_enabled
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if dpo_authorization_enabled is not UNSET:
-            field_dict["dpoAuthorizationEnabled"] = dpo_authorization_enabled
         if networks is not UNSET:
             field_dict["networks"] = networks
         if nodes is not UNSET:
@@ -74,6 +72,8 @@ class GetNetworkMetadataResponse200:
             field_dict["compoundQueriesEnabled"] = compound_queries_enabled
         if default_topology is not UNSET:
             field_dict["default-topology"] = default_topology
+        if dpo_authorization_enabled is not UNSET:
+            field_dict["dpoAuthorizationEnabled"] = dpo_authorization_enabled
 
         return field_dict
 
@@ -83,8 +83,6 @@ class GetNetworkMetadataResponse200:
         from ..models.node import Node
 
         d = src_dict.copy()
-        dpo_authorization_enabled = d.pop("dpoAuthorizationEnabled", UNSET)
-
         networks = []
         _networks = d.pop("networks", UNSET)
         for networks_item_data in _networks or []:
@@ -105,13 +103,15 @@ class GetNetworkMetadataResponse200:
 
         default_topology = d.pop("default-topology", UNSET)
 
+        dpo_authorization_enabled = d.pop("dpoAuthorizationEnabled", UNSET)
+
         get_network_metadata_response_200 = cls(
-            dpo_authorization_enabled=dpo_authorization_enabled,
             networks=networks,
             nodes=nodes,
             warnings=warnings,
             compound_queries_enabled=compound_queries_enabled,
             default_topology=default_topology,
+            dpo_authorization_enabled=dpo_authorization_enabled,
         )
 
         get_network_metadata_response_200.additional_properties = d

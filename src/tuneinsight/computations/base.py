@@ -16,7 +16,7 @@ import warnings
 import pandas as pd
 
 from tuneinsight.api.sdk import models
-from tuneinsight.api.sdk.types import UNSET
+from tuneinsight.api.sdk.types import Unset, UNSET
 from tuneinsight.api.sdk.types import Response
 from tuneinsight.api.sdk.api.api_computations import (
     compute,
@@ -135,9 +135,7 @@ class Computation(ABC):
     @staticmethod
     def field_is_set(field: Any) -> bool:
         """Checks whether a field in a (API models) definition is set."""
-        if field is UNSET or field == "":
-            return False
-        return True
+        return not (field is UNSET or field == "")
 
     @staticmethod
     def is_done(comp: models.Computation) -> bool:
@@ -151,7 +149,7 @@ class Computation(ABC):
 
     def _update_computation_datasource(self, comp: models.ComputationDefinition):
         """
-        Updates the definition of the input computation to have the specified datasource.
+        Updates the definition of the input computation to have the specified datasource parameters.
         """
         if comp.type in [
             models.ComputationType.COLLECTIVEKEYSWITCH,
@@ -159,11 +157,22 @@ class Computation(ABC):
             models.ComputationType.PRIVATESEARCH,
         ]:
             return
+        # The data source query can be set at three levels (in decreasing precedence):
+        #  1. In this object (computation definition),
+        #  2. In the Datasource object of the project (project),
+        #  3. In the local data source (enforced on the server level).
+        # Check 1.: whether this computation has a query set.
         if self.datasource.query_set:
             comp.data_source_parameters = self.datasource.get_parameters()
+        # Otherwise, initialize empty data source parameters.
         else:
             if not self.field_is_set(comp.input_data_object):
                 comp.data_source_parameters = models.ComputationDataSourceParameters()
+            # And check 2. whether the datasource has a query set.
+            if self.project.datasource is not None:
+                ds = self.project.datasource
+                if ds.query_parameters:
+                    comp.data_source_parameters.data_source_query = ds.query_parameters
 
     def _update_computation_fields(self, comp: models.ComputationDefinition):
         """
@@ -494,6 +503,32 @@ class ModelBasedComputation(Computation):
         """
         super().__init__(project)
         self.model = model_class(type=type, project_id=project.get_id(), **kwargs)
+        # Check DP compatibility (for now, with a friendly warning).
+        if project.is_differentially_private:
+            warn_message = (
+                "This project has differential privacy enabled, but %s."
+                + "This will likely cause an error when running the computation."
+                + "Contact your administrator for more details."
+            )
+            if not hasattr(self.model, "dp_epsilon"):
+                warnings.warn(
+                    warn_message
+                    % "this computation does not appear to support differential privacy"
+                )
+            elif isinstance(self.model.dp_epsilon, Unset):
+                warnings.warn(
+                    warn_message
+                    % "the parameter dp_epsilon was not set. Using default value 0.1."
+                )
+                self.model.dp_epsilon = 0.1
+            else:
+                epsilon = float(
+                    self.model.dp_epsilon
+                )  # Will raise an error if not float.
+                if epsilon <= 0:
+                    raise ValueError(
+                        "The parameter dp_epsilon must be a positive number."
+                    )
 
     def _get_model(self):
         return self.model

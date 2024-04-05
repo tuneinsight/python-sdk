@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "tuneinsight"
-version = "0.9.0"
+version = "0.9.2"
 description = "Diapason is the official Python SDK for the Tune Insight API. Version 0.6.2 targets the API v0.8.0."
 authors = ["Tune Insight SA"]
 license = "Apache-2.0"
@@ -28,7 +28,6 @@ httpx = ">=0.15.4,<0.24.0"
 attrs = ">=21.3.0"
 certifi = "^2023.7.22"
 black = "24.2.0"
-handsdown = "^2.1.0"
 
 [tool.poetry.group.dev.dependencies]
 selenium = "^4.9.1"
@@ -36,6 +35,7 @@ wheel = "^0.38.1"
 docker = "^6.0.1"
 pylint = "^2.13.2"
 pyvcf3 = "^1.0.3" # For GWAS .vcf file parsing
+pytest = "^8.1.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

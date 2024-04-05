@@ -2,6 +2,7 @@
 
 from tuneinsight.computations.base import ModelBasedComputation
 from tuneinsight.api.sdk import models
+from tuneinsight.api.sdk.types import UNSET
 
 
 class Count(ModelBasedComputation):
@@ -11,6 +12,8 @@ class Count(ModelBasedComputation):
     By default, this computation returns the size of the (collective) dataset.
 
     """
+
+    dp_epsilon: float = UNSET
 
     def __init__(self, project):
         super().__init__(

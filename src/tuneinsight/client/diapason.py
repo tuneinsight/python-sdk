@@ -15,10 +15,7 @@ from tuneinsight.api.sdk import client as api_client
 from tuneinsight.api.sdk.api.api_project import post_project
 from tuneinsight.api.sdk.api.api_project import get_project
 from tuneinsight.api.sdk.api.api_project import get_project_list
-from tuneinsight.api.sdk.api.api_datasource import (
-    get_data_source_list,
-    get_data_source,
-)
+from tuneinsight.api.sdk.api.api_datasource import get_data_source_list
 from tuneinsight.api.sdk.api.api_dataobject import get_data_object
 from tuneinsight.api.sdk.api.api_infos import get_infos
 from tuneinsight.api.sdk import models
@@ -278,7 +275,7 @@ class Diapason:
 
     def new_api_datasource(
         self,
-        api_type: models.APIConnectionInfoType,
+        api_type: models.APIType,
         api_url: str,
         name: str,
         api_token: str = "",
@@ -330,19 +327,19 @@ class Diapason:
 
     def new_database(
         self,
-        pg_config: models.DatabaseConnectionInfo,
+        pg_config: models.DataSourceConfig,
         name: str,
         clear_if_exists: bool = False,
-        secret_id: str = None,
+        credentials: models.Credentials = models.Credentials(),
     ) -> DataSource:
         """
         Creates a new Postgres datasource.
 
         Args:
-            config (models.DatabaseConnectionInfo): Postgres configuration.
+            config (models.DataSourceConfig): Postgres configuration.
             name (str, required): name of the datasource to be created.
             clear_if_exists (str, optional): overwrite datasource if it already exists.
-            secret_id (str, optional): secret id that stores the database credentials on the KMS connected to the instance.
+            credentials_id (models.Credential, optional): credentials / secret id that stores the database credentials on the KMS connected to the instance.
 
         Returns:
             DataSource: the newly created datasource
@@ -352,7 +349,7 @@ class Diapason:
             config=pg_config,
             name=name,
             clear_if_exists=clear_if_exists,
-            secret_id=secret_id,
+            credentials=credentials,
         )
 
     def get_datasources(self, name: str = "") -> List[DataSource]:
@@ -399,11 +396,7 @@ class Diapason:
             if name is None:
                 raise ValueError("At least one of ds_id or name must be provided.")
             return self.get_datasources(name=name)[0]
-        ds_response: Response[models.DataSource] = get_data_source.sync_detailed(
-            client=self.client, data_source_id=ds_id
-        )
-        validate_response(ds_response)
-        return DataSource(model=ds_response.parsed, client=self.client)
+        return DataSource.fetch_from_id(self.client, ds_id)
 
     # Dataobject management.
 

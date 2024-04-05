@@ -18,37 +18,30 @@ class LocalDataSelectionDefinition:
     """datasource selection definition. A selection is a "query" or data selection definition to run on the datasource
 
     Attributes:
-        preview_content_disabled (Union[Unset, None, bool]): whether to disable previewing the content (metadata only)
-        store_in_database (Union[Unset, None, bool]): whether to store the selection in the database
-        type (Union[Unset, DataSelectionType]):
-        visible_to_network (Union[Unset, None, bool]): whether the data selection parameters are viewable by other
-            instances in the network.
         data_selection (Union[Unset, ComputationDataSourceParameters]): Parameters used to query the datasource from
             each node before the computation
         description (Union[Unset, str]): optional description for the selection
         name (Union[Unset, str]): name given to the selection
         preprocessing (Union[Unset, ComputationPreprocessingParameters]): dataframe pre-processing parameters applied to
             the input retrieved from the datasource, if applicable
+        preview_content_disabled (Union[Unset, None, bool]): whether to disable previewing the content (metadata only)
+        store_in_database (Union[Unset, None, bool]): whether to store the selection in the database
+        type (Union[Unset, DataSelectionType]):
+        visible_to_network (Union[Unset, None, bool]): whether the data selection parameters are viewable by other
+            instances in the network.
     """
 
-    preview_content_disabled: Union[Unset, None, bool] = UNSET
-    store_in_database: Union[Unset, None, bool] = UNSET
-    type: Union[Unset, DataSelectionType] = UNSET
-    visible_to_network: Union[Unset, None, bool] = UNSET
     data_selection: Union[Unset, "ComputationDataSourceParameters"] = UNSET
     description: Union[Unset, str] = UNSET
     name: Union[Unset, str] = UNSET
     preprocessing: Union[Unset, "ComputationPreprocessingParameters"] = UNSET
+    preview_content_disabled: Union[Unset, None, bool] = UNSET
+    store_in_database: Union[Unset, None, bool] = UNSET
+    type: Union[Unset, DataSelectionType] = UNSET
+    visible_to_network: Union[Unset, None, bool] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        preview_content_disabled = self.preview_content_disabled
-        store_in_database = self.store_in_database
-        type: Union[Unset, str] = UNSET
-        if not isinstance(self.type, Unset):
-            type = self.type.value
-
-        visible_to_network = self.visible_to_network
         data_selection: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.data_selection, Unset):
             data_selection = self.data_selection.to_dict()
@@ -59,17 +52,17 @@ class LocalDataSelectionDefinition:
         if not isinstance(self.preprocessing, Unset):
             preprocessing = self.preprocessing.to_dict()
 
+        preview_content_disabled = self.preview_content_disabled
+        store_in_database = self.store_in_database
+        type: Union[Unset, str] = UNSET
+        if not isinstance(self.type, Unset):
+            type = self.type.value
+
+        visible_to_network = self.visible_to_network
+
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if preview_content_disabled is not UNSET:
-            field_dict["previewContentDisabled"] = preview_content_disabled
-        if store_in_database is not UNSET:
-            field_dict["storeInDatabase"] = store_in_database
-        if type is not UNSET:
-            field_dict["type"] = type
-        if visible_to_network is not UNSET:
-            field_dict["visibleToNetwork"] = visible_to_network
         if data_selection is not UNSET:
             field_dict["dataSelection"] = data_selection
         if description is not UNSET:
@@ -78,6 +71,14 @@ class LocalDataSelectionDefinition:
             field_dict["name"] = name
         if preprocessing is not UNSET:
             field_dict["preprocessing"] = preprocessing
+        if preview_content_disabled is not UNSET:
+            field_dict["previewContentDisabled"] = preview_content_disabled
+        if store_in_database is not UNSET:
+            field_dict["storeInDatabase"] = store_in_database
+        if type is not UNSET:
+            field_dict["type"] = type
+        if visible_to_network is not UNSET:
+            field_dict["visibleToNetwork"] = visible_to_network
 
         return field_dict
 
@@ -87,19 +88,6 @@ class LocalDataSelectionDefinition:
         from ..models.computation_preprocessing_parameters import ComputationPreprocessingParameters
 
         d = src_dict.copy()
-        preview_content_disabled = d.pop("previewContentDisabled", UNSET)
-
-        store_in_database = d.pop("storeInDatabase", UNSET)
-
-        _type = d.pop("type", UNSET)
-        type: Union[Unset, DataSelectionType]
-        if isinstance(_type, Unset):
-            type = UNSET
-        else:
-            type = DataSelectionType(_type)
-
-        visible_to_network = d.pop("visibleToNetwork", UNSET)
-
         _data_selection = d.pop("dataSelection", UNSET)
         data_selection: Union[Unset, ComputationDataSourceParameters]
         if isinstance(_data_selection, Unset):
@@ -118,15 +106,28 @@ class LocalDataSelectionDefinition:
         else:
             preprocessing = ComputationPreprocessingParameters.from_dict(_preprocessing)
 
+        preview_content_disabled = d.pop("previewContentDisabled", UNSET)
+
+        store_in_database = d.pop("storeInDatabase", UNSET)
+
+        _type = d.pop("type", UNSET)
+        type: Union[Unset, DataSelectionType]
+        if isinstance(_type, Unset):
+            type = UNSET
+        else:
+            type = DataSelectionType(_type)
+
+        visible_to_network = d.pop("visibleToNetwork", UNSET)
+
         local_data_selection_definition = cls(
-            preview_content_disabled=preview_content_disabled,
-            store_in_database=store_in_database,
-            type=type,
-            visible_to_network=visible_to_network,
             data_selection=data_selection,
             description=description,
             name=name,
             preprocessing=preprocessing,
+            preview_content_disabled=preview_content_disabled,
+            store_in_database=store_in_database,
+            type=type,
+            visible_to_network=visible_to_network,
         )
 
         local_data_selection_definition.additional_properties = d

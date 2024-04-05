@@ -72,6 +72,18 @@ class Project:
     model: models.Project  # The underlying model
     client: Unset  # the client used to access the api
 
+    datasource: DataSource = None
+
+    def __attrs_post_init__(self):
+        """Create a datasource object if one is defined in the project model."""
+        if (
+            not isinstance(self.model.data_source_id, Unset)
+            and self.model.data_source_id
+        ):
+            self.datasource = DataSource.fetch_from_id(
+                self.client, self.model.data_source_id
+            )
+
     # Internal methods.
 
     def _refresh(self):
@@ -200,8 +212,8 @@ class Project:
         """
         Sets the computation type of the project's computation definition.
 
-        Args:
-            comp_type (Type): _description_
+        This creates an empty computation definition of the chosen type. Intended for tests.
+
         """
         definition = models.ComputationDefinition(type=comp_type)
         self.set_computation(definition)
@@ -263,10 +275,16 @@ class Project:
         Args:
             ds (DataSource | str): the datasource to link to the project, or its ID.
         """
+        ds_id = ds
         if isinstance(ds, DataSource):
-            ds = ds.get_id()
-        proj_def = models.ProjectDefinition(data_source_id=ds)
+            ds_id = ds.get_id()
+        proj_def = models.ProjectDefinition(data_source_id=ds_id)
         self._patch(proj_def=proj_def)
+        # If the user provided an ID, create a datasource from this ID. Otherwise the same object is reused.
+        if isinstance(ds, DataSource):
+            self.datasource = ds
+        else:
+            self.datasource = DataSource.fetch_from_id(self.client, ds)
 
     def set_policy(self, policy: Policy):
         """
@@ -763,6 +781,16 @@ class Project:
         """
         self._refresh()
         return Policy.from_model(self.model.policy)
+
+    @property
+    def is_differentially_private(self):
+        """Returns whether differential privacy is enabled for this project."""
+        if isinstance(self.model.policy, Unset):
+            return False
+        dp_policy = self.model.policy.dp_policy
+        if isinstance(dp_policy, Unset):
+            return False
+        return dp_policy.use_differential_privacy
 
     def get_computations(self) -> List[models.Computation]:
         return self.model.computations

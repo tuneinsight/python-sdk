@@ -22,6 +22,8 @@ class EncryptedPrediction:
     """
     Attributes:
         type (ComputationType): Type of the computation.
+        dp_epsilon (Union[Unset, float]): If positive, the privacy budget used by this computation. Used only in DP
+            mode. Default: -1.0.
         input_clipping_method (Union[Unset, ComputationDefinitionInputClippingMethod]): Optional method used for
             clipping before encrypting values when running aggregation-based workflows.
             The bounds are deduced based on the cryptographic parameters used for the aggregation.
@@ -32,14 +34,7 @@ class EncryptedPrediction:
             (default)
               - error: if some values are out of bounds, then the computation is aborted.
              Default: ComputationDefinitionInputClippingMethod.WARNING.
-        preprocessing_parameters (Union[Unset, ComputationPreprocessingParameters]): dataframe pre-processing parameters
-            applied to the input retrieved from the datasource, if applicable
-        wait (Union[Unset, bool]): Whether to wait synchronously for the computation result.
-        dp_policy (Union[Unset, DPPolicy]): represents the disclosure prevention policy that enables toggling various
-            disclosure prevention mechanisms
-        dp_epsilon (Union[Unset, float]): If positive, the privacy budget used by this computation. Used only in DP
-            mode. Default: -1.0.
-        join_id (Union[Unset, str]): Unique identifier of a data object.
+        run_mode (Union[Unset, RunMode]): Defines the mode in which to run a computation (local, collective, or both)
         local_input_id (Union[Unset, str]): Unique identifier of a data object.
         maximum_aggregated_value (Union[Unset, None, float]): optional upper bound on the total expected value to be
             aggregated collectively. If provided, the computation will automatically deduce
@@ -48,29 +43,36 @@ class EncryptedPrediction:
             up to 16 million.
             For example, when using default parameters and running an aggregation with 4 participants, local aggregated
             values cannot exceed 4 million.
-        cohort_id (Union[Unset, str]): Unique identifier of a data object.
+        preprocessing_parameters (Union[Unset, ComputationPreprocessingParameters]): dataframe pre-processing parameters
+            applied to the input retrieved from the datasource, if applicable
+        data_source_parameters (Union[Unset, ComputationDataSourceParameters]): Parameters used to query the datasource
+            from each node before the computation
+        end_to_end_encrypted (Union[Unset, bool]): if the end to end encrypted mode is set to true,
+            then when release results is set to true and the output
+            is initially encrypted with a network collective key, then it is key switched to
+            the initiating user's public key.
+        input_data_object (Union[Unset, str]): Shared identifier of a data object.
+        timeout (Union[Unset, int]): The maximum amount of time in seconds the computation is allowed to run.
         local_input (Union[Unset, LocalInput]): If a local input is provided, the node initiating the computation will
             use it instead of querying the datasource. This data is *not* shared to other nodes, only used for the duration
             of the computation. The local input columns/values must be in the form {<column1>: [<value1>, <value2>, ...],
             ...}
         owner (Union[Unset, str]): The username of the end user who requested the computation.
         project_id (Union[Unset, str]): Unique identifier of a project.
-        run_mode (Union[Unset, RunMode]): Defines the mode in which to run a computation (local, collective, or both)
+        dp_policy (Union[Unset, DPPolicy]): represents the disclosure prevention policy that enables toggling various
+            disclosure prevention mechanisms
+        cohort_id (Union[Unset, str]): Unique identifier of a data object.
+        encrypted (Union[Unset, bool]): True if computation result should be encrypted with the collective public key.
+        join_id (Union[Unset, str]): Unique identifier of a data object.
         local (Union[Unset, bool]): True if the project's computation should run only with local data (not configured
             the network)
-        encrypted (Union[Unset, bool]): True if computation result should be encrypted with the collective public key.
-        end_to_end_encrypted (Union[Unset, bool]): if the end to end encrypted mode is set to true,
-            then when release results is set to true and the output
-            is initially encrypted with a network collective key, then it is key switched to
-            the initiating user's public key.
-        input_data_object (Union[Unset, str]): Shared identifier of a data object.
         release_results (Union[Unset, bool]): flag to set to true if the computation should directly release the output
             results.
             If set, then encrypted results are automatically key switched and decrypted
             and a Result entity is saved
-        timeout (Union[Unset, int]): The maximum amount of time in seconds the computation is allowed to run.
-        data_source_parameters (Union[Unset, ComputationDataSourceParameters]): Parameters used to query the datasource
-            from each node before the computation
+        wait (Union[Unset, bool]): Whether to wait synchronously for the computation result.
+        label_columns (Union[Unset, List[str]]): specified label columns of the original dataset if the computation
+            specifies to return the ground truth labels alongside
         model (Union[Unset, str]): Unique identifier of a data object.
         only_root_prediction (Union[Unset, bool]): if true and the computation is not local, then the prediction is only
             computed by the root node and the ct is broadcast to other nodes for later key switch
@@ -79,81 +81,83 @@ class EncryptedPrediction:
             columns from the input dataset are used
         include_ground_truth_labels (Union[Unset, bool]): if true, then the result should contain the associated ground
             truth labels
-        label_columns (Union[Unset, List[str]]): specified label columns of the original dataset if the computation
-            specifies to return the ground truth labels alongside
     """
 
     type: ComputationType
+    dp_epsilon: Union[Unset, float] = -1.0
     input_clipping_method: Union[Unset, ComputationDefinitionInputClippingMethod] = (
         ComputationDefinitionInputClippingMethod.WARNING
     )
-    preprocessing_parameters: Union[Unset, "ComputationPreprocessingParameters"] = UNSET
-    wait: Union[Unset, bool] = UNSET
-    dp_policy: Union[Unset, "DPPolicy"] = UNSET
-    dp_epsilon: Union[Unset, float] = -1.0
-    join_id: Union[Unset, str] = UNSET
+    run_mode: Union[Unset, RunMode] = UNSET
     local_input_id: Union[Unset, str] = UNSET
     maximum_aggregated_value: Union[Unset, None, float] = UNSET
-    cohort_id: Union[Unset, str] = UNSET
+    preprocessing_parameters: Union[Unset, "ComputationPreprocessingParameters"] = UNSET
+    data_source_parameters: Union[Unset, "ComputationDataSourceParameters"] = UNSET
+    end_to_end_encrypted: Union[Unset, bool] = UNSET
+    input_data_object: Union[Unset, str] = UNSET
+    timeout: Union[Unset, int] = UNSET
     local_input: Union[Unset, "LocalInput"] = UNSET
     owner: Union[Unset, str] = UNSET
     project_id: Union[Unset, str] = UNSET
-    run_mode: Union[Unset, RunMode] = UNSET
-    local: Union[Unset, bool] = UNSET
+    dp_policy: Union[Unset, "DPPolicy"] = UNSET
+    cohort_id: Union[Unset, str] = UNSET
     encrypted: Union[Unset, bool] = UNSET
-    end_to_end_encrypted: Union[Unset, bool] = UNSET
-    input_data_object: Union[Unset, str] = UNSET
+    join_id: Union[Unset, str] = UNSET
+    local: Union[Unset, bool] = UNSET
     release_results: Union[Unset, bool] = UNSET
-    timeout: Union[Unset, int] = UNSET
-    data_source_parameters: Union[Unset, "ComputationDataSourceParameters"] = UNSET
+    wait: Union[Unset, bool] = UNSET
+    label_columns: Union[Unset, List[str]] = UNSET
     model: Union[Unset, str] = UNSET
     only_root_prediction: Union[Unset, bool] = UNSET
     data: Union[Unset, str] = UNSET
     feature_columns: Union[Unset, List[str]] = UNSET
     include_ground_truth_labels: Union[Unset, bool] = UNSET
-    label_columns: Union[Unset, List[str]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         type = self.type.value
 
+        dp_epsilon = self.dp_epsilon
         input_clipping_method: Union[Unset, str] = UNSET
         if not isinstance(self.input_clipping_method, Unset):
             input_clipping_method = self.input_clipping_method.value
 
+        run_mode: Union[Unset, str] = UNSET
+        if not isinstance(self.run_mode, Unset):
+            run_mode = self.run_mode.value
+
+        local_input_id = self.local_input_id
+        maximum_aggregated_value = self.maximum_aggregated_value
         preprocessing_parameters: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.preprocessing_parameters, Unset):
             preprocessing_parameters = self.preprocessing_parameters.to_dict()
 
-        wait = self.wait
-        dp_policy: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.dp_policy, Unset):
-            dp_policy = self.dp_policy.to_dict()
+        data_source_parameters: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.data_source_parameters, Unset):
+            data_source_parameters = self.data_source_parameters.to_dict()
 
-        dp_epsilon = self.dp_epsilon
-        join_id = self.join_id
-        local_input_id = self.local_input_id
-        maximum_aggregated_value = self.maximum_aggregated_value
-        cohort_id = self.cohort_id
+        end_to_end_encrypted = self.end_to_end_encrypted
+        input_data_object = self.input_data_object
+        timeout = self.timeout
         local_input: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.local_input, Unset):
             local_input = self.local_input.to_dict()
 
         owner = self.owner
         project_id = self.project_id
-        run_mode: Union[Unset, str] = UNSET
-        if not isinstance(self.run_mode, Unset):
-            run_mode = self.run_mode.value
+        dp_policy: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.dp_policy, Unset):
+            dp_policy = self.dp_policy.to_dict()
 
-        local = self.local
+        cohort_id = self.cohort_id
         encrypted = self.encrypted
-        end_to_end_encrypted = self.end_to_end_encrypted
-        input_data_object = self.input_data_object
+        join_id = self.join_id
+        local = self.local
         release_results = self.release_results
-        timeout = self.timeout
-        data_source_parameters: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.data_source_parameters, Unset):
-            data_source_parameters = self.data_source_parameters.to_dict()
+        wait = self.wait
+        label_columns: Union[Unset, List[str]] = UNSET
+        if not isinstance(self.label_columns, Unset):
+            label_columns = self.label_columns
 
         model = self.model
         only_root_prediction = self.only_root_prediction
@@ -163,9 +167,6 @@ class EncryptedPrediction:
             feature_columns = self.feature_columns
 
         include_ground_truth_labels = self.include_ground_truth_labels
-        label_columns: Union[Unset, List[str]] = UNSET
-        if not isinstance(self.label_columns, Unset):
-            label_columns = self.label_columns
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -174,46 +175,48 @@ class EncryptedPrediction:
                 "type": type,
             }
         )
-        if input_clipping_method is not UNSET:
-            field_dict["inputClippingMethod"] = input_clipping_method
-        if preprocessing_parameters is not UNSET:
-            field_dict["preprocessingParameters"] = preprocessing_parameters
-        if wait is not UNSET:
-            field_dict["wait"] = wait
-        if dp_policy is not UNSET:
-            field_dict["DPPolicy"] = dp_policy
         if dp_epsilon is not UNSET:
             field_dict["dpEpsilon"] = dp_epsilon
-        if join_id is not UNSET:
-            field_dict["joinId"] = join_id
+        if input_clipping_method is not UNSET:
+            field_dict["inputClippingMethod"] = input_clipping_method
+        if run_mode is not UNSET:
+            field_dict["runMode"] = run_mode
         if local_input_id is not UNSET:
             field_dict["localInputID"] = local_input_id
         if maximum_aggregated_value is not UNSET:
             field_dict["maximumAggregatedValue"] = maximum_aggregated_value
-        if cohort_id is not UNSET:
-            field_dict["cohortId"] = cohort_id
+        if preprocessing_parameters is not UNSET:
+            field_dict["preprocessingParameters"] = preprocessing_parameters
+        if data_source_parameters is not UNSET:
+            field_dict["dataSourceParameters"] = data_source_parameters
+        if end_to_end_encrypted is not UNSET:
+            field_dict["endToEndEncrypted"] = end_to_end_encrypted
+        if input_data_object is not UNSET:
+            field_dict["inputDataObject"] = input_data_object
+        if timeout is not UNSET:
+            field_dict["timeout"] = timeout
         if local_input is not UNSET:
             field_dict["localInput"] = local_input
         if owner is not UNSET:
             field_dict["owner"] = owner
         if project_id is not UNSET:
             field_dict["projectId"] = project_id
-        if run_mode is not UNSET:
-            field_dict["runMode"] = run_mode
-        if local is not UNSET:
-            field_dict["local"] = local
+        if dp_policy is not UNSET:
+            field_dict["DPPolicy"] = dp_policy
+        if cohort_id is not UNSET:
+            field_dict["cohortId"] = cohort_id
         if encrypted is not UNSET:
             field_dict["encrypted"] = encrypted
-        if end_to_end_encrypted is not UNSET:
-            field_dict["endToEndEncrypted"] = end_to_end_encrypted
-        if input_data_object is not UNSET:
-            field_dict["inputDataObject"] = input_data_object
+        if join_id is not UNSET:
+            field_dict["joinId"] = join_id
+        if local is not UNSET:
+            field_dict["local"] = local
         if release_results is not UNSET:
             field_dict["releaseResults"] = release_results
-        if timeout is not UNSET:
-            field_dict["timeout"] = timeout
-        if data_source_parameters is not UNSET:
-            field_dict["dataSourceParameters"] = data_source_parameters
+        if wait is not UNSET:
+            field_dict["wait"] = wait
+        if label_columns is not UNSET:
+            field_dict["labelColumns"] = label_columns
         if model is not UNSET:
             field_dict["model"] = model
         if only_root_prediction is not UNSET:
@@ -224,8 +227,6 @@ class EncryptedPrediction:
             field_dict["featureColumns"] = feature_columns
         if include_ground_truth_labels is not UNSET:
             field_dict["includeGroundTruthLabels"] = include_ground_truth_labels
-        if label_columns is not UNSET:
-            field_dict["labelColumns"] = label_columns
 
         return field_dict
 
@@ -239,12 +240,25 @@ class EncryptedPrediction:
         d = src_dict.copy()
         type = ComputationType(d.pop("type"))
 
+        dp_epsilon = d.pop("dpEpsilon", UNSET)
+
         _input_clipping_method = d.pop("inputClippingMethod", UNSET)
         input_clipping_method: Union[Unset, ComputationDefinitionInputClippingMethod]
         if isinstance(_input_clipping_method, Unset):
             input_clipping_method = UNSET
         else:
             input_clipping_method = ComputationDefinitionInputClippingMethod(_input_clipping_method)
+
+        _run_mode = d.pop("runMode", UNSET)
+        run_mode: Union[Unset, RunMode]
+        if isinstance(_run_mode, Unset):
+            run_mode = UNSET
+        else:
+            run_mode = RunMode(_run_mode)
+
+        local_input_id = d.pop("localInputID", UNSET)
+
+        maximum_aggregated_value = d.pop("maximumAggregatedValue", UNSET)
 
         _preprocessing_parameters = d.pop("preprocessingParameters", UNSET)
         preprocessing_parameters: Union[Unset, ComputationPreprocessingParameters]
@@ -253,24 +267,18 @@ class EncryptedPrediction:
         else:
             preprocessing_parameters = ComputationPreprocessingParameters.from_dict(_preprocessing_parameters)
 
-        wait = d.pop("wait", UNSET)
-
-        _dp_policy = d.pop("DPPolicy", UNSET)
-        dp_policy: Union[Unset, DPPolicy]
-        if isinstance(_dp_policy, Unset):
-            dp_policy = UNSET
+        _data_source_parameters = d.pop("dataSourceParameters", UNSET)
+        data_source_parameters: Union[Unset, ComputationDataSourceParameters]
+        if isinstance(_data_source_parameters, Unset):
+            data_source_parameters = UNSET
         else:
-            dp_policy = DPPolicy.from_dict(_dp_policy)
+            data_source_parameters = ComputationDataSourceParameters.from_dict(_data_source_parameters)
 
-        dp_epsilon = d.pop("dpEpsilon", UNSET)
+        end_to_end_encrypted = d.pop("endToEndEncrypted", UNSET)
 
-        join_id = d.pop("joinId", UNSET)
+        input_data_object = d.pop("inputDataObject", UNSET)
 
-        local_input_id = d.pop("localInputID", UNSET)
-
-        maximum_aggregated_value = d.pop("maximumAggregatedValue", UNSET)
-
-        cohort_id = d.pop("cohortId", UNSET)
+        timeout = d.pop("timeout", UNSET)
 
         _local_input = d.pop("localInput", UNSET)
         local_input: Union[Unset, LocalInput]
@@ -283,31 +291,26 @@ class EncryptedPrediction:
 
         project_id = d.pop("projectId", UNSET)
 
-        _run_mode = d.pop("runMode", UNSET)
-        run_mode: Union[Unset, RunMode]
-        if isinstance(_run_mode, Unset):
-            run_mode = UNSET
+        _dp_policy = d.pop("DPPolicy", UNSET)
+        dp_policy: Union[Unset, DPPolicy]
+        if isinstance(_dp_policy, Unset):
+            dp_policy = UNSET
         else:
-            run_mode = RunMode(_run_mode)
+            dp_policy = DPPolicy.from_dict(_dp_policy)
 
-        local = d.pop("local", UNSET)
+        cohort_id = d.pop("cohortId", UNSET)
 
         encrypted = d.pop("encrypted", UNSET)
 
-        end_to_end_encrypted = d.pop("endToEndEncrypted", UNSET)
+        join_id = d.pop("joinId", UNSET)
 
-        input_data_object = d.pop("inputDataObject", UNSET)
+        local = d.pop("local", UNSET)
 
         release_results = d.pop("releaseResults", UNSET)
 
-        timeout = d.pop("timeout", UNSET)
+        wait = d.pop("wait", UNSET)
 
-        _data_source_parameters = d.pop("dataSourceParameters", UNSET)
-        data_source_parameters: Union[Unset, ComputationDataSourceParameters]
-        if isinstance(_data_source_parameters, Unset):
-            data_source_parameters = UNSET
-        else:
-            data_source_parameters = ComputationDataSourceParameters.from_dict(_data_source_parameters)
+        label_columns = cast(List[str], d.pop("labelColumns", UNSET))
 
         model = d.pop("model", UNSET)
 
@@ -319,36 +322,34 @@ class EncryptedPrediction:
 
         include_ground_truth_labels = d.pop("includeGroundTruthLabels", UNSET)
 
-        label_columns = cast(List[str], d.pop("labelColumns", UNSET))
-
         encrypted_prediction = cls(
             type=type,
-            input_clipping_method=input_clipping_method,
-            preprocessing_parameters=preprocessing_parameters,
-            wait=wait,
-            dp_policy=dp_policy,
             dp_epsilon=dp_epsilon,
-            join_id=join_id,
+            input_clipping_method=input_clipping_method,
+            run_mode=run_mode,
             local_input_id=local_input_id,
             maximum_aggregated_value=maximum_aggregated_value,
-            cohort_id=cohort_id,
+            preprocessing_parameters=preprocessing_parameters,
+            data_source_parameters=data_source_parameters,
+            end_to_end_encrypted=end_to_end_encrypted,
+            input_data_object=input_data_object,
+            timeout=timeout,
             local_input=local_input,
             owner=owner,
             project_id=project_id,
-            run_mode=run_mode,
-            local=local,
+            dp_policy=dp_policy,
+            cohort_id=cohort_id,
             encrypted=encrypted,
-            end_to_end_encrypted=end_to_end_encrypted,
-            input_data_object=input_data_object,
+            join_id=join_id,
+            local=local,
             release_results=release_results,
-            timeout=timeout,
-            data_source_parameters=data_source_parameters,
+            wait=wait,
+            label_columns=label_columns,
             model=model,
             only_root_prediction=only_root_prediction,
             data=data,
             feature_columns=feature_columns,
             include_ground_truth_labels=include_ground_truth_labels,
-            label_columns=label_columns,
         )
 
         encrypted_prediction.additional_properties = d

@@ -16,7 +16,7 @@ def _get_kwargs(
     *,
     client: Client,
     page: Union[Unset, None, int] = 1,
-    per_page: Union[Unset, None, int] = 30,
+    per_page: Union[Unset, None, int] = 50,
     with_total: Union[Unset, None, bool] = True,
     sort_by: Union[Unset, None, GetProjectListSortBy] = UNSET,
     order: Union[Unset, None, GetProjectListOrder] = UNSET,
@@ -97,7 +97,7 @@ def sync_detailed(
     *,
     client: Client,
     page: Union[Unset, None, int] = 1,
-    per_page: Union[Unset, None, int] = 30,
+    per_page: Union[Unset, None, int] = 50,
     with_total: Union[Unset, None, bool] = True,
     sort_by: Union[Unset, None, GetProjectListSortBy] = UNSET,
     order: Union[Unset, None, GetProjectListOrder] = UNSET,
@@ -107,7 +107,7 @@ def sync_detailed(
 
     Args:
         page (Union[Unset, None, int]):  Default: 1.
-        per_page (Union[Unset, None, int]):  Default: 30.
+        per_page (Union[Unset, None, int]):  Default: 50.
         with_total (Union[Unset, None, bool]):  Default: True.
         sort_by (Union[Unset, None, GetProjectListSortBy]):
         order (Union[Unset, None, GetProjectListOrder]):
@@ -143,7 +143,7 @@ def sync(
     *,
     client: Client,
     page: Union[Unset, None, int] = 1,
-    per_page: Union[Unset, None, int] = 30,
+    per_page: Union[Unset, None, int] = 50,
     with_total: Union[Unset, None, bool] = True,
     sort_by: Union[Unset, None, GetProjectListSortBy] = UNSET,
     order: Union[Unset, None, GetProjectListOrder] = UNSET,
@@ -153,7 +153,7 @@ def sync(
 
     Args:
         page (Union[Unset, None, int]):  Default: 1.
-        per_page (Union[Unset, None, int]):  Default: 30.
+        per_page (Union[Unset, None, int]):  Default: 50.
         with_total (Union[Unset, None, bool]):  Default: True.
         sort_by (Union[Unset, None, GetProjectListSortBy]):
         order (Union[Unset, None, GetProjectListOrder]):
@@ -182,7 +182,7 @@ async def asyncio_detailed(
     *,
     client: Client,
     page: Union[Unset, None, int] = 1,
-    per_page: Union[Unset, None, int] = 30,
+    per_page: Union[Unset, None, int] = 50,
     with_total: Union[Unset, None, bool] = True,
     sort_by: Union[Unset, None, GetProjectListSortBy] = UNSET,
     order: Union[Unset, None, GetProjectListOrder] = UNSET,
@@ -192,7 +192,7 @@ async def asyncio_detailed(
 
     Args:
         page (Union[Unset, None, int]):  Default: 1.
-        per_page (Union[Unset, None, int]):  Default: 30.
+        per_page (Union[Unset, None, int]):  Default: 50.
         with_total (Union[Unset, None, bool]):  Default: True.
         sort_by (Union[Unset, None, GetProjectListSortBy]):
         order (Union[Unset, None, GetProjectListOrder]):
@@ -226,7 +226,7 @@ async def asyncio(
     *,
     client: Client,
     page: Union[Unset, None, int] = 1,
-    per_page: Union[Unset, None, int] = 30,
+    per_page: Union[Unset, None, int] = 50,
     with_total: Union[Unset, None, bool] = True,
     sort_by: Union[Unset, None, GetProjectListSortBy] = UNSET,
     order: Union[Unset, None, GetProjectListOrder] = UNSET,
@@ -236,7 +236,7 @@ async def asyncio(
 
     Args:
         page (Union[Unset, None, int]):  Default: 1.
-        per_page (Union[Unset, None, int]):  Default: 30.
+        per_page (Union[Unset, None, int]):  Default: 50.
         with_total (Union[Unset, None, bool]):  Default: True.
         sort_by (Union[Unset, None, GetProjectListSortBy]):
         order (Union[Unset, None, GetProjectListOrder]):

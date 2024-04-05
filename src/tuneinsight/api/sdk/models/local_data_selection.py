@@ -21,58 +21,51 @@ class LocalDataSelection:
     """selection to retrieve data from the datasource and preprocess it
 
     Attributes:
-        preview_content_disabled (Union[Unset, None, bool]): whether to disable previewing the content (metadata only)
-        store_in_database (Union[Unset, None, bool]): whether to store the selection in the database
-        type (Union[Unset, DataSelectionType]):
-        visible_to_network (Union[Unset, None, bool]): whether the data selection parameters are viewable by other
-            instances in the network.
         data_selection (Union[Unset, ComputationDataSourceParameters]): Parameters used to query the datasource from
             each node before the computation
         description (Union[Unset, str]): optional description for the selection
         name (Union[Unset, str]): name given to the selection
         preprocessing (Union[Unset, ComputationPreprocessingParameters]): dataframe pre-processing parameters applied to
             the input retrieved from the datasource, if applicable
+        preview_content_disabled (Union[Unset, None, bool]): whether to disable previewing the content (metadata only)
+        store_in_database (Union[Unset, None, bool]): whether to store the selection in the database
+        type (Union[Unset, DataSelectionType]):
+        visible_to_network (Union[Unset, None, bool]): whether the data selection parameters are viewable by other
+            instances in the network.
+        num_local_records (Union[Unset, int]): holds the total number of local records from the selection (only
+            displayed when the selection is saved to the database)
         query (Union[Unset, Query]): Data source query
+        remote_instance_id (Union[Unset, str]): the name of the remote instance id this selection was retrieved from.
+        created_at (Union[Unset, str]):
+        data_source (Union[Unset, DataSource]):
+        preview (Union[Unset, DataSourceQueryPreview]): preview of a datasource query
         remote (Union[Unset, bool]): whether the selection was fetched remotely
         updated_at (Union[Unset, str]):
         created_by_user (Union[Unset, str]): creator of the selection
         id (Union[Unset, str]): id of the selection
-        num_local_records (Union[Unset, int]): holds the total number of local records from the selection (only
-            displayed when the selection is saved to the database)
-        preview (Union[Unset, DataSourceQueryPreview]): preview of a datasource query
-        created_at (Union[Unset, str]):
-        data_source (Union[Unset, DataSource]):
-        remote_instance_id (Union[Unset, str]): the name of the remote instance id this selection was retrieved from.
     """
 
-    preview_content_disabled: Union[Unset, None, bool] = UNSET
-    store_in_database: Union[Unset, None, bool] = UNSET
-    type: Union[Unset, DataSelectionType] = UNSET
-    visible_to_network: Union[Unset, None, bool] = UNSET
     data_selection: Union[Unset, "ComputationDataSourceParameters"] = UNSET
     description: Union[Unset, str] = UNSET
     name: Union[Unset, str] = UNSET
     preprocessing: Union[Unset, "ComputationPreprocessingParameters"] = UNSET
+    preview_content_disabled: Union[Unset, None, bool] = UNSET
+    store_in_database: Union[Unset, None, bool] = UNSET
+    type: Union[Unset, DataSelectionType] = UNSET
+    visible_to_network: Union[Unset, None, bool] = UNSET
+    num_local_records: Union[Unset, int] = UNSET
     query: Union[Unset, "Query"] = UNSET
+    remote_instance_id: Union[Unset, str] = UNSET
+    created_at: Union[Unset, str] = UNSET
+    data_source: Union[Unset, "DataSource"] = UNSET
+    preview: Union[Unset, "DataSourceQueryPreview"] = UNSET
     remote: Union[Unset, bool] = UNSET
     updated_at: Union[Unset, str] = UNSET
     created_by_user: Union[Unset, str] = UNSET
     id: Union[Unset, str] = UNSET
-    num_local_records: Union[Unset, int] = UNSET
-    preview: Union[Unset, "DataSourceQueryPreview"] = UNSET
-    created_at: Union[Unset, str] = UNSET
-    data_source: Union[Unset, "DataSource"] = UNSET
-    remote_instance_id: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        preview_content_disabled = self.preview_content_disabled
-        store_in_database = self.store_in_database
-        type: Union[Unset, str] = UNSET
-        if not isinstance(self.type, Unset):
-            type = self.type.value
-
-        visible_to_network = self.visible_to_network
         data_selection: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.data_selection, Unset):
             data_selection = self.data_selection.to_dict()
@@ -83,37 +76,36 @@ class LocalDataSelection:
         if not isinstance(self.preprocessing, Unset):
             preprocessing = self.preprocessing.to_dict()
 
+        preview_content_disabled = self.preview_content_disabled
+        store_in_database = self.store_in_database
+        type: Union[Unset, str] = UNSET
+        if not isinstance(self.type, Unset):
+            type = self.type.value
+
+        visible_to_network = self.visible_to_network
+        num_local_records = self.num_local_records
         query: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.query, Unset):
             query = self.query.to_dict()
 
-        remote = self.remote
-        updated_at = self.updated_at
-        created_by_user = self.created_by_user
-        id = self.id
-        num_local_records = self.num_local_records
-        preview: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.preview, Unset):
-            preview = self.preview.to_dict()
-
+        remote_instance_id = self.remote_instance_id
         created_at = self.created_at
         data_source: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.data_source, Unset):
             data_source = self.data_source.to_dict()
 
-        remote_instance_id = self.remote_instance_id
+        preview: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.preview, Unset):
+            preview = self.preview.to_dict()
+
+        remote = self.remote
+        updated_at = self.updated_at
+        created_by_user = self.created_by_user
+        id = self.id
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if preview_content_disabled is not UNSET:
-            field_dict["previewContentDisabled"] = preview_content_disabled
-        if store_in_database is not UNSET:
-            field_dict["storeInDatabase"] = store_in_database
-        if type is not UNSET:
-            field_dict["type"] = type
-        if visible_to_network is not UNSET:
-            field_dict["visibleToNetwork"] = visible_to_network
         if data_selection is not UNSET:
             field_dict["dataSelection"] = data_selection
         if description is not UNSET:
@@ -122,8 +114,26 @@ class LocalDataSelection:
             field_dict["name"] = name
         if preprocessing is not UNSET:
             field_dict["preprocessing"] = preprocessing
+        if preview_content_disabled is not UNSET:
+            field_dict["previewContentDisabled"] = preview_content_disabled
+        if store_in_database is not UNSET:
+            field_dict["storeInDatabase"] = store_in_database
+        if type is not UNSET:
+            field_dict["type"] = type
+        if visible_to_network is not UNSET:
+            field_dict["visibleToNetwork"] = visible_to_network
+        if num_local_records is not UNSET:
+            field_dict["numLocalRecords"] = num_local_records
         if query is not UNSET:
             field_dict["query"] = query
+        if remote_instance_id is not UNSET:
+            field_dict["remoteInstanceId"] = remote_instance_id
+        if created_at is not UNSET:
+            field_dict["createdAt"] = created_at
+        if data_source is not UNSET:
+            field_dict["dataSource"] = data_source
+        if preview is not UNSET:
+            field_dict["preview"] = preview
         if remote is not UNSET:
             field_dict["remote"] = remote
         if updated_at is not UNSET:
@@ -132,16 +142,6 @@ class LocalDataSelection:
             field_dict["createdByUser"] = created_by_user
         if id is not UNSET:
             field_dict["id"] = id
-        if num_local_records is not UNSET:
-            field_dict["numLocalRecords"] = num_local_records
-        if preview is not UNSET:
-            field_dict["preview"] = preview
-        if created_at is not UNSET:
-            field_dict["createdAt"] = created_at
-        if data_source is not UNSET:
-            field_dict["dataSource"] = data_source
-        if remote_instance_id is not UNSET:
-            field_dict["remoteInstanceId"] = remote_instance_id
 
         return field_dict
 
@@ -154,19 +154,6 @@ class LocalDataSelection:
         from ..models.query import Query
 
         d = src_dict.copy()
-        preview_content_disabled = d.pop("previewContentDisabled", UNSET)
-
-        store_in_database = d.pop("storeInDatabase", UNSET)
-
-        _type = d.pop("type", UNSET)
-        type: Union[Unset, DataSelectionType]
-        if isinstance(_type, Unset):
-            type = UNSET
-        else:
-            type = DataSelectionType(_type)
-
-        visible_to_network = d.pop("visibleToNetwork", UNSET)
-
         _data_selection = d.pop("dataSelection", UNSET)
         data_selection: Union[Unset, ComputationDataSourceParameters]
         if isinstance(_data_selection, Unset):
@@ -185,6 +172,21 @@ class LocalDataSelection:
         else:
             preprocessing = ComputationPreprocessingParameters.from_dict(_preprocessing)
 
+        preview_content_disabled = d.pop("previewContentDisabled", UNSET)
+
+        store_in_database = d.pop("storeInDatabase", UNSET)
+
+        _type = d.pop("type", UNSET)
+        type: Union[Unset, DataSelectionType]
+        if isinstance(_type, Unset):
+            type = UNSET
+        else:
+            type = DataSelectionType(_type)
+
+        visible_to_network = d.pop("visibleToNetwork", UNSET)
+
+        num_local_records = d.pop("numLocalRecords", UNSET)
+
         _query = d.pop("query", UNSET)
         query: Union[Unset, Query]
         if isinstance(_query, Unset):
@@ -192,22 +194,7 @@ class LocalDataSelection:
         else:
             query = Query.from_dict(_query)
 
-        remote = d.pop("remote", UNSET)
-
-        updated_at = d.pop("updatedAt", UNSET)
-
-        created_by_user = d.pop("createdByUser", UNSET)
-
-        id = d.pop("id", UNSET)
-
-        num_local_records = d.pop("numLocalRecords", UNSET)
-
-        _preview = d.pop("preview", UNSET)
-        preview: Union[Unset, DataSourceQueryPreview]
-        if isinstance(_preview, Unset):
-            preview = UNSET
-        else:
-            preview = DataSourceQueryPreview.from_dict(_preview)
+        remote_instance_id = d.pop("remoteInstanceId", UNSET)
 
         created_at = d.pop("createdAt", UNSET)
 
@@ -218,27 +205,40 @@ class LocalDataSelection:
         else:
             data_source = DataSource.from_dict(_data_source)
 
-        remote_instance_id = d.pop("remoteInstanceId", UNSET)
+        _preview = d.pop("preview", UNSET)
+        preview: Union[Unset, DataSourceQueryPreview]
+        if isinstance(_preview, Unset):
+            preview = UNSET
+        else:
+            preview = DataSourceQueryPreview.from_dict(_preview)
+
+        remote = d.pop("remote", UNSET)
+
+        updated_at = d.pop("updatedAt", UNSET)
+
+        created_by_user = d.pop("createdByUser", UNSET)
+
+        id = d.pop("id", UNSET)
 
         local_data_selection = cls(
-            preview_content_disabled=preview_content_disabled,
-            store_in_database=store_in_database,
-            type=type,
-            visible_to_network=visible_to_network,
             data_selection=data_selection,
             description=description,
             name=name,
             preprocessing=preprocessing,
+            preview_content_disabled=preview_content_disabled,
+            store_in_database=store_in_database,
+            type=type,
+            visible_to_network=visible_to_network,
+            num_local_records=num_local_records,
             query=query,
+            remote_instance_id=remote_instance_id,
+            created_at=created_at,
+            data_source=data_source,
+            preview=preview,
             remote=remote,
             updated_at=updated_at,
             created_by_user=created_by_user,
             id=id,
-            num_local_records=num_local_records,
-            preview=preview,
-            created_at=created_at,
-            data_source=data_source,
-            remote_instance_id=remote_instance_id,
         )
 
         local_data_selection.additional_properties = d

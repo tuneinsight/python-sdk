@@ -2,6 +2,8 @@
 
 from typing import List
 
+from typing import Callable
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -9,46 +11,60 @@ import matplotlib.pyplot as plt
 from tuneinsight.utils.plots import style_plot
 
 
-class RatioEstimator:
+# TO DO: use noise scales from results metadata.
+
+
+class ConfidenceIntervalEstimator:
     """
-    Compute confidence intervals for the ratio of two values computed with differential privacy.
+    Compute confidence intervals for a function of Differentially Private outputs.
 
-    This class uses simulated samples to estimate various properties of the observed values.
+    This uses Monte-Carlo sampling to simulate multiple runs of the Laplace mechanism
+    on a multi-dimensional query that is then aggregated to one number using an
+    arbitrary function.
 
+    This assumes that the outputs are computed with Laplace noise.
     """
 
     def __init__(
         self,
-        numerator: float,
-        denominator: float,
-        noise_scale: float,
-        noise_scale_denominator: float = None,
+        noisy_answers: np.array,
+        noise_scales: np.array,
+        function: Callable[[np.array], float],
         num_samples: int = int(1e6),
     ):
         """
-        Create simulated samples of the ratio under DP.
+        Create simulated samples of a function of the outputs of the Laplace mechanism.
 
         Args
-            numerator: the numerator of the ratio, observed with Laplace noise.
-            denominator: the denominator of the ratio, observer with Laplace noise.
-            noise_scale: the scale of the Laplace noise added to the numerator (and the denominator, if not specified).
-            noise_scale_denominator: the scale of the Laplace noise added to the denominator (if None, noise_scale is used).
-            num_samples (int, default 1e6): number of samples to use in the Monte-Carlo estimation.
+            noisy_answers (np.array): the observed output of the mechanism, typically the
+                result of several queries with added noise.
+            noise_scales (np.array): the scale of the noise added on each answer. If an array
+                of length 1 is provided, the noise is assumed to be of the same scale on each.
+            function: a callable function that maps an array of answers to a single float. The
+                input array will be one-dimensional.
+            num_samples (int, default 1e6): number of samples to use in Monte-Carlo estimation.
+                Only change this number if the code takes too long to run.
         """
-
-        laplace_noises = np.random.laplace(loc=0, scale=1, size=(2, num_samples))
-
-        numerators = numerator + noise_scale * laplace_noises[0, :]
-        if noise_scale_denominator is None:
-            noise_scale_denominator = noise_scale
-        denominators = denominator + noise_scale_denominator * laplace_noises[1, :]
-
-        self.observed = numerator / denominator
-        self.samples = numerators / denominators
+        # Convert the inputs to 1-dimensional arrays of same dimension (hopefully).
+        noisy_answers = np.array(noisy_answers).flatten()
+        noise_scales = np.array(noise_scales).flatten()
+        if len(noise_scales) == 1:
+            noise_scales = np.full(noisy_answers.shape, noise_scales[0])
+        assert (
+            noise_scales.shape == noisy_answers.shape
+        ), "Mismatching input dimensions for noise_scales and noisy_answers."
+        # Simulate the Laplace mechanism multiple times.
+        laplace_noises = np.random.laplace(
+            loc=0, scale=noise_scales, size=(num_samples, len(noise_scales))
+        )
+        samples = np.tile(noisy_answers, (num_samples, 1)) + laplace_noises
+        # Compute the function on each of these samples.
+        self.observed = function(noisy_answers)
+        self.samples = np.array([function(row) for row in samples])
 
     def confidence_intervals(self, p: List[float] = (95, 99)):
         """
-        Estimate confidence intervals for the ratio.
+        Estimate confidence intervals for the function result.
 
         Args
             p: the probabilities of the confidence interval (in percentages, in [0, 100]).
@@ -63,11 +79,12 @@ class RatioEstimator:
 
         return pd.DataFrame(results, columns=["Percentage", "CI (min)", "CI (max)"])
 
-    def draw_distribution(self, ci_color="k"):
-        """Display the shape of this distribution in a matplotlib figure.
+    def draw_distribution(self, ci_color="k", local=False):
+        """Display the shape of the distribution of function results in a matplotlib figure.
 
         Args
             ci_color: if not None, the 95% and 99% confidence intervals are displayed in this color.
+            local: whether the results are from a local or collective computation.
 
         """
         plt.style.use("bmh")
@@ -118,4 +135,50 @@ class RatioEstimator:
             x_label="Possible values",
             y_label="Likelihood",
             size=(8, 6),
+            local=local,
         )
+
+
+class RatioEstimator(ConfidenceIntervalEstimator):
+    """Compute confidence intervals for the ratio of two values computed with differential privacy.
+
+    This class uses simulated samples to estimate various properties of the observed values.
+
+    """
+
+    def __init__(
+        self,
+        numerator: float,
+        denominator: float,
+        noise_scale: float,
+        noise_scale_denominator: float = None,
+        num_samples: int = int(1e6),
+    ):
+        """
+        Create simulated samples of the ratio under DP.
+
+        Args
+            numerator: the numerator of the ratio, observed with Laplace noise.
+            denominator: the denominator of the ratio, observer with Laplace noise.
+            noise_scale: the scale of the Laplace noise added to the numerator (and the denominator, if not specified).
+            noise_scale_denominator: the scale of the Laplace noise added to the denominator (if None, noise_scale is used).
+            num_samples (int, default 1e6): number of samples to use in the Monte-Carlo estimation.
+        """
+        noise_scales = [noise_scale]
+        if noise_scale_denominator is not None:
+            noise_scales.append(noise_scale_denominator)
+        super().__init__(
+            [numerator, denominator], noise_scales, lambda x: x[0] / x[1], num_samples
+        )
+
+
+class CountEstimator(ConfidenceIntervalEstimator):
+    """Confidence intervals for a counting query."""
+
+    def __init__(self, noisy_count: float, noise_scale: float):
+        """
+        Args
+            noisy_count (float): the observed noisy count.
+            noise_scale (float): the scale of the Laplace noise added to the count.
+        """
+        super().__init__([noisy_count], [noise_scale], lambda x: x[0])

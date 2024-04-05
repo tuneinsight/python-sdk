@@ -15,7 +15,7 @@ def _get_kwargs(
     *,
     client: Client,
     page: Union[Unset, None, int] = 1,
-    per_page: Union[Unset, None, int] = 30,
+    per_page: Union[Unset, None, int] = 50,
     with_total: Union[Unset, None, bool] = True,
     order: Union[Unset, None, GetLogListOrder] = UNSET,
 ) -> Dict[str, Any]:
@@ -81,7 +81,7 @@ def sync_detailed(
     *,
     client: Client,
     page: Union[Unset, None, int] = 1,
-    per_page: Union[Unset, None, int] = 30,
+    per_page: Union[Unset, None, int] = 50,
     with_total: Union[Unset, None, bool] = True,
     order: Union[Unset, None, GetLogListOrder] = UNSET,
 ) -> Response[Union[Error, GetLogListResponse200]]:
@@ -89,7 +89,7 @@ def sync_detailed(
 
     Args:
         page (Union[Unset, None, int]):  Default: 1.
-        per_page (Union[Unset, None, int]):  Default: 30.
+        per_page (Union[Unset, None, int]):  Default: 50.
         with_total (Union[Unset, None, bool]):  Default: True.
         order (Union[Unset, None, GetLogListOrder]):
 
@@ -121,7 +121,7 @@ def sync(
     *,
     client: Client,
     page: Union[Unset, None, int] = 1,
-    per_page: Union[Unset, None, int] = 30,
+    per_page: Union[Unset, None, int] = 50,
     with_total: Union[Unset, None, bool] = True,
     order: Union[Unset, None, GetLogListOrder] = UNSET,
 ) -> Optional[Union[Error, GetLogListResponse200]]:
@@ -129,7 +129,7 @@ def sync(
 
     Args:
         page (Union[Unset, None, int]):  Default: 1.
-        per_page (Union[Unset, None, int]):  Default: 30.
+        per_page (Union[Unset, None, int]):  Default: 50.
         with_total (Union[Unset, None, bool]):  Default: True.
         order (Union[Unset, None, GetLogListOrder]):
 
@@ -154,7 +154,7 @@ async def asyncio_detailed(
     *,
     client: Client,
     page: Union[Unset, None, int] = 1,
-    per_page: Union[Unset, None, int] = 30,
+    per_page: Union[Unset, None, int] = 50,
     with_total: Union[Unset, None, bool] = True,
     order: Union[Unset, None, GetLogListOrder] = UNSET,
 ) -> Response[Union[Error, GetLogListResponse200]]:
@@ -162,7 +162,7 @@ async def asyncio_detailed(
 
     Args:
         page (Union[Unset, None, int]):  Default: 1.
-        per_page (Union[Unset, None, int]):  Default: 30.
+        per_page (Union[Unset, None, int]):  Default: 50.
         with_total (Union[Unset, None, bool]):  Default: True.
         order (Union[Unset, None, GetLogListOrder]):
 
@@ -192,7 +192,7 @@ async def asyncio(
     *,
     client: Client,
     page: Union[Unset, None, int] = 1,
-    per_page: Union[Unset, None, int] = 30,
+    per_page: Union[Unset, None, int] = 50,
     with_total: Union[Unset, None, bool] = True,
     order: Union[Unset, None, GetLogListOrder] = UNSET,
 ) -> Optional[Union[Error, GetLogListResponse200]]:
@@ -200,7 +200,7 @@ async def asyncio(
 
     Args:
         page (Union[Unset, None, int]):  Default: 1.
-        per_page (Union[Unset, None, int]):  Default: 30.
+        per_page (Union[Unset, None, int]):  Default: 50.
         with_total (Union[Unset, None, bool]):  Default: True.
         order (Union[Unset, None, GetLogListOrder]):
 

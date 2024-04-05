@@ -20,7 +20,7 @@ class EncryptedAggregation(ModelBasedComputation):
     cohort_id: str = ""
     join_id: str = ""
     selected_coselected_colsls: List[str] = None
-    dp_epsilon = None
+    dp_epsilon = UNSET
     lower_bounds = []
     upper_bounds = []
 

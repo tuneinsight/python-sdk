@@ -91,6 +91,7 @@ class Renderer:
         self.ln(*text, end=end)
 
     def end_paragraph(self):
+        """Ends the current paragraph with a line break."""
         if self.use_ipython:
             self.text("<br>")
         else:

@@ -4,9 +4,9 @@ import attr
 
 from ..models.authorization_status import AuthorizationStatus
 from ..models.client import Client
-from ..models.project_base_workflow_type import ProjectBaseWorkflowType
 from ..models.project_status import ProjectStatus
 from ..models.topology import Topology
+from ..models.workflow_type import WorkflowType
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -27,168 +27,162 @@ class Project:
     """Project entity definition.
 
     Attributes:
-        local (Union[Unset, None, bool]): True if the project's computation should run only with local data (not
-            configured the network)
+        authorization_status (Union[Unset, AuthorizationStatus]): Authorization status of the project
+        created_with_client (Union[Unset, Client]): Type of client that communicates with the agent API
+        description (Union[Unset, None, str]):
         allow_shared_edit (Union[Unset, bool]): True if this project can be modified after being shared. Modifications
             of a shared project will be broadcasted to the network
-        authorized_users (Union[Unset, List[str]]): The IDs of the users who can run the project
-        end_to_end_encrypted (Union[Unset, None, bool]): whether results are always end to end encrypted and decrypted
-            on the client side
+        created_by_node (Union[Unset, str]): ID of node where the project was first created
+        locked (Union[Unset, None, bool]): True if the project is read-only (likely because it has already been shared)
+        unrestricted_access (Union[Unset, None, bool]): when set to true, then all users from the same organization are
+            authorized to access the project (view / edit depends on the roles)
+        workflow_type (Union[Unset, WorkflowType]): type of the workflow UI in the frontend
+        computation_definition (Union[Unset, ComputationDefinition]): Generic computation.
+        shared (Union[Unset, bool]): True if the project has once been shared across the participants
         policy (Union[Unset, ComputationPolicy]): policy to validate a specific computation
+        created_by_user (Union[Unset, str]): ID of user who created the project
+        name (Union[Unset, str]):
+        network_id (Union[Unset, str]): id to uniquely identify the network
+        query (Union[Unset, DataSourceQuery]): schema used for the query
         topology (Union[Unset, Topology]): Network Topologies. 'star' or 'tree'. In star topology all nodes are
             connected to a central node. In tree topology all nodes are connected and aware of each other.
         allow_clear_query (Union[Unset, bool]): [Dangerous, can lead to cross code data share] True if it is allowed for
             a client to query the data source all participants of the project and return the clear text result
-        network_id (Union[Unset, str]): id to uniquely identify the network
+        local (Union[Unset, None, bool]): True if the project's computation should run only with local data (not
+            configured the network)
         run_async (Union[Unset, bool]): flag indicating if computation should be run asynchronously
-        shared (Union[Unset, bool]): True if the project has once been shared across the participants
-        unrestricted_access (Union[Unset, None, bool]): when set to true, then all users from the same organization are
-            authorized to access the project (view / edit depends on the roles)
-        data_source_id (Union[Unset, None, str]): Unique identifier of a data source.
-        hide_leaf_participants (Union[Unset, None, bool]): whether leaf project participants are not shown to other leaf
-            participants when the project is in a star topology.
-        query_timeout (Union[Unset, int]): Timeout for the data source queries Default: 30.
-        created_with_client (Union[Unset, Client]): Type of client that communicates with the agent API
+        unique_id (Union[Unset, str]): Unique identifier of a project.
         data_source_auto_match (Union[Unset, bool]): whether or not to automatically assign the first matching
             datasource when the project is shared with other nodes
+        end_to_end_encrypted (Union[Unset, None, bool]): whether results are always end to end encrypted and decrypted
+            on the client side
+        hide_leaf_participants (Union[Unset, None, bool]): whether leaf project participants are not shown to other leaf
+            participants when the project is in a star topology.
+        local_data_selection_definition (Union[Unset, LocalDataSelectionDefinition]): datasource selection definition. A
+            selection is a "query" or data selection definition to run on the datasource
         min_contributors (Union[Unset, None, int]): minimum number of participants that contribute with their data
             required to run computations within this project
+        query_timeout (Union[Unset, int]): Timeout for the data source queries Default: 30.
+        workflow_json (Union[Unset, str]): JSON representation of the workflow UI in the frontend
+        authorized_users (Union[Unset, List[str]]): The IDs of the users who can run the project
+        dpia (Union[Unset, str]):
         non_contributor (Union[Unset, None, bool]): indicates that the current project participant takes part in the
             distributed computations but does not have any input data.
             By default this field is set according to the instance's configuration.
-        query (Union[Unset, DataSourceQuery]): schema used for the query
-        unique_id (Union[Unset, str]): Unique identifier of a project.
-        workflow_json (Union[Unset, str]): JSON representation of the workflow UI in the frontend
-        authorization_status (Union[Unset, AuthorizationStatus]): Authorization status of the project
-        computation_definition (Union[Unset, ComputationDefinition]): Generic computation.
-        dpia (Union[Unset, str]):
-        local_data_selection_definition (Union[Unset, LocalDataSelectionDefinition]): datasource selection definition. A
-            selection is a "query" or data selection definition to run on the datasource
-        locked (Union[Unset, None, bool]): True if the project is read-only (likely because it has already been shared)
-        name (Union[Unset, str]):
-        created_by_node (Union[Unset, str]): ID of node where the project was first created
-        created_by_user (Union[Unset, str]): ID of user who created the project
-        description (Union[Unset, None, str]):
-        workflow_type (Union[Unset, ProjectBaseWorkflowType]): type of the workflow UI in the frontend
+        data_source_id (Union[Unset, None, str]): Unique identifier of a data source.
+        computations (Union[Unset, List['Computation']]): List of computations of the project
+        created_at (Union[Unset, str]):
+        error (Union[Unset, str]): Description of a potential error that happened during the project lifespan
+        participants (Union[Unset, List['Participant']]): List of participants in the project
+        privacy_summary (Union[Unset, PrivacySummary]): Privacy summary for a project
         status (Union[Unset, ProjectStatus]): Stages of a project workflow
         updated_at (Union[Unset, str]):
         workflow_description (Union[Unset, str]): dynamically generated markdown description of the distributed workflow
             that is currently configured with the project.
             Not to be confused with the project description which is set by the user that has created the project for
             informative purposes.
-        computations (Union[Unset, List['Computation']]): List of computations of the project
-        created_at (Union[Unset, str]):
-        error (Union[Unset, str]): Description of a potential error that happened during the project lifespan
-        participants (Union[Unset, List['Participant']]): List of participants in the project
-        privacy_summary (Union[Unset, PrivacySummary]): Privacy summary for a project
     """
 
-    local: Union[Unset, None, bool] = UNSET
+    authorization_status: Union[Unset, AuthorizationStatus] = UNSET
+    created_with_client: Union[Unset, Client] = UNSET
+    description: Union[Unset, None, str] = UNSET
     allow_shared_edit: Union[Unset, bool] = UNSET
-    authorized_users: Union[Unset, List[str]] = UNSET
-    end_to_end_encrypted: Union[Unset, None, bool] = UNSET
+    created_by_node: Union[Unset, str] = UNSET
+    locked: Union[Unset, None, bool] = UNSET
+    unrestricted_access: Union[Unset, None, bool] = UNSET
+    workflow_type: Union[Unset, WorkflowType] = UNSET
+    computation_definition: Union[Unset, "ComputationDefinition"] = UNSET
+    shared: Union[Unset, bool] = UNSET
     policy: Union[Unset, "ComputationPolicy"] = UNSET
+    created_by_user: Union[Unset, str] = UNSET
+    name: Union[Unset, str] = UNSET
+    network_id: Union[Unset, str] = UNSET
+    query: Union[Unset, "DataSourceQuery"] = UNSET
     topology: Union[Unset, Topology] = UNSET
     allow_clear_query: Union[Unset, bool] = UNSET
-    network_id: Union[Unset, str] = UNSET
+    local: Union[Unset, None, bool] = UNSET
     run_async: Union[Unset, bool] = UNSET
-    shared: Union[Unset, bool] = UNSET
-    unrestricted_access: Union[Unset, None, bool] = UNSET
-    data_source_id: Union[Unset, None, str] = UNSET
-    hide_leaf_participants: Union[Unset, None, bool] = UNSET
-    query_timeout: Union[Unset, int] = 30
-    created_with_client: Union[Unset, Client] = UNSET
-    data_source_auto_match: Union[Unset, bool] = UNSET
-    min_contributors: Union[Unset, None, int] = UNSET
-    non_contributor: Union[Unset, None, bool] = UNSET
-    query: Union[Unset, "DataSourceQuery"] = UNSET
     unique_id: Union[Unset, str] = UNSET
-    workflow_json: Union[Unset, str] = UNSET
-    authorization_status: Union[Unset, AuthorizationStatus] = UNSET
-    computation_definition: Union[Unset, "ComputationDefinition"] = UNSET
-    dpia: Union[Unset, str] = UNSET
+    data_source_auto_match: Union[Unset, bool] = UNSET
+    end_to_end_encrypted: Union[Unset, None, bool] = UNSET
+    hide_leaf_participants: Union[Unset, None, bool] = UNSET
     local_data_selection_definition: Union[Unset, "LocalDataSelectionDefinition"] = UNSET
-    locked: Union[Unset, None, bool] = UNSET
-    name: Union[Unset, str] = UNSET
-    created_by_node: Union[Unset, str] = UNSET
-    created_by_user: Union[Unset, str] = UNSET
-    description: Union[Unset, None, str] = UNSET
-    workflow_type: Union[Unset, ProjectBaseWorkflowType] = UNSET
-    status: Union[Unset, ProjectStatus] = UNSET
-    updated_at: Union[Unset, str] = UNSET
-    workflow_description: Union[Unset, str] = UNSET
+    min_contributors: Union[Unset, None, int] = UNSET
+    query_timeout: Union[Unset, int] = 30
+    workflow_json: Union[Unset, str] = UNSET
+    authorized_users: Union[Unset, List[str]] = UNSET
+    dpia: Union[Unset, str] = UNSET
+    non_contributor: Union[Unset, None, bool] = UNSET
+    data_source_id: Union[Unset, None, str] = UNSET
     computations: Union[Unset, List["Computation"]] = UNSET
     created_at: Union[Unset, str] = UNSET
     error: Union[Unset, str] = UNSET
     participants: Union[Unset, List["Participant"]] = UNSET
     privacy_summary: Union[Unset, "PrivacySummary"] = UNSET
+    status: Union[Unset, ProjectStatus] = UNSET
+    updated_at: Union[Unset, str] = UNSET
+    workflow_description: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        local = self.local
-        allow_shared_edit = self.allow_shared_edit
-        authorized_users: Union[Unset, List[str]] = UNSET
-        if not isinstance(self.authorized_users, Unset):
-            authorized_users = self.authorized_users
+        authorization_status: Union[Unset, str] = UNSET
+        if not isinstance(self.authorization_status, Unset):
+            authorization_status = self.authorization_status.value
 
-        end_to_end_encrypted = self.end_to_end_encrypted
+        created_with_client: Union[Unset, str] = UNSET
+        if not isinstance(self.created_with_client, Unset):
+            created_with_client = self.created_with_client.value
+
+        description = self.description
+        allow_shared_edit = self.allow_shared_edit
+        created_by_node = self.created_by_node
+        locked = self.locked
+        unrestricted_access = self.unrestricted_access
+        workflow_type: Union[Unset, str] = UNSET
+        if not isinstance(self.workflow_type, Unset):
+            workflow_type = self.workflow_type.value
+
+        computation_definition: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.computation_definition, Unset):
+            computation_definition = self.computation_definition.to_dict()
+
+        shared = self.shared
         policy: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.policy, Unset):
             policy = self.policy.to_dict()
+
+        created_by_user = self.created_by_user
+        name = self.name
+        network_id = self.network_id
+        query: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.query, Unset):
+            query = self.query.to_dict()
 
         topology: Union[Unset, str] = UNSET
         if not isinstance(self.topology, Unset):
             topology = self.topology.value
 
         allow_clear_query = self.allow_clear_query
-        network_id = self.network_id
+        local = self.local
         run_async = self.run_async
-        shared = self.shared
-        unrestricted_access = self.unrestricted_access
-        data_source_id = self.data_source_id
-        hide_leaf_participants = self.hide_leaf_participants
-        query_timeout = self.query_timeout
-        created_with_client: Union[Unset, str] = UNSET
-        if not isinstance(self.created_with_client, Unset):
-            created_with_client = self.created_with_client.value
-
-        data_source_auto_match = self.data_source_auto_match
-        min_contributors = self.min_contributors
-        non_contributor = self.non_contributor
-        query: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.query, Unset):
-            query = self.query.to_dict()
-
         unique_id = self.unique_id
-        workflow_json = self.workflow_json
-        authorization_status: Union[Unset, str] = UNSET
-        if not isinstance(self.authorization_status, Unset):
-            authorization_status = self.authorization_status.value
-
-        computation_definition: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.computation_definition, Unset):
-            computation_definition = self.computation_definition.to_dict()
-
-        dpia = self.dpia
+        data_source_auto_match = self.data_source_auto_match
+        end_to_end_encrypted = self.end_to_end_encrypted
+        hide_leaf_participants = self.hide_leaf_participants
         local_data_selection_definition: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.local_data_selection_definition, Unset):
             local_data_selection_definition = self.local_data_selection_definition.to_dict()
 
-        locked = self.locked
-        name = self.name
-        created_by_node = self.created_by_node
-        created_by_user = self.created_by_user
-        description = self.description
-        workflow_type: Union[Unset, str] = UNSET
-        if not isinstance(self.workflow_type, Unset):
-            workflow_type = self.workflow_type.value
+        min_contributors = self.min_contributors
+        query_timeout = self.query_timeout
+        workflow_json = self.workflow_json
+        authorized_users: Union[Unset, List[str]] = UNSET
+        if not isinstance(self.authorized_users, Unset):
+            authorized_users = self.authorized_users
 
-        status: Union[Unset, str] = UNSET
-        if not isinstance(self.status, Unset):
-            status = self.status.value
-
-        updated_at = self.updated_at
-        workflow_description = self.workflow_description
+        dpia = self.dpia
+        non_contributor = self.non_contributor
+        data_source_id = self.data_source_id
         computations: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.computations, Unset):
             computations = []
@@ -211,77 +205,78 @@ class Project:
         if not isinstance(self.privacy_summary, Unset):
             privacy_summary = self.privacy_summary.to_dict()
 
+        status: Union[Unset, str] = UNSET
+        if not isinstance(self.status, Unset):
+            status = self.status.value
+
+        updated_at = self.updated_at
+        workflow_description = self.workflow_description
+
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if local is not UNSET:
-            field_dict["local"] = local
+        if authorization_status is not UNSET:
+            field_dict["authorizationStatus"] = authorization_status
+        if created_with_client is not UNSET:
+            field_dict["createdWithClient"] = created_with_client
+        if description is not UNSET:
+            field_dict["description"] = description
         if allow_shared_edit is not UNSET:
             field_dict["allowSharedEdit"] = allow_shared_edit
-        if authorized_users is not UNSET:
-            field_dict["authorizedUsers"] = authorized_users
-        if end_to_end_encrypted is not UNSET:
-            field_dict["endToEndEncrypted"] = end_to_end_encrypted
+        if created_by_node is not UNSET:
+            field_dict["createdByNode"] = created_by_node
+        if locked is not UNSET:
+            field_dict["locked"] = locked
+        if unrestricted_access is not UNSET:
+            field_dict["unrestrictedAccess"] = unrestricted_access
+        if workflow_type is not UNSET:
+            field_dict["workflowType"] = workflow_type
+        if computation_definition is not UNSET:
+            field_dict["computationDefinition"] = computation_definition
+        if shared is not UNSET:
+            field_dict["shared"] = shared
         if policy is not UNSET:
             field_dict["policy"] = policy
+        if created_by_user is not UNSET:
+            field_dict["createdByUser"] = created_by_user
+        if name is not UNSET:
+            field_dict["name"] = name
+        if network_id is not UNSET:
+            field_dict["networkId"] = network_id
+        if query is not UNSET:
+            field_dict["query"] = query
         if topology is not UNSET:
             field_dict["topology"] = topology
         if allow_clear_query is not UNSET:
             field_dict["allowClearQuery"] = allow_clear_query
-        if network_id is not UNSET:
-            field_dict["networkId"] = network_id
+        if local is not UNSET:
+            field_dict["local"] = local
         if run_async is not UNSET:
             field_dict["runAsync"] = run_async
-        if shared is not UNSET:
-            field_dict["shared"] = shared
-        if unrestricted_access is not UNSET:
-            field_dict["unrestrictedAccess"] = unrestricted_access
-        if data_source_id is not UNSET:
-            field_dict["dataSourceId"] = data_source_id
-        if hide_leaf_participants is not UNSET:
-            field_dict["hideLeafParticipants"] = hide_leaf_participants
-        if query_timeout is not UNSET:
-            field_dict["queryTimeout"] = query_timeout
-        if created_with_client is not UNSET:
-            field_dict["createdWithClient"] = created_with_client
-        if data_source_auto_match is not UNSET:
-            field_dict["dataSourceAutoMatch"] = data_source_auto_match
-        if min_contributors is not UNSET:
-            field_dict["minContributors"] = min_contributors
-        if non_contributor is not UNSET:
-            field_dict["nonContributor"] = non_contributor
-        if query is not UNSET:
-            field_dict["query"] = query
         if unique_id is not UNSET:
             field_dict["uniqueId"] = unique_id
-        if workflow_json is not UNSET:
-            field_dict["workflowJSON"] = workflow_json
-        if authorization_status is not UNSET:
-            field_dict["authorizationStatus"] = authorization_status
-        if computation_definition is not UNSET:
-            field_dict["computationDefinition"] = computation_definition
-        if dpia is not UNSET:
-            field_dict["dpia"] = dpia
+        if data_source_auto_match is not UNSET:
+            field_dict["dataSourceAutoMatch"] = data_source_auto_match
+        if end_to_end_encrypted is not UNSET:
+            field_dict["endToEndEncrypted"] = end_to_end_encrypted
+        if hide_leaf_participants is not UNSET:
+            field_dict["hideLeafParticipants"] = hide_leaf_participants
         if local_data_selection_definition is not UNSET:
             field_dict["localDataSelectionDefinition"] = local_data_selection_definition
-        if locked is not UNSET:
-            field_dict["locked"] = locked
-        if name is not UNSET:
-            field_dict["name"] = name
-        if created_by_node is not UNSET:
-            field_dict["createdByNode"] = created_by_node
-        if created_by_user is not UNSET:
-            field_dict["createdByUser"] = created_by_user
-        if description is not UNSET:
-            field_dict["description"] = description
-        if workflow_type is not UNSET:
-            field_dict["workflowType"] = workflow_type
-        if status is not UNSET:
-            field_dict["status"] = status
-        if updated_at is not UNSET:
-            field_dict["updatedAt"] = updated_at
-        if workflow_description is not UNSET:
-            field_dict["workflowDescription"] = workflow_description
+        if min_contributors is not UNSET:
+            field_dict["minContributors"] = min_contributors
+        if query_timeout is not UNSET:
+            field_dict["queryTimeout"] = query_timeout
+        if workflow_json is not UNSET:
+            field_dict["workflowJSON"] = workflow_json
+        if authorized_users is not UNSET:
+            field_dict["authorizedUsers"] = authorized_users
+        if dpia is not UNSET:
+            field_dict["dpia"] = dpia
+        if non_contributor is not UNSET:
+            field_dict["nonContributor"] = non_contributor
+        if data_source_id is not UNSET:
+            field_dict["dataSourceId"] = data_source_id
         if computations is not UNSET:
             field_dict["computations"] = computations
         if created_at is not UNSET:
@@ -292,6 +287,12 @@ class Project:
             field_dict["participants"] = participants
         if privacy_summary is not UNSET:
             field_dict["privacySummary"] = privacy_summary
+        if status is not UNSET:
+            field_dict["status"] = status
+        if updated_at is not UNSET:
+            field_dict["updatedAt"] = updated_at
+        if workflow_description is not UNSET:
+            field_dict["workflowDescription"] = workflow_description
 
         return field_dict
 
@@ -306,13 +307,45 @@ class Project:
         from ..models.privacy_summary import PrivacySummary
 
         d = src_dict.copy()
-        local = d.pop("local", UNSET)
+        _authorization_status = d.pop("authorizationStatus", UNSET)
+        authorization_status: Union[Unset, AuthorizationStatus]
+        if isinstance(_authorization_status, Unset):
+            authorization_status = UNSET
+        else:
+            authorization_status = AuthorizationStatus(_authorization_status)
+
+        _created_with_client = d.pop("createdWithClient", UNSET)
+        created_with_client: Union[Unset, Client]
+        if isinstance(_created_with_client, Unset):
+            created_with_client = UNSET
+        else:
+            created_with_client = Client(_created_with_client)
+
+        description = d.pop("description", UNSET)
 
         allow_shared_edit = d.pop("allowSharedEdit", UNSET)
 
-        authorized_users = cast(List[str], d.pop("authorizedUsers", UNSET))
+        created_by_node = d.pop("createdByNode", UNSET)
 
-        end_to_end_encrypted = d.pop("endToEndEncrypted", UNSET)
+        locked = d.pop("locked", UNSET)
+
+        unrestricted_access = d.pop("unrestrictedAccess", UNSET)
+
+        _workflow_type = d.pop("workflowType", UNSET)
+        workflow_type: Union[Unset, WorkflowType]
+        if isinstance(_workflow_type, Unset):
+            workflow_type = UNSET
+        else:
+            workflow_type = WorkflowType(_workflow_type)
+
+        _computation_definition = d.pop("computationDefinition", UNSET)
+        computation_definition: Union[Unset, ComputationDefinition]
+        if isinstance(_computation_definition, Unset):
+            computation_definition = UNSET
+        else:
+            computation_definition = ComputationDefinition.from_dict(_computation_definition)
+
+        shared = d.pop("shared", UNSET)
 
         _policy = d.pop("policy", UNSET)
         policy: Union[Unset, ComputationPolicy]
@@ -320,6 +353,19 @@ class Project:
             policy = UNSET
         else:
             policy = ComputationPolicy.from_dict(_policy)
+
+        created_by_user = d.pop("createdByUser", UNSET)
+
+        name = d.pop("name", UNSET)
+
+        network_id = d.pop("networkId", UNSET)
+
+        _query = d.pop("query", UNSET)
+        query: Union[Unset, DataSourceQuery]
+        if isinstance(_query, Unset):
+            query = UNSET
+        else:
+            query = DataSourceQuery.from_dict(_query)
 
         _topology = d.pop("topology", UNSET)
         topology: Union[Unset, Topology]
@@ -330,59 +376,17 @@ class Project:
 
         allow_clear_query = d.pop("allowClearQuery", UNSET)
 
-        network_id = d.pop("networkId", UNSET)
+        local = d.pop("local", UNSET)
 
         run_async = d.pop("runAsync", UNSET)
 
-        shared = d.pop("shared", UNSET)
-
-        unrestricted_access = d.pop("unrestrictedAccess", UNSET)
-
-        data_source_id = d.pop("dataSourceId", UNSET)
-
-        hide_leaf_participants = d.pop("hideLeafParticipants", UNSET)
-
-        query_timeout = d.pop("queryTimeout", UNSET)
-
-        _created_with_client = d.pop("createdWithClient", UNSET)
-        created_with_client: Union[Unset, Client]
-        if isinstance(_created_with_client, Unset):
-            created_with_client = UNSET
-        else:
-            created_with_client = Client(_created_with_client)
+        unique_id = d.pop("uniqueId", UNSET)
 
         data_source_auto_match = d.pop("dataSourceAutoMatch", UNSET)
 
-        min_contributors = d.pop("minContributors", UNSET)
+        end_to_end_encrypted = d.pop("endToEndEncrypted", UNSET)
 
-        non_contributor = d.pop("nonContributor", UNSET)
-
-        _query = d.pop("query", UNSET)
-        query: Union[Unset, DataSourceQuery]
-        if isinstance(_query, Unset):
-            query = UNSET
-        else:
-            query = DataSourceQuery.from_dict(_query)
-
-        unique_id = d.pop("uniqueId", UNSET)
-
-        workflow_json = d.pop("workflowJSON", UNSET)
-
-        _authorization_status = d.pop("authorizationStatus", UNSET)
-        authorization_status: Union[Unset, AuthorizationStatus]
-        if isinstance(_authorization_status, Unset):
-            authorization_status = UNSET
-        else:
-            authorization_status = AuthorizationStatus(_authorization_status)
-
-        _computation_definition = d.pop("computationDefinition", UNSET)
-        computation_definition: Union[Unset, ComputationDefinition]
-        if isinstance(_computation_definition, Unset):
-            computation_definition = UNSET
-        else:
-            computation_definition = ComputationDefinition.from_dict(_computation_definition)
-
-        dpia = d.pop("dpia", UNSET)
+        hide_leaf_participants = d.pop("hideLeafParticipants", UNSET)
 
         _local_data_selection_definition = d.pop("localDataSelectionDefinition", UNSET)
         local_data_selection_definition: Union[Unset, LocalDataSelectionDefinition]
@@ -391,33 +395,19 @@ class Project:
         else:
             local_data_selection_definition = LocalDataSelectionDefinition.from_dict(_local_data_selection_definition)
 
-        locked = d.pop("locked", UNSET)
+        min_contributors = d.pop("minContributors", UNSET)
 
-        name = d.pop("name", UNSET)
+        query_timeout = d.pop("queryTimeout", UNSET)
 
-        created_by_node = d.pop("createdByNode", UNSET)
+        workflow_json = d.pop("workflowJSON", UNSET)
 
-        created_by_user = d.pop("createdByUser", UNSET)
+        authorized_users = cast(List[str], d.pop("authorizedUsers", UNSET))
 
-        description = d.pop("description", UNSET)
+        dpia = d.pop("dpia", UNSET)
 
-        _workflow_type = d.pop("workflowType", UNSET)
-        workflow_type: Union[Unset, ProjectBaseWorkflowType]
-        if isinstance(_workflow_type, Unset):
-            workflow_type = UNSET
-        else:
-            workflow_type = ProjectBaseWorkflowType(_workflow_type)
+        non_contributor = d.pop("nonContributor", UNSET)
 
-        _status = d.pop("status", UNSET)
-        status: Union[Unset, ProjectStatus]
-        if isinstance(_status, Unset):
-            status = UNSET
-        else:
-            status = ProjectStatus(_status)
-
-        updated_at = d.pop("updatedAt", UNSET)
-
-        workflow_description = d.pop("workflowDescription", UNSET)
+        data_source_id = d.pop("dataSourceId", UNSET)
 
         computations = []
         _computations = d.pop("computations", UNSET)
@@ -444,46 +434,57 @@ class Project:
         else:
             privacy_summary = PrivacySummary.from_dict(_privacy_summary)
 
+        _status = d.pop("status", UNSET)
+        status: Union[Unset, ProjectStatus]
+        if isinstance(_status, Unset):
+            status = UNSET
+        else:
+            status = ProjectStatus(_status)
+
+        updated_at = d.pop("updatedAt", UNSET)
+
+        workflow_description = d.pop("workflowDescription", UNSET)
+
         project = cls(
-            local=local,
+            authorization_status=authorization_status,
+            created_with_client=created_with_client,
+            description=description,
             allow_shared_edit=allow_shared_edit,
-            authorized_users=authorized_users,
-            end_to_end_encrypted=end_to_end_encrypted,
+            created_by_node=created_by_node,
+            locked=locked,
+            unrestricted_access=unrestricted_access,
+            workflow_type=workflow_type,
+            computation_definition=computation_definition,
+            shared=shared,
             policy=policy,
+            created_by_user=created_by_user,
+            name=name,
+            network_id=network_id,
+            query=query,
             topology=topology,
             allow_clear_query=allow_clear_query,
-            network_id=network_id,
+            local=local,
             run_async=run_async,
-            shared=shared,
-            unrestricted_access=unrestricted_access,
-            data_source_id=data_source_id,
-            hide_leaf_participants=hide_leaf_participants,
-            query_timeout=query_timeout,
-            created_with_client=created_with_client,
-            data_source_auto_match=data_source_auto_match,
-            min_contributors=min_contributors,
-            non_contributor=non_contributor,
-            query=query,
             unique_id=unique_id,
-            workflow_json=workflow_json,
-            authorization_status=authorization_status,
-            computation_definition=computation_definition,
-            dpia=dpia,
+            data_source_auto_match=data_source_auto_match,
+            end_to_end_encrypted=end_to_end_encrypted,
+            hide_leaf_participants=hide_leaf_participants,
             local_data_selection_definition=local_data_selection_definition,
-            locked=locked,
-            name=name,
-            created_by_node=created_by_node,
-            created_by_user=created_by_user,
-            description=description,
-            workflow_type=workflow_type,
-            status=status,
-            updated_at=updated_at,
-            workflow_description=workflow_description,
+            min_contributors=min_contributors,
+            query_timeout=query_timeout,
+            workflow_json=workflow_json,
+            authorized_users=authorized_users,
+            dpia=dpia,
+            non_contributor=non_contributor,
+            data_source_id=data_source_id,
             computations=computations,
             created_at=created_at,
             error=error,
             participants=participants,
             privacy_summary=privacy_summary,
+            status=status,
+            updated_at=updated_at,
+            workflow_description=workflow_description,
         )
 
         project.additional_properties = d

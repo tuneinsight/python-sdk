@@ -18,25 +18,25 @@ class StatisticResult:
         filter_ (Union[Unset, Filter]):
         name (Union[Unset, str]): given name of the statistic
         variable (Union[Unset, str]): target variable in the dataset from the which the statistic is computed
+        iqr (Union[Unset, None, float]):
+        max_ (Union[Unset, None, float]):
+        mean (Union[Unset, None, float]):
         median (Union[Unset, None, float]):
         min_ (Union[Unset, None, float]):
         quantiles (Union[Unset, List[float]]):
         variance (Union[Unset, None, float]):
-        iqr (Union[Unset, None, float]):
-        max_ (Union[Unset, None, float]):
-        mean (Union[Unset, None, float]):
     """
 
     filter_: Union[Unset, "Filter"] = UNSET
     name: Union[Unset, str] = UNSET
     variable: Union[Unset, str] = UNSET
+    iqr: Union[Unset, None, float] = UNSET
+    max_: Union[Unset, None, float] = UNSET
+    mean: Union[Unset, None, float] = UNSET
     median: Union[Unset, None, float] = UNSET
     min_: Union[Unset, None, float] = UNSET
     quantiles: Union[Unset, List[float]] = UNSET
     variance: Union[Unset, None, float] = UNSET
-    iqr: Union[Unset, None, float] = UNSET
-    max_: Union[Unset, None, float] = UNSET
-    mean: Union[Unset, None, float] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -46,6 +46,9 @@ class StatisticResult:
 
         name = self.name
         variable = self.variable
+        iqr = self.iqr
+        max_ = self.max_
+        mean = self.mean
         median = self.median
         min_ = self.min_
         quantiles: Union[Unset, List[float]] = UNSET
@@ -53,9 +56,6 @@ class StatisticResult:
             quantiles = self.quantiles
 
         variance = self.variance
-        iqr = self.iqr
-        max_ = self.max_
-        mean = self.mean
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -66,6 +66,12 @@ class StatisticResult:
             field_dict["name"] = name
         if variable is not UNSET:
             field_dict["variable"] = variable
+        if iqr is not UNSET:
+            field_dict["IQR"] = iqr
+        if max_ is not UNSET:
+            field_dict["max"] = max_
+        if mean is not UNSET:
+            field_dict["mean"] = mean
         if median is not UNSET:
             field_dict["median"] = median
         if min_ is not UNSET:
@@ -74,12 +80,6 @@ class StatisticResult:
             field_dict["quantiles"] = quantiles
         if variance is not UNSET:
             field_dict["variance"] = variance
-        if iqr is not UNSET:
-            field_dict["IQR"] = iqr
-        if max_ is not UNSET:
-            field_dict["max"] = max_
-        if mean is not UNSET:
-            field_dict["mean"] = mean
 
         return field_dict
 
@@ -99,6 +99,12 @@ class StatisticResult:
 
         variable = d.pop("variable", UNSET)
 
+        iqr = d.pop("IQR", UNSET)
+
+        max_ = d.pop("max", UNSET)
+
+        mean = d.pop("mean", UNSET)
+
         median = d.pop("median", UNSET)
 
         min_ = d.pop("min", UNSET)
@@ -107,23 +113,17 @@ class StatisticResult:
 
         variance = d.pop("variance", UNSET)
 
-        iqr = d.pop("IQR", UNSET)
-
-        max_ = d.pop("max", UNSET)
-
-        mean = d.pop("mean", UNSET)
-
         statistic_result = cls(
             filter_=filter_,
             name=name,
             variable=variable,
+            iqr=iqr,
+            max_=max_,
+            mean=mean,
             median=median,
             min_=min_,
             quantiles=quantiles,
             variance=variance,
-            iqr=iqr,
-            max_=max_,
-            mean=mean,
         )
 
         statistic_result.additional_properties = d

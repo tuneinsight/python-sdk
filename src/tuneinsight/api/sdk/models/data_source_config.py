@@ -1,43 +1,158 @@
-from typing import Any, Dict, List, Type, TypeVar
+from typing import Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
-from ..models.data_source_config_type import DataSourceConfigType
+from ..models.api_type import APIType
+from ..models.database_type import DatabaseType
+from ..models.local_data_source_type import LocalDataSourceType
+from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="DataSourceConfig")
 
 
 @attr.s(auto_attribs=True)
 class DataSourceConfig:
-    """Configuration of data source that depends on the type.
+    """data source configuration
 
     Attributes:
-        type (DataSourceConfigType):
+        csv_path (Union[Unset, str]): the path to the CSV file.
+        cert (Union[Unset, str]): If applicable, name of the certificate to access the datasource. Certificate should be
+            in '/usr/local/share/datasource-certificates/<cert>.{crt/key}'
+        host (Union[Unset, str]): Hostname of the database
+        suricata_path (Union[Unset, str]): the path to the suricata JSON file.
+        local_type (Union[Unset, LocalDataSourceType]):
+        port (Union[Unset, str]): Port number of the database
+        with_auth (Union[Unset, bool]): Whether the API requires authentication
+        api_type (Union[Unset, APIType]):
+        api_url (Union[Unset, str]): URL of the API
+        database (Union[Unset, str]): Name of the database
+        database_type (Union[Unset, DatabaseType]): Type of the database
+        insecure_skip_verify_tls (Union[Unset, bool]): This flag enables skipping TLS verification when connecting to
+            the remote API data source. WARNING: this should not be used in production
     """
 
-    type: DataSourceConfigType
+    csv_path: Union[Unset, str] = UNSET
+    cert: Union[Unset, str] = UNSET
+    host: Union[Unset, str] = UNSET
+    suricata_path: Union[Unset, str] = UNSET
+    local_type: Union[Unset, LocalDataSourceType] = UNSET
+    port: Union[Unset, str] = UNSET
+    with_auth: Union[Unset, bool] = UNSET
+    api_type: Union[Unset, APIType] = UNSET
+    api_url: Union[Unset, str] = UNSET
+    database: Union[Unset, str] = UNSET
+    database_type: Union[Unset, DatabaseType] = UNSET
+    insecure_skip_verify_tls: Union[Unset, bool] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        type = self.type.value
+        csv_path = self.csv_path
+        cert = self.cert
+        host = self.host
+        suricata_path = self.suricata_path
+        local_type: Union[Unset, str] = UNSET
+        if not isinstance(self.local_type, Unset):
+            local_type = self.local_type.value
+
+        port = self.port
+        with_auth = self.with_auth
+        api_type: Union[Unset, str] = UNSET
+        if not isinstance(self.api_type, Unset):
+            api_type = self.api_type.value
+
+        api_url = self.api_url
+        database = self.database
+        database_type: Union[Unset, str] = UNSET
+        if not isinstance(self.database_type, Unset):
+            database_type = self.database_type.value
+
+        insecure_skip_verify_tls = self.insecure_skip_verify_tls
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "type": type,
-            }
-        )
+        field_dict.update({})
+        if csv_path is not UNSET:
+            field_dict["CSVPath"] = csv_path
+        if cert is not UNSET:
+            field_dict["cert"] = cert
+        if host is not UNSET:
+            field_dict["host"] = host
+        if suricata_path is not UNSET:
+            field_dict["suricataPath"] = suricata_path
+        if local_type is not UNSET:
+            field_dict["localType"] = local_type
+        if port is not UNSET:
+            field_dict["port"] = port
+        if with_auth is not UNSET:
+            field_dict["withAuth"] = with_auth
+        if api_type is not UNSET:
+            field_dict["APIType"] = api_type
+        if api_url is not UNSET:
+            field_dict["api-url"] = api_url
+        if database is not UNSET:
+            field_dict["database"] = database
+        if database_type is not UNSET:
+            field_dict["databaseType"] = database_type
+        if insecure_skip_verify_tls is not UNSET:
+            field_dict["insecureSkipVerifyTLS"] = insecure_skip_verify_tls
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        type = DataSourceConfigType(d.pop("type"))
+        csv_path = d.pop("CSVPath", UNSET)
+
+        cert = d.pop("cert", UNSET)
+
+        host = d.pop("host", UNSET)
+
+        suricata_path = d.pop("suricataPath", UNSET)
+
+        _local_type = d.pop("localType", UNSET)
+        local_type: Union[Unset, LocalDataSourceType]
+        if isinstance(_local_type, Unset):
+            local_type = UNSET
+        else:
+            local_type = LocalDataSourceType(_local_type)
+
+        port = d.pop("port", UNSET)
+
+        with_auth = d.pop("withAuth", UNSET)
+
+        _api_type = d.pop("APIType", UNSET)
+        api_type: Union[Unset, APIType]
+        if isinstance(_api_type, Unset):
+            api_type = UNSET
+        else:
+            api_type = APIType(_api_type)
+
+        api_url = d.pop("api-url", UNSET)
+
+        database = d.pop("database", UNSET)
+
+        _database_type = d.pop("databaseType", UNSET)
+        database_type: Union[Unset, DatabaseType]
+        if isinstance(_database_type, Unset):
+            database_type = UNSET
+        else:
+            database_type = DatabaseType(_database_type)
+
+        insecure_skip_verify_tls = d.pop("insecureSkipVerifyTLS", UNSET)
 
         data_source_config = cls(
-            type=type,
+            csv_path=csv_path,
+            cert=cert,
+            host=host,
+            suricata_path=suricata_path,
+            local_type=local_type,
+            port=port,
+            with_auth=with_auth,
+            api_type=api_type,
+            api_url=api_url,
+            database=database,
+            database_type=database_type,
+            insecure_skip_verify_tls=insecure_skip_verify_tls,
         )
 
         data_source_config.additional_properties = d
