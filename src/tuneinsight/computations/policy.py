@@ -226,6 +226,24 @@ class Policy(models.ComputationPolicy):
         comp_types.add(models.ComputationType(computation_type.to_computation_type()))
         self.authorized_computation_types = list(comp_types)
 
+    def set_min_dataset_size(self, local_size: int = None, collective_size: int = None):
+        """
+        Sets a minimum dataset size policy either on the local (per-instance) datasets or the collective (including all participants) dataset.
+
+        Args:
+            local_size (int, optional): minimum dataset size that should be satisfied from all participating organizations locally. Defaults to None.
+            collective_size (int, optional): minimum dataset size that should be satisfied from the collective dataset of all organizations. Defaults to None.
+
+        Raises:
+            ValueError: if both the local and collective size arguments have not been provided to this method.
+        """
+        if local_size is None and collective_size is None:
+            raise ValueError("No dataset size was provided")
+        if local_size is not None:
+            self.dp_policy.min_dataset_size = int(local_size)
+        if collective_size is not None:
+            self.dp_policy.min_global_dataset_size = int(collective_size)
+
 
 displayed_labels = {
     "validateParameters": "template validation",

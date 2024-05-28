@@ -169,7 +169,7 @@ class PreprocessingBuilder:
                 type=models.PreprocessingOperationType.FILTER,
                 col_name=target_column,
                 comparator=comparator,
-                value=value,
+                value=str(value),
                 numerical=numerical,
             ),
             nodes,

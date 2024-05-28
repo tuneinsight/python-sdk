@@ -18,6 +18,7 @@ def _get_kwargs(
     query: Union[Unset, None, str] = UNSET,
     table_name: Union[Unset, None, str] = UNSET,
     num_rows: Union[Unset, None, int] = UNSET,
+    dp_epsilon: Union[Unset, None, float] = UNSET,
 ) -> Dict[str, Any]:
     url = "{}/synthetic/dataset".format(client.base_url)
 
@@ -35,7 +36,20 @@ def _get_kwargs(
 
     params["numRows"] = num_rows
 
+    params["dpEpsilon"] = dp_epsilon
+
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
+
+    # Set the proxies if the client has proxies set.
+    proxies = None
+    if hasattr(client, "proxies") and client.proxies is not None:
+        https_proxy = client.proxies.get("https")
+        if https_proxy:
+            proxies = https_proxy
+        else:
+            http_proxy = client.proxies.get("http")
+            if http_proxy:
+                proxies = http_proxy
 
     return {
         "method": "post",
@@ -43,6 +57,7 @@ def _get_kwargs(
         "headers": headers,
         "cookies": cookies,
         "timeout": client.get_timeout(),
+        "proxies": proxies,
         "params": params,
     }
 
@@ -87,6 +102,7 @@ def sync_detailed(
     query: Union[Unset, None, str] = UNSET,
     table_name: Union[Unset, None, str] = UNSET,
     num_rows: Union[Unset, None, int] = UNSET,
+    dp_epsilon: Union[Unset, None, float] = UNSET,
 ) -> Response[Union[DataSource, Error]]:
     """Request the creation of a synthetic dataset from a real dataset.
 
@@ -96,6 +112,7 @@ def sync_detailed(
         query (Union[Unset, None, str]):
         table_name (Union[Unset, None, str]):
         num_rows (Union[Unset, None, int]):
+        dp_epsilon (Union[Unset, None, float]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -112,6 +129,7 @@ def sync_detailed(
         query=query,
         table_name=table_name,
         num_rows=num_rows,
+        dp_epsilon=dp_epsilon,
     )
 
     response = httpx.request(
@@ -130,6 +148,7 @@ def sync(
     query: Union[Unset, None, str] = UNSET,
     table_name: Union[Unset, None, str] = UNSET,
     num_rows: Union[Unset, None, int] = UNSET,
+    dp_epsilon: Union[Unset, None, float] = UNSET,
 ) -> Optional[Union[DataSource, Error]]:
     """Request the creation of a synthetic dataset from a real dataset.
 
@@ -139,6 +158,7 @@ def sync(
         query (Union[Unset, None, str]):
         table_name (Union[Unset, None, str]):
         num_rows (Union[Unset, None, int]):
+        dp_epsilon (Union[Unset, None, float]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -155,6 +175,7 @@ def sync(
         query=query,
         table_name=table_name,
         num_rows=num_rows,
+        dp_epsilon=dp_epsilon,
     ).parsed
 
 
@@ -166,6 +187,7 @@ async def asyncio_detailed(
     query: Union[Unset, None, str] = UNSET,
     table_name: Union[Unset, None, str] = UNSET,
     num_rows: Union[Unset, None, int] = UNSET,
+    dp_epsilon: Union[Unset, None, float] = UNSET,
 ) -> Response[Union[DataSource, Error]]:
     """Request the creation of a synthetic dataset from a real dataset.
 
@@ -175,6 +197,7 @@ async def asyncio_detailed(
         query (Union[Unset, None, str]):
         table_name (Union[Unset, None, str]):
         num_rows (Union[Unset, None, int]):
+        dp_epsilon (Union[Unset, None, float]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -191,6 +214,7 @@ async def asyncio_detailed(
         query=query,
         table_name=table_name,
         num_rows=num_rows,
+        dp_epsilon=dp_epsilon,
     )
 
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
@@ -207,6 +231,7 @@ async def asyncio(
     query: Union[Unset, None, str] = UNSET,
     table_name: Union[Unset, None, str] = UNSET,
     num_rows: Union[Unset, None, int] = UNSET,
+    dp_epsilon: Union[Unset, None, float] = UNSET,
 ) -> Optional[Union[DataSource, Error]]:
     """Request the creation of a synthetic dataset from a real dataset.
 
@@ -216,6 +241,7 @@ async def asyncio(
         query (Union[Unset, None, str]):
         table_name (Union[Unset, None, str]):
         num_rows (Union[Unset, None, int]):
+        dp_epsilon (Union[Unset, None, float]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -233,5 +259,6 @@ async def asyncio(
             query=query,
             table_name=table_name,
             num_rows=num_rows,
+            dp_epsilon=dp_epsilon,
         )
     ).parsed

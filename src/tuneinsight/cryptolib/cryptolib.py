@@ -145,6 +145,40 @@ def key_generation(hefloat_operator_id: bytes) -> bytes:
     return key_response
 
 
+def get_secret_key_bytes(hefloat_operator_id: bytes) -> bytes:
+    """Returns the bytes of the secret key.
+
+    Args:
+        hefloat_operator_id (bytes): The crypto system id
+
+    Returns:
+        get_sk_response (bytes): The bytes of the secret key
+    """
+    get_sk = so.GetSecretKeyBytes
+    get_sk.restype = ctypes.c_char_p
+    get_sk_response = get_sk(hefloat_operator_id)
+    if get_sk_response is None:
+        raise go_error()
+    return get_sk_response
+
+
+def get_public_key_bytes(hefloat_operator_id: bytes) -> bytes:
+    """Returns the bytes of the public key.
+
+    Args:
+        hefloat_operator_id (bytes): The crypto system id
+
+    Returns:
+        get_pk_response (bytes): The bytes of the public key
+    """
+    get_pk = so.GetPublicKeyBytes
+    get_pk.restype = ctypes.c_char_p
+    get_pk_response = get_pk(hefloat_operator_id)
+    if get_pk_response is None:
+        raise go_error()
+    return get_pk_response
+
+
 def relinearization_key_generation(hefloat_operator_id: bytes) -> bytes:
     """Generates a key for a given cryptosystem.
 

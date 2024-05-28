@@ -12,7 +12,6 @@ if TYPE_CHECKING:
     from ..models.data_source_config import DataSourceConfig
     from ..models.data_source_metadata import DataSourceMetadata
     from ..models.local_data_selection import LocalDataSelection
-    from ..models.project import Project
 
 
 T = TypeVar("T", bound="DataSource")
@@ -22,74 +21,82 @@ T = TypeVar("T", bound="DataSource")
 class DataSource:
     """
     Attributes:
-        name (Union[Unset, str]):
-        type (Union[Unset, DataSourceType]):
-        attributes (Union[Unset, List[str]]): optional list of attributes.
-        authorized_users (Union[Unset, List[str]]):
-        credentials (Union[Unset, Credentials]): The credentials needed to access the data source.
+        consent_type (Union[Unset, DataSourceConsentType]): Consent type given to the data source.
         id (Union[Unset, None, str]): Unique identifier of a data source.
-        access_scope (Union[Unset, AccessScope]): defines the scope of access given to a resource
+        name (Union[Unset, str]):
+        authorized_users (Union[Unset, List[str]]):
         clear_if_exists (Union[Unset, bool]): If true and a data source with the same name already exists, delete it.
         configuration (Union[Unset, DataSourceConfig]): data source configuration
-        consent_type (Union[Unset, DataSourceConsentType]): Consent type given to the data source.
+        credentials (Union[Unset, Credentials]): The credentials needed to access the data source.
+        is_mock (Union[Unset, bool]): Whether this datasource contains mock/synthetic data and should not be used in
+            production.
+        structure_template_json (Union[Unset, str]): data source's structure template (used to determine the query
+            builder structure, if provided)
+        type (Union[Unset, DataSourceType]):
+        access_scope (Union[Unset, AccessScope]): defines the scope of access given to a resource
+        attributes (Union[Unset, List[str]]): optional list of attributes.
         created_at (Union[Unset, str]):
         metadata (Union[Unset, DataSourceMetadata]): metadata about a datasource
         owner (Union[Unset, str]):
-        projects (Union[Unset, List['Project']]): response for successfully retrieved projects
+        projects (Union[Unset, List[str]]): ids of connected projects
         selections (Union[Unset, List['LocalDataSelection']]): list of local data selections associated with the data
             source
         updated_at (Union[Unset, str]):
     """
 
-    name: Union[Unset, str] = UNSET
-    type: Union[Unset, DataSourceType] = UNSET
-    attributes: Union[Unset, List[str]] = UNSET
-    authorized_users: Union[Unset, List[str]] = UNSET
-    credentials: Union[Unset, "Credentials"] = UNSET
+    consent_type: Union[Unset, DataSourceConsentType] = UNSET
     id: Union[Unset, None, str] = UNSET
-    access_scope: Union[Unset, AccessScope] = UNSET
+    name: Union[Unset, str] = UNSET
+    authorized_users: Union[Unset, List[str]] = UNSET
     clear_if_exists: Union[Unset, bool] = False
     configuration: Union[Unset, "DataSourceConfig"] = UNSET
-    consent_type: Union[Unset, DataSourceConsentType] = UNSET
+    credentials: Union[Unset, "Credentials"] = UNSET
+    is_mock: Union[Unset, bool] = UNSET
+    structure_template_json: Union[Unset, str] = UNSET
+    type: Union[Unset, DataSourceType] = UNSET
+    access_scope: Union[Unset, AccessScope] = UNSET
+    attributes: Union[Unset, List[str]] = UNSET
     created_at: Union[Unset, str] = UNSET
     metadata: Union[Unset, "DataSourceMetadata"] = UNSET
     owner: Union[Unset, str] = UNSET
-    projects: Union[Unset, List["Project"]] = UNSET
+    projects: Union[Unset, List[str]] = UNSET
     selections: Union[Unset, List["LocalDataSelection"]] = UNSET
     updated_at: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        consent_type: Union[Unset, str] = UNSET
+        if not isinstance(self.consent_type, Unset):
+            consent_type = self.consent_type.value
+
+        id = self.id
         name = self.name
-        type: Union[Unset, str] = UNSET
-        if not isinstance(self.type, Unset):
-            type = self.type.value
-
-        attributes: Union[Unset, List[str]] = UNSET
-        if not isinstance(self.attributes, Unset):
-            attributes = self.attributes
-
         authorized_users: Union[Unset, List[str]] = UNSET
         if not isinstance(self.authorized_users, Unset):
             authorized_users = self.authorized_users
-
-        credentials: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.credentials, Unset):
-            credentials = self.credentials.to_dict()
-
-        id = self.id
-        access_scope: Union[Unset, str] = UNSET
-        if not isinstance(self.access_scope, Unset):
-            access_scope = self.access_scope.value
 
         clear_if_exists = self.clear_if_exists
         configuration: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.configuration, Unset):
             configuration = self.configuration.to_dict()
 
-        consent_type: Union[Unset, str] = UNSET
-        if not isinstance(self.consent_type, Unset):
-            consent_type = self.consent_type.value
+        credentials: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.credentials, Unset):
+            credentials = self.credentials.to_dict()
+
+        is_mock = self.is_mock
+        structure_template_json = self.structure_template_json
+        type: Union[Unset, str] = UNSET
+        if not isinstance(self.type, Unset):
+            type = self.type.value
+
+        access_scope: Union[Unset, str] = UNSET
+        if not isinstance(self.access_scope, Unset):
+            access_scope = self.access_scope.value
+
+        attributes: Union[Unset, List[str]] = UNSET
+        if not isinstance(self.attributes, Unset):
+            attributes = self.attributes
 
         created_at = self.created_at
         metadata: Union[Unset, Dict[str, Any]] = UNSET
@@ -97,13 +104,9 @@ class DataSource:
             metadata = self.metadata.to_dict()
 
         owner = self.owner
-        projects: Union[Unset, List[Dict[str, Any]]] = UNSET
+        projects: Union[Unset, List[str]] = UNSET
         if not isinstance(self.projects, Unset):
-            projects = []
-            for projects_item_data in self.projects:
-                projects_item = projects_item_data.to_dict()
-
-                projects.append(projects_item)
+            projects = self.projects
 
         selections: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.selections, Unset):
@@ -118,26 +121,30 @@ class DataSource:
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if name is not UNSET:
-            field_dict["name"] = name
-        if type is not UNSET:
-            field_dict["type"] = type
-        if attributes is not UNSET:
-            field_dict["attributes"] = attributes
-        if authorized_users is not UNSET:
-            field_dict["authorizedUsers"] = authorized_users
-        if credentials is not UNSET:
-            field_dict["credentials"] = credentials
+        if consent_type is not UNSET:
+            field_dict["consentType"] = consent_type
         if id is not UNSET:
             field_dict["id"] = id
-        if access_scope is not UNSET:
-            field_dict["accessScope"] = access_scope
+        if name is not UNSET:
+            field_dict["name"] = name
+        if authorized_users is not UNSET:
+            field_dict["authorizedUsers"] = authorized_users
         if clear_if_exists is not UNSET:
             field_dict["clearIfExists"] = clear_if_exists
         if configuration is not UNSET:
             field_dict["configuration"] = configuration
-        if consent_type is not UNSET:
-            field_dict["consentType"] = consent_type
+        if credentials is not UNSET:
+            field_dict["credentials"] = credentials
+        if is_mock is not UNSET:
+            field_dict["isMock"] = is_mock
+        if structure_template_json is not UNSET:
+            field_dict["structureTemplateJSON"] = structure_template_json
+        if type is not UNSET:
+            field_dict["type"] = type
+        if access_scope is not UNSET:
+            field_dict["accessScope"] = access_scope
+        if attributes is not UNSET:
+            field_dict["attributes"] = attributes
         if created_at is not UNSET:
             field_dict["createdAt"] = created_at
         if metadata is not UNSET:
@@ -159,37 +166,20 @@ class DataSource:
         from ..models.data_source_config import DataSourceConfig
         from ..models.data_source_metadata import DataSourceMetadata
         from ..models.local_data_selection import LocalDataSelection
-        from ..models.project import Project
 
         d = src_dict.copy()
-        name = d.pop("name", UNSET)
-
-        _type = d.pop("type", UNSET)
-        type: Union[Unset, DataSourceType]
-        if isinstance(_type, Unset):
-            type = UNSET
+        _consent_type = d.pop("consentType", UNSET)
+        consent_type: Union[Unset, DataSourceConsentType]
+        if isinstance(_consent_type, Unset):
+            consent_type = UNSET
         else:
-            type = DataSourceType(_type)
-
-        attributes = cast(List[str], d.pop("attributes", UNSET))
-
-        authorized_users = cast(List[str], d.pop("authorizedUsers", UNSET))
-
-        _credentials = d.pop("credentials", UNSET)
-        credentials: Union[Unset, Credentials]
-        if isinstance(_credentials, Unset):
-            credentials = UNSET
-        else:
-            credentials = Credentials.from_dict(_credentials)
+            consent_type = DataSourceConsentType(_consent_type)
 
         id = d.pop("id", UNSET)
 
-        _access_scope = d.pop("accessScope", UNSET)
-        access_scope: Union[Unset, AccessScope]
-        if isinstance(_access_scope, Unset):
-            access_scope = UNSET
-        else:
-            access_scope = AccessScope(_access_scope)
+        name = d.pop("name", UNSET)
+
+        authorized_users = cast(List[str], d.pop("authorizedUsers", UNSET))
 
         clear_if_exists = d.pop("clearIfExists", UNSET)
 
@@ -200,12 +190,32 @@ class DataSource:
         else:
             configuration = DataSourceConfig.from_dict(_configuration)
 
-        _consent_type = d.pop("consentType", UNSET)
-        consent_type: Union[Unset, DataSourceConsentType]
-        if isinstance(_consent_type, Unset):
-            consent_type = UNSET
+        _credentials = d.pop("credentials", UNSET)
+        credentials: Union[Unset, Credentials]
+        if isinstance(_credentials, Unset):
+            credentials = UNSET
         else:
-            consent_type = DataSourceConsentType(_consent_type)
+            credentials = Credentials.from_dict(_credentials)
+
+        is_mock = d.pop("isMock", UNSET)
+
+        structure_template_json = d.pop("structureTemplateJSON", UNSET)
+
+        _type = d.pop("type", UNSET)
+        type: Union[Unset, DataSourceType]
+        if isinstance(_type, Unset):
+            type = UNSET
+        else:
+            type = DataSourceType(_type)
+
+        _access_scope = d.pop("accessScope", UNSET)
+        access_scope: Union[Unset, AccessScope]
+        if isinstance(_access_scope, Unset):
+            access_scope = UNSET
+        else:
+            access_scope = AccessScope(_access_scope)
+
+        attributes = cast(List[str], d.pop("attributes", UNSET))
 
         created_at = d.pop("createdAt", UNSET)
 
@@ -218,12 +228,7 @@ class DataSource:
 
         owner = d.pop("owner", UNSET)
 
-        projects = []
-        _projects = d.pop("projects", UNSET)
-        for projects_item_data in _projects or []:
-            projects_item = Project.from_dict(projects_item_data)
-
-            projects.append(projects_item)
+        projects = cast(List[str], d.pop("projects", UNSET))
 
         selections = []
         _selections = d.pop("selections", UNSET)
@@ -235,16 +240,18 @@ class DataSource:
         updated_at = d.pop("updatedAt", UNSET)
 
         data_source = cls(
-            name=name,
-            type=type,
-            attributes=attributes,
-            authorized_users=authorized_users,
-            credentials=credentials,
+            consent_type=consent_type,
             id=id,
-            access_scope=access_scope,
+            name=name,
+            authorized_users=authorized_users,
             clear_if_exists=clear_if_exists,
             configuration=configuration,
-            consent_type=consent_type,
+            credentials=credentials,
+            is_mock=is_mock,
+            structure_template_json=structure_template_json,
+            type=type,
+            access_scope=access_scope,
+            attributes=attributes,
             created_at=created_at,
             metadata=metadata,
             owner=owner,

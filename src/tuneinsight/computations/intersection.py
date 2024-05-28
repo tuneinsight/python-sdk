@@ -48,8 +48,8 @@ class SetIntersectionResult(ComputationResult):
         plt.style.use("bmh")
         fig, ax = plt.subplots()
         ax.bar(
-            self.data.psi_ratio,
             self.data.index,
+            self.data.psi_ratio,
             color="#DE5F5A",
             edgecolor="#354661",
             linewidth=2.5,

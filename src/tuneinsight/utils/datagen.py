@@ -198,8 +198,18 @@ class SKUGenerator(MockGenerator):
 
     """
 
-    def __init__(self):
+    typo_probability: float
+
+    def __init__(self, typo_probability: float = 0.0):
+        """
+        Args:
+            typo_probability (float, optional): the probability for typos in the product names. Defaults to None.
+        """
         MockGenerator.__init__(self, PostMockDatasetMethod.SKUS)
+        self.typo_probability = typo_probability
+
+    def get_config(self):
+        return {"typo_probability": self.typo_probability}
 
 
 class PersonsGenerator(MockGenerator):
@@ -477,7 +487,7 @@ class _AttributeParser:
             end: the latest possible date in the dataset.
             bins (optional, default 10): the extremities of the bins in which to group values.
                 If an integer is provided, the domain is divided into `bins` bins of uniform size.
-            strformat (optional, default %d-%m-%Y): a formatting str acceptable by datetime.strptime to represent dates.
+            strformat (optional, default %Y-%m-%d): a formatting str acceptable by datetime.strptime to represent dates.
         """
         self._add_attribute(
             name,

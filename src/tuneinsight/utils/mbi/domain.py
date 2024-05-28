@@ -161,7 +161,7 @@ class DateAttribute(IntegerAttribute):
         start_date: str,
         end_date: str,
         bins: Union[int, list] = 10,
-        strformat: str = "%d-%m-%Y",
+        strformat: str = "%Y-%m-%d",
     ):
         """
         Args

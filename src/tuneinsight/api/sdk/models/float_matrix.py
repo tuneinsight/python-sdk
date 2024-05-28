@@ -20,16 +20,16 @@ class FloatMatrix:
         columns (List[str]): Name of the columns of the matrix
         data (List[List[float]]): 2d array of float values
         contextual_info (Union[Unset, ResultContextualInfo]): contextual information about the content retrieved
-        row_count (Union[Unset, int]):
         column_count (Union[Unset, int]):
+        row_count (Union[Unset, int]):
     """
 
     type: ContentType
     columns: List[str]
     data: List[List[float]]
     contextual_info: Union[Unset, "ResultContextualInfo"] = UNSET
-    row_count: Union[Unset, int] = UNSET
     column_count: Union[Unset, int] = UNSET
+    row_count: Union[Unset, int] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -47,8 +47,8 @@ class FloatMatrix:
         if not isinstance(self.contextual_info, Unset):
             contextual_info = self.contextual_info.to_dict()
 
-        row_count = self.row_count
         column_count = self.column_count
+        row_count = self.row_count
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -61,10 +61,10 @@ class FloatMatrix:
         )
         if contextual_info is not UNSET:
             field_dict["contextualInfo"] = contextual_info
-        if row_count is not UNSET:
-            field_dict["rowCount"] = row_count
         if column_count is not UNSET:
             field_dict["columnCount"] = column_count
+        if row_count is not UNSET:
+            field_dict["rowCount"] = row_count
 
         return field_dict
 
@@ -91,17 +91,17 @@ class FloatMatrix:
         else:
             contextual_info = ResultContextualInfo.from_dict(_contextual_info)
 
-        row_count = d.pop("rowCount", UNSET)
-
         column_count = d.pop("columnCount", UNSET)
+
+        row_count = d.pop("rowCount", UNSET)
 
         float_matrix = cls(
             type=type,
             columns=columns,
             data=data,
             contextual_info=contextual_info,
-            row_count=row_count,
             column_count=column_count,
+            row_count=row_count,
         )
 
         float_matrix.additional_properties = d

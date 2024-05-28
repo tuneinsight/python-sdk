@@ -18,6 +18,8 @@ class LocalDataSelectionDefinition:
     """datasource selection definition. A selection is a "query" or data selection definition to run on the datasource
 
     Attributes:
+        visible_to_network (Union[Unset, None, bool]): whether the data selection parameters are viewable by other
+            instances in the network.
         data_selection (Union[Unset, ComputationDataSourceParameters]): Parameters used to query the datasource from
             each node before the computation
         description (Union[Unset, str]): optional description for the selection
@@ -27,10 +29,9 @@ class LocalDataSelectionDefinition:
         preview_content_disabled (Union[Unset, None, bool]): whether to disable previewing the content (metadata only)
         store_in_database (Union[Unset, None, bool]): whether to store the selection in the database
         type (Union[Unset, DataSelectionType]):
-        visible_to_network (Union[Unset, None, bool]): whether the data selection parameters are viewable by other
-            instances in the network.
     """
 
+    visible_to_network: Union[Unset, None, bool] = UNSET
     data_selection: Union[Unset, "ComputationDataSourceParameters"] = UNSET
     description: Union[Unset, str] = UNSET
     name: Union[Unset, str] = UNSET
@@ -38,10 +39,10 @@ class LocalDataSelectionDefinition:
     preview_content_disabled: Union[Unset, None, bool] = UNSET
     store_in_database: Union[Unset, None, bool] = UNSET
     type: Union[Unset, DataSelectionType] = UNSET
-    visible_to_network: Union[Unset, None, bool] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        visible_to_network = self.visible_to_network
         data_selection: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.data_selection, Unset):
             data_selection = self.data_selection.to_dict()
@@ -58,11 +59,11 @@ class LocalDataSelectionDefinition:
         if not isinstance(self.type, Unset):
             type = self.type.value
 
-        visible_to_network = self.visible_to_network
-
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if visible_to_network is not UNSET:
+            field_dict["visibleToNetwork"] = visible_to_network
         if data_selection is not UNSET:
             field_dict["dataSelection"] = data_selection
         if description is not UNSET:
@@ -77,8 +78,6 @@ class LocalDataSelectionDefinition:
             field_dict["storeInDatabase"] = store_in_database
         if type is not UNSET:
             field_dict["type"] = type
-        if visible_to_network is not UNSET:
-            field_dict["visibleToNetwork"] = visible_to_network
 
         return field_dict
 
@@ -88,6 +87,8 @@ class LocalDataSelectionDefinition:
         from ..models.computation_preprocessing_parameters import ComputationPreprocessingParameters
 
         d = src_dict.copy()
+        visible_to_network = d.pop("visibleToNetwork", UNSET)
+
         _data_selection = d.pop("dataSelection", UNSET)
         data_selection: Union[Unset, ComputationDataSourceParameters]
         if isinstance(_data_selection, Unset):
@@ -117,9 +118,8 @@ class LocalDataSelectionDefinition:
         else:
             type = DataSelectionType(_type)
 
-        visible_to_network = d.pop("visibleToNetwork", UNSET)
-
         local_data_selection_definition = cls(
+            visible_to_network=visible_to_network,
             data_selection=data_selection,
             description=description,
             name=name,
@@ -127,7 +127,6 @@ class LocalDataSelectionDefinition:
             preview_content_disabled=preview_content_disabled,
             store_in_database=store_in_database,
             type=type,
-            visible_to_network=visible_to_network,
         )
 
         local_data_selection_definition.additional_properties = d

@@ -6,7 +6,6 @@ import warnings
 import webbrowser
 import os
 
-from keycloak.exceptions import KeycloakError
 import attr
 import pandas as pd
 
@@ -18,6 +17,7 @@ from tuneinsight.api.sdk.api.api_project import get_project_list
 from tuneinsight.api.sdk.api.api_datasource import get_data_source_list
 from tuneinsight.api.sdk.api.api_dataobject import get_data_object
 from tuneinsight.api.sdk.api.api_infos import get_infos
+from tuneinsight.api.sdk.api.health import get_health
 from tuneinsight.api.sdk import models
 from tuneinsight.client.dataobject import DataObject
 
@@ -27,7 +27,6 @@ from tuneinsight.client.validation import validate_response
 from tuneinsight.client import config
 from tuneinsight.client import auth
 from tuneinsight.api.sdk.types import UNSET
-from tuneinsight.client.validation import InvalidResponseError
 from tuneinsight.utils import time_tools
 
 
@@ -196,16 +195,25 @@ class Diapason:
 
         device_resp = self.client.get_device_code()
         login_url = device_resp["verification_uri_complete"]
+        # Sometimes, the login_url returned by keycloak is just the end of the query.
+        # When that happens, complete the URL by adding the OIDC information.
+        if not login_url.startswith("http") and isinstance(
+            self.client, auth.KeycloakClient
+        ):
+            oidc_config = self.client.oidc_config  # pylint: disable=no-member
+            oidc_url = oidc_config.oidc_url
+            if not oidc_url.endswith("/"):
+                oidc_url += "/"
+            login_url = f"{oidc_url}realms/{oidc_config.oidc_realm}/device/{login_url}"
         print("Follow this link to login: " + login_url)
         if open_page:
             webbrowser.open(login_url)
         if blocking:
             self.wait_ready(sleep_seconds=1)
-            return None
         return login_url
 
     def wait_ready(self, repeat: int = 50, sleep_seconds: int = 5):
-        """Polls the API until it answers by using the get_projects() endpoint.
+        """Polls the API until it answers by using the healthcheck() endpoint.
 
         Args:
             repeat (int, optional): maximum number of requests sent to the API. Defaults to 50.
@@ -216,22 +224,13 @@ class Diapason:
         """
         num_tries = repeat
         sleep_time = sleep_seconds * time_tools.SECOND
-        last_ex = None
         # Disable API version checks while waiting for the server.
         with self._disabled_api_check():
-            for _ in range(num_tries):
-                try:
-                    self.get_projects()
+            for i in range(num_tries):
+                # At the last iteration, raise an error instead of silencing it.
+                if self.healthcheck(warn=False, error=i == num_tries - 1):
                     return
-                except (
-                    ConnectionError,
-                    KeycloakError,
-                    InvalidResponseError,
-                ) as ex:
-                    time_tools.sleep(sleep_time)
-                    last_ex = ex
-                    continue
-        raise last_ex
+                time_tools.sleep(sleep_time)
 
     @contextmanager
     def timeout(self, timeout: int):
@@ -281,6 +280,7 @@ class Diapason:
         api_token: str = "",
         clear_if_exists: bool = False,
         cert: str = "",
+        insecure_skip_verify_tls: bool = False,
     ) -> DataSource:
         """
         Creates a new API datasource.
@@ -302,6 +302,7 @@ class Diapason:
             name,
             clear_if_exists,
             cert,
+            insecure_skip_verify_tls,
         )
 
     def new_csv_datasource(
@@ -426,6 +427,7 @@ class Diapason:
         participants: list = None,
         non_contributor: bool = False,
         run_async: bool = True,
+        description: str = None,
     ) -> Project:
         """Creates a new project.
 
@@ -440,6 +442,7 @@ class Diapason:
             participants (Union[Unset, List[str]]): The IDs of the users who participate in the project.
             non_contributor (bool, default False): indicates that this participant participates in the computations but does not contribute any data.
             run_async (bool, default True): whether to run computations asynchronously.
+            description (str,default None): optional description of the project. Defaults to None.
 
         Raises:
             Exception: in case the project already exists and clear_if_exists is False.
@@ -456,6 +459,9 @@ class Diapason:
 
         if participants is None:
             participants = []
+
+        if description is None:
+            description = ""
 
         if name in [p.get_name() for p in self.get_projects()]:
             if clear_if_exists:
@@ -478,6 +484,7 @@ To avoid this, delete the project on other nodes, or create a differently-named 
             participants=participants,
             non_contributor=non_contributor,
             run_async=run_async,
+            description=description,
         )
         # authorization_status = models.AuthorizationStatus.UNAUTHORIZED)
         proj_response: Response[models.Project] = post_project.sync_detailed(
@@ -608,3 +615,25 @@ To avoid this, delete the project on other nodes, or create a differently-named 
         self._api_compatible = True
         yield self
         self._api_compatible = old_check
+
+    def healthcheck(self, warn: bool = True, error: bool = False) -> bool:
+        """
+        Checks that the client is set up properly and the instance is reachable.
+
+        Args
+            warn (bool, default True): whether to print a warning with the error
+                message if the healthcheck fails.
+            error (bool, default False): whether to raise an error if the healthcheck
+                fails. This raises the error that made the it fail.
+
+        """
+        try:
+            response = get_health.sync_detailed(client=self.client)
+            validate_response(response)
+            return True
+        except Exception as err:  # pylint: disable=broad-exception-caught
+            if error:
+                raise err
+            if warn:
+                warnings.warn(f"Healthcheck error: {err} ({type(err)})")
+            return False

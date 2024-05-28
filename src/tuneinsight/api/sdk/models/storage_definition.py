@@ -17,6 +17,7 @@ class StorageDefinition:
     """specification of the storage operation
 
     Attributes:
+        backup_definition (Union[Unset, BackupDefinition]): backup parameters
         current_key (Union[Unset, str]): currently used b64-formatted encryption key, needs to be specified when running
             'decrypt' or 'rotate'
         encrypt_unencrypted (Union[Unset, bool]): when performing a rotation, if true, then unencrypted values get
@@ -24,17 +25,20 @@ class StorageDefinition:
         new_key (Union[Unset, str]): new b64-formatted key to use on the storage, needs to be specified when running
             'encrypt' or 'rotate'
         operation (Union[Unset, StorageOperation]): operation to perform on the storage
-        backup_definition (Union[Unset, BackupDefinition]): backup parameters
     """
 
+    backup_definition: Union[Unset, "BackupDefinition"] = UNSET
     current_key: Union[Unset, str] = UNSET
     encrypt_unencrypted: Union[Unset, bool] = UNSET
     new_key: Union[Unset, str] = UNSET
     operation: Union[Unset, StorageOperation] = UNSET
-    backup_definition: Union[Unset, "BackupDefinition"] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        backup_definition: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.backup_definition, Unset):
+            backup_definition = self.backup_definition.to_dict()
+
         current_key = self.current_key
         encrypt_unencrypted = self.encrypt_unencrypted
         new_key = self.new_key
@@ -42,13 +46,11 @@ class StorageDefinition:
         if not isinstance(self.operation, Unset):
             operation = self.operation.value
 
-        backup_definition: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.backup_definition, Unset):
-            backup_definition = self.backup_definition.to_dict()
-
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if backup_definition is not UNSET:
+            field_dict["backupDefinition"] = backup_definition
         if current_key is not UNSET:
             field_dict["currentKey"] = current_key
         if encrypt_unencrypted is not UNSET:
@@ -57,8 +59,6 @@ class StorageDefinition:
             field_dict["newKey"] = new_key
         if operation is not UNSET:
             field_dict["operation"] = operation
-        if backup_definition is not UNSET:
-            field_dict["backupDefinition"] = backup_definition
 
         return field_dict
 
@@ -67,6 +67,13 @@ class StorageDefinition:
         from ..models.backup_definition import BackupDefinition
 
         d = src_dict.copy()
+        _backup_definition = d.pop("backupDefinition", UNSET)
+        backup_definition: Union[Unset, BackupDefinition]
+        if isinstance(_backup_definition, Unset):
+            backup_definition = UNSET
+        else:
+            backup_definition = BackupDefinition.from_dict(_backup_definition)
+
         current_key = d.pop("currentKey", UNSET)
 
         encrypt_unencrypted = d.pop("encryptUnencrypted", UNSET)
@@ -80,19 +87,12 @@ class StorageDefinition:
         else:
             operation = StorageOperation(_operation)
 
-        _backup_definition = d.pop("backupDefinition", UNSET)
-        backup_definition: Union[Unset, BackupDefinition]
-        if isinstance(_backup_definition, Unset):
-            backup_definition = UNSET
-        else:
-            backup_definition = BackupDefinition.from_dict(_backup_definition)
-
         storage_definition = cls(
+            backup_definition=backup_definition,
             current_key=current_key,
             encrypt_unencrypted=encrypt_unencrypted,
             new_key=new_key,
             operation=operation,
-            backup_definition=backup_definition,
         )
 
         storage_definition.additional_properties = d

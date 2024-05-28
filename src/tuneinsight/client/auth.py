@@ -35,13 +35,6 @@ class KeycloakClient(client.AuthenticatedClient):
             client_id=self.oidc_config.oidc_client_id,
             client_secret_key=self.oidc_config.oidc_client_secret,
             realm_name=self.oidc_config.oidc_realm,
-        )
-
-        self.kc_open_id = KeycloakOpenID(
-            server_url=self.oidc_config.oidc_url,
-            client_id=self.oidc_config.oidc_client_id,
-            client_secret_key=self.oidc_config.oidc_client_secret,
-            realm_name=self.oidc_config.oidc_realm,
             verify=self.verify_ssl,
             proxies=self.proxies,
         )

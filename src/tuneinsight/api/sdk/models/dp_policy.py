@@ -17,11 +17,20 @@ class DPPolicy:
     """represents the disclosure prevention policy that enables toggling various disclosure prevention mechanisms
 
     Attributes:
-        max_column_count (Union[Unset, Threshold]): represents a threshold, which can be made relative of the dataset
-            size
-        max_factors (Union[Unset, Threshold]): represents a threshold, which can be made relative of the dataset size
         noisy_global_size (Union[Unset, bool]): when computing the global size, whether noise is used or not. If so,
             each node adds discrete noise to its input to the encrypted aggregation
+        authorized_variables (Union[Unset, List[str]]): constraint on the set of variables that can be used as input, in
+            order to prevent misuse of variables that are out of context of the project.
+            if > 0 variables are defined here, then the dataset will automatically drop any variables that do not belong to
+            this set.
+            Warning: this mechanism is only effective when the data selection parameters (data source queries) are fixed,
+            and therefore
+            returned variables cannot be aliased (for example using aliases in SQL SELECT statements) to evade this trap.
+        max_factors (Union[Unset, Threshold]): represents a threshold, which can be made relative of the dataset size
+        min_global_dataset_size (Union[Unset, int]): minimum size of the global / collective dataset. It is collectively
+            computed using the encrypted aggregation
+        min_frequencies (Union[Unset, Threshold]): represents a threshold, which can be made relative of the dataset
+            size
         use_differential_privacy (Union[Unset, bool]): whether to use Differential Privacy to protect the privacy of the
             results.
         execution_quota_parameters (Union[Unset, ExecutionQuotaParameters]): Execution quota settings.
@@ -30,78 +39,70 @@ class DPPolicy:
             If the computation is a private set intersection, each query consumes budget equal to the size of the querying
             set.
             Otherwise, a unit represents one computation.
+        max_column_count (Union[Unset, Threshold]): represents a threshold, which can be made relative of the dataset
+            size
         min_dataset_size (Union[Unset, int]): minimum size of the dataset used as local input (checked both before and
             after the preprocessing operations are run)
-        min_frequencies (Union[Unset, Threshold]): represents a threshold, which can be made relative of the dataset
-            size
-        min_global_dataset_size (Union[Unset, int]): minimum size of the global / collective dataset. It is collectively
-            computed using the encrypted aggregation
-        authorized_variables (Union[Unset, List[str]]): constraint on the set of variables that can be used as input, in
-            order to prevent misuse of variables that are out of context of the project.
-            if > 0 variables are defined here, then the dataset will automatically drop any variables that do not belong to
-            this set.
-            Warning: this mechanism is only effective when the data selection parameters (data source queries) are fixed,
-            and therefore
-            returned variables cannot be aliased (for example using aliases in SQL SELECT statements) to evade this trap.
     """
 
-    max_column_count: Union[Unset, "Threshold"] = UNSET
-    max_factors: Union[Unset, "Threshold"] = UNSET
     noisy_global_size: Union[Unset, bool] = UNSET
+    authorized_variables: Union[Unset, List[str]] = UNSET
+    max_factors: Union[Unset, "Threshold"] = UNSET
+    min_global_dataset_size: Union[Unset, int] = UNSET
+    min_frequencies: Union[Unset, "Threshold"] = UNSET
     use_differential_privacy: Union[Unset, bool] = False
     execution_quota_parameters: Union[Unset, "ExecutionQuotaParameters"] = UNSET
+    max_column_count: Union[Unset, "Threshold"] = UNSET
     min_dataset_size: Union[Unset, int] = UNSET
-    min_frequencies: Union[Unset, "Threshold"] = UNSET
-    min_global_dataset_size: Union[Unset, int] = UNSET
-    authorized_variables: Union[Unset, List[str]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        max_column_count: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.max_column_count, Unset):
-            max_column_count = self.max_column_count.to_dict()
+        noisy_global_size = self.noisy_global_size
+        authorized_variables: Union[Unset, List[str]] = UNSET
+        if not isinstance(self.authorized_variables, Unset):
+            authorized_variables = self.authorized_variables
 
         max_factors: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.max_factors, Unset):
             max_factors = self.max_factors.to_dict()
 
-        noisy_global_size = self.noisy_global_size
+        min_global_dataset_size = self.min_global_dataset_size
+        min_frequencies: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.min_frequencies, Unset):
+            min_frequencies = self.min_frequencies.to_dict()
+
         use_differential_privacy = self.use_differential_privacy
         execution_quota_parameters: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.execution_quota_parameters, Unset):
             execution_quota_parameters = self.execution_quota_parameters.to_dict()
 
-        min_dataset_size = self.min_dataset_size
-        min_frequencies: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.min_frequencies, Unset):
-            min_frequencies = self.min_frequencies.to_dict()
+        max_column_count: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.max_column_count, Unset):
+            max_column_count = self.max_column_count.to_dict()
 
-        min_global_dataset_size = self.min_global_dataset_size
-        authorized_variables: Union[Unset, List[str]] = UNSET
-        if not isinstance(self.authorized_variables, Unset):
-            authorized_variables = self.authorized_variables
+        min_dataset_size = self.min_dataset_size
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if max_column_count is not UNSET:
-            field_dict["maxColumnCount"] = max_column_count
-        if max_factors is not UNSET:
-            field_dict["maxFactors"] = max_factors
         if noisy_global_size is not UNSET:
             field_dict["noisyGlobalSize"] = noisy_global_size
+        if authorized_variables is not UNSET:
+            field_dict["authorizedVariables"] = authorized_variables
+        if max_factors is not UNSET:
+            field_dict["maxFactors"] = max_factors
+        if min_global_dataset_size is not UNSET:
+            field_dict["minGlobalDatasetSize"] = min_global_dataset_size
+        if min_frequencies is not UNSET:
+            field_dict["minFrequencies"] = min_frequencies
         if use_differential_privacy is not UNSET:
             field_dict["useDifferentialPrivacy"] = use_differential_privacy
         if execution_quota_parameters is not UNSET:
             field_dict["executionQuotaParameters"] = execution_quota_parameters
+        if max_column_count is not UNSET:
+            field_dict["maxColumnCount"] = max_column_count
         if min_dataset_size is not UNSET:
             field_dict["minDatasetSize"] = min_dataset_size
-        if min_frequencies is not UNSET:
-            field_dict["minFrequencies"] = min_frequencies
-        if min_global_dataset_size is not UNSET:
-            field_dict["minGlobalDatasetSize"] = min_global_dataset_size
-        if authorized_variables is not UNSET:
-            field_dict["authorizedVariables"] = authorized_variables
 
         return field_dict
 
@@ -111,12 +112,9 @@ class DPPolicy:
         from ..models.threshold import Threshold
 
         d = src_dict.copy()
-        _max_column_count = d.pop("maxColumnCount", UNSET)
-        max_column_count: Union[Unset, Threshold]
-        if isinstance(_max_column_count, Unset):
-            max_column_count = UNSET
-        else:
-            max_column_count = Threshold.from_dict(_max_column_count)
+        noisy_global_size = d.pop("noisyGlobalSize", UNSET)
+
+        authorized_variables = cast(List[str], d.pop("authorizedVariables", UNSET))
 
         _max_factors = d.pop("maxFactors", UNSET)
         max_factors: Union[Unset, Threshold]
@@ -125,7 +123,14 @@ class DPPolicy:
         else:
             max_factors = Threshold.from_dict(_max_factors)
 
-        noisy_global_size = d.pop("noisyGlobalSize", UNSET)
+        min_global_dataset_size = d.pop("minGlobalDatasetSize", UNSET)
+
+        _min_frequencies = d.pop("minFrequencies", UNSET)
+        min_frequencies: Union[Unset, Threshold]
+        if isinstance(_min_frequencies, Unset):
+            min_frequencies = UNSET
+        else:
+            min_frequencies = Threshold.from_dict(_min_frequencies)
 
         use_differential_privacy = d.pop("useDifferentialPrivacy", UNSET)
 
@@ -136,29 +141,25 @@ class DPPolicy:
         else:
             execution_quota_parameters = ExecutionQuotaParameters.from_dict(_execution_quota_parameters)
 
+        _max_column_count = d.pop("maxColumnCount", UNSET)
+        max_column_count: Union[Unset, Threshold]
+        if isinstance(_max_column_count, Unset):
+            max_column_count = UNSET
+        else:
+            max_column_count = Threshold.from_dict(_max_column_count)
+
         min_dataset_size = d.pop("minDatasetSize", UNSET)
 
-        _min_frequencies = d.pop("minFrequencies", UNSET)
-        min_frequencies: Union[Unset, Threshold]
-        if isinstance(_min_frequencies, Unset):
-            min_frequencies = UNSET
-        else:
-            min_frequencies = Threshold.from_dict(_min_frequencies)
-
-        min_global_dataset_size = d.pop("minGlobalDatasetSize", UNSET)
-
-        authorized_variables = cast(List[str], d.pop("authorizedVariables", UNSET))
-
         dp_policy = cls(
-            max_column_count=max_column_count,
-            max_factors=max_factors,
             noisy_global_size=noisy_global_size,
+            authorized_variables=authorized_variables,
+            max_factors=max_factors,
+            min_global_dataset_size=min_global_dataset_size,
+            min_frequencies=min_frequencies,
             use_differential_privacy=use_differential_privacy,
             execution_quota_parameters=execution_quota_parameters,
+            max_column_count=max_column_count,
             min_dataset_size=min_dataset_size,
-            min_frequencies=min_frequencies,
-            min_global_dataset_size=min_global_dataset_size,
-            authorized_variables=authorized_variables,
         )
 
         dp_policy.additional_properties = d

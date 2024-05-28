@@ -793,6 +793,7 @@ class Project:
         return dp_policy.use_differential_privacy
 
     def get_computations(self) -> List[models.Computation]:
+        self._refresh()
         return self.model.computations
 
     def get_remaining_quota(

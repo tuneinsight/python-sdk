@@ -24,12 +24,24 @@ def _get_kwargs(
 
     multipart_multipart_data = multipart_data.to_multipart()
 
+    # Set the proxies if the client has proxies set.
+    proxies = None
+    if hasattr(client, "proxies") and client.proxies is not None:
+        https_proxy = client.proxies.get("https")
+        if https_proxy:
+            proxies = https_proxy
+        else:
+            http_proxy = client.proxies.get("http")
+            if http_proxy:
+                proxies = http_proxy
+
     return {
         "method": "put",
         "url": url,
         "headers": headers,
         "cookies": cookies,
         "timeout": client.get_timeout(),
+        "proxies": proxies,
         "files": multipart_multipart_data,
     }
 

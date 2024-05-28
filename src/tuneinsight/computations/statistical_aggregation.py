@@ -105,14 +105,15 @@ class GroupByAggregation(ModelBasedComputation):
     # Other computation parameters.
     join_id: str = ""
     aggregated_columns: List[str] = []
-    keep_non_categorized_items: bool = True
 
-    def __init__(self, project: "Project"):
+    def __init__(self, project: "Project", keep_non_categorized_items: bool = True):
         """
         Creates an Aggregation computation.
 
         Args
             project (client.Project): the project to which this computation belongs.
+            keep_non_categorized_items (bool, optional): whether non-binned leftover records
+            should be included in the aggregation. Defaults to False.
 
         """
         super().__init__(
@@ -121,6 +122,7 @@ class GroupByAggregation(ModelBasedComputation):
             models.ComputationType.STATISTICALAGGREGATION,
         )
         self._labeller = None
+        self.keep_non_categorized_items = keep_non_categorized_items
 
     def _reset_model(self):
         """Reset the internal memory of the model."""

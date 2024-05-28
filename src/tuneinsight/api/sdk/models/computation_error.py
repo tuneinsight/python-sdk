@@ -13,44 +13,48 @@ class ComputationError:
     """error that occurred when running a computation
 
     Attributes:
-        type (Union[Unset, ComputationErrorType]): error type identifier
-        message (Union[Unset, str]): the error message
         origin (Union[Unset, str]): node instance id that caused the error
         timestamp (Union[Unset, str]): time at which the error ocurred
+        type (Union[Unset, ComputationErrorType]): error type identifier
+        message (Union[Unset, str]): the error message
     """
 
-    type: Union[Unset, ComputationErrorType] = UNSET
-    message: Union[Unset, str] = UNSET
     origin: Union[Unset, str] = UNSET
     timestamp: Union[Unset, str] = UNSET
+    type: Union[Unset, ComputationErrorType] = UNSET
+    message: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        origin = self.origin
+        timestamp = self.timestamp
         type: Union[Unset, str] = UNSET
         if not isinstance(self.type, Unset):
             type = self.type.value
 
         message = self.message
-        origin = self.origin
-        timestamp = self.timestamp
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if type is not UNSET:
-            field_dict["type"] = type
-        if message is not UNSET:
-            field_dict["message"] = message
         if origin is not UNSET:
             field_dict["origin"] = origin
         if timestamp is not UNSET:
             field_dict["timestamp"] = timestamp
+        if type is not UNSET:
+            field_dict["type"] = type
+        if message is not UNSET:
+            field_dict["message"] = message
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
+        origin = d.pop("origin", UNSET)
+
+        timestamp = d.pop("timestamp", UNSET)
+
         _type = d.pop("type", UNSET)
         type: Union[Unset, ComputationErrorType]
         if isinstance(_type, Unset):
@@ -60,15 +64,11 @@ class ComputationError:
 
         message = d.pop("message", UNSET)
 
-        origin = d.pop("origin", UNSET)
-
-        timestamp = d.pop("timestamp", UNSET)
-
         computation_error = cls(
-            type=type,
-            message=message,
             origin=origin,
             timestamp=timestamp,
+            type=type,
+            message=message,
         )
 
         computation_error.additional_properties = d

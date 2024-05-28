@@ -20,41 +20,32 @@ class Model:
     """Machine learning model metadata definition
 
     Attributes:
-        type (Union[Unset, ModelType]): whether the model is local (plaintext) or collective (ciphertext)
-        computation_id (Union[Unset, str]): Computation that created this model if collective model
-        data_object (Union[Unset, DataObject]): A data object definition.
         metadata (Union[Unset, ModelMetadata]): public metadata about the model
         model_id (Union[Unset, str]): Unique identifier of a model.
         model_params (Union[Unset, ModelParams]): detailed parameters about the model, only returned when getting
             specific model
         name (Union[Unset, str]): common name for the model
-        training_algorithm (Union[Unset, TrainingAlgorithm]): the algorithm used to train the model
-        created_at (Union[Unset, str]):
         updated_at (Union[Unset, str]):
+        computation_id (Union[Unset, str]): Computation that created this model if collective model
+        created_at (Union[Unset, str]):
+        data_object (Union[Unset, DataObject]): A data object definition.
+        training_algorithm (Union[Unset, TrainingAlgorithm]): the algorithm used to train the model
+        type (Union[Unset, ModelType]): whether the model is local (plaintext) or collective (ciphertext)
     """
 
-    type: Union[Unset, ModelType] = UNSET
-    computation_id: Union[Unset, str] = UNSET
-    data_object: Union[Unset, "DataObject"] = UNSET
     metadata: Union[Unset, "ModelMetadata"] = UNSET
     model_id: Union[Unset, str] = UNSET
     model_params: Union[Unset, "ModelParams"] = UNSET
     name: Union[Unset, str] = UNSET
-    training_algorithm: Union[Unset, TrainingAlgorithm] = UNSET
-    created_at: Union[Unset, str] = UNSET
     updated_at: Union[Unset, str] = UNSET
+    computation_id: Union[Unset, str] = UNSET
+    created_at: Union[Unset, str] = UNSET
+    data_object: Union[Unset, "DataObject"] = UNSET
+    training_algorithm: Union[Unset, TrainingAlgorithm] = UNSET
+    type: Union[Unset, ModelType] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        type: Union[Unset, str] = UNSET
-        if not isinstance(self.type, Unset):
-            type = self.type.value
-
-        computation_id = self.computation_id
-        data_object: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.data_object, Unset):
-            data_object = self.data_object.to_dict()
-
         metadata: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.metadata, Unset):
             metadata = self.metadata.to_dict()
@@ -65,22 +56,24 @@ class Model:
             model_params = self.model_params.to_dict()
 
         name = self.name
+        updated_at = self.updated_at
+        computation_id = self.computation_id
+        created_at = self.created_at
+        data_object: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.data_object, Unset):
+            data_object = self.data_object.to_dict()
+
         training_algorithm: Union[Unset, str] = UNSET
         if not isinstance(self.training_algorithm, Unset):
             training_algorithm = self.training_algorithm.value
 
-        created_at = self.created_at
-        updated_at = self.updated_at
+        type: Union[Unset, str] = UNSET
+        if not isinstance(self.type, Unset):
+            type = self.type.value
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if type is not UNSET:
-            field_dict["type"] = type
-        if computation_id is not UNSET:
-            field_dict["computationId"] = computation_id
-        if data_object is not UNSET:
-            field_dict["dataObject"] = data_object
         if metadata is not UNSET:
             field_dict["metadata"] = metadata
         if model_id is not UNSET:
@@ -89,12 +82,18 @@ class Model:
             field_dict["modelParams"] = model_params
         if name is not UNSET:
             field_dict["name"] = name
-        if training_algorithm is not UNSET:
-            field_dict["trainingAlgorithm"] = training_algorithm
-        if created_at is not UNSET:
-            field_dict["createdAt"] = created_at
         if updated_at is not UNSET:
             field_dict["updatedAt"] = updated_at
+        if computation_id is not UNSET:
+            field_dict["computationId"] = computation_id
+        if created_at is not UNSET:
+            field_dict["createdAt"] = created_at
+        if data_object is not UNSET:
+            field_dict["dataObject"] = data_object
+        if training_algorithm is not UNSET:
+            field_dict["trainingAlgorithm"] = training_algorithm
+        if type is not UNSET:
+            field_dict["type"] = type
 
         return field_dict
 
@@ -105,22 +104,6 @@ class Model:
         from ..models.model_params import ModelParams
 
         d = src_dict.copy()
-        _type = d.pop("type", UNSET)
-        type: Union[Unset, ModelType]
-        if isinstance(_type, Unset):
-            type = UNSET
-        else:
-            type = ModelType(_type)
-
-        computation_id = d.pop("computationId", UNSET)
-
-        _data_object = d.pop("dataObject", UNSET)
-        data_object: Union[Unset, DataObject]
-        if isinstance(_data_object, Unset):
-            data_object = UNSET
-        else:
-            data_object = DataObject.from_dict(_data_object)
-
         _metadata = d.pop("metadata", UNSET)
         metadata: Union[Unset, ModelMetadata]
         if isinstance(_metadata, Unset):
@@ -139,6 +122,19 @@ class Model:
 
         name = d.pop("name", UNSET)
 
+        updated_at = d.pop("updatedAt", UNSET)
+
+        computation_id = d.pop("computationId", UNSET)
+
+        created_at = d.pop("createdAt", UNSET)
+
+        _data_object = d.pop("dataObject", UNSET)
+        data_object: Union[Unset, DataObject]
+        if isinstance(_data_object, Unset):
+            data_object = UNSET
+        else:
+            data_object = DataObject.from_dict(_data_object)
+
         _training_algorithm = d.pop("trainingAlgorithm", UNSET)
         training_algorithm: Union[Unset, TrainingAlgorithm]
         if isinstance(_training_algorithm, Unset):
@@ -146,21 +142,24 @@ class Model:
         else:
             training_algorithm = TrainingAlgorithm(_training_algorithm)
 
-        created_at = d.pop("createdAt", UNSET)
-
-        updated_at = d.pop("updatedAt", UNSET)
+        _type = d.pop("type", UNSET)
+        type: Union[Unset, ModelType]
+        if isinstance(_type, Unset):
+            type = UNSET
+        else:
+            type = ModelType(_type)
 
         model = cls(
-            type=type,
-            computation_id=computation_id,
-            data_object=data_object,
             metadata=metadata,
             model_id=model_id,
             model_params=model_params,
             name=name,
-            training_algorithm=training_algorithm,
-            created_at=created_at,
             updated_at=updated_at,
+            computation_id=computation_id,
+            created_at=created_at,
+            data_object=data_object,
+            training_algorithm=training_algorithm,
+            type=type,
         )
 
         model.additional_properties = d

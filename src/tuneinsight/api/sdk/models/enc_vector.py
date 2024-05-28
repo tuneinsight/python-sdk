@@ -17,22 +17,22 @@ class EncVector:
     """Vector of encrypted numerical values.
 
     Attributes:
-        encryption (Encryption):
         type (EncVectorType):
+        encryption (Encryption):
         expanded (Union[Unset, List[str]]):
         packed (Union[Unset, str]):
     """
 
-    encryption: "Encryption"
     type: EncVectorType
+    encryption: "Encryption"
     expanded: Union[Unset, List[str]] = UNSET
     packed: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        encryption = self.encryption.to_dict()
-
         type = self.type.value
+
+        encryption = self.encryption.to_dict()
 
         expanded: Union[Unset, List[str]] = UNSET
         if not isinstance(self.expanded, Unset):
@@ -44,8 +44,8 @@ class EncVector:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "encryption": encryption,
                 "type": type,
+                "encryption": encryption,
             }
         )
         if expanded is not UNSET:
@@ -60,17 +60,17 @@ class EncVector:
         from ..models.encryption import Encryption
 
         d = src_dict.copy()
-        encryption = Encryption.from_dict(d.pop("encryption"))
-
         type = EncVectorType(d.pop("type"))
+
+        encryption = Encryption.from_dict(d.pop("encryption"))
 
         expanded = cast(List[str], d.pop("expanded", UNSET))
 
         packed = d.pop("packed", UNSET)
 
         enc_vector = cls(
-            encryption=encryption,
             type=type,
+            encryption=encryption,
             expanded=expanded,
             packed=packed,
         )

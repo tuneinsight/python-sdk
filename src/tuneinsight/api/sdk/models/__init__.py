@@ -111,6 +111,7 @@ from .get_log_list_response_200 import GetLogListResponse200
 from .get_model_list_order import GetModelListOrder
 from .get_model_list_sort_by import GetModelListSortBy
 from .get_network_metadata_response_200 import GetNetworkMetadataResponse200
+from .get_network_metadata_response_200_network_type import GetNetworkMetadataResponse200NetworkType
 from .get_params_response_200 import GetParamsResponse200
 from .get_private_search_databases_list_order import GetPrivateSearchDatabasesListOrder
 from .get_private_search_databases_list_sort_by import GetPrivateSearchDatabasesListSortBy
@@ -127,6 +128,7 @@ from .group_info import GroupInfo
 from .gwas import GWAS
 from .hybrid_fl import HybridFL
 from .hybrid_fl_learning_params import HybridFLLearningParams
+from .instance_configuration import InstanceConfiguration
 from .key_info import KeyInfo
 from .key_switched_computation import KeySwitchedComputation
 from .local_data_selection import LocalDataSelection
@@ -147,6 +149,7 @@ from .model_metadata import ModelMetadata
 from .model_params import ModelParams
 from .model_type import ModelType
 from .network import Network
+from .network_type import NetworkType
 from .network_visibility_type import NetworkVisibilityType
 from .node import Node
 from .node_status import NodeStatus
@@ -216,6 +219,9 @@ from .set_intersection import SetIntersection
 from .set_intersection_output_format import SetIntersectionOutputFormat
 from .settings import Settings
 from .setup_session import SetupSession
+from .sphn_ontologies_search_ontologies_item import SphnOntologiesSearchOntologiesItem
+from .sphn_ontologies_search_response_200_item import SphnOntologiesSearchResponse200Item
+from .sphn_ontology_search_result import SphnOntologySearchResult
 from .statistic_base import StatisticBase
 from .statistic_definition import StatisticDefinition
 from .statistic_result import StatisticResult
@@ -359,6 +365,7 @@ __all__ = (
     "GetModelListOrder",
     "GetModelListSortBy",
     "GetNetworkMetadataResponse200",
+    "GetNetworkMetadataResponse200NetworkType",
     "GetParamsResponse200",
     "GetPrivateSearchDatabasesListOrder",
     "GetPrivateSearchDatabasesListSortBy",
@@ -375,6 +382,7 @@ __all__ = (
     "GWAS",
     "HybridFL",
     "HybridFLLearningParams",
+    "InstanceConfiguration",
     "KeyInfo",
     "KeySwitchedComputation",
     "LocalDataSelection",
@@ -395,6 +403,7 @@ __all__ = (
     "ModelParams",
     "ModelType",
     "Network",
+    "NetworkType",
     "NetworkVisibilityType",
     "Node",
     "NodeStatus",
@@ -464,6 +473,9 @@ __all__ = (
     "SetIntersectionOutputFormat",
     "Settings",
     "SetupSession",
+    "SphnOntologiesSearchOntologiesItem",
+    "SphnOntologiesSearchResponse200Item",
+    "SphnOntologySearchResult",
     "StatisticalAggregation",
     "StatisticalQuantity",
     "StatisticBase",

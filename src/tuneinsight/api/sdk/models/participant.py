@@ -20,28 +20,23 @@ class Participant:
     """Node participating in a project
 
     Attributes:
-        input_metadata (Union[Unset, DataSourceMetadata]): metadata about a datasource
-        is_contributor (Union[Unset, None, bool]):
         node (Union[Unset, Node]): Node or agent of the network
         participation_status (Union[Unset, ParticipationStatus]): participation state of a project's participant
         status (Union[Unset, ProjectStatus]): Stages of a project workflow
         authorization_status (Union[Unset, AuthorizationStatus]): Authorization status of the project
+        input_metadata (Union[Unset, DataSourceMetadata]): metadata about a datasource
+        is_contributor (Union[Unset, None, bool]):
     """
 
-    input_metadata: Union[Unset, "DataSourceMetadata"] = UNSET
-    is_contributor: Union[Unset, None, bool] = UNSET
     node: Union[Unset, "Node"] = UNSET
     participation_status: Union[Unset, ParticipationStatus] = UNSET
     status: Union[Unset, ProjectStatus] = UNSET
     authorization_status: Union[Unset, AuthorizationStatus] = UNSET
+    input_metadata: Union[Unset, "DataSourceMetadata"] = UNSET
+    is_contributor: Union[Unset, None, bool] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        input_metadata: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.input_metadata, Unset):
-            input_metadata = self.input_metadata.to_dict()
-
-        is_contributor = self.is_contributor
         node: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.node, Unset):
             node = self.node.to_dict()
@@ -58,13 +53,15 @@ class Participant:
         if not isinstance(self.authorization_status, Unset):
             authorization_status = self.authorization_status.value
 
+        input_metadata: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.input_metadata, Unset):
+            input_metadata = self.input_metadata.to_dict()
+
+        is_contributor = self.is_contributor
+
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if input_metadata is not UNSET:
-            field_dict["inputMetadata"] = input_metadata
-        if is_contributor is not UNSET:
-            field_dict["isContributor"] = is_contributor
         if node is not UNSET:
             field_dict["node"] = node
         if participation_status is not UNSET:
@@ -73,6 +70,10 @@ class Participant:
             field_dict["status"] = status
         if authorization_status is not UNSET:
             field_dict["authorizationStatus"] = authorization_status
+        if input_metadata is not UNSET:
+            field_dict["inputMetadata"] = input_metadata
+        if is_contributor is not UNSET:
+            field_dict["isContributor"] = is_contributor
 
         return field_dict
 
@@ -82,15 +83,6 @@ class Participant:
         from ..models.node import Node
 
         d = src_dict.copy()
-        _input_metadata = d.pop("inputMetadata", UNSET)
-        input_metadata: Union[Unset, DataSourceMetadata]
-        if isinstance(_input_metadata, Unset):
-            input_metadata = UNSET
-        else:
-            input_metadata = DataSourceMetadata.from_dict(_input_metadata)
-
-        is_contributor = d.pop("isContributor", UNSET)
-
         _node = d.pop("node", UNSET)
         node: Union[Unset, Node]
         if isinstance(_node, Unset):
@@ -119,13 +111,22 @@ class Participant:
         else:
             authorization_status = AuthorizationStatus(_authorization_status)
 
+        _input_metadata = d.pop("inputMetadata", UNSET)
+        input_metadata: Union[Unset, DataSourceMetadata]
+        if isinstance(_input_metadata, Unset):
+            input_metadata = UNSET
+        else:
+            input_metadata = DataSourceMetadata.from_dict(_input_metadata)
+
+        is_contributor = d.pop("isContributor", UNSET)
+
         participant = cls(
-            input_metadata=input_metadata,
-            is_contributor=is_contributor,
             node=node,
             participation_status=participation_status,
             status=status,
             authorization_status=authorization_status,
+            input_metadata=input_metadata,
+            is_contributor=is_contributor,
         )
 
         participant.additional_properties = d

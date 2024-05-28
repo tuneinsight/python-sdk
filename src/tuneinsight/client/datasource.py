@@ -129,6 +129,7 @@ class DataSource:
         name: str,
         clear_if_exists: bool = False,
         cert: str = "",
+        insecure_skip_verify_tls: bool = False,
     ):
         """
         Creates a new API datasource.
@@ -146,7 +147,10 @@ class DataSource:
         definition.clear_if_exists = clear_if_exists
         definition.type = models.DataSourceType.API
         definition.configuration = models.DataSourceConfig(
-            api_url=api_url, api_type=api_type, cert=cert
+            api_url=api_url,
+            api_type=api_type,
+            cert=cert,
+            insecure_skip_verify_tls=insecure_skip_verify_tls,
         )
         definition.credentials = models.Credentials(api_token=api_token)
         return cls._from_definition(client, definition=definition)
@@ -184,6 +188,11 @@ class DataSource:
             str: the id as a a string
         """
         return self.model.id
+
+    @property
+    def is_mock(self) -> bool:
+        """Whether this datasource contains mock/synthetic data, and should not be used in production."""
+        return self.model.is_mock
 
     ## Methods to manipulate a datasource object.
 
@@ -265,6 +274,8 @@ class DataSource:
         Raises:
             AuthorizationError: if the client is not the owner of the datasource.
         """
+        if not query and self.query_parameters is not None:
+            query = self.query_parameters.database_query
         do = self.adapt(
             do_type=models.DataObjectType.TABLE, query=query, json_path=json_path
         )
@@ -287,6 +298,7 @@ class DataSource:
         query: str = UNSET,
         name: str = UNSET,
         num_rows: int = UNSET,
+        epsilon: float = UNSET,
     ) -> "DataSource":
         """
         Generates a synthetic dataset that mimics this datasource.
@@ -306,21 +318,33 @@ class DataSource:
                 synthetic_{datasource_name} is used instead.
             num_rows (int, optional): number of rows to generate. If not provided,
                 the synthetic dataset will have the same number of rows as this datasource.
+            epsilon (float, optional): if set, use a differentially private generation
+                method with this value of epsilon. The synthetic data produced by this
+                method is guaranteed to be privacy-preserving, but will be less accurate.
+                A good default value is epsilon=1. This will work better with large datasets.
         """
+        # If no query is provided, but this datasource has a local query, use it.
+        if query is None and self.query_parameters is not None:
+            query = self.query_parameters.database_query
+        # If the user specified neither the query nor the table name, use the datasource name as table.
+        # This is a default case that will work for mock data.
         if isinstance(table, Unset) and isinstance(query, Unset):
             table = self.model.name
-        if isinstance(name, Unset) and not isinstance(self.model.name, Unset):
-            name = f"synthetic_{self.model.name}"
         response = post_synthetic_dataset.sync_detailed(
             client=self.client,
-            data_source_id=self.model.unique_id,
+            data_source_id=self.get_id(),
             num_rows=num_rows,
             table=table,
             query=query,
             table_name=name,
+            dp_epsilon=epsilon,
         )
         validate_response(response)
-        return DataSource(response.parsed, self.client)
+        ds = DataSource(response.parsed, self.client)
+        # For synthetic data, the table name is the same as the datasource name, so set the local query.
+        if not isinstance(ds.model.name, Unset):
+            ds.set_query(f"select * from {ds.model.name}")
+        return ds
 
     ## Methods to interact with queries etc.
     def set_query(self, query: str):

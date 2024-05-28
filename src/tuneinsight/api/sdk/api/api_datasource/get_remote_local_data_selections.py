@@ -15,6 +15,7 @@ def _get_kwargs(
     remote: Union[Unset, None, bool] = UNSET,
     local: Union[Unset, None, bool] = UNSET,
     ignored_instance: Union[Unset, None, str] = UNSET,
+    timeout: Union[Unset, None, int] = UNSET,
 ) -> Dict[str, Any]:
     url = "{}/datasources/selections/remote".format(client.base_url)
 
@@ -28,7 +29,20 @@ def _get_kwargs(
 
     params["ignoredInstance"] = ignored_instance
 
+    params["timeout"] = timeout
+
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
+
+    # Set the proxies if the client has proxies set.
+    proxies = None
+    if hasattr(client, "proxies") and client.proxies is not None:
+        https_proxy = client.proxies.get("https")
+        if https_proxy:
+            proxies = https_proxy
+        else:
+            http_proxy = client.proxies.get("http")
+            if http_proxy:
+                proxies = http_proxy
 
     return {
         "method": "get",
@@ -36,6 +50,7 @@ def _get_kwargs(
         "headers": headers,
         "cookies": cookies,
         "timeout": client.get_timeout(),
+        "proxies": proxies,
         "params": params,
     }
 
@@ -71,6 +86,7 @@ def sync_detailed(
     remote: Union[Unset, None, bool] = UNSET,
     local: Union[Unset, None, bool] = UNSET,
     ignored_instance: Union[Unset, None, str] = UNSET,
+    timeout: Union[Unset, None, int] = UNSET,
 ) -> Response[List["LocalDataSelection"]]:
     """retrieves all of the local data selections that are visible to the network
 
@@ -78,6 +94,7 @@ def sync_detailed(
         remote (Union[Unset, None, bool]):
         local (Union[Unset, None, bool]):
         ignored_instance (Union[Unset, None, str]):
+        timeout (Union[Unset, None, int]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -92,6 +109,7 @@ def sync_detailed(
         remote=remote,
         local=local,
         ignored_instance=ignored_instance,
+        timeout=timeout,
     )
 
     response = httpx.request(
@@ -108,6 +126,7 @@ def sync(
     remote: Union[Unset, None, bool] = UNSET,
     local: Union[Unset, None, bool] = UNSET,
     ignored_instance: Union[Unset, None, str] = UNSET,
+    timeout: Union[Unset, None, int] = UNSET,
 ) -> Optional[List["LocalDataSelection"]]:
     """retrieves all of the local data selections that are visible to the network
 
@@ -115,6 +134,7 @@ def sync(
         remote (Union[Unset, None, bool]):
         local (Union[Unset, None, bool]):
         ignored_instance (Union[Unset, None, str]):
+        timeout (Union[Unset, None, int]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -129,6 +149,7 @@ def sync(
         remote=remote,
         local=local,
         ignored_instance=ignored_instance,
+        timeout=timeout,
     ).parsed
 
 
@@ -138,6 +159,7 @@ async def asyncio_detailed(
     remote: Union[Unset, None, bool] = UNSET,
     local: Union[Unset, None, bool] = UNSET,
     ignored_instance: Union[Unset, None, str] = UNSET,
+    timeout: Union[Unset, None, int] = UNSET,
 ) -> Response[List["LocalDataSelection"]]:
     """retrieves all of the local data selections that are visible to the network
 
@@ -145,6 +167,7 @@ async def asyncio_detailed(
         remote (Union[Unset, None, bool]):
         local (Union[Unset, None, bool]):
         ignored_instance (Union[Unset, None, str]):
+        timeout (Union[Unset, None, int]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -159,6 +182,7 @@ async def asyncio_detailed(
         remote=remote,
         local=local,
         ignored_instance=ignored_instance,
+        timeout=timeout,
     )
 
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
@@ -173,6 +197,7 @@ async def asyncio(
     remote: Union[Unset, None, bool] = UNSET,
     local: Union[Unset, None, bool] = UNSET,
     ignored_instance: Union[Unset, None, str] = UNSET,
+    timeout: Union[Unset, None, int] = UNSET,
 ) -> Optional[List["LocalDataSelection"]]:
     """retrieves all of the local data selections that are visible to the network
 
@@ -180,6 +205,7 @@ async def asyncio(
         remote (Union[Unset, None, bool]):
         local (Union[Unset, None, bool]):
         ignored_instance (Union[Unset, None, str]):
+        timeout (Union[Unset, None, int]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -195,5 +221,6 @@ async def asyncio(
             remote=remote,
             local=local,
             ignored_instance=ignored_instance,
+            timeout=timeout,
         )
     ).parsed

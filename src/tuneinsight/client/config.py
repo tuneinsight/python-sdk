@@ -39,14 +39,10 @@ class OIDCConfiguration:
         oidc_url: str,
         oidc_realm: str,
     ):
-        self.oidc_client_id = "python-sdk" if oidc_client_id is None else oidc_client_id
-        self.oidc_client_secret = (
-            "" if oidc_client_secret is None else oidc_client_secret
-        )
-        self.oidc_url = (
-            "https://auth.tuneinsight.com/auth/" if oidc_url is None else oidc_url
-        )
-        self.oidc_realm = "ti-realm" if oidc_realm is None else oidc_realm
+        self.oidc_client_id = oidc_client_id or "python-sdk"
+        self.oidc_client_secret = oidc_client_secret or ""
+        self.oidc_url = oidc_url or "https://auth.tuneinsight.com/auth/"
+        self.oidc_realm = oidc_realm or "ti-realm"
 
     @staticmethod
     def from_json(json_dct):
@@ -75,11 +71,11 @@ class SecurityConfiguration:
         password: str,
         verify_ssl: bool,
     ):
-        self.verify_ssl = True if verify_ssl is None else verify_ssl
-        self.static_token = "" if static_token is None else static_token
-        self.username = "" if username is None else username
-        self.password = "" if password is None else password
         self.oidc_config = oidc_config
+        self.static_token = static_token or ""
+        self.username = username or ""
+        self.password = password or ""
+        self.verify_ssl = True if verify_ssl is None else verify_ssl
 
     @staticmethod
     def from_json(json_dct):
@@ -103,7 +99,7 @@ class ClientConfiguration:
 
     def __init__(self, url, security, http_proxy: str = None, https_proxy: str = None):
         """
-        Initialize a client.
+        Initializes a client.
 
         Args:
             url (str): The URL of the Tune Insight API
@@ -117,7 +113,7 @@ class ClientConfiguration:
         self.https_proxy = https_proxy
 
     def save(self, filepath: str):
-        """Save this configuration to a file."""
+        """Saves this configuration to a file."""
         with open(filepath, "w", encoding="utf-8") as f:
             res = to_dict(self)
             yaml.safe_dump(res, f)
@@ -125,7 +121,7 @@ class ClientConfiguration:
     @staticmethod
     def from_json(json_dct):
         """
-        Create a Client configuration from a JSON dictionary.
+        Creates a Client configuration from a JSON dictionary.
 
         Args:
             json_dct (dict): The JSON dictionary containing the client configuration.
@@ -133,22 +129,14 @@ class ClientConfiguration:
         """
         security = SecurityConfiguration.from_json(json_dct.get("security"))
         client = ClientConfiguration(json_dct.get("url"), security)
-        client.http_proxy = (
-            json_dct.get("http_proxy")
-            if json_dct.get("http_proxy") is not None
-            else client.http_proxy
-        )
-        client.https_proxy = (
-            json_dct.get("https_proxy")
-            if json_dct.get("https_proxy") is not None
-            else client.https_proxy
-        )
+        client.http_proxy = json_dct.get("http_proxy") or client.http_proxy
+        client.https_proxy = json_dct.get("https_proxy") or client.https_proxy
         return client
 
     @staticmethod
     def from_path(filepath: str):
         """
-        Create a Client configuration from a file.
+        Creates a Client configuration from a file.
 
         Args:
             filepath: the path to the file to load from, a text file with a
@@ -163,7 +151,7 @@ class ClientConfiguration:
     @staticmethod
     def from_env(envpath: str = None):
         """
-        Create a Client configuration from environment variables.
+        Creates a Client configuration from environment variables.
 
         Args:
             envpath (optional): path to a file containing environment variables
@@ -208,15 +196,7 @@ class ClientConfiguration:
             url=os.getenv("NODE_URL"), security=security_config
         )
 
-        client.http_proxy = (
-            os.getenv("HTTP_PROXY")
-            if os.getenv("HTTP_PROXY") is not None
-            else client.http_proxy
-        )
-        client.https_proxy = (
-            os.getenv("HTTPS_PROXY")
-            if os.getenv("HTTPS_PROXY") is not None
-            else client.https_proxy
-        )
+        client.http_proxy = os.getenv("HTTP_PROXY") or client.http_proxy
+        client.https_proxy = os.getenv("HTTPS_PROXY") or client.https_proxy
 
         return client

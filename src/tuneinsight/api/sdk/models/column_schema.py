@@ -15,6 +15,9 @@ T = TypeVar("T", bound="ColumnSchema")
 class ColumnSchema:
     """
     Attributes:
+        nullable (Union[Unset, bool]): whether the column is allowed to contain null values.
+        required (Union[Unset, None, bool]): if set to false, the column will be considered as optional in the dataset.
+        title (Union[Unset, str]): name given to the column for informative purposes
         checks (Union[Unset, ColumnSchemaChecks]): optional additional checks
         coerce (Union[Unset, bool]): if set to true, the validation will first coerce the column into the corresponding
             dtype
@@ -23,21 +26,21 @@ class ColumnSchema:
         dtype (Union[Unset, str]): expected data type for the column
             supported types:
             https://pandera.readthedocs.io/en/stable/dtype_validation.html#supported-pandas-datatypes
-        nullable (Union[Unset, bool]): whether the column is allowed to contain null values.
-        required (Union[Unset, None, bool]): if set to false, the column will be considered as optional in the dataset.
-        title (Union[Unset, str]): name given to the column for informative purposes
     """
 
+    nullable: Union[Unset, bool] = UNSET
+    required: Union[Unset, None, bool] = UNSET
+    title: Union[Unset, str] = UNSET
     checks: Union[Unset, "ColumnSchemaChecks"] = UNSET
     coerce: Union[Unset, bool] = UNSET
     description: Union[Unset, str] = UNSET
     dtype: Union[Unset, str] = UNSET
-    nullable: Union[Unset, bool] = UNSET
-    required: Union[Unset, None, bool] = UNSET
-    title: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        nullable = self.nullable
+        required = self.required
+        title = self.title
         checks: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.checks, Unset):
             checks = self.checks.to_dict()
@@ -45,13 +48,16 @@ class ColumnSchema:
         coerce = self.coerce
         description = self.description
         dtype = self.dtype
-        nullable = self.nullable
-        required = self.required
-        title = self.title
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if nullable is not UNSET:
+            field_dict["nullable"] = nullable
+        if required is not UNSET:
+            field_dict["required"] = required
+        if title is not UNSET:
+            field_dict["title"] = title
         if checks is not UNSET:
             field_dict["checks"] = checks
         if coerce is not UNSET:
@@ -60,12 +66,6 @@ class ColumnSchema:
             field_dict["description"] = description
         if dtype is not UNSET:
             field_dict["dtype"] = dtype
-        if nullable is not UNSET:
-            field_dict["nullable"] = nullable
-        if required is not UNSET:
-            field_dict["required"] = required
-        if title is not UNSET:
-            field_dict["title"] = title
 
         return field_dict
 
@@ -74,6 +74,12 @@ class ColumnSchema:
         from ..models.column_schema_checks import ColumnSchemaChecks
 
         d = src_dict.copy()
+        nullable = d.pop("nullable", UNSET)
+
+        required = d.pop("required", UNSET)
+
+        title = d.pop("title", UNSET)
+
         _checks = d.pop("checks", UNSET)
         checks: Union[Unset, ColumnSchemaChecks]
         if isinstance(_checks, Unset):
@@ -87,20 +93,14 @@ class ColumnSchema:
 
         dtype = d.pop("dtype", UNSET)
 
-        nullable = d.pop("nullable", UNSET)
-
-        required = d.pop("required", UNSET)
-
-        title = d.pop("title", UNSET)
-
         column_schema = cls(
+            nullable=nullable,
+            required=required,
+            title=title,
             checks=checks,
             coerce=coerce,
             description=description,
             dtype=dtype,
-            nullable=nullable,
-            required=required,
-            title=title,
         )
 
         column_schema.additional_properties = d

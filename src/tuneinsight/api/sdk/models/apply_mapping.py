@@ -17,29 +17,28 @@ class ApplyMapping:
     """
     Attributes:
         type (PreprocessingOperationType): type of preprocessing operation
+        output (Union[Unset, str]): column to use as output
         default (Union[Unset, str]): default value to assign to items not specified in the dictionary
         input_ (Union[Unset, str]): column to use as input
         mapping (Union[Unset, StringMapping]): mapping from string -> string
-        output (Union[Unset, str]): column to use as output
     """
 
     type: PreprocessingOperationType
+    output: Union[Unset, str] = UNSET
     default: Union[Unset, str] = UNSET
     input_: Union[Unset, str] = UNSET
     mapping: Union[Unset, "StringMapping"] = UNSET
-    output: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         type = self.type.value
 
+        output = self.output
         default = self.default
         input_ = self.input_
         mapping: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.mapping, Unset):
             mapping = self.mapping.to_dict()
-
-        output = self.output
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -48,14 +47,14 @@ class ApplyMapping:
                 "type": type,
             }
         )
+        if output is not UNSET:
+            field_dict["output"] = output
         if default is not UNSET:
             field_dict["default"] = default
         if input_ is not UNSET:
             field_dict["input"] = input_
         if mapping is not UNSET:
             field_dict["mapping"] = mapping
-        if output is not UNSET:
-            field_dict["output"] = output
 
         return field_dict
 
@@ -65,6 +64,8 @@ class ApplyMapping:
 
         d = src_dict.copy()
         type = PreprocessingOperationType(d.pop("type"))
+
+        output = d.pop("output", UNSET)
 
         default = d.pop("default", UNSET)
 
@@ -77,14 +78,12 @@ class ApplyMapping:
         else:
             mapping = StringMapping.from_dict(_mapping)
 
-        output = d.pop("output", UNSET)
-
         apply_mapping = cls(
             type=type,
+            output=output,
             default=default,
             input_=input_,
             mapping=mapping,
-            output=output,
         )
 
         apply_mapping.additional_properties = d

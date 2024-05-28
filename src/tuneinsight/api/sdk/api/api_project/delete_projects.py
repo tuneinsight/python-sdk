@@ -18,12 +18,24 @@ def _get_kwargs(
     headers: Dict[str, str] = client.get_headers()
     cookies: Dict[str, Any] = client.get_cookies()
 
+    # Set the proxies if the client has proxies set.
+    proxies = None
+    if hasattr(client, "proxies") and client.proxies is not None:
+        https_proxy = client.proxies.get("https")
+        if https_proxy:
+            proxies = https_proxy
+        else:
+            http_proxy = client.proxies.get("http")
+            if http_proxy:
+                proxies = http_proxy
+
     return {
         "method": "delete",
         "url": url,
         "headers": headers,
         "cookies": cookies,
         "timeout": client.get_timeout(),
+        "proxies": proxies,
     }
 
 

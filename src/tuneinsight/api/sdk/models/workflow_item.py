@@ -16,66 +16,65 @@ T = TypeVar("T", bound="WorkflowItem")
 class WorkflowItem:
     """
     Attributes:
-        target_handle (Union[Unset, str]): not used - UI specific
+        source (Union[Unset, str]): not used - UI specific
+        target (Union[Unset, str]): not used - UI specific
         type (Union[Unset, str]):
+        progress (Union[Unset, int]):
+        source_handle (Union[Unset, str]): not used - UI specific
+        target_handle (Union[Unset, str]): not used - UI specific
         data (Union[Unset, WorkflowItemData]):
         id (Union[Unset, str]):
-        source_handle (Union[Unset, str]): not used - UI specific
-        target (Union[Unset, str]): not used - UI specific
         position (Union[Unset, WorkflowItemPosition]):
-        progress (Union[Unset, int]):
-        source (Union[Unset, str]): not used - UI specific
     """
 
-    target_handle: Union[Unset, str] = UNSET
+    source: Union[Unset, str] = UNSET
+    target: Union[Unset, str] = UNSET
     type: Union[Unset, str] = UNSET
+    progress: Union[Unset, int] = UNSET
+    source_handle: Union[Unset, str] = UNSET
+    target_handle: Union[Unset, str] = UNSET
     data: Union[Unset, "WorkflowItemData"] = UNSET
     id: Union[Unset, str] = UNSET
-    source_handle: Union[Unset, str] = UNSET
-    target: Union[Unset, str] = UNSET
     position: Union[Unset, "WorkflowItemPosition"] = UNSET
-    progress: Union[Unset, int] = UNSET
-    source: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        target_handle = self.target_handle
+        source = self.source
+        target = self.target
         type = self.type
+        progress = self.progress
+        source_handle = self.source_handle
+        target_handle = self.target_handle
         data: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.data, Unset):
             data = self.data.to_dict()
 
         id = self.id
-        source_handle = self.source_handle
-        target = self.target
         position: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.position, Unset):
             position = self.position.to_dict()
 
-        progress = self.progress
-        source = self.source
-
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if target_handle is not UNSET:
-            field_dict["targetHandle"] = target_handle
+        if source is not UNSET:
+            field_dict["source"] = source
+        if target is not UNSET:
+            field_dict["target"] = target
         if type is not UNSET:
             field_dict["type"] = type
+        if progress is not UNSET:
+            field_dict["progress"] = progress
+        if source_handle is not UNSET:
+            field_dict["sourceHandle"] = source_handle
+        if target_handle is not UNSET:
+            field_dict["targetHandle"] = target_handle
         if data is not UNSET:
             field_dict["data"] = data
         if id is not UNSET:
             field_dict["id"] = id
-        if source_handle is not UNSET:
-            field_dict["sourceHandle"] = source_handle
-        if target is not UNSET:
-            field_dict["target"] = target
         if position is not UNSET:
             field_dict["position"] = position
-        if progress is not UNSET:
-            field_dict["progress"] = progress
-        if source is not UNSET:
-            field_dict["source"] = source
 
         return field_dict
 
@@ -85,9 +84,17 @@ class WorkflowItem:
         from ..models.workflow_item_position import WorkflowItemPosition
 
         d = src_dict.copy()
-        target_handle = d.pop("targetHandle", UNSET)
+        source = d.pop("source", UNSET)
+
+        target = d.pop("target", UNSET)
 
         type = d.pop("type", UNSET)
+
+        progress = d.pop("progress", UNSET)
+
+        source_handle = d.pop("sourceHandle", UNSET)
+
+        target_handle = d.pop("targetHandle", UNSET)
 
         _data = d.pop("data", UNSET)
         data: Union[Unset, WorkflowItemData]
@@ -98,10 +105,6 @@ class WorkflowItem:
 
         id = d.pop("id", UNSET)
 
-        source_handle = d.pop("sourceHandle", UNSET)
-
-        target = d.pop("target", UNSET)
-
         _position = d.pop("position", UNSET)
         position: Union[Unset, WorkflowItemPosition]
         if isinstance(_position, Unset):
@@ -109,20 +112,16 @@ class WorkflowItem:
         else:
             position = WorkflowItemPosition.from_dict(_position)
 
-        progress = d.pop("progress", UNSET)
-
-        source = d.pop("source", UNSET)
-
         workflow_item = cls(
-            target_handle=target_handle,
+            source=source,
+            target=target,
             type=type,
+            progress=progress,
+            source_handle=source_handle,
+            target_handle=target_handle,
             data=data,
             id=id,
-            source_handle=source_handle,
-            target=target,
             position=position,
-            progress=progress,
-            source=source,
         )
 
         workflow_item.additional_properties = d
