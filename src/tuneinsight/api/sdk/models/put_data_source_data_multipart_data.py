@@ -14,10 +14,12 @@ class PutDataSourceDataMultipartData:
     Attributes:
         data_source_request_data (Union[Unset, File]): Data source data file. Supported format: CSV.
         data_source_request_data_raw (Union[Unset, str]): Data source data provided as raw string csv
+        table_name (Union[Unset, str]): optional table name to upload data to.
     """
 
     data_source_request_data: Union[Unset, File] = UNSET
     data_source_request_data_raw: Union[Unset, str] = UNSET
+    table_name: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -26,6 +28,7 @@ class PutDataSourceDataMultipartData:
             data_source_request_data = self.data_source_request_data.to_tuple()
 
         data_source_request_data_raw = self.data_source_request_data_raw
+        table_name = self.table_name
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -34,6 +37,8 @@ class PutDataSourceDataMultipartData:
             field_dict["dataSourceRequestData"] = data_source_request_data
         if data_source_request_data_raw is not UNSET:
             field_dict["dataSourceRequestDataRaw"] = data_source_request_data_raw
+        if table_name is not UNSET:
+            field_dict["tableName"] = table_name
 
         return field_dict
 
@@ -47,6 +52,11 @@ class PutDataSourceDataMultipartData:
             if isinstance(self.data_source_request_data_raw, Unset)
             else (None, str(self.data_source_request_data_raw).encode(), "text/plain")
         )
+        table_name = (
+            self.table_name
+            if isinstance(self.table_name, Unset)
+            else (None, str(self.table_name).encode(), "text/plain")
+        )
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(
@@ -57,6 +67,8 @@ class PutDataSourceDataMultipartData:
             field_dict["dataSourceRequestData"] = data_source_request_data
         if data_source_request_data_raw is not UNSET:
             field_dict["dataSourceRequestDataRaw"] = data_source_request_data_raw
+        if table_name is not UNSET:
+            field_dict["tableName"] = table_name
 
         return field_dict
 
@@ -72,9 +84,12 @@ class PutDataSourceDataMultipartData:
 
         data_source_request_data_raw = d.pop("dataSourceRequestDataRaw", UNSET)
 
+        table_name = d.pop("tableName", UNSET)
+
         put_data_source_data_multipart_data = cls(
             data_source_request_data=data_source_request_data,
             data_source_request_data_raw=data_source_request_data_raw,
+            table_name=table_name,
         )
 
         put_data_source_data_multipart_data.additional_properties = d

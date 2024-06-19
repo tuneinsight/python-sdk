@@ -6,10 +6,13 @@ from tuneinsight.api.sdk import models
 
 class DatasetSchema:
     """
-    A user-defined dataset schema that constraints what the structure of inputs.
+    A user-defined dataset schema that constrains the structure of input datasets.
 
     Schemas can be used to describe what variables a dataset is supposed to have,
     what types these variables take, and additional constraints on their values.
+    When enforced, computations will return errors if the input dataset does not
+    comply to the schema. To set a schema in a project, use `Project.set_input_schema`.
+
     This class offers high-level methods to build a schema.
 
     """
@@ -44,7 +47,7 @@ class DatasetSchema:
         Creates a new column and adds it to the dataset schema.
 
         Args:
-            name (str): the name of the column
+            name (str): the name of the column.
             dtype (str, optional): the expected column data type. Defaults to None.
             coerce (bool, optional): whether errors should be coerced when validating. Defaults to False.
             nullable (bool, optional): whether the column is nullable. Defaults to False.
@@ -65,7 +68,7 @@ class DatasetSchema:
         Returns the corresponding column schema for the column identified by 'name'.
 
         Args:
-            name (str): the name of the column
+            name (str): the name of the column.
 
         Returns:
             models.ColumnSchema: the corresponding column schema
@@ -76,11 +79,11 @@ class DatasetSchema:
 
     def lt(self, name: str, val: Any):
         """
-        Adds a requirement that checks that values from the column are less than 'val'
+        Adds a requirement that checks that values from the column are less than `val`.
 
         Args:
-            name (str): the column name
-            val (Any): the upper bound value
+            name (str): the column name.
+            val (Any): the upper bound value.
         Returns:
             self (DatasetSchema): the updated schema
         """
@@ -90,11 +93,11 @@ class DatasetSchema:
 
     def le(self, name: str, val: Any):
         """
-        Adds a requirement that checks that values from the column are less than or equal to 'val'
+        Adds a requirement that checks that values from the column are less than or equal to `val`.
 
         Args:
-            name (str): the column name
-            val (Any): the upper bound value
+            name (str): the column name.
+            val (Any): the upper bound value.
         Returns:
             self (DatasetSchema): the updated schema
         """
@@ -104,11 +107,11 @@ class DatasetSchema:
 
     def eq(self, name: str, val: Any):
         """
-        Adds a requirement that checks that values from the column are equal to 'val'
+        Adds a requirement that checks that values from the column are equal to `val`.
 
         Args:
-            name (str): the column name
-            val (Any): the value to compare with
+            name (str): the column name.
+            val (Any): the value to compare with.
         Returns:
             self (DatasetSchema): the updated schema
         """
@@ -118,11 +121,11 @@ class DatasetSchema:
 
     def ge(self, name: str, val: Any):
         """
-        Adds a requirement that checks that values from the column are greater or equal to 'val'.
+        Adds a requirement that checks that values from the column are greater or equal to `val`.
 
         Args:
-            name (str): the column name
-            val (Any): the lower bound value
+            name (str): the column name.
+            val (Any): the lower bound value.
         Returns:
             self (DatasetSchema): the updated schema
         """
@@ -132,11 +135,11 @@ class DatasetSchema:
 
     def gt(self, name: str, val: Any):
         """
-        Adds a requirement that checks that values from the column are greater than 'val'.
+        Adds a requirement that checks that values from the column are greater than `val`.
 
         Args:
-            name (str): the column name
-            val (Any): the lower bound value
+            name (str): the column name.
+            val (Any): the lower bound value.
         Returns:
             self (DatasetSchema): the updated schema
         """
@@ -156,9 +159,9 @@ class DatasetSchema:
         Adds a requirement that checks that values from the column all belong to a specified range.
 
         Args:
-            name (str): name of the column
-            min_value (float): minimum value in the range
-            max_value (float): maximum value in the range
+            name (str): name of the column.
+            min_value (float): minimum value in the range.
+            max_value (float): maximum value in the range.
             include_min (bool, optional): whether the minimum value is include in the range. Defaults to True.
             include_max (bool, optional): whether the maximum value is included in the range. Defaults to True.
         Returns:
@@ -192,8 +195,8 @@ class DatasetSchema:
         Adds a requirement that checks that all values from the column are from a specified set of values.
 
         Args:
-            name (str): the name of the column
-            vals (List[Any]): the specified set of values
+            name (str): the name of the column.
+            vals (List[Any]): the specified set of values.
         Returns:
             self (DatasetSchema): the updated schema
         """
@@ -217,11 +220,11 @@ class DatasetSchema:
 
     def required(self, name: str, required: bool):
         """
-        Sets a column as required or optional
+        Sets whether a column is required (default) or optional.
 
         Args:
-            name (str): the name of the column
-            required (bool): whether the column is required
+            name (str): the name of the column.
+            required (bool): whether the column is required.
         Returns:
             self (DatasetSchema): the updated schema
         """
@@ -231,7 +234,7 @@ class DatasetSchema:
 
     def dtype(self, name: str, dtype: str):
         """
-        Sets the required data type of the column
+        Sets the data type to require for a column.
 
         Args:
             name (str): the name of the column
@@ -245,7 +248,7 @@ class DatasetSchema:
 
     def nullable(self, name: str, nullable: bool):
         """
-        Sets the nullable status of the column
+        Sets whether a column is nullable (True by default).
 
         Args:
             name (str): the name of the column
@@ -259,7 +262,7 @@ class DatasetSchema:
 
     def coerce(self, name: str, coerce: bool):
         """
-        Sets the coerce value of the column
+        Sets the coerce value of the column.
 
         Args:
             name (str): the name of the column

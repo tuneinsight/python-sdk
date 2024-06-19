@@ -24,6 +24,8 @@ class DataSourceQuery:
             POST with this request body)
         database_query (Union[Unset, str]): query used to retrieve data from a database data source (typically in SQL
             format)
+        database_query_builder (Union[Unset, str]): builder's version of the query (e.g. builder's JSON for the SPARQL
+            Query)
         select (Union[Unset, Select]):
     """
 
@@ -31,6 +33,7 @@ class DataSourceQuery:
     api_path_query: Union[Unset, str] = UNSET
     api_request_body: Union[Unset, str] = UNSET
     database_query: Union[Unset, str] = UNSET
+    database_query_builder: Union[Unset, str] = UNSET
     select: Union[Unset, "Select"] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -39,6 +42,7 @@ class DataSourceQuery:
         api_path_query = self.api_path_query
         api_request_body = self.api_request_body
         database_query = self.database_query
+        database_query_builder = self.database_query_builder
         select: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.select, Unset):
             select = self.select.to_dict()
@@ -54,6 +58,8 @@ class DataSourceQuery:
             field_dict["apiRequestBody"] = api_request_body
         if database_query is not UNSET:
             field_dict["databaseQuery"] = database_query
+        if database_query_builder is not UNSET:
+            field_dict["databaseQueryBuilder"] = database_query_builder
         if select is not UNSET:
             field_dict["select"] = select
 
@@ -72,6 +78,8 @@ class DataSourceQuery:
 
         database_query = d.pop("databaseQuery", UNSET)
 
+        database_query_builder = d.pop("databaseQueryBuilder", UNSET)
+
         _select = d.pop("select", UNSET)
         select: Union[Unset, Select]
         if isinstance(_select, Unset):
@@ -84,6 +92,7 @@ class DataSourceQuery:
             api_path_query=api_path_query,
             api_request_body=api_request_body,
             database_query=database_query,
+            database_query_builder=database_query_builder,
             select=select,
         )
 

@@ -16,7 +16,7 @@ from tuneinsight.utils.plots import style_plot
 
 class ConfidenceIntervalEstimator:
     """
-    Compute confidence intervals for a function of Differentially Private outputs.
+    Computes confidence intervals for a function of Differentially Private outputs.
 
     This uses Monte-Carlo sampling to simulate multiple runs of the Laplace mechanism
     on a multi-dimensional query that is then aggregated to one number using an
@@ -33,7 +33,7 @@ class ConfidenceIntervalEstimator:
         num_samples: int = int(1e6),
     ):
         """
-        Create simulated samples of a function of the outputs of the Laplace mechanism.
+        Creates simulated samples of a function of the outputs of the Laplace mechanism.
 
         Args
             noisy_answers (np.array): the observed output of the mechanism, typically the
@@ -64,7 +64,7 @@ class ConfidenceIntervalEstimator:
 
     def confidence_intervals(self, p: List[float] = (95, 99)):
         """
-        Estimate confidence intervals for the function result.
+        Estimates confidence intervals for the function result.
 
         Args
             p: the probabilities of the confidence interval (in percentages, in [0, 100]).
@@ -80,7 +80,8 @@ class ConfidenceIntervalEstimator:
         return pd.DataFrame(results, columns=["Percentage", "CI (min)", "CI (max)"])
 
     def draw_distribution(self, ci_color="k", local=False):
-        """Display the shape of the distribution of function results in a matplotlib figure.
+        """
+        Displays the shape of the distribution of function results in a matplotlib figure.
 
         Args
             ci_color: if not None, the 95% and 99% confidence intervals are displayed in this color.
@@ -140,7 +141,8 @@ class ConfidenceIntervalEstimator:
 
 
 class RatioEstimator(ConfidenceIntervalEstimator):
-    """Compute confidence intervals for the ratio of two values computed with differential privacy.
+    """
+    Computes confidence intervals for the ratio of two values computed with differential privacy.
 
     This class uses simulated samples to estimate various properties of the observed values.
 
@@ -155,7 +157,7 @@ class RatioEstimator(ConfidenceIntervalEstimator):
         num_samples: int = int(1e6),
     ):
         """
-        Create simulated samples of the ratio under DP.
+        Createds simulated samples of the ratio under DP.
 
         Args
             numerator: the numerator of the ratio, observed with Laplace noise.

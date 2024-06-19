@@ -1,40 +1,68 @@
 """ Contains some shared types for properties """
 
 from http import HTTPStatus
-from typing import BinaryIO, Generic, MutableMapping, Optional, Tuple, TypeVar
+from typing import Any, BinaryIO, Generic, Literal, MutableMapping, Optional, Tuple, TypeVar
 
-import attr
+from attrs import define
 
 
 class Unset:
-    def __bool__(self) -> bool:
+    def __bool__(self) -> Literal[False]:
         return False
 
 
 UNSET: Unset = Unset()
 
+
+def is_unset(v: Any) -> bool:
+    """Returns whether a value in an API model is unset."""
+    return isinstance(v, Unset)
+
+
+def is_set(v: Any) -> bool:
+    """Returns whether a value in an API model has been set (is not UNSET)."""
+    return not is_unset(v)
+
+
+def value_if_unset(v: Any, default: Any) -> Any:
+    """If v is Unset, returns the default value. Otherwise returns v unchanged."""
+    if is_set(v):
+        return v
+    return default
+
+
+def none_if_unset(v: Any) -> Any:
+    """If v is Unset, returns None. Otherwise, returns v unchanged."""
+    return value_if_unset(v, None)
+
+
+def false_if_unset(v: Any) -> Any:
+    """if v is Unset, returns False. Otherwise, returns v unchanged."""
+    return value_if_unset(v, False)
+
+
 FileJsonType = Tuple[Optional[str], BinaryIO, Optional[str]]
 
 
-@attr.s(auto_attribs=True)
+@define
 class File:
-    """Contains information for file uploads"""
+    """Contains information for file uploads."""
 
     payload: BinaryIO
     file_name: Optional[str] = None
     mime_type: Optional[str] = None
 
     def to_tuple(self) -> FileJsonType:
-        """Return a tuple representation that httpx will accept for multipart/form-data"""
+        """Returns a tuple representation that httpx will accept for multipart/form-data."""
         return self.file_name, self.payload, self.mime_type
 
 
 T = TypeVar("T")
 
 
-@attr.s(auto_attribs=True)
+@define
 class Response(Generic[T]):
-    """A response from an endpoint"""
+    """A response from an endpoint."""
 
     status_code: HTTPStatus
     content: bytes
@@ -42,4 +70,4 @@ class Response(Generic[T]):
     parsed: Optional[T]
 
 
-__all__ = ["File", "Response", "FileJsonType"]
+__all__ = ["File", "Response", "FileJsonType", "Unset", "UNSET"]

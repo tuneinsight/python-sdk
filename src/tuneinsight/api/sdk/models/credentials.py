@@ -13,23 +13,24 @@ class Credentials:
     """The credentials needed to access the data source.
 
     Attributes:
+        api_token (Union[Unset, str]): Token to connect to the API
         connection_string (Union[Unset, str]): connection string for a database
         credentials_id (Union[Unset, str]): the id of the credentials stored in the key vault
         password (Union[Unset, str]): generic password field.
         type (Union[Unset, CredentialsType]):
         username (Union[Unset, str]): generic username field.
-        api_token (Union[Unset, str]): Token to connect to the API
     """
 
+    api_token: Union[Unset, str] = UNSET
     connection_string: Union[Unset, str] = UNSET
     credentials_id: Union[Unset, str] = UNSET
     password: Union[Unset, str] = UNSET
     type: Union[Unset, CredentialsType] = UNSET
     username: Union[Unset, str] = UNSET
-    api_token: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        api_token = self.api_token
         connection_string = self.connection_string
         credentials_id = self.credentials_id
         password = self.password
@@ -38,11 +39,12 @@ class Credentials:
             type = self.type.value
 
         username = self.username
-        api_token = self.api_token
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if api_token is not UNSET:
+            field_dict["api-token"] = api_token
         if connection_string is not UNSET:
             field_dict["connectionString"] = connection_string
         if credentials_id is not UNSET:
@@ -53,14 +55,14 @@ class Credentials:
             field_dict["type"] = type
         if username is not UNSET:
             field_dict["username"] = username
-        if api_token is not UNSET:
-            field_dict["api-token"] = api_token
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
+        api_token = d.pop("api-token", UNSET)
+
         connection_string = d.pop("connectionString", UNSET)
 
         credentials_id = d.pop("credentialsId", UNSET)
@@ -76,15 +78,13 @@ class Credentials:
 
         username = d.pop("username", UNSET)
 
-        api_token = d.pop("api-token", UNSET)
-
         credentials = cls(
+            api_token=api_token,
             connection_string=connection_string,
             credentials_id=credentials_id,
             password=password,
             type=type,
             username=username,
-            api_token=api_token,
         )
 
         credentials.additional_properties = d

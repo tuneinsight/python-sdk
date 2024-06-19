@@ -1,6 +1,6 @@
 """Classes to interact with Tune Insight projects."""
 
-from typing import List, Tuple, Union
+from typing import List, Tuple, Union, Any
 import warnings
 
 from dateutil.parser import isoparse
@@ -8,39 +8,42 @@ from dateutil.parser import isoparse
 import attr
 import pandas as pd
 
-from tuneinsight.api.sdk.types import UNSET, Unset
+from tuneinsight.api.sdk.types import UNSET, is_set, is_unset
 from tuneinsight.api.sdk.types import Response
 from tuneinsight.api.sdk import models
-from tuneinsight.api.sdk.api.api_project import patch_project, post_project_computation
-from tuneinsight.api.sdk.api.api_project import get_project
-from tuneinsight.api.sdk.api.api_project import delete_project
+from tuneinsight.api.sdk.models import ComputationType as Type
+from tuneinsight.api.sdk import client as api_client
+from tuneinsight.api.sdk.api.api_project import (
+    patch_project,
+    post_project_computation,
+    get_project,
+    delete_project,
+)
 from tuneinsight.api.sdk.api.api_datasource import get_data_source
 from tuneinsight.api.sdk.api.api_computations import documentation
 
-from tuneinsight.computations.enc_aggregation import EncryptedAggregation
-from tuneinsight.computations.encrypted_mean import EncryptedMean
-from tuneinsight.computations.gwas import GWAS
-from tuneinsight.computations.intersection import SetIntersection
-from tuneinsight.computations.survival import SurvivalAnalysis, SurvivalParameters
-from tuneinsight.computations.regression import (
+from tuneinsight.computations import (
+    Computation,
+    Aggregation,
+    EncryptedMean,
+    GWAS,
+    Matching,
+    SurvivalAnalysis,
+    SurvivalParameters,
     LinearRegression,
     LogisticRegression,
     PoissonRegression,
+    HybridFL,
+    Statistics,
 )
-from tuneinsight.computations.cohort import Cohort
-from tuneinsight.computations.secure_join import SecureJoin
-from tuneinsight.computations.hybrid_fl import HybridFL
-from tuneinsight.computations.stats import Statistics
 from tuneinsight.computations.policy import Policy, display_policy
-from tuneinsight.api.sdk.models import ComputationType as Type
 from tuneinsight.computations.dataset_schema import DatasetSchema
+from tuneinsight.computations.types import model_type_to_class
 from tuneinsight.client.validation import validate_response
-from tuneinsight.computations.statistical_aggregation import GroupByAggregation
 from tuneinsight.client.datasource import DataSource
-from tuneinsight.client.dataobject import DataObject
 from tuneinsight.computations.local_data_selection import LocalDataSelection
-from tuneinsight.utils import deprecation
 from tuneinsight.utils.display import Renderer
+from tuneinsight.utils import deprecation
 
 
 @attr.s(auto_attribs=True)
@@ -59,7 +62,7 @@ class Project:
     an aggregation, run the project, then set up a logistic regression, and
     run the project again. All results will remain available as data objects.
 
-    This class wraps the models.Project class from the API, providing a more
+    This class wraps the `models.Project` API model, providing a more
     user-friendly interface, and interfaces several API endpoints. It is
     recommended to create a project through Diapason.new_project rather than
     manually building a models.Project object.
@@ -70,16 +73,13 @@ class Project:
     """
 
     model: models.Project  # The underlying model
-    client: Unset  # the client used to access the api
+    client: api_client.Client = None  # the client used to access the api
 
     datasource: DataSource = None
 
     def __attrs_post_init__(self):
         """Create a datasource object if one is defined in the project model."""
-        if (
-            not isinstance(self.model.data_source_id, Unset)
-            and self.model.data_source_id
-        ):
+        if is_set(self.model.data_source_id) and self.model.data_source_id:
             self.datasource = DataSource.fetch_from_id(
                 self.client, self.model.data_source_id
             )
@@ -89,6 +89,8 @@ class Project:
     def _refresh(self):
         """
         Refreshes the project's model by fetching its model on the Tune Insight instance.
+
+        Intended for internal use -- most getter methods will refresh the model.
         """
         resp: Response[models.Project] = get_project.sync_detailed(
             client=self.client, project_id=self.get_id()
@@ -98,7 +100,7 @@ class Project:
 
     def _patch(self, proj_def: models.ProjectDefinition):
         """
-        Update (patch) this project's definition.
+        Update (patch) this project's definition. Intended for internal use only.
 
         Args:
             proj_def (models.ProjectDefinition): the definition to patch with.
@@ -140,26 +142,16 @@ class Project:
 
     def get_topology(self) -> str:
         """
-        Returns the topology of this project.
+        Returns the topology of this project (either "star" or "tree").
 
         Returns:
             str: the topology of the project
         """
         return str(self.model.topology)
 
-    def get_computation(self) -> models.ComputationDefinition:
-        """
-        Returns the project's current computation definition.
-
-        Returns:
-            models.ComputationDefinition: the project's current computation definition
-        """
-        self._refresh()
-        return self.model.computation_definition
-
     def get_authorization_status(self) -> models.AuthorizationStatus:
         """
-        Returns the project's authorization status.
+        Returns the project's authorization status on this client.
 
         Returns:
             models.AuthorizationStatus: the project's authorization status
@@ -175,11 +167,11 @@ class Project:
             LookupError: if no datasource was linked to the project
 
         Returns:
-            DataSource: the datasource linked to the project.
+            `client.DataSource`: the datasource linked to the project.
         """
         self._refresh()
         if self.model.data_source_id == "":
-            raise LookupError("no data source set to project")
+            raise LookupError("This project has no datasource set.")
         resp: Response[models.DataSource] = get_data_source.sync_detailed(
             data_source_id=self.model.data_source_id, client=self.client
         )
@@ -199,11 +191,12 @@ class Project:
 
     def get_authorized_users(self) -> List[str]:
         """
-        Returns the email addresses of the authorized users.
+        Returns the email addresses of all authorized users in this instance.
 
         Returns:
             List[str]: a list of the email addresses of the authorized users
         """
+        self._refresh()
         return self.model.authorized_users
 
     # Setters for model values.
@@ -215,13 +208,15 @@ class Project:
         This creates an empty computation definition of the chosen type. Intended for tests.
 
         """
+        deprecation.warn(".set_computation_type", "the Computation class")
         definition = models.ComputationDefinition(type=comp_type)
         self.set_computation(definition)
 
     def set_contribution_status(self, contributes: bool):
         """
-        Sets the local contributing status of the instance. If set to False, this instance
-        will not contribute any data when running computations.
+        Sets the local contributing status of the instance.
+
+        If set to False, this instance will not contribute any data when running computations.
 
         Args:
             contributes (bool): whether the instance contributes data.
@@ -234,6 +229,8 @@ class Project:
         """
         Sets an expected schema to enforce on the inputs.
 
+        See `computations.DatasetSchema` for details.
+
         Args:
             schema (DatasetSchema): the schema definition.
         """
@@ -241,32 +238,26 @@ class Project:
         lds.preprocessing.schema = schema
         lds.save()
 
-    def set_computation(self, definition: models.ComputationDefinition):
+    def set_computation(
+        self, definition: Union[Computation, models.ComputationDefinition]
+    ):
         """
-        Sets the project's current computation definition.
+        Sets the project's current computation.
 
-        This method can be used to manually change the computation to run. It is
-        however recommended to use the relevant new_... method instead.
+        This method can be used to manually change the computation to run. Note that
+        computations call this when they are created or when .run is called, so this
+        method should only be used in cases not covered by these (which should be rare).
 
         Args:
-            definition (models.ComputationDefinition): the definition to apply
+            definition (models.ComputationDefinition or Computation): the definition to apply.
         """
+        if isinstance(definition, Computation):
+            definition: models.ComputationDefinition = definition.get_full_model()
         self._patch(
             proj_def=models.ProjectDefinition(
                 computation_definition=definition, broadcast=True
             )
         )
-
-    def set_input_datasource_id(self, datasourceId: str):
-        """
-        Sets this project's input datasource with its ID.
-
-        Args:
-            datasourceId (str): the datasource ID to the project
-        """
-        deprecation.warn("set_input_datasource_id", "set_input_datasource")
-        proj_def = models.ProjectDefinition(data_source_id=datasourceId)
-        self._patch(proj_def=proj_def)
 
     def set_input_datasource(self, ds: Union[DataSource, str]):
         """
@@ -290,6 +281,9 @@ class Project:
         """
         Sets the policy of this project.
 
+        To edit the policy of the project, first fetch its current state with
+        `Project.get_policy`, edit that object, and use `set_policy` to update the project.
+
         Args:
             policy (Policy): the policy to add to the project
         """
@@ -307,13 +301,31 @@ class Project:
         proj_def = models.ProjectDefinition(policy=policy)
         self._patch(proj_def=proj_def)
 
+    def add_authorized_users(self, users: Union[str, List[str]]):
+        """
+        Adds authorized users to this project.
+
+        Args
+            users (string or list of strings): user or users to be added as
+                authorized users to this project. Users that are already authorized
+                will be ignored.
+        """
+        if isinstance(users, str):
+            users = [users]
+        already_authorized = self.model.authorized_users
+        if is_unset(already_authorized):
+            already_authorized = []
+        # Get the (sorted) list of unique users in the lists.
+        unique_users = sorted(list(set(already_authorized).union(set(users))))
+        self._patch(proj_def=models.ProjectDefinition(authorized_users=unique_users))
+
     # Project administration.
 
     def delete(self):
         """
         Deletes this project.
 
-        Note that this only deleted the project locally. Other instances must
+        Note that this only deletes the project locally. Other instances must
         delete the project themselves.
         """
         resp: Response[str] = delete_project.sync_detailed(
@@ -337,7 +349,7 @@ class Project:
 
     def unauthorize(self):
         """
-        Unauthorize any collective computation with this project.
+        Unauthorizes any collective computation with this project.
 
         Other participants will not be able to run collective computations on this project.
         """
@@ -361,6 +373,33 @@ class Project:
         proj_def = models.ProjectDefinition(shared=False)
         self._patch(proj_def=proj_def)
 
+    # End-to-end encryption
+    def enable_end_to_end_encryption(self):
+        """
+        Enables end-to-end encryption (E2EE) of results in this project.
+
+        Under E2EE, the results of a computation are left encrypted on the
+        instance, and must be decrypted locally. This offers better security,
+        as decrypted results are never sent over a network.
+
+        """
+        proj_def = models.ProjectDefinition(end_to_end_encrypted=True)
+        self._patch(proj_def=proj_def)
+
+    def disable_end_to_end_encryption(self):
+        """
+        Disables end-to-end encryption of results in this project.
+
+        Results computes previously with end-to-end encryption will remain encrypted.
+        """
+        proj_def = models.ProjectDefinition(end_to_end_encrypted=False)
+        self._patch(proj_def=proj_def)
+
+    @property
+    def end_to_end_encrypted(self):
+        """Whether this project uses end-to-end encryption."""
+        return self.model.end_to_end_encrypted
+
     # Advanced data management.
 
     def query_datasource(self, query: str = "") -> pd.DataFrame:
@@ -369,7 +408,6 @@ class Project:
 
         Args
             query (str, optional): the query to select records in the data.
-
         """
         ds = self.get_input_datasource()
         return ds.get_dataframe(query=query)
@@ -379,7 +417,9 @@ class Project:
         Returns the local data selection settings for the project.
 
         A LocalDataSelection contains both data source and preprocessing parameters, and
-        can be used to abstract data processing operations from computations.
+        can be used to apply the same data processing operations to multiple computations.
+        The local data selection overrides computation parameters for data processing if
+        they are left empty.
 
         Returns:
             LocalDataSelection: the data selection settings that can be updated by the user
@@ -400,43 +440,18 @@ class Project:
 
     # Advanced computations interface.
 
-    def run_computation(
-        self,
-        comp: models.ComputationDefinition,
-        local: bool = False,
-        keyswitch: bool = True,
-        decrypt: bool = True,
-    ) -> List[DataObject]:
-        """
-        Runs the given computation definition and returns the list of resulting dataobjects
-
-        Args:
-            comp (models.ComputationDefinition): the computation definition to run
-            local (bool, optional): whether or not to run the computation locally. Defaults to False.
-            keyswitch (bool, optional): whether or not to key switch the results from the computation. Defaults to True.
-            decrypt (bool, optional): whether or not to decrypt the results. Defaults to True.
-
-        Returns:
-            List[DataObject]: the list of resulting dataobjects
-        """
-        deprecation.warn("project.run_computation", "project.run")
-        self.set_computation(comp)
-        comp.local = local
-        comp.keyswitch = keyswitch
-        comp.decrypt = decrypt
-        return self.run()
-
     def run(
         self,
     ) -> models.Project:
         """
-        Run the computation defined on the project.
+        Runs the computation defined on the project.
 
         This runs the computation set with self.set_computation.
 
         Returns:
             models.Project: Project Computation Created
         """
+        deprecation.warn("Project.run", "Computation.run")
         response: Response[models.Project] = post_project_computation.sync_detailed(
             project_id=self.get_id(), client=self.client, json_body=None
         )
@@ -445,32 +460,24 @@ class Project:
 
     # List of all computations that can be created in this project.
 
-    def new_aggregation(self) -> GroupByAggregation:
+    def new_aggregation(self, columns: List[any] = None) -> Aggregation:
         """
-        Returns a new Aggregation Computation which can be computed by running the project.
-
-        Returns:
-            Aggregation: The aggregation computation.
-        """
-        return GroupByAggregation(project=self)
-
-    def new_enc_aggregation(
-        self, selected_columns: List[str] = UNSET
-    ) -> EncryptedAggregation:
-        """
-        Returns a new Aggregation Computation which can be computed by running the project.
+        Creates a new Aggregation Computation in this project.
 
         Args:
-            selected_columns (optional): list of columns to perform the aggregation on.
+            columns (optional): list of variables or column names to perform the aggregation on.
+                If none are provided, all dataset columns will be aggregated, if possible.
 
         Returns:
             Aggregation: The aggregation computation
         """
-        return EncryptedAggregation(project=self, selected_columns=selected_columns)
+        return Aggregation(project=self, columns=columns)
 
-    def new_enc_mean(self, variables: List[str], participant: str) -> EncryptedMean:
+    def new_encrypted_mean(
+        self, variables: List[str], participant: str
+    ) -> EncryptedMean:
         """
-        Returns a new EncryptedMean computation runner.
+        Creates a new EncryptedMean Computation in this project.
 
         Args
             variables (list[str]): the variables for which to compute the mean and stddev.
@@ -478,22 +485,9 @@ class Project:
         """
         return EncryptedMean(project=self, variables=variables, participant=participant)
 
-    def new_cohort(self) -> Cohort:
-        """
-        Returns a new Cohort.
-
-        Note: creating a Cohort to run a set intersection is deprecated.
-        Use SetIntersection or SecureJoin instead, both of which output a Cohort.
-
-        Returns:
-            Cohort: The cohort
-        """
-        deprecation.warn("project.new_cohort", "Intersection / SecureJoin", True)
-        return Cohort(project=self)
-
     def new_gwas(self) -> GWAS:
         """
-        Returns a new GWAS which can be computed by running the project.
+        Creates a new GWAS in this project.
 
         Returns:
             GWAS: The GWAS computation
@@ -504,7 +498,7 @@ class Project:
         self, continuous_labels: bool = False
     ) -> LinearRegression:
         """
-        Returns a new LinearRegression which can be computed by running the project.
+        Creates a new LinearRegression in this project (🧪 experimental feature).
 
         Args:
             continuous_labels (bool): If true, then expects continuous labels (i.e. not binary).
@@ -522,7 +516,7 @@ class Project:
         approximation_params: models.approximation_params.ApproximationParams = UNSET,
     ) -> LogisticRegression:
         """
-        Returns a new LogisticRegression which can be computed by running the project.
+        Creates a new LogisticRegression in this project (🧪 experimental feature).
 
         Args:
             approximation_params: parameters of the sigmoid approximation.
@@ -537,10 +531,10 @@ class Project:
 
     def new_poisson_regression(self) -> PoissonRegression:
         """
-        Returns a new PoissonRegressor which can be computed by running the project.
+        Creates a new PoissonRegression in this project (🧪 experimental feature).
 
         Returns:
-            PoissonRegressor: The poisson regression computation
+            PoissonRegression: The poisson regression computation
         """
         return PoissonRegression(project=self)
 
@@ -548,7 +542,7 @@ class Project:
         self, parameters: SurvivalParameters
     ) -> SurvivalAnalysis:
         """
-        Returns a new SurvivalAggregation which can be computed by running the project.
+        Creates a new SurvivalAggregation in this project.
 
         Args:
             parameters (SurvivalParameters): configuration for the survival aggregation.
@@ -558,28 +552,13 @@ class Project:
         """
         return SurvivalAnalysis(project=self, survival_parameters=parameters)
 
-    def new_secure_join(self, target_columns, join_columns) -> SecureJoin:
-        """
-        Returns a new SecureJoin which can be computed by running the project
-
-        Args
-            target_columns (List[str]): column names of target columns
-            join_columns (List[str]): column names to join the data on
-
-        Returns:
-            SecureJoin: the secure join computation instance
-        """
-        return SecureJoin(
-            project=self, target_columns=target_columns, join_columns=join_columns
-        )
-
     def new_hybrid_fl(
         self,
         task_id: str,
         learning_params: models.HybridFLLearningParams,
     ) -> HybridFL:
         """
-        Returns a new HybridFL which can be computed by running the project.
+        Creates a new HybridFL in this project (🧪 experimental feature).
 
         Args
             task_id (str): a unique identifier for this learning task.
@@ -592,7 +571,7 @@ class Project:
 
     def new_statistics(self, variables: List[str] = None) -> Statistics:
         """
-        Returns a new DatasetStatistics instance which can run statistics on the project.
+        Creates a new DatasetStatistics computation in the project.
 
         Args:
             variables (list of str or dict): the variables to which this computation applies.
@@ -602,25 +581,80 @@ class Project:
         """
         return Statistics(project=self, variables=variables)
 
-    def new_intersection(self, columns: Union[str, List[str]]) -> SetIntersection:
+    def new_matching(self, columns: Union[str, List[str]]) -> Matching:
         """
-        Creates a new set intersection computation instance.
+        Creates a new Matching computation in the project.
 
         Args:
             columns (str or list[str]): the column or list of columns on which to match records.
 
         Returns:
-            SetIntersection: the set intersection computation instance
+            Matching: the Matching computation instance
         """
-        return SetIntersection(project=self, matching_columns=columns)
+        return Matching(project=self, columns=columns)
+
+    # Retrieving computations run on this project.
+
+    def get_computation(
+        self, computation_definition: models.ComputationDefinition = None
+    ) -> Computation:
+        """
+        Fetches the current computation definition of this project as a Computation object.
+
+        Args:
+            computation_definition (`models.ComputationDefinition`, optional): the computation definition
+                for which to produce a `Computation` object. If left to None, the current computation
+                definition in the project is used.
+
+        Returns:
+            computation: a `tuneinsight.Computation` object that can be used to modify the
+                computation set on this project.
+        """
+        if computation_definition is None:
+            self._refresh()
+            computation_definition = self.model.computation_definition
+            if is_unset(computation_definition):
+                raise ValueError("This project has no computation definition.")
+        _class = model_type_to_class(computation_definition.type)
+        return _class.from_model(self, computation_definition)
+
+    def get_computations(self) -> List[models.Computation]:
+        """Returns the list of all computations that have been run on this project."""
+        self._refresh()
+        return self.model.computations
+
+    def fetch_results(self) -> List[Tuple[Computation, Any]]:
+        """
+        Fetches the results of all successful computations run on this project.
+
+        Retrieves the list of all computations that have been run on this project,
+        then fetches and post-processes the results of all successful ones.
+
+        Returns:
+            A list of pairs (`Computation`, result) consisting of the computation definition
+            as a `Computation` object and a post-processed result (whose type depends on the
+            specific computation being run).
+
+        """
+        output = []
+        for computation in self.get_computations():
+            if computation.status == models.ComputationStatus.SUCCESS:
+                comp: Computation = self.get_computation(computation.definition)
+                result = comp.fetch_results(computation)
+                output.append((comp, result))
+        # Revert the order of entries (they are in reverse chronological order in the answer).
+        return output[::-1]
 
     # User-friendly displays.
 
     def get_latest_measurements(self):
         """
-        get_latest_measurements returns a dictionary that contains the benchmarking measurement of the last computation
-        that was run in the project. The dictionary contains benchmarking information about the processing time and
-        memory allocation at each phase of the computation.
+        Returns benchmarking measurements for the last computation.
+
+        Returns a dictionary that contains the benchmarking measurements of the
+        last computation that was run in the project. The dictionary contains
+        benchmarking information about the processing time and memory allocation
+        at each phase of the computation.
 
         Returns:
             dict: a dictionary containing the measurements.
@@ -653,7 +687,7 @@ class Project:
 
     def __str__(self):
         """
-        Computes a human-readable string representation of this project.
+        Builds a human-readable string representation of this project.
 
         Returns:
             str: returns the string representation of a project
@@ -672,8 +706,8 @@ class Project:
             res += "\n"
 
             if (
-                p.input_metadata != UNSET
-                and UNSET not in (p.input_metadata, p.input_metadata.tables)
+                is_set(p.input_metadata)
+                and is_set(p.input_metadata.tables)
                 and len(p.input_metadata.tables)
             ):
                 res += "\tinput tables :\n"
@@ -686,7 +720,7 @@ class Project:
                         res += f"\t\t\tname: {col.name}, type: {col.type} type group: {col.type_group}\n"
                     res += "\n"
             res += "\n"
-        if self.model.computations != UNSET and len(self.model.computations) > 0:
+        if is_set(self.model.computations) and len(self.model.computations) > 0:
             res += "computations: \n"
             computations: List[models.Computation] = self.model.computations
             for comp in computations:
@@ -695,8 +729,7 @@ class Project:
 
     def display_previous_workflow(self):
         """
-        display_previous_workflow displays (compatible with jupyter notebooks) a markdown workflow summary of the last computation
-        that was run in the project.
+        Displays a markdown workflow summary of the last computation that was run on the project.
         """
         r = Renderer()
         if len(self.model.computations) == 0:
@@ -712,7 +745,7 @@ class Project:
 
     def display_workflow(self):
         """
-        display_workflow displays the workflow description for the project
+        Displays the workflow description for the project in markdown.
         """
         self._refresh()
         r = Renderer()
@@ -720,13 +753,13 @@ class Project:
 
     def display_datasources(self):
         """
-        Displays the datasources linked to this project using IPython.display.
+        Displays the datasources linked to this project in markdown.
         """
         self._refresh()
         participants = self.get_participants()
         r = Renderer()
         for p in participants:
-            if isinstance(p.input_metadata, Unset):
+            if is_unset(p.input_metadata):
                 continue
             tables = p.input_metadata.tables
             contributes_text = "contributor" if p.is_contributor else "non-contributor"
@@ -754,7 +787,7 @@ class Project:
 
     def display_policy(self, detailed: bool = False, show_queries: bool = True):
         """
-        Displays the policies associated to the project.
+        Displays the policies associated to the project in markdown.
 
         Args:
             detailed (bool, optional): if True, shows additional policy details
@@ -766,15 +799,14 @@ class Project:
         policy = self.model.policy
         r = Renderer()
         r.h1(self.model.name, "Policy")
-        if policy is Unset:
+        if is_unset(policy):
             r("Project has no policy.")
-        if isinstance(policy, Unset):
             return
         display_policy(policy, detailed=detailed, show_queries=show_queries)
 
     def get_policy(self) -> Policy:
         """
-        Returns the project's policy that can then be edited.
+        Returns the project's policy, which can then be edited.
 
         Returns:
             Policy: the editable policy
@@ -785,25 +817,21 @@ class Project:
     @property
     def is_differentially_private(self):
         """Returns whether differential privacy is enabled for this project."""
-        if isinstance(self.model.policy, Unset):
+        if is_unset(self.model.policy):
             return False
         dp_policy = self.model.policy.dp_policy
-        if isinstance(dp_policy, Unset):
+        if is_unset(dp_policy):
             return False
         return dp_policy.use_differential_privacy
-
-    def get_computations(self) -> List[models.Computation]:
-        self._refresh()
-        return self.model.computations
 
     def get_remaining_quota(
         self, include_next_allocation_date: bool = False
     ) -> Union[Tuple[str, str], str]:
         """
-        Returns the remaining quota from the project and optionally, a second string value indicating the next allocation date.
+        Returns the remaining quota from the project and optionally, the next allocation date.
 
         Args:
-            include_next_allocation_date (bool, optional): Whether to include the allocation date int he result. Defaults to False.
+            include_next_allocation_date (bool, optional): Whether to include the allocation date in the result. Defaults to False.
 
         Raises:
             ValueError: if no quota has been setup with the project.
@@ -813,13 +841,13 @@ class Project:
         """
         self._refresh()
         quota = self.model.privacy_summary.execution_quota
-        if isinstance(quota, Unset):
+        if is_unset(quota):
             raise ValueError("No quota has been set up with the project.")
         quota_val = quota.remaining_quota
-        if isinstance(quota_val, Unset):
+        if is_unset(quota_val):
             quota_val = 0.0
         if include_next_allocation_date:
-            if isinstance(quota.next_allocation, Unset):
+            if is_unset(quota.next_allocation):
                 return quota_val, None
             next_alloc = quota.next_allocation.strftime("%Y-%m-%d %H:%M:%S %Z%z")
             return quota_val, next_alloc
@@ -827,17 +855,17 @@ class Project:
 
     def display_overview(self):
         """
-        Displays a human-readable overview of the project, using Ipython.display.
+        Displays a human-readable overview of the project in Markdown.
         """
         self._refresh()
         p = self.model
         r = Renderer()
         r.h2(p.name, "(shared" if p.shared else "(local", "project)")
 
-        if not isinstance(p.description, Unset) and p.description != "":
+        if is_set(p.description) and p.description != "":
             r(p.description)
 
-        created_by_user = not isinstance(p.created_by_user, Unset)
+        created_by_user = is_set(p.created_by_user)
         r(
             "Created by",
             r.bf(p.created_by_user if created_by_user else p.created_by_node),
@@ -865,7 +893,7 @@ class Project:
                 "*Only administrators from this organization have access to this project.",
                 "Administrators may add more users through the instance's web interface.*",
             )
-        if not isinstance(p.computation_definition, Unset):
+        if is_set(p.computation_definition):
             r("Default workflow Type:", p.computation_definition.type, end=".")
 
         ## Participants

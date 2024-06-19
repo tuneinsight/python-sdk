@@ -8,26 +8,45 @@ import platform
 import warnings
 import pandas as pd
 
-# Location of shared library
+
+class _ErrorObject:
+    """
+    An empty object that raises error whenever one of its attributes is accessed.
+
+    This is used as the "shared library object" when the cryptolib is not found,
+    so that users can friendlier error messages when trying to use it (in case
+    they missed the initial warning).
+    """
+
+    def __getattr__(self, _):
+        raise ImportError("Could not load the cryptolib: contact your administrator.")
+
+
+# Find the shared library for the compiled Go Cryptolib.
 cwd = Path(__file__).absolute().parent
 arch = platform.machine()
 os = platform.system().lower()
-cryptolib_path = cwd / f"cryptolib-{os}_{arch}.so"
+cryptolib_path = cwd / f"build/cryptolib-{os}_{arch}.so"
+
+# If not found, the shared library will be an object that raises errors whenever it is used.
+so = _ErrorObject()
+
 if not exists(cryptolib_path):
-    raise FileNotFoundError(
+    warnings.warn(
         "Could not find the cryptolib library. Your platform might not be supported."
     )
-try:
-    so = ctypes.cdll.LoadLibrary(cryptolib_path)
-except OSError as err:
-    warnings.warn(
-        f"Failed to load cryptolib ({err}). Some functionality might be affected."
-    )
+else:
+    try:
+        so = ctypes.cdll.LoadLibrary(cryptolib_path)
+    except OSError as err:
+        warnings.warn(
+            f"Failed to load cryptolib ({err}). Some functionality might be affected."
+        )
 
 
 def go_error() -> Exception:
     """Raises a python exception from the latest go error."""
-    get_go_error = so.GetLastError
+    get_go_error = so.GetLastGoError
     get_go_error.restype = ctypes.c_char_p
     error_message = get_go_error()
     if "not found" in str(error_message):
@@ -145,16 +164,15 @@ def key_generation(hefloat_operator_id: bytes) -> bytes:
     return key_response
 
 
-def get_secret_key_bytes(hefloat_operator_id: bytes) -> bytes:
+def get_secret_key_b64(hefloat_operator_id: bytes) -> bytes:
     """Returns the bytes of the secret key.
 
     Args:
         hefloat_operator_id (bytes): The crypto system id
-
     Returns:
         get_sk_response (bytes): The bytes of the secret key
     """
-    get_sk = so.GetSecretKeyBytes
+    get_sk = so.GetSecretKeyB64
     get_sk.restype = ctypes.c_char_p
     get_sk_response = get_sk(hefloat_operator_id)
     if get_sk_response is None:
@@ -162,16 +180,15 @@ def get_secret_key_bytes(hefloat_operator_id: bytes) -> bytes:
     return get_sk_response
 
 
-def get_public_key_bytes(hefloat_operator_id: bytes) -> bytes:
+def get_public_key_b64(hefloat_operator_id: bytes) -> bytes:
     """Returns the bytes of the public key.
 
     Args:
         hefloat_operator_id (bytes): The crypto system id
-
     Returns:
         get_pk_response (bytes): The bytes of the public key
     """
-    get_pk = so.GetPublicKeyBytes
+    get_pk = so.GetPublicKeyB64
     get_pk.restype = ctypes.c_char_p
     get_pk_response = get_pk(hefloat_operator_id)
     if get_pk_response is None:
@@ -254,7 +271,10 @@ def encrypt_matrix(hefloat_operator_id: bytes, csv_string: bytes) -> bytes:
 
 
 def decrypt_dataframe(
-    hefloat_operator_id: bytes, dataframe_ciphertext: bytes, headers: List[str] = None
+    hefloat_operator_id: bytes,
+    dataframe_ciphertext: bytes,
+    headers: List[str] = None,
+    with_index: bool = False,
 ) -> pd.DataFrame:
     """
     Turns an encrypted pandas dataframe into a new decrypted pandas dataframe.
@@ -264,7 +284,10 @@ def decrypt_dataframe(
     Args:
         hefloat_operator_id (bytes): The crypto system id
         dataframe_ciphertext (bytes): The encrypted pandas dataframe
-        headers (list[str]): List of column names of the dataframe
+        headers (list[str]): List of column names of the dataframe. If not provided, default
+            names ("0", "1", ...) are used. If too many columns are provided, only the first
+            ones are used.
+        with_index (bool): whether to treat the first column as an index column. False by default.
 
     Returns:
         plaintext_dataframe (pandas.DataFrame): The decrypted dataframe
@@ -276,11 +299,21 @@ def decrypt_dataframe(
     plaintext_dataframe = pd.DataFrame(
         [row.split(",") for row in plaintext_csv.split("\n")]
     )
-    plaintext_dataframe = plaintext_dataframe.set_index(plaintext_dataframe.columns[0])
+    # Treat the first column as an index if (1) there are more columns than headers, or
+    # (2) headers are None and there is more than one column.
+    num_cols = len(plaintext_dataframe.columns)
+    if with_index:
+        plaintext_dataframe = plaintext_dataframe.set_index(
+            plaintext_dataframe.columns[0]
+        )
     plaintext_dataframe.index.name = None
     if headers is not None:
-        if len(headers) != len(plaintext_dataframe.columns):
-            raise IndexError("There must be as many headers as columns.")
+        num_cols = len(plaintext_dataframe.columns)
+        if len(headers) < num_cols:
+            raise IndexError("Not enough columns in headers.")
+        # Allow the user to give too many headers -- additional ones are ignored.
+        if len(headers) > num_cols:
+            headers = headers[:num_cols]
         plaintext_dataframe.columns = headers
     # Convert values back to numeric
     plaintext_dataframe = plaintext_dataframe.applymap(float)

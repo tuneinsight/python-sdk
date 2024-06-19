@@ -161,7 +161,30 @@ class _FilterOperation:
 
 
 class RemoteDataFrame:
-    """DataFrame-like interface for remote post-processing operations."""
+    """
+    DataFrame-like interface for remote post-processing operations.
+
+    This class mimics the interface of a `pandas.DataFrame`, so that it can be used
+    interchangeably with a DataFrame. When operations are performed on this object,
+    it instead adds the relevant information to the preprocessing chain. Code written
+    for a `pandas.DataFrame` can then be applied on the `RemoteDataFrame` to create
+    the preprocessing chain that would lead to the same result.
+
+    Only a subset of operations are allowed on this object:
+        - Selecting a subset of columns, `df = df[columns]`.
+        - Adding columns together `df["new_column"] = df["a"] + df["b"]`.
+        - Filtering `df = df[df["a"] <= 10]`.
+        - `dropna`, `rename`, `set_index`, `reset_index`, `astype` (all with `inplace=True`), `transpose`.
+
+    Some functions in this module mimic Pandas functions with the same name, that can
+    be applied seamlessly on DataFrames and RemoteDataFrames:
+        - `get_dummies`, for one-hot encoding,
+        - `cut`, for binning numerical columns.
+
+    Finally, this module also defines the `select` operation to select a subset of
+    columns, and the `custom` decorator to run a custom preprocessing function.
+
+    """
 
     def __init__(self, builder: PreprocessingBuilder):
         self.builder = builder
@@ -190,14 +213,16 @@ class RemoteDataFrame:
             raise ValueError(f"Invalid type for value {value} in assignment.")
 
     # Re-implementing Pandas methods.
-    def dropna(self, subset: List[str] = None, inplace=True):
+    def dropna(self, inplace=True):
+        """This operation drops all rows that contain NaN values, using the standard pandas function."""
         assert inplace is True, "dropna must be done inplace."
-        self.builder.dropna(subset)
+        self.builder.dropna()
         return self
 
     def rename(
         self, mapper: dict, axis="columns", copy=True, errors="raise", inplace=True
     ):
+        """This operation alters the axis labels. By default, this operation renames the columns of a dataset."""
         assert inplace is True, "rename must be done inplace."
         # Convert Pandas inputs into inputs compatible with the API.
         axis = {"columns": models.RenameAxis.COLUMNS, "index": models.RenameAxis.INDEX}[
@@ -214,6 +239,7 @@ class RemoteDataFrame:
         append: bool = False,
         inplace=True,
     ):
+        """Sets the DataFrame index to one or more existing columns in the data."""
         assert inplace is True, "set_index must be done inplace."
         if isinstance(keys, str):
             keys = [keys]
@@ -224,15 +250,18 @@ class RemoteDataFrame:
         return self
 
     def reset_index(self, drop: bool = False, level: List[str] = None, inplace=True):
+        """Resets the DataFrame index (or a level of it if the index has several columns)."""
         assert inplace is True, "reset_index must be done inplace."
         self.builder.reset_index(drop=drop, level=level)
         return self
 
     def transpose(self, copy=False):
+        """Transposes the index and columns of the data (see `pandas.DataFrame.transpose`)."""
         self.builder.transpose(copy)
         return self
 
     def astype(self, dtype, copy=True, errors="raise"):
+        "Casts column types, converting the data in one or more columns to specific type(s)."
         assert isinstance(dtype, dict), "Must provide types as a dictionary."
         converted = {str: "str", int: "int", float: "float"}
         dtype = {k: converted.get(v, v) for k, v in dtype.items()}
@@ -273,7 +302,8 @@ def cut(
     labels: List[str] = None,
     column: str = None,
 ):
-    """Discretize a continuous column into bins. Similar to pd.cut.
+    """
+    Discretizes a continuous column into bins. Similar to pd.cut.
 
     Args:
         df: the [Remote]DataFrame to cut. This should be either a column of the data, or the column argument should be specified.
@@ -300,7 +330,7 @@ def select(
     create_if_missing: bool = False,
     dummy_value: str = "",
 ):
-    """Select a set of columns. Equivalent to df = df[columns], with additional functionalities."""
+    """Selects a set of columns. Equivalent to df = df[columns], with additional functionalities."""
     if isinstance(df, pd.DataFrame):
         if create_if_missing:
             for col in columns:
@@ -314,7 +344,8 @@ def select(
 
 
 def custom(name: str = "", description: str = ""):
-    """Decorator for custom operations with signature pd.DataFrame -> pd.DataFrame.
+    """
+    Decorator for custom operations with signature pd.DataFrame -> pd.DataFrame.
 
     Wraps a function from DataFrame to DataFrame to transparently handle RemoteDataFrames.
     If the input is a RemoteDataFrame, the function call to func is added to the

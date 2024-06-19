@@ -34,7 +34,7 @@ class Session:
 
     def __init__(self, client: Client, cryptolib_params: str):
         """
-        Initializes the session
+        Initializes the session.
 
         Args:
             client (Client): client to which the session is linked
@@ -104,7 +104,7 @@ class Session:
 
 
 class PIRSession(Session):
-    """Session for private information retrieval protocol"""
+    """Session for the private information retrieval (PIR) protocol."""
 
     ctx: PIRContext
 

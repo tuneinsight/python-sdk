@@ -13,26 +13,25 @@ class Settings:
     """instance settings that is configurable by the administrator.
 
     Attributes:
-        access_with_python (Union[Unset, None, bool]): whether or not to enable the access with Python in Project
-            Workflows.
         authorized_project_types (Union[Unset, List[WorkflowType]]): array of project types that are available for
             selection when creating a new project.
         default_data_source (Union[Unset, None, str]): Unique identifier of a data source.
         selectable_data_source (Union[Unset, None, bool]): whether or not the datasource of the project can be modified.
         set_project_policies (Union[Unset, None, bool]): whether policies can be set for projects.
         sparql_query_builder (Union[Unset, None, bool]): whether or not to enable the SparQL Query Builder.
+        access_with_python (Union[Unset, None, bool]): whether or not to enable the access with Python in Project
+            Workflows.
     """
 
-    access_with_python: Union[Unset, None, bool] = UNSET
     authorized_project_types: Union[Unset, List[WorkflowType]] = UNSET
     default_data_source: Union[Unset, None, str] = UNSET
     selectable_data_source: Union[Unset, None, bool] = UNSET
     set_project_policies: Union[Unset, None, bool] = UNSET
     sparql_query_builder: Union[Unset, None, bool] = UNSET
+    access_with_python: Union[Unset, None, bool] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        access_with_python = self.access_with_python
         authorized_project_types: Union[Unset, List[str]] = UNSET
         if not isinstance(self.authorized_project_types, Unset):
             authorized_project_types = []
@@ -45,12 +44,11 @@ class Settings:
         selectable_data_source = self.selectable_data_source
         set_project_policies = self.set_project_policies
         sparql_query_builder = self.sparql_query_builder
+        access_with_python = self.access_with_python
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if access_with_python is not UNSET:
-            field_dict["accessWithPython"] = access_with_python
         if authorized_project_types is not UNSET:
             field_dict["authorizedProjectTypes"] = authorized_project_types
         if default_data_source is not UNSET:
@@ -61,14 +59,14 @@ class Settings:
             field_dict["setProjectPolicies"] = set_project_policies
         if sparql_query_builder is not UNSET:
             field_dict["sparqlQueryBuilder"] = sparql_query_builder
+        if access_with_python is not UNSET:
+            field_dict["accessWithPython"] = access_with_python
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        access_with_python = d.pop("accessWithPython", UNSET)
-
         authorized_project_types = []
         _authorized_project_types = d.pop("authorizedProjectTypes", UNSET)
         for authorized_project_types_item_data in _authorized_project_types or []:
@@ -84,13 +82,15 @@ class Settings:
 
         sparql_query_builder = d.pop("sparqlQueryBuilder", UNSET)
 
+        access_with_python = d.pop("accessWithPython", UNSET)
+
         settings = cls(
-            access_with_python=access_with_python,
             authorized_project_types=authorized_project_types,
             default_data_source=default_data_source,
             selectable_data_source=selectable_data_source,
             set_project_policies=set_project_policies,
             sparql_query_builder=sparql_query_builder,
+            access_with_python=access_with_python,
         )
 
         settings.additional_properties = d

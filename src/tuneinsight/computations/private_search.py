@@ -1,15 +1,19 @@
+"""Privately search a database for one or more values."""
+
+from typing import List
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 
-from tuneinsight.api.sdk import models
-from tuneinsight.api.sdk.types import Response
-from tuneinsight.api.sdk.api.api_private_search import get_private_search_database
+from tuneinsight.client.dataobject import DataContent
 from tuneinsight.client.session import PIRSession
 from tuneinsight.computations.base import ModelBasedComputation, ComputationResult
 from tuneinsight.client.validation import validate_response
-from tuneinsight.utils import deprecation
 from tuneinsight.utils.plots import style_plot
+
+from tuneinsight.api.sdk import models
+from tuneinsight.api.sdk.types import Response
+from tuneinsight.api.sdk.api.api_private_search import get_private_search_database
 
 # pylint: disable=arguments-differ
 
@@ -62,7 +66,7 @@ class PrivateSearchResult(ComputationResult):
         timestamps: bool = False,
     ):
         """
-        Plots the private search result. TODO: what does it look like?
+        Plots the private search result.
 
         Args:
             title (str): plot title.
@@ -95,6 +99,9 @@ class PrivateSearch(ModelBasedComputation):
     Private Search uses private information retrieval to search for records in
     a dataset (hosted by another instance) without disclosing anything about
     what is being searched for or information about any other record.
+
+    This operation requires the querier to know the unique identifier of the
+    dataset being search (`pir_dataset_id`). No other information is required.
 
     """
 
@@ -135,9 +142,9 @@ class PrivateSearch(ModelBasedComputation):
             validate_response(response)
             return response.parsed
 
-    def _process_results(self, dataobjects) -> PrivateSearchResult:
+    def _process_results(self, results: List[DataContent]) -> PrivateSearchResult:
         """Decrypts the results from a query."""
-        result = dataobjects[0].get_raw_data()
+        result = results[0].get_raw_data()
         decrypted_df = self.session.decrypt_response(result)
         return PrivateSearchResult(decrypted_df)
 
@@ -153,50 +160,3 @@ class PrivateSearch(ModelBasedComputation):
         """
         self.model.pir_search_object_id = self.session.encrypt_query(query)
         return self.run(keyswitch=False, decrypt=False)
-
-    @staticmethod
-    def filter_result(
-        result: PrivateSearchResult,
-        start: str = None,
-        end: str = None,
-        granularity: str = None,
-    ) -> pd.DataFrame:
-        """
-        Filters the query result between specific dates.
-
-        Args:
-            result (pd.DataFrame): the dataframe output by self.query.
-            start (str, optional): If given, filter out results before this date.
-            end (str, optional): If given, filter out results after this date.
-            granularity (str, optional): If provided, rule on which to resample
-                results (e.g. 'W-Mon' resamples results on a week granularity
-                where weeks begin on a Monday).
-
-        Returns:
-            pd.DataFrame: filtered result.
-        """
-        deprecation.warn("PrivateSearch.filter_result", "PrivateSearchResult.filter")
-        return result.filter(start, end, granularity)
-
-    @staticmethod
-    def plot_result(
-        result: PrivateSearchResult,
-        title: str,
-        x_label: str,
-        y_label: str,
-        size: tuple = (8, 4),
-        timestamps: bool = False,
-    ):
-        """
-        Plots the private search result.
-
-        Args:
-            result (pd.DataFrame): private search result
-            title (str): plot title
-            x_label (str): plot x axis label
-            y_label (str): plot y axis label
-            size (tuple, optional): plot size. Defaults to (8,4).
-            timestamps (bool, optional): whether or not the result columns are timestamps. Defaults to False.
-        """
-        deprecation.warn("PrivateSearch.plot_result", "PrivateSearchResult.plot")
-        result.plot(title, x_label, y_label, size, timestamps)

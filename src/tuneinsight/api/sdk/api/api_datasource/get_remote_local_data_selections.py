@@ -66,7 +66,7 @@ def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Lis
 
         return response_200
     if client.raise_on_unexpected_status:
-        raise errors.UnexpectedStatus(f"Unexpected status code: {response.status_code}")
+        raise errors.UnexpectedStatus(f"Unexpected status code: {response.status_code} ({response})")
     else:
         return None
 

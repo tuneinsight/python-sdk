@@ -1,13 +1,22 @@
 """
 Types of computation available in the SDK.
 
-This module is currently unused (except for one notebook), and will likely be
-deprecated soon, or revamped.
+This module defines wrappers for the API computation types, including human-friendly computation names.
 
 """
 
 from enum import Enum
 from tuneinsight.api.sdk.models import ComputationType as ct
+
+from tuneinsight.computations import (
+    Aggregation,
+    DatasetLength,
+    EncryptedMean,
+    Matching,
+    GWAS,
+    SurvivalAnalysis,
+    Statistics,
+)
 
 from tuneinsight.utils import deprecation
 
@@ -18,10 +27,11 @@ class Type(Enum):
     """
 
     AGGREGATION = ct.ENCRYPTEDAGGREGATION
+    DATASETLENGTH = ct.AGGREGATEDDATASETLENGTH
+    MEAN = ct.ENCRYPTEDMEAN
     REGRESSION = ct.ENCRYPTEDREGRESSION
     PREDICTION = ct.ENCRYPTEDPREDICTION
     INTERSECTION = ct.SETINTERSECTION
-    STAT_AGGREGATION = ct.STATISTICALAGGREGATION
     JOIN = ct.DISTRIBUTEDJOIN
     SAMPLE_EXTRACTION = ct.SAMPLEEXTRACTION
     GWAS = ct.GWAS
@@ -36,10 +46,11 @@ class Type(Enum):
 
 displayed_types = {
     Type.AGGREGATION: "Aggregation",
+    Type.DATASETLENGTH: "Dataset Length",
+    Type.MEAN: "Mean",
     Type.REGRESSION: "Regression",
     Type.PREDICTION: "Prediction",
     Type.INTERSECTION: "Private Set Intersection",
-    Type.STAT_AGGREGATION: "Statistical Aggregation",
     Type.JOIN: "Secure Join",
     Type.SAMPLE_EXTRACTION: "Sample Extraction",
     Type.GWAS: "GWAS",
@@ -47,3 +58,28 @@ displayed_types = {
     Type.DATASET_STATISTICS: "Secure Quantiles Computation",
 }
 """Mapping from computation type to human-readable name."""
+
+
+type_to_class = {
+    Type.AGGREGATION: Aggregation,
+    Type.DATASETLENGTH: DatasetLength,
+    Type.MEAN: EncryptedMean,
+    Type.INTERSECTION: Matching,
+    Type.GWAS: GWAS,
+    Type.SURVIVAL_ANALYSIS: SurvivalAnalysis,
+    Type.DATASET_STATISTICS: Statistics,
+}
+"""Mapping from computation type to SDK class."""
+
+
+# pylint: disable=raise-missing-from
+def model_type_to_class(model_type: ct):
+    """Maps an API model type to a Computation class."""
+    try:
+        return type_to_class[Type(model_type)]
+    except ValueError:
+        raise ValueError(f"Unknown computation type: {model_type}")
+    except KeyError:
+        raise ValueError(
+            f"Cannot fetch backend computation for type {Type(model_type)}."
+        )

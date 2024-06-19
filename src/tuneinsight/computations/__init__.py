@@ -1,4 +1,7 @@
-"""Defines classes to create and interact with computation on a Tune Insight instance.
+"""
+# The Computations module
+
+Defines classes to create and interact with computation on a Tune Insight instance.
 
 The core class defined by this module is Computation, which interfaces with
 the API bindings to run computations and get their results.
@@ -14,16 +17,14 @@ and preprocessing (which are shared by all computations).
 
 """
 
-from .base import Computation, ModelBasedComputation, KeySwitch
+from .base import Computation, ModelBasedComputation, KeySwitch, ComputationResult
 from .count import Count, DatasetLength
 from .stats import Statistics
-from .enc_aggregation import EncryptedAggregation, Sum
+from .aggregation import Aggregation, Sum
 from .encrypted_mean import EncryptedMean
 from .gwas import GWAS
 from .hybrid_fl import HybridFL
-from .intersection import SetIntersection
+from .intersection import Matching
 from .private_search import PrivateSearch
 from .regression import LinearRegression, LogisticRegression, PoissonRegression
-from .secure_join import SecureJoin, SampleExtraction
-from .statistical_aggregation import GroupByAggregation
 from .survival import SurvivalAnalysis, SurvivalParameters

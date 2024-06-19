@@ -12,54 +12,54 @@ class SphnOntologySearchResult:
     """Definition of an ontology search result
 
     Attributes:
+        breadcrumb (Union[Unset, str]):
         code (Union[Unset, str]):
         description (Union[Unset, str]):
         name (Union[Unset, str]):
-        breadcrumb (Union[Unset, str]):
     """
 
+    breadcrumb: Union[Unset, str] = UNSET
     code: Union[Unset, str] = UNSET
     description: Union[Unset, str] = UNSET
     name: Union[Unset, str] = UNSET
-    breadcrumb: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        breadcrumb = self.breadcrumb
         code = self.code
         description = self.description
         name = self.name
-        breadcrumb = self.breadcrumb
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if breadcrumb is not UNSET:
+            field_dict["breadcrumb"] = breadcrumb
         if code is not UNSET:
             field_dict["code"] = code
         if description is not UNSET:
             field_dict["description"] = description
         if name is not UNSET:
             field_dict["name"] = name
-        if breadcrumb is not UNSET:
-            field_dict["breadcrumb"] = breadcrumb
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
+        breadcrumb = d.pop("breadcrumb", UNSET)
+
         code = d.pop("code", UNSET)
 
         description = d.pop("description", UNSET)
 
         name = d.pop("name", UNSET)
 
-        breadcrumb = d.pop("breadcrumb", UNSET)
-
         sphn_ontology_search_result = cls(
+            breadcrumb=breadcrumb,
             code=code,
             description=description,
             name=name,
-            breadcrumb=breadcrumb,
         )
 
         sphn_ontology_search_result.additional_properties = d

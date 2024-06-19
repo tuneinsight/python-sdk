@@ -14,7 +14,6 @@ from .as_type_type_map import AsTypeTypeMap
 from .authorization_status import AuthorizationStatus
 from .backup_definition import BackupDefinition
 from .backup_type import BackupType
-from .binning_operation import BinningOperation
 from .binning_parameters import BinningParameters
 from .binning_parameters_method import BinningParametersMethod
 from .bootstrap import Bootstrap
@@ -26,6 +25,7 @@ from .collective_key_switch import CollectiveKeySwitch
 from .column_info import ColumnInfo
 from .column_info_scope import ColumnInfoScope
 from .column_info_value_type import ColumnInfoValueType
+from .column_properties import ColumnProperties
 from .column_schema import ColumnSchema
 from .column_schema_checks import ColumnSchemaChecks
 from .column_schema_checks_in_range import ColumnSchemaChecksInRange
@@ -59,10 +59,13 @@ from .data_object_visibility_status import DataObjectVisibilityStatus
 from .data_selection_type import DataSelectionType
 from .data_source import DataSource
 from .data_source_column import DataSourceColumn
+from .data_source_command_result import DataSourceCommandResult
+from .data_source_command_result_result import DataSourceCommandResultResult
 from .data_source_compound_query import DataSourceCompoundQuery
 from .data_source_config import DataSourceConfig
 from .data_source_consent_type import DataSourceConsentType
 from .data_source_definition import DataSourceDefinition
+from .data_source_definition_structure_template_json import DataSourceDefinitionStructureTemplateJSON
 from .data_source_metadata import DataSourceMetadata
 from .data_source_query import DataSourceQuery
 from .data_source_query_preview import DataSourceQueryPreview
@@ -125,6 +128,7 @@ from .get_result_list_order import GetResultListOrder
 from .get_result_list_sort_by import GetResultListSortBy
 from .group_by_type import GroupByType
 from .group_info import GroupInfo
+from .grouping_parameters import GroupingParameters
 from .gwas import GWAS
 from .hybrid_fl import HybridFL
 from .hybrid_fl_learning_params import HybridFLLearningParams
@@ -162,6 +166,7 @@ from .participant import Participant
 from .participation_status import ParticipationStatus
 from .phonetic_encoding import PhoneticEncoding
 from .post_data_object_json_body import PostDataObjectJsonBody
+from .post_data_source_data_multipart_data import PostDataSourceDataMultipartData
 from .post_llm_request_json_body import PostLlmRequestJsonBody
 from .post_llm_request_json_body_prompt_args import PostLlmRequestJsonBodyPromptArgs
 from .post_mock_dataset_method import PostMockDatasetMethod
@@ -183,6 +188,7 @@ from .project import Project
 from .project_base import ProjectBase
 from .project_computation import ProjectComputation
 from .project_definition import ProjectDefinition
+from .project_participant_status import ProjectParticipantStatus
 from .project_status import ProjectStatus
 from .project_step_item import ProjectStepItem
 from .protocol_definition import ProtocolDefinition
@@ -195,6 +201,7 @@ from .query_status import QueryStatus
 from .realm_role import RealmRole
 from .regression_type import RegressionType
 from .relin_key_gen import RelinKeyGen
+from .remote_info import RemoteInfo
 from .rename import Rename
 from .rename_axis import RenameAxis
 from .rename_mapper import RenameMapper
@@ -225,7 +232,6 @@ from .sphn_ontology_search_result import SphnOntologySearchResult
 from .statistic_base import StatisticBase
 from .statistic_definition import StatisticDefinition
 from .statistic_result import StatisticResult
-from .statistical_aggregation import StatisticalAggregation
 from .statistical_quantity import StatisticalQuantity
 from .statistics import Statistics
 from .storage_definition import StorageDefinition
@@ -270,7 +276,6 @@ __all__ = (
     "AuthorizationStatus",
     "BackupDefinition",
     "BackupType",
-    "BinningOperation",
     "BinningParameters",
     "BinningParametersMethod",
     "Bootstrap",
@@ -282,6 +287,7 @@ __all__ = (
     "ColumnInfo",
     "ColumnInfoScope",
     "ColumnInfoValueType",
+    "ColumnProperties",
     "ColumnSchema",
     "ColumnSchemaChecks",
     "ColumnSchemaChecksInRange",
@@ -318,10 +324,13 @@ __all__ = (
     "DatasetValidation",
     "DataSource",
     "DataSourceColumn",
+    "DataSourceCommandResult",
+    "DataSourceCommandResultResult",
     "DataSourceCompoundQuery",
     "DataSourceConfig",
     "DataSourceConsentType",
     "DataSourceDefinition",
+    "DataSourceDefinitionStructureTemplateJSON",
     "DataSourceMetadata",
     "DataSourceQuery",
     "DataSourceQueryPreview",
@@ -379,6 +388,7 @@ __all__ = (
     "GetResultListSortBy",
     "GroupByType",
     "GroupInfo",
+    "GroupingParameters",
     "GWAS",
     "HybridFL",
     "HybridFLLearningParams",
@@ -416,6 +426,7 @@ __all__ = (
     "ParticipationStatus",
     "PhoneticEncoding",
     "PostDataObjectJsonBody",
+    "PostDataSourceDataMultipartData",
     "PostLlmRequestJsonBody",
     "PostLlmRequestJsonBodyPromptArgs",
     "PostMockDatasetMethod",
@@ -437,6 +448,7 @@ __all__ = (
     "ProjectBase",
     "ProjectComputation",
     "ProjectDefinition",
+    "ProjectParticipantStatus",
     "ProjectStatus",
     "ProjectStepItem",
     "ProtocolDefinition",
@@ -449,6 +461,7 @@ __all__ = (
     "RealmRole",
     "RegressionType",
     "RelinKeyGen",
+    "RemoteInfo",
     "Rename",
     "RenameAxis",
     "RenameMapper",
@@ -476,7 +489,6 @@ __all__ = (
     "SphnOntologiesSearchOntologiesItem",
     "SphnOntologiesSearchResponse200Item",
     "SphnOntologySearchResult",
-    "StatisticalAggregation",
     "StatisticalQuantity",
     "StatisticBase",
     "StatisticDefinition",

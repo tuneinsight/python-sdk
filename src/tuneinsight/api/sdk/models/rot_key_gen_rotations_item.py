@@ -11,38 +11,38 @@ T = TypeVar("T", bound="RotKeyGenRotationsItem")
 class RotKeyGenRotationsItem:
     """
     Attributes:
-        side (Union[Unset, bool]):
         value (Union[Unset, int]):
+        side (Union[Unset, bool]):
     """
 
-    side: Union[Unset, bool] = UNSET
     value: Union[Unset, int] = UNSET
+    side: Union[Unset, bool] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        side = self.side
         value = self.value
+        side = self.side
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if side is not UNSET:
-            field_dict["side"] = side
         if value is not UNSET:
             field_dict["value"] = value
+        if side is not UNSET:
+            field_dict["side"] = side
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        side = d.pop("side", UNSET)
-
         value = d.pop("value", UNSET)
 
+        side = d.pop("side", UNSET)
+
         rot_key_gen_rotations_item = cls(
-            side=side,
             value=value,
+            side=side,
         )
 
         rot_key_gen_rotations_item.additional_properties = d

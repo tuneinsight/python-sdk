@@ -5,14 +5,14 @@
 import numpy as np
 
 
-def phi(x):
+def phi(x: np.array):
     """Cumulative distribution function for the standard normal distribution."""
     return (1.0 + np.erf(x / np.sqrt(2))) / 2
 
 
 def GWASLinReg(V, X, Y):
     """
-    Perform a closed-form linear regression for a GWAS.
+    Computes a closed-form linear regression for a GWAS.
 
     p: the number of patients
     v: the number of variants

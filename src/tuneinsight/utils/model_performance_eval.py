@@ -1,4 +1,5 @@
-"""Utilities to measure the performances of a machine learning model.
+"""
+Utilities to measure the performances of a machine learning model.
 
 The metrics defined in this module all take two arguments: y_true (the
 true label) and y_pred (the predicted label), two arrays or array-like

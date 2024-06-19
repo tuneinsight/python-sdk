@@ -2,13 +2,8 @@
 
 from typing import List
 import pandas as pd
-import matplotlib.pyplot as plt
-from tuneinsight.api.sdk import models
-from tuneinsight.utils.plots import style_plot
-from tuneinsight.client.dataobject import DataObject
-from tuneinsight.computations.enc_aggregation import EncryptedAggregation
+from tuneinsight.computations.aggregation import Aggregation
 from tuneinsight.computations.gwas import GWAS
-from tuneinsight.utils import deprecation
 
 # pylint: disable=unused-argument
 
@@ -28,7 +23,7 @@ class Cohort:
 
     """
 
-    def __init__(self, project: "Project", cohort_id: str = "", join_id: str = ""):
+    def __init__(self, project: "Project", cohort_id: str = "", join_id: str = ""):  # type: ignore
         """
         Creates a Cohort interface.
 
@@ -67,26 +62,26 @@ class Cohort:
     # [Proposal]: if relevant, make these more generic, or enable easily the construction of
     # computations run on cohorts. This will probably be part of the computations refactoring.
 
-    def new_aggregation(self) -> EncryptedAggregation:
+    def new_aggregation(self) -> Aggregation:
         """
-        Create an aggregation computation on the cohort.
+        Creates an aggregation computation on the cohort.
 
-        The EncryptedAggregation returned can be used to perform sums etc. on
+        The Aggregation returned can be used to perform sums etc. on
         the cohort "dataset" rather than on a datasource.
 
         Raises:
             Exception: if the cohort hasn't been created beforehand
 
         Returns:
-            EncryptedAggregation: the encrypted aggregation computation
+            Aggregation: the encrypted aggregation computation
         """
         if self.cohort_id == "" and self.join_id == "":
             raise ValueError("A cohort must be created before running an aggregation.")
-        return EncryptedAggregation(project=self.project, cohort=self)
+        return Aggregation(project=self.project, cohort=self)
 
     def new_gwas(self) -> GWAS:
         """
-        Create a GWAS computation on the cohort.
+        Creates a GWAS computation on the cohort.
 
         The GWAS computation returned can be used to perform sums etc. on
         the cohort "dataset" rather than on a datasource.
@@ -100,82 +95,3 @@ class Cohort:
         if self.cohort_id == "" and self.join_id == "":
             raise ValueError("A cohort must be created before running a GWAS.")
         return GWAS(project=self.project, cohort=self)
-
-    @staticmethod
-    def get_psi_ratio(
-        all_parties: List[str], dataobjects: List[DataObject]
-    ) -> pd.DataFrame:
-        """
-        Add a column to a PSI result indicating the percentage of participants at which the record was observed.
-
-        Args:
-            all_parties (List[str]): list of the names of the parties involved in the private set intersection
-            dataobjects (List[DataObject]): psi result
-
-        Returns:
-            pd.DataFrame: parsed data
-        """
-        deprecation.warn(
-            "Cohort.get_psi_ratio", "SetIntersectionResults.as_table(ratio=True)"
-        )
-        df = dataobjects[0].get_dataframe()
-        num_parties = len(all_parties)
-        percentages = []
-        results = df.to_dict(orient="records")
-        for row in results:
-            match = 0
-            for org in all_parties:
-                if org in row and row[org] == "true":
-                    match += 1
-            percentages.append(match / num_parties * 100)
-        df["psi_ratio"] = pd.Series(percentages)
-        return df
-
-    @staticmethod
-    def plot_psi(x, y, title, x_label, y_label):
-        """Plot the PSI results as a bar graph
-
-        Args:
-            x (_type_): x values
-            y (_type_): y values
-            title (_type_): plot title
-            x_label (_type_): plot x label
-            y_label (_type_): plot y label
-        """
-        deprecation.warn("Cohort.get_psi_ratio", "SetIntersectionResult.plot")
-        plt.style.use("bmh")
-        fig, ax = plt.subplots()
-        ax.bar(x, y, color="#DE5F5A", edgecolor="#354661", linewidth=2.5)
-        style_plot(ax, fig, title, x_label, y_label)
-        plt.show()
-
-    # Deprecated methods.
-
-    def create_from_matching(
-        self,
-        matching_columns: List[str],
-        result_format: models.SetIntersectionOutputFormat,
-        local_input: models.LocalInput = None,
-    ) -> List[DataObject]:
-        """Create a cohort from matching columns.
-
-        Args:
-            matching_columns (List[str]): a list of column names to match on.
-            result_format (models.SetIntersectionOutputFormat): the format to output the resulting cohort as
-            local_input (models.LocalInput): optional local input to use in the computation
-
-        Returns:
-            List[DataObject]: The resulting dataobjects
-        """
-        deprecation.warn(
-            "create_from_matching", "SetIntersection(..., cohort=True).run()", True
-        )
-
-    def create_from_join(self, target_columns: List[str], join_columns: List[str]):
-        """Create a cohort from a Join operation over vertically partitioned data.
-
-        Args:
-            target_columns (List[str]): column names of target columns
-            join_columns (List[str]): column names to join the data on
-        """
-        deprecation.warn("create_from_join", "DistributedJoin().run()", True)

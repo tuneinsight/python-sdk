@@ -16,6 +16,8 @@ T = TypeVar("T", bound="StatisticDefinition")
 class StatisticDefinition:
     """
     Attributes:
+        error_on_na_n (Union[Unset, bool]): whether to raise an error if a NaN value is present in the dataset for this
+            variable.
         filter_ (Union[Unset, Filter]):
         name (Union[Unset, str]): given name of the statistic
         variable (Union[Unset, str]): target variable in the dataset from the which the statistic is computed
@@ -26,6 +28,7 @@ class StatisticDefinition:
             list if not specified all relevant statistics are computed
     """
 
+    error_on_na_n: Union[Unset, bool] = UNSET
     filter_: Union[Unset, "Filter"] = UNSET
     name: Union[Unset, str] = UNSET
     variable: Union[Unset, str] = UNSET
@@ -36,6 +39,7 @@ class StatisticDefinition:
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        error_on_na_n = self.error_on_na_n
         filter_: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.filter_, Unset):
             filter_ = self.filter_.to_dict()
@@ -56,6 +60,8 @@ class StatisticDefinition:
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if error_on_na_n is not UNSET:
+            field_dict["errorOnNaN"] = error_on_na_n
         if filter_ is not UNSET:
             field_dict["filter"] = filter_
         if name is not UNSET:
@@ -78,6 +84,8 @@ class StatisticDefinition:
         from ..models.filter_ import Filter
 
         d = src_dict.copy()
+        error_on_na_n = d.pop("errorOnNaN", UNSET)
+
         _filter_ = d.pop("filter", UNSET)
         filter_: Union[Unset, Filter]
         if isinstance(_filter_, Unset):
@@ -103,6 +111,7 @@ class StatisticDefinition:
             quantities.append(quantities_item)
 
         statistic_definition = cls(
+            error_on_na_n=error_on_na_n,
             filter_=filter_,
             name=name,
             variable=variable,

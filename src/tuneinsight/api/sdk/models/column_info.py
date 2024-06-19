@@ -18,28 +18,24 @@ class ColumnInfo:
     """contextual information about a column of the resulting matrix
 
     Attributes:
-        group_info (Union[Unset, GroupInfo]): information about a column representing a subset of rows in the final
-            result
         origin_column (Union[Unset, str]): names of the column from which the value is computed
         origin_value (Union[Unset, str]): when originColumn is a categorical column, original value for the count
         scope (Union[Unset, ColumnInfoScope]): row set involved in the result, all for all rows, subgroup for a subset
             depending on a group
         value_type (Union[Unset, ColumnInfoValueType]): type of value stored in the column, can either be a count of
             rows or a sum of values
+        group_info (Union[Unset, GroupInfo]): information about a column representing a subset of rows in the final
+            result
     """
 
-    group_info: Union[Unset, "GroupInfo"] = UNSET
     origin_column: Union[Unset, str] = UNSET
     origin_value: Union[Unset, str] = UNSET
     scope: Union[Unset, ColumnInfoScope] = UNSET
     value_type: Union[Unset, ColumnInfoValueType] = UNSET
+    group_info: Union[Unset, "GroupInfo"] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        group_info: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.group_info, Unset):
-            group_info = self.group_info.to_dict()
-
         origin_column = self.origin_column
         origin_value = self.origin_value
         scope: Union[Unset, str] = UNSET
@@ -50,11 +46,13 @@ class ColumnInfo:
         if not isinstance(self.value_type, Unset):
             value_type = self.value_type.value
 
+        group_info: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.group_info, Unset):
+            group_info = self.group_info.to_dict()
+
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if group_info is not UNSET:
-            field_dict["groupInfo"] = group_info
         if origin_column is not UNSET:
             field_dict["originColumn"] = origin_column
         if origin_value is not UNSET:
@@ -63,6 +61,8 @@ class ColumnInfo:
             field_dict["scope"] = scope
         if value_type is not UNSET:
             field_dict["valueType"] = value_type
+        if group_info is not UNSET:
+            field_dict["groupInfo"] = group_info
 
         return field_dict
 
@@ -71,13 +71,6 @@ class ColumnInfo:
         from ..models.group_info import GroupInfo
 
         d = src_dict.copy()
-        _group_info = d.pop("groupInfo", UNSET)
-        group_info: Union[Unset, GroupInfo]
-        if isinstance(_group_info, Unset):
-            group_info = UNSET
-        else:
-            group_info = GroupInfo.from_dict(_group_info)
-
         origin_column = d.pop("originColumn", UNSET)
 
         origin_value = d.pop("originValue", UNSET)
@@ -96,12 +89,19 @@ class ColumnInfo:
         else:
             value_type = ColumnInfoValueType(_value_type)
 
+        _group_info = d.pop("groupInfo", UNSET)
+        group_info: Union[Unset, GroupInfo]
+        if isinstance(_group_info, Unset):
+            group_info = UNSET
+        else:
+            group_info = GroupInfo.from_dict(_group_info)
+
         column_info = cls(
-            group_info=group_info,
             origin_column=origin_column,
             origin_value=origin_value,
             scope=scope,
             value_type=value_type,
+            group_info=group_info,
         )
 
         column_info.additional_properties = d

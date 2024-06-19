@@ -15,7 +15,6 @@ class ComputationType(str, Enum):
     SETINTERSECTION = "setIntersection"
     KEYSWITCHEDCOMPUTATION = "keySwitchedComputation"
     VBINNEDAGGREGATION = "vBinnedAggregation"
-    STATISTICALAGGREGATION = "statisticalAggregation"
     SETUPSESSION = "setupSession"
     DISTRIBUTEDJOIN = "distributedJoin"
     SAMPLEEXTRACTION = "sampleExtraction"

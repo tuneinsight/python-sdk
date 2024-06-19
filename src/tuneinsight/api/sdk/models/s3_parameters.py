@@ -12,32 +12,30 @@ class S3Parameters:
     """parameters for the remote s3-compatible storage
 
     Attributes:
-        secret_access_key (Union[Unset, str]): s3 secret access key
         url (Union[Unset, str]): s3 endpoint
         access_key_id (Union[Unset, str]): s3 access key id
         bucket (Union[Unset, str]): s3 bucket
         region (Union[Unset, str]): s3 region
+        secret_access_key (Union[Unset, str]): s3 secret access key
     """
 
-    secret_access_key: Union[Unset, str] = UNSET
     url: Union[Unset, str] = UNSET
     access_key_id: Union[Unset, str] = UNSET
     bucket: Union[Unset, str] = UNSET
     region: Union[Unset, str] = UNSET
+    secret_access_key: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        secret_access_key = self.secret_access_key
         url = self.url
         access_key_id = self.access_key_id
         bucket = self.bucket
         region = self.region
+        secret_access_key = self.secret_access_key
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if secret_access_key is not UNSET:
-            field_dict["secretAccessKey"] = secret_access_key
         if url is not UNSET:
             field_dict["url"] = url
         if access_key_id is not UNSET:
@@ -46,14 +44,14 @@ class S3Parameters:
             field_dict["bucket"] = bucket
         if region is not UNSET:
             field_dict["region"] = region
+        if secret_access_key is not UNSET:
+            field_dict["secretAccessKey"] = secret_access_key
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        secret_access_key = d.pop("secretAccessKey", UNSET)
-
         url = d.pop("url", UNSET)
 
         access_key_id = d.pop("accessKeyID", UNSET)
@@ -62,12 +60,14 @@ class S3Parameters:
 
         region = d.pop("region", UNSET)
 
+        secret_access_key = d.pop("secretAccessKey", UNSET)
+
         s3_parameters = cls(
-            secret_access_key=secret_access_key,
             url=url,
             access_key_id=access_key_id,
             bucket=bucket,
             region=region,
+            secret_access_key=secret_access_key,
         )
 
         s3_parameters.additional_properties = d

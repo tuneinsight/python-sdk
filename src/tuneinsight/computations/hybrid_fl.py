@@ -1,4 +1,12 @@
-"""Classes for Hybrid Federated Learning."""
+"""
+Classes for Hybrid Federated Learning.
+
+🧪 This is an experimental feature. If your use case involves HybridFL on
+   a large scale dataset, contact us at contact@tuneinsight.com.
+
+🚧 This module is in active development, and likely to change dramatically in the next
+   few releases. Use with caution.
+"""
 
 from typing import Optional, Dict, Union, List
 from datetime import datetime
