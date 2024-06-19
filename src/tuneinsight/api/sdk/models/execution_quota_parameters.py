@@ -23,25 +23,26 @@ class ExecutionQuotaParameters:
     Otherwise, a unit represents one computation.
 
         Attributes:
+            increment (Union[Unset, float]): value incremented after each allocation interval
             local_computations_use_budget (Union[Unset, bool]): whether local computations consume the execution quota
             max_allocation (Union[Unset, float]): maximum value that can be taken by the execution quota
             scope (Union[Unset, ExecutionQuotaParametersScope]): scope of the quota
             start (Union[Unset, datetime.datetime]): date time at which the quota is effective
             allocation (Union[Unset, float]): quota allocated initially.
             allocation_interval (Union[Unset, Duration]): definition of a date-independent time interval
-            increment (Union[Unset, float]): value incremented after each allocation interval
     """
 
+    increment: Union[Unset, float] = UNSET
     local_computations_use_budget: Union[Unset, bool] = False
     max_allocation: Union[Unset, float] = UNSET
     scope: Union[Unset, ExecutionQuotaParametersScope] = UNSET
     start: Union[Unset, datetime.datetime] = UNSET
     allocation: Union[Unset, float] = UNSET
     allocation_interval: Union[Unset, "Duration"] = UNSET
-    increment: Union[Unset, float] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        increment = self.increment
         local_computations_use_budget = self.local_computations_use_budget
         max_allocation = self.max_allocation
         scope: Union[Unset, str] = UNSET
@@ -57,11 +58,11 @@ class ExecutionQuotaParameters:
         if not isinstance(self.allocation_interval, Unset):
             allocation_interval = self.allocation_interval.to_dict()
 
-        increment = self.increment
-
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if increment is not UNSET:
+            field_dict["increment"] = increment
         if local_computations_use_budget is not UNSET:
             field_dict["localComputationsUseBudget"] = local_computations_use_budget
         if max_allocation is not UNSET:
@@ -74,8 +75,6 @@ class ExecutionQuotaParameters:
             field_dict["allocation"] = allocation
         if allocation_interval is not UNSET:
             field_dict["allocationInterval"] = allocation_interval
-        if increment is not UNSET:
-            field_dict["increment"] = increment
 
         return field_dict
 
@@ -84,6 +83,8 @@ class ExecutionQuotaParameters:
         from ..models.duration import Duration
 
         d = src_dict.copy()
+        increment = d.pop("increment", UNSET)
+
         local_computations_use_budget = d.pop("localComputationsUseBudget", UNSET)
 
         max_allocation = d.pop("maxAllocation", UNSET)
@@ -111,16 +112,14 @@ class ExecutionQuotaParameters:
         else:
             allocation_interval = Duration.from_dict(_allocation_interval)
 
-        increment = d.pop("increment", UNSET)
-
         execution_quota_parameters = cls(
+            increment=increment,
             local_computations_use_budget=local_computations_use_budget,
             max_allocation=max_allocation,
             scope=scope,
             start=start,
             allocation=allocation,
             allocation_interval=allocation_interval,
-            increment=increment,
         )
 
         execution_quota_parameters.additional_properties = d

@@ -12,32 +12,30 @@ class Session:
     """basic information about a session returned from POST/GET
 
     Attributes:
-        params (Union[Unset, str]): b64 encoded marshaled parameters
         scheme (Union[Unset, str]): cryptographic scheme used, comes from the cryptolib
         collective_key (Union[Unset, str]): Unique identifier of a data object.
         id (Union[Unset, str]): Unique identifier of a session
         network_id (Union[Unset, str]): network of the session
+        params (Union[Unset, str]): b64 encoded marshaled parameters
     """
 
-    params: Union[Unset, str] = UNSET
     scheme: Union[Unset, str] = UNSET
     collective_key: Union[Unset, str] = UNSET
     id: Union[Unset, str] = UNSET
     network_id: Union[Unset, str] = UNSET
+    params: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        params = self.params
         scheme = self.scheme
         collective_key = self.collective_key
         id = self.id
         network_id = self.network_id
+        params = self.params
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if params is not UNSET:
-            field_dict["params"] = params
         if scheme is not UNSET:
             field_dict["scheme"] = scheme
         if collective_key is not UNSET:
@@ -46,14 +44,14 @@ class Session:
             field_dict["id"] = id
         if network_id is not UNSET:
             field_dict["networkId"] = network_id
+        if params is not UNSET:
+            field_dict["params"] = params
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        params = d.pop("params", UNSET)
-
         scheme = d.pop("scheme", UNSET)
 
         collective_key = d.pop("collectiveKey", UNSET)
@@ -62,12 +60,14 @@ class Session:
 
         network_id = d.pop("networkId", UNSET)
 
+        params = d.pop("params", UNSET)
+
         session = cls(
-            params=params,
             scheme=scheme,
             collective_key=collective_key,
             id=id,
             network_id=network_id,
+            params=params,
         )
 
         session.additional_properties = d

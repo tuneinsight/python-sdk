@@ -1,6 +1,7 @@
+"""Tools to hide long tracebacks when errors occur."""
+
 from contextlib import contextmanager
 import sys
-import warnings
 
 from IPython.core.getipython import get_ipython
 
@@ -13,7 +14,7 @@ try:
     ipython_traceback = ipython._showtraceback  # pylint: disable=W0212
     IPYTHON_SET = True
 except AttributeError:
-    warnings.warn("unable to get ipython, traceback suppression is disabled")
+    pass
 
 
 @contextmanager

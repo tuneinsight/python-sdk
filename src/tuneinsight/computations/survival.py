@@ -3,10 +3,16 @@
 from typing import List, Dict
 import pandas as pd
 import matplotlib.pyplot as plt
-from tuneinsight.api.sdk import models
+
+from tuneinsight.client.dataobject import DataContent
+from tuneinsight.computations.base import (
+    ModelBasedComputation,
+    ComputationResult,
+)
 from tuneinsight.utils.plots import style_plot
-from tuneinsight.api.sdk.types import UNSET
-from tuneinsight.computations.base import ModelBasedComputation, ComputationResult
+
+from tuneinsight.api.sdk import models
+from tuneinsight.api.sdk.types import UNSET, is_set
 
 
 def _at_risk_column(i):
@@ -28,9 +34,9 @@ def _get_survival_prob_at(previous, num_at_risk, num_events):
 
 class SurvivalParameters:
     """
-    Defines the parameters of a survival analysis.
+    Data class defining the parameters of a survival analysis.
 
-    This also contains utilities to format the results of the analysis.
+    This also contains utilities to format the results of the analysis and get preprocessing operations.
 
     """
 
@@ -91,7 +97,7 @@ class SurvivalParameters:
         return str(models.TimeUnit.WEEKS)
 
     def post_process_survival(self, aggregation_output: pd.DataFrame) -> pd.DataFrame:
-        """Post-processes the dataframe from the computation."""
+        """Post-processes the dataframe from the computation based on the parameters."""
         aggregation_output = aggregation_output.round(0)
         tmp = pd.DataFrame(
             data=[aggregation_output["Total"].to_list()],
@@ -132,6 +138,25 @@ class SurvivalParameters:
             num_frames=self.num_frames,
         )
 
+    @classmethod
+    def from_model(cls, model: models.Survival):
+        """Initializes a set of survival parameters from an API model."""
+        unit, value = UNSET, UNSET
+        if is_set(model.interval):
+            interval = model.interval
+            unit = interval.unit
+            value = interval.value
+        return cls(
+            duration_col=model.duration_col,
+            event_col=model.event_col,
+            event_val=model.event_val,
+            start_event=model.start_event,
+            end_event=model.end_event,
+            num_frames=model.num_frames,
+            unit=unit,
+            unit_value=value,
+        )
+
 
 class SurvivalResults(ComputationResult):
     """Result from a survival analysis."""
@@ -160,7 +185,7 @@ class SurvivalResults(ComputationResult):
         title="Survival curve",
     ):
         """
-        Plot the survival curve of each subgroup.
+        Plots the survival curve of each subgroup.
 
         Args
             size (tuple): the size of the figure, defaults to (8, 4).
@@ -213,8 +238,8 @@ class SurvivalAnalysis(ModelBasedComputation):
     Survival analysis computation.
 
     This computes collective survival curves using an encrypted aggregation.
-    Use specific submethods to configure this operation, rather than the
-    constructor.
+    It is recommended to use specific submethods to configure this operation,
+    rather than the constructor.
 
     """
 
@@ -256,12 +281,38 @@ class SurvivalAnalysis(ModelBasedComputation):
         # Also save the survival parameters for post-processing.
         self.survival_parameters = survival_parameters
 
-    def _process_results(self, dataobjects) -> Dict[str, pd.DataFrame]:
+    @classmethod
+    def from_model(
+        cls, project: "Project", model: models.SurvivalAggregation
+    ) -> "SurvivalAnalysis":
+        """Initializes a SurvivalAnalysis computation from its API model."""
+        model = models.SurvivalAggregation.from_dict(model.to_dict())
+        # Convert model.matching_columns to parameters.
+        fuzzy = False
+        matching_columns = []
+        if is_set(model.matching_columns):
+            for mc in model.matching_columns:
+                if is_set(mc.fuzzy) and mc.fuzzy:
+                    # All variables should have the same fuzzy value.
+                    fuzzy = True
+                matching_columns.append(mc.name)
+        comp = SurvivalAnalysis(
+            project,
+            survival_parameters=SurvivalParameters.from_model(
+                model.survival_parameters
+            ),
+            matching_columns=matching_columns,
+            fuzzy_matching=fuzzy,
+        )
+        comp._adapt(model)
+        return comp
+
+    def _process_results(self, results: List[DataContent]) -> Dict[str, pd.DataFrame]:
         """Converts raw results to a dictionary mapping subgroup name to a dataframe."""
-        fm = dataobjects[0].get_float_matrix()
+        fm = results[0].get_float_matrix()
         if len(fm.data) != len(self.model.subgroups) + 1:
             raise ValueError(
-                f"result dimensions mismatch, expected {len(self.model.subgroups) + 1} rows, got {len(fm.data)}"
+                f"Survival result dimensions mismatch (expected {len(self.model.subgroups) + 1} rows, got {len(fm.data)})."
             )
         result_mapping = {}
         for i, row in enumerate(fm.data):

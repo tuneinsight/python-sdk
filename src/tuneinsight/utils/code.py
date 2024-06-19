@@ -12,7 +12,8 @@ def get_code(function: Callable[[pd.DataFrame], pd.DataFrame]) -> str:
     Returns the cleaned code for a Python function.
 
     The cleaning involves (1) dedenting the code so that the `def` statement is not
-    indented, and (2) removing all decorators.
+    indented, and (2) removing all decorators. The cleaned code can then be shared
+    with other nodes.
 
     Args:
         function: a function(pd.DataFrame) -> pd.DataFrame

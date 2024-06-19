@@ -43,9 +43,11 @@ Users interact with computations mostly by calling `.run`. By default, this inte
 class ShiftedSum(Computation):
     # ...
 
-    def _process_results(self, dataobjects) -> float:
-        return dataobjects[0].get_float_matrix()[0]
+    def _process_results(self, results: List[_Content]) -> float:
+        return results[0].get_float_matrix()[0]
 ```
+
+The input of this function is a list (typically of length 1) of objects inheriting from `dataobject._Content` (which provides methods to convert to common data types such as dataframe and float matrix). Specifically, these will most of the time be instances of `dataobject.Result`, but could also be `dataobject.DataObject` (for legacy reasons).
 
 You may also override `_pre_run_check` (which is called at the beginning of `.run`) to check that the configuration is acceptable for a run. This allows you to display user-friendly failure messages (or implement failsafe default values). This can also be a place to change specific settings prior to a run (such as the timeout, for long computations).
 

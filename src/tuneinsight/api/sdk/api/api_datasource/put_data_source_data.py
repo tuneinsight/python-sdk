@@ -63,12 +63,16 @@ def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Uni
         response_404 = Error.from_dict(response.json())
 
         return response_404
+    if response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
+        response_422 = Error.from_dict(response.json())
+
+        return response_422
     if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
         response_500 = Error.from_dict(response.json())
 
         return response_500
     if client.raise_on_unexpected_status:
-        raise errors.UnexpectedStatus(f"Unexpected status code: {response.status_code}")
+        raise errors.UnexpectedStatus(f"Unexpected status code: {response.status_code} ({response})")
     else:
         return None
 
@@ -88,7 +92,7 @@ def sync_detailed(
     client: Client,
     multipart_data: PutDataSourceDataMultipartData,
 ) -> Response[Union[DataSource, Error]]:
-    """Add data to a data source.
+    """Load data into a data source
 
     Args:
         data_source_id (str):
@@ -122,7 +126,7 @@ def sync(
     client: Client,
     multipart_data: PutDataSourceDataMultipartData,
 ) -> Optional[Union[DataSource, Error]]:
-    """Add data to a data source.
+    """Load data into a data source
 
     Args:
         data_source_id (str):
@@ -149,7 +153,7 @@ async def asyncio_detailed(
     client: Client,
     multipart_data: PutDataSourceDataMultipartData,
 ) -> Response[Union[DataSource, Error]]:
-    """Add data to a data source.
+    """Load data into a data source
 
     Args:
         data_source_id (str):
@@ -181,7 +185,7 @@ async def asyncio(
     client: Client,
     multipart_data: PutDataSourceDataMultipartData,
 ) -> Optional[Union[DataSource, Error]]:
-    """Add data to a data source.
+    """Load data into a data source
 
     Args:
         data_source_id (str):

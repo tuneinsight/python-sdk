@@ -1,21 +1,27 @@
-"""Simple univariate statistics."""
+"""Classes to compute simple univariate statistics."""
 
 from typing import List, Dict, Any, Union
+import warnings
 import math
 import pandas as pd
 import matplotlib.pyplot as plt
-from tuneinsight.api.sdk import models
-from tuneinsight.api.sdk.types import UNSET
-from tuneinsight.computations.base import ModelBasedComputation, ComputationResult
-from tuneinsight.utils import time_tools
+
+from tuneinsight.client.dataobject import DataContent
+from tuneinsight.computations.base import (
+    ModelBasedComputation,
+    ComputationResult,
+)
+from tuneinsight.computations.preprocessing import Comparator
 from tuneinsight.utils.plots import style_plot, style_title
 
+from tuneinsight.api.sdk import models
+from tuneinsight.api.sdk.types import UNSET, is_set, value_if_unset
 
 # [Proposal]: Do we want to have approximate quantiles here? (even though it's another computation)
 
 
 class StatisticsResults(ComputationResult):
-    """Results of a Statistics computation."""
+    """Results of a `Statistics` computation."""
 
     results: List[models.StatisticResult]
 
@@ -89,12 +95,15 @@ class Statistics(ModelBasedComputation):
     A computation of basic statistics about individual variables in a dataset.
 
     The statistics that can be computed include the mean, variance, and quantiles
-    (min, 25%, median, 75%, max), as well as the IQR.
+    (min, 25%, median, 75%, max), as well as the inter-quartile range (IQR).
 
     For each variable, a min and max bound need to be specified for the encrypted
     computations. These bounds do not need to be very accurate. By default, each
     variable is assumed to have bounds [0, 200]. Variables can be specified either
     in the constructor, or using the `.add_variable` method.
+
+    Optionally, each variable can be augmented with a filter operation that describes
+    a subset of the data for which the statistics can be computed.
 
     """
 
@@ -137,15 +146,51 @@ class Statistics(ModelBasedComputation):
                     var["variable"] = var["name"]
                 self.add_variable(**var)
 
-    # [Proposal]: Remove these two methods. We should encourage users to use preprocessing
-    # operations directly. Maybe I don't understand how this differs from just applying
-    # the filter operation of preprocessing directly.
+    @classmethod
+    def from_model(
+        cls, project: "Project", model: models.DatasetStatistics
+    ) -> "Statistics":
+        """Initializes a Statistics object from its API model."""
+        model = models.DatasetStatistics.from_dict(model.to_dict())
+        # Parse the statistics in the object, and convert them to variables.
+        conf = model.statistics
+        quantities = UNSET
+        if is_set(conf):
+            quantities = conf[0].quantities
+            for qt in conf[1:]:
+                if quantities != qt.quantities:
+                    warnings.warn(
+                        f"Quantities mismatching between variables (will use {quantities})."
+                    )
+        comp = Statistics(project, variables=[], quantities=quantities)
+        # Add the variables one by one.
+        if is_set(conf):
+            for variable in conf:
+                comp.add_variable(
+                    name=variable.name,
+                    variable=variable.variable,
+                    min_bound=value_if_unset(variable.min_bound, 0),
+                    max_bound=value_if_unset(variable.max_bound, 200),
+                )
+                if is_set(variable.filter_):
+                    comp._variables[variable.name].filter_ = variable.filter_
+        comp._adapt(model)
+        return comp
 
     def create_subgroups(
         self, variable_name: str, column: str, values: List[str], numerical=False
     ):
+        """
+        Divides the dataset by groups defined by the value of a variable.
+
+        Args
+            variable_name (str): the variable for which the statistics are computed.
+            column (str): the column to group by.
+            values (list[str]): the list of possible group values.
+            numerical (bool): whether the comparison is numerical.
+        """
         if variable_name not in self._variables:
-            raise ValueError(f"no such variable: {variable_name}")
+            raise ValueError(f"Variable is not used in computation: {variable_name}.")
 
         variable = self._variables[variable_name]
         for v in values:
@@ -168,12 +213,28 @@ class Statistics(ModelBasedComputation):
         self,
         variable_name: str,
         column: str,
-        comparator: models.ComparisonType,
+        comparator: Union[str, Comparator, models.ComparisonType],
         value: Any,
         numerical: bool = True,
     ):
+        """
+        Specifies a filter operation to apply to a variable.
+
+        The filter applies to `column`, which can be different from the column for
+        which statistics are computed (`variable_name`).
+
+        Args
+            variable_name (str): the variable for which the statistics are computed.
+            column (str): the column to filter.
+            comparator (str or Comparator): type of comparison. Either use the Comparator enum,
+                or a user-friendly string ("==", ">", ">=", "<", "<=", or "!=").
+            value: value with which to compare.
+            numerical (bool): whether the comparison is numerical.
+        """
         if variable_name not in self._variables:
-            raise ValueError(f"no such variable: {variable_name}")
+            raise ValueError(f"Variable is not used in computation: {variable_name}.")
+        if isinstance(comparator, str):
+            comparator = Comparator.parse(comparator)
         f = models.Filter(
             type=models.PreprocessingOperationType.FILTER,
             col_name=column,
@@ -181,7 +242,6 @@ class Statistics(ModelBasedComputation):
             value=str(value),
             numerical=numerical,
         )
-        # Does this set a filter for the computation on one variable only? I.e. the filtering operation will be different on others?
         self._variables[variable_name].filter_ = f
 
     def add_variable(
@@ -207,7 +267,7 @@ class Statistics(ModelBasedComputation):
 
     def _get_model(self) -> models.DatasetStatistics:
         """
-        Returns the api model definition of this computation.
+        Returns the API model definition of this computation (overrides Computation._get_model).
 
         Returns:
             models.DatasetStatistics: the computation definition
@@ -219,9 +279,10 @@ class Statistics(ModelBasedComputation):
     def _pre_run_check(self):
         """Checks that the user provided at least one variable to compute stats for."""
         if len(self._variables) == 0:
-            raise ValueError("at least one variable must be added to the computation")
-        self.max_timeout = 30 * time_tools.MINUTE
+            raise ValueError(
+                "At least one variable must be added to the computation (use `variables` in the constructor)."
+            )
 
-    def _process_results(self, dataobjects):
+    def _process_results(self, results: List[DataContent]) -> StatisticsResults:
         """Post-processes results by converting them to StatisticsResults."""
-        return StatisticsResults(dataobjects[0].get_stats().results)
+        return StatisticsResults(results[0].get_stats().results)

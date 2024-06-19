@@ -1,9 +1,13 @@
-"""Computing the mean and stddev of some variables after filtering outliers."""
+"""Computing the mean and standard deviation of some variables after filtering outliers."""
 
 from typing import List
+import pandas as pd
+
+from tuneinsight.client.dataobject import DataContent
 from tuneinsight.computations.base import ModelBasedComputation
+
 from tuneinsight.api.sdk import models
-from tuneinsight.api.sdk.types import UNSET
+from tuneinsight.api.sdk.types import UNSET, value_if_unset
 
 
 class EncryptedMean(ModelBasedComputation):
@@ -11,16 +15,20 @@ class EncryptedMean(ModelBasedComputation):
     Computes the mean and standard deviation of a list of numbers without outliers.
 
     This computation operates in three stages:
-        1. the mean and stddev are computed,
-        2. outliers are removed from the dataset (defined by some threshold),
-        3. the mean of the remaining samples is computed.
-
-    This computation assumes that multiple "participants" contribute records to the
-    dataset (identified by the `participant` column). Only one record per participant
-    per value in a set of grouping columns (grouping key) is used for the computation.
+        1. the mean and standard deviation are computed collectively,
+        2. outliers are removed from each local dataset,
+        3. the mean of the remaining samples is computed collectively.
 
     A value is marked as an outlier if it is more than a threshold (default 2) times
     the standard deviation away from the mean.
+
+    Optionally, the data can be divided into groups, defined by the value of the
+    record in a set of columns (defined by `grouping_keys`). In this case, a mean
+    value is computed for each group (combination of values for grouping columns).
+
+    This computation assumes that the dataset has a participant column (identified by
+    the `participant` parameter) that contains the source of each data sample. Only
+    one record per participant and per group is used for the computation.
 
     """
 
@@ -58,5 +66,22 @@ class EncryptedMean(ModelBasedComputation):
             outlier_threshold=outlier_threshold,
         )
 
-    def _process_results(self, dataobjects):
-        return dataobjects[0].get_dataframe()
+    @classmethod
+    def from_model(
+        cls, project: "Project", model: models.EncryptedMean
+    ) -> "EncryptedMean":
+        """Initializes an EncryptedMean from its API model."""
+        model = models.EncryptedMean.from_dict(model.to_dict())
+        comp = cls(
+            project,
+            variables=model.variables,
+            participant=model.participant,
+            grouping_keys=model.grouping_keys,
+            min_participants=value_if_unset(model.min_participants, 5),
+            outlier_threshold=value_if_unset(model.outlier_threshold, 2),
+        )
+        comp._adapt(model)
+        return comp
+
+    def _process_results(self, results: List[DataContent]) -> pd.DataFrame:
+        return results[0].get_dataframe()

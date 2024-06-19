@@ -1,18 +1,18 @@
 """Classes to interact with datasources in a Tune Insight instance."""
 
 from typing import Any
-from io import StringIO
+from io import StringIO, BytesIO
 import pandas as pd
 
 from tuneinsight.api.sdk.types import Response
-from tuneinsight.api.sdk.types import File
 from tuneinsight.api.sdk import Client
 from tuneinsight.api.sdk import models
-from tuneinsight.api.sdk.types import Unset, UNSET
+from tuneinsight.api.sdk.types import Unset, UNSET, File
 from tuneinsight.api.sdk.api.api_datagen import post_synthetic_dataset
 from tuneinsight.api.sdk.api.api_datasource import (
     post_data_source,
     put_data_source_data,
+    post_data_source_data,
     delete_data_source,
     get_data_source,
 )
@@ -20,11 +20,13 @@ from tuneinsight.api.sdk.api.api_dataobject import post_data_object
 
 from tuneinsight.client.validation import validate_response
 from tuneinsight.client.dataobject import DataObject
+from tuneinsight.utils.io import generate_dataframe_chunks, generate_csv_records
+from tuneinsight.utils import deprecation
 
 
 class DataSource:
     """
-    DataSource represents a datasource stored on a Tune Insight instance.
+    A `DataSource` represents a datasource stored on a Tune Insight instance.
 
     The data used for computations in a Tune Insight instance is represented by
     a generic interface (datasource), which abstracts from how the data is
@@ -33,15 +35,25 @@ class DataSource:
     Class methods can be used to instantiate datasources of various types,
     including CSV files, PostgreS databases, APIs, and Pandas DataFrame.
 
+    Note that a `DataSource` object in the Python SDK does not contain any
+    data. It only serves as a way to represent and interact with a datasource
+    on the server side.
+
+    See the https://dev.tuneinsight.com/docs/Usage/python-sdk/data-management/
+    documentation page for details on datasources.
+
     """
 
     model: models.DataSource = None
     client: Client = None
 
+    upload_chunk_size: int
+
     def __init__(self, model: models.DataSource, client: Client):
         self.model = model
         self.client = client
         self.query_parameters = None
+        self.upload_chunk_size = 2048  # uploads 2048 records at each request.
 
     ## Methods to create a datasource.
 
@@ -85,7 +97,7 @@ class DataSource:
             name (str): the name to give to the datasource.
             clear_if_exists (bool, optional): whether to replace an existing datasource with the same name.
         """
-        definition = default_datasource_definition()
+        definition = _default_datasource_definition()
         definition.name = name
         definition.clear_if_exists = clear_if_exists
         definition.type = models.DataSourceType.LOCAL
@@ -101,16 +113,20 @@ class DataSource:
         clear_if_exists: bool = False,
     ):
         """
-        Creates a new postgres database datasource.
+        Creates a new database datasource.
+
+        The Tune Insight instance will connect to the database described in `config`.
+        Note that the database needs to be reachable for the instance for this to work.
 
         Args:
             client (Client): the client to use to interact with the datasource
-            config (models.DataSourceConfig): the database configuration
+            config (models.DataSourceConfig): the database configuration. Use the `new_postgres_config`
+                and `new_mariadb_config` functions in this module to create the configuration.
             name (str, optional): the name to give to the datasource. Defaults to "".
             clear_if_exists (bool, optional): whether to try to clear any existing data source with the same name.
             credentials_id (str, optional): secret id that stores the database credentials on the KMS connected to the instance.
         """
-        definition = default_datasource_definition()
+        definition = _default_datasource_definition()
         definition.name = name
         definition.clear_if_exists = clear_if_exists
         definition.type = models.DataSourceType.DATABASE
@@ -134,6 +150,9 @@ class DataSource:
         """
         Creates a new API datasource.
 
+        When a computation is run using this datasource, the Tune Insight instance
+        will pull data from the API configured by the parameters.
+
         Args:
             client (Client): the client to use to interact with the datasource
             config (models.PostgresDatabaseConfig): the postgres configuration
@@ -142,7 +161,7 @@ class DataSource:
             cert (str, optional): name of the certificate to use for this datasource
                 (must be accessible in note at "/usr/local/share/datasource-certificates/{cert}.pem,.key").
         """
-        definition = default_datasource_definition()
+        definition = _default_datasource_definition()
         definition.name = name
         definition.clear_if_exists = clear_if_exists
         definition.type = models.DataSourceType.API
@@ -164,7 +183,9 @@ class DataSource:
         clear_if_exists: bool = False,
     ):
         """
-        Creates a new datasource from a Pandas DataFrame.
+        Creates a new datasource from a `pandas.DataFrame`.
+
+        The data contained in the `DataFrame` is uploaded to the Tune Insight instance.
 
         Args:
             client (Client): the client to use to interact with the datasource
@@ -173,7 +194,7 @@ class DataSource:
             clear_if_exists (bool, optional): whether to replace an existing datasource with the same name.
         """
         ds = cls.local(client, name, clear_if_exists)
-        ds.load_dataframe(df=dataframe)
+        ds.upload_data(df=dataframe)
         return ds
 
     def __str__(self):
@@ -182,7 +203,7 @@ class DataSource:
 
     def get_id(self) -> str:
         """
-        Returns the unique id of this datasource.
+        Returns the unique identifier of this datasource.
 
         Returns:
             str: the id as a a string
@@ -225,13 +246,17 @@ class DataSource:
         validate_response(response)
         return DataObject(model=response.parsed, client=self.client)
 
-    def load_csv_data(self, path: str):
+    def upload_csv_data(self, path: str):
         """
-        Loads the data in a CSV file (at "path") to this datasource.
+        Uploads the data in a CSV file to this datasource.
+
+        This reads the contents of a CSV file (at `path` on disk), and uploads them
+        to this datasource (in append mode).
 
         Args:
             path (str): path to the CSV file.
         """
+        deprecation.warn("load_csv_data", "load_data")
         with open(path, mode="+rb") as f:
             file_type = File(payload=f, file_name="test")
             mpd = models.PutDataSourceDataMultipartData(
@@ -245,13 +270,14 @@ class DataSource:
             f.close()
             validate_response(response)
 
-    def load_dataframe(self, df: pd.DataFrame):
+    def upload_dataframe(self, df: pd.DataFrame):
         """
         Uploads a dataframe to use as datasource content.
 
         Args:
             df (pd.DataFrame): the data to upload.
         """
+        deprecation.warn("upload_dataframe", "upload_data")
         f = StringIO(initial_value="")
         df.to_csv(f, index=False)
         mpd = models.PutDataSourceDataMultipartData(
@@ -262,9 +288,108 @@ class DataSource:
         )
         validate_response(response)
 
+    def upload_data(
+        self,
+        df: pd.DataFrame = None,
+        csv_path: str = None,
+        table_name: str = "",
+        replace: bool = False,
+        verbose: bool = False,
+    ):
+        """
+        Uploads data to a data source. Data can be either appended or replaced.
+
+        Args:
+            df (pd.DataFrame, optional): dataframe to upload. Defaults to None.
+            csv_path (str, optional): Path to the csv file containing the data to upload. Defaults to None.
+            table_name (str, optional): name of the table to upload the data to. Required when the data source is a database. Defaults to "".
+            replace (bool, optional): Whether to replace the existing data from the table. Defaults to False.
+            verbose (bool, optional): When set to true, the upload progress is shown. Defaults to False.
+
+        Raises:
+            ValueError: If no data is provided or the table name is missing when required.
+        """
+        if self.model.type not in [
+            models.DataSourceType.DATABASE,
+            models.DataSourceType.LOCAL,
+        ]:
+            raise ValueError(
+                f"{self.model.type} data sources do not currently support data upload"
+            )
+        if self.model.type == models.DataSourceType.DATABASE and table_name == "":
+            raise ValueError("table name must be provided")
+        if df is None and csv_path is None:
+            raise ValueError("data frame or csv file path must be provided")
+
+        if df is not None:
+            generator = generate_dataframe_chunks(df, self.upload_chunk_size)
+        if csv_path is not None:
+            generator = generate_csv_records(csv_path, self.upload_chunk_size)
+
+        first_chunk = True
+        uploaded_records = 0
+        for chunk_df in generator:
+            self._upload_data_file(
+                chunk_df, table_name=table_name, replace=first_chunk and replace
+            )
+            uploaded_records += self.upload_chunk_size
+            if verbose:
+                print(f"uploaded {uploaded_records} records", end="\r")
+            first_chunk = False
+        if verbose:
+            print()
+
+    def _upload_data_file(
+        self, df: pd.DataFrame, table_name: str = "", replace: bool = False
+    ):
+        f = BytesIO()
+        df.to_csv(f, index=False)
+        file_name = table_name
+        # for some reason the file name needs to be non empty
+        if table_name == "":
+            file_name = "datasource_upload"
+        self._upload_data(
+            file=File(payload=f, file_name=file_name),
+            table_name=table_name,
+            replace=replace,
+        )
+
+    def _upload_data(
+        self,
+        str_data: str = UNSET,
+        file: File = UNSET,
+        table_name: str = "",
+        replace: bool = False,
+    ):
+        if replace:
+            mpd = models.PutDataSourceDataMultipartData(
+                data_source_request_data_raw=str_data,
+                data_source_request_data=file,
+                table_name=table_name,
+            )
+            response: Response[models.DataSource] = put_data_source_data.sync_detailed(
+                client=self.client, data_source_id=self.model.id, multipart_data=mpd
+            )
+        else:
+            mpd = models.PostDataSourceDataMultipartData(
+                data_source_request_data_raw=str_data,
+                data_source_request_data=file,
+                table_name=table_name,
+            )
+            response: Response[models.DataSource] = post_data_source_data.sync_detailed(
+                client=self.client, data_source_id=self.model.id, multipart_data=mpd
+            )
+        validate_response(response)
+
     def get_dataframe(self, query: Any = "", json_path: str = "") -> pd.DataFrame:
         """
         Returns the data contained in the datasource as a pd.DataFrame.
+
+        🔥 Warning: this operation transfers (potentially private) data from the
+        Tune Insight instance to the client. While the communication is encrypted,
+        the data will be returned unencrypted in the memory of the Python process.
+
+        ⚠️ Only the owner of the datasource is allowed to perform this operation.
 
         Args:
             query (str, optional): a query selecting a subset of the data. The default is "" for CSV datasource (all records),
@@ -286,6 +411,11 @@ class DataSource:
     def delete(self):
         """
         Deletes this datasource.
+
+        For most datasources, this does not delete the underlying data. For instance,
+        deleting a database datasource only removes the connection and credentials,
+        but the database remains unchanged.
+
         """
         response: Response[Any] = delete_data_source.sync_detailed(
             client=self.client, data_source_id=self.model.id
@@ -367,7 +497,7 @@ class DataSource:
 ## Internal functions to manipulate configurations.
 
 
-def default_datasource_definition() -> models.DataSourceDefinition:
+def _default_datasource_definition() -> models.DataSourceDefinition:
     """
     Returns a default-valued DataSourceDefinition.
 
@@ -402,7 +532,7 @@ def new_credentials(
 
 
 def new_postgres_config(host: str, port: str, name: str) -> models.DataSourceConfig:
-    """Convert a Postgres configuration to a models.DataSourceConfig."""
+    """Converts a Postgres configuration to a models.DataSourceConfig."""
     return models.DataSourceConfig(
         database_type=models.DatabaseType.POSTGRES,
         host=host,

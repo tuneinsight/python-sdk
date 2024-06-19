@@ -42,8 +42,8 @@ class LocalDataSelection:
             DefinitionModel: the schema definition
         """
         definition = DefinitionModel(
-            data_selection=self.datasource.get_parameters(),
-            preprocessing=self.preprocessing.get_params(),
+            data_selection=self.datasource.get_model(),
+            preprocessing=self.preprocessing.get_model(),
         )
         definition.name = self.name
         definition.description = self.description

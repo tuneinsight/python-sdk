@@ -50,7 +50,7 @@ class Policy(models.ComputationPolicy):
         self, operations: Union[List[Operation], "PreprocessingBuilder"]
     ):
         """
-        Authorize a preprocessing operation.
+        Authorizes a preprocessing operation.
 
         Appends "operations" to the set of authorized preprocessing operation types.
         By default, all operations are authorized: using this function automatically
@@ -238,7 +238,9 @@ class Policy(models.ComputationPolicy):
             ValueError: if both the local and collective size arguments have not been provided to this method.
         """
         if local_size is None and collective_size is None:
-            raise ValueError("No dataset size was provided")
+            raise ValueError(
+                "No dataset size was provided (at least one of local_size or collective_size must be set)."
+            )
         if local_size is not None:
             self.dp_policy.min_dataset_size = int(local_size)
         if collective_size is not None:

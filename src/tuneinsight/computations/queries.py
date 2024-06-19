@@ -2,6 +2,7 @@
 
 from typing import Dict, List
 from tuneinsight.api.sdk import models
+from tuneinsight.api.sdk.types import is_unset, is_set
 from tuneinsight.api.sdk.models.computation_data_source_parameters import (
     ComputationDataSourceParameters,
 )
@@ -10,9 +11,14 @@ from tuneinsight.api.sdk.models.data_source_query import DataSourceQuery
 
 class QueryBuilder:
     """
-    Data Source retrieval parameters that define both the global or compound (per-participant)
-    query that will be executed at the data sources of each participant to retrieve the data
-    before the computations.
+    Data source retrieval parameters for all participants.
+
+    This class defines both the global or compound (per-participant) query that will be executed
+    at the data sources of each participant to retrieve the data before the computations.
+    It provides high-level methods to define API and database queries.
+
+    This builder is typically attached to a computation directly (through the `.preprocessing`
+    attribute of `Computation` objects), or in the project's local data selection.
     """
 
     global_query: DataSourceQuery
@@ -42,30 +48,83 @@ class QueryBuilder:
             self._set_query(query_type, query, [node])
 
     def set_database_query(self, query: str, nodes: List[str] = None):
+        """
+        Sets the query to retrieve the input dataset from a database.
+
+        Args
+            query (str): the query to perform on the database.
+            nodes (list, default None): the list of nodes to which this applies. By default, all nodes.
+        """
         self._set_query("database_query", query, nodes)
 
     def set_database_query_from_dict(self, query_dict: Dict[str, str]):
+        """
+        Sets the query to retrieve the input dataset from a database for each node.
+
+        Args
+            query_dict (dict:str->str): a dictionary mapping the node name to the database query for that node.
+        """
         self._set_query_from_dict("database_query", query_dict)
 
     def set_api_request_body(self, request_body: str, nodes: List[str] = None):
+        """
+        Sets the body of the request for an API datasource.
+
+        Args
+            request_body (str): the body of the request.
+            nodes (list, default None): the list of nodes to which this applies. By default, all nodes.
+        """
         self._set_query("api_request_body", request_body, nodes)
 
     def set_api_request_body_from_dict(self, query_dict: Dict[str, str]):
+        """
+        Sets the body of the request for an API datasource for each node.
+
+        Args
+            query_dict (dict:str->str): a dictionary mapping the node name to the request body for that node.
+        """
         self._set_query_from_dict("api_request_body", query_dict)
 
     def set_api_path_query(self, query: str, nodes: List[str] = None):
+        """
+        Sets the query path of the request for an API datasource.
+
+        Args
+            query (str): the query path of the request.
+            nodes (list, default None): the list of nodes to which this applies. By default, all nodes.
+        """
         self._set_query("api_path_query", query, nodes)
 
     def set_api_path_query_from_dict(self, query_dict: Dict[str, str]):
+        """
+        Sets the query path of the request for an API datasource for each node.
+
+        Args
+            query_dict (dict:str->str): a dictionary mapping the node name to the query path for that node.
+        """
         self._set_query_from_dict("api_path_query", query_dict)
 
     def set_api_json_path(self, json_path: str, nodes: List[str] = None):
+        """
+        Sets the JSON-path of the request for an API datasource.
+
+        Args
+            json_path (str): the JSON-path of the request.
+            nodes (list, default None): the list of nodes to which this applies. By default, all nodes.
+        """
         self._set_query("api_json_path", json_path, nodes)
 
     def set_api_json_path_from_dict(self, query_dict: Dict[str, str]):
+        """
+        Sets the JSON-path of the request for an API datasource for each node.
+
+        Args
+            query_dict (dict:str->str): a dictionary mapping the node name to the JSON-path for that node.
+        """
         self._set_query_from_dict("api_json_path", query_dict)
 
-    def get_parameters(self) -> models.ComputationDataSourceParameters:
+    def get_model(self) -> models.ComputationDataSourceParameters:
+        """Returns the API model for this object."""
         params = ComputationDataSourceParameters()
         if self.query_set:
             params.data_source_query = self.global_query
@@ -75,11 +134,16 @@ class QueryBuilder:
             params.compound_disabled = True
         return params
 
-    def set_parameters(self, params: models.ComputationDataSourceParameters):
+    def set_model(self, model: models.ComputationDataSourceParameters):
+        """Initializes this object given an API model."""
         self.query_set = False
-        if isinstance(params.data_source_query, DataSourceQuery):
-            self.global_query = params.data_source_query
+        if is_unset(model):
+            return
+        if is_set(model.data_source_id) and model.data_source_id:
+            self.datasource_id = model.data_source_id
+        if isinstance(model.data_source_query, DataSourceQuery):
+            self.global_query = model.data_source_query
             self.query_set = True
-        if isinstance(params.compound_query, models.DataSourceCompoundQuery):
-            self.compound_query = params.compound_query.additional_properties
+        if isinstance(model.compound_query, models.DataSourceCompoundQuery):
+            self.compound_query = model.compound_query.additional_properties
             self.query_set = True

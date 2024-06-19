@@ -1,14 +1,15 @@
 [tool.poetry]
 name = "tuneinsight"
-version = "0.10.2"
+version = "0.10.3"
 description = "Diapason is the official Python SDK for the Tune Insight API. The current version is compatible with the same version of the API."
 authors = ["Tune Insight SA"]
 license = "Apache-2.0"
 include = [
     "src/tuneinsight/api/**/*.py",
     "src/tuneinsight/api/api-checksum",
-    "src/tuneinsight/cryptolib/*.so",
-    "src/tuneinsight/cryptolib/*.dll"
+    "src/tuneinsight/cryptolib/build/*.so",
+    "src/tuneinsight/cryptolib/build/*.dll",
+    "src/tuneinsight/cryptolib/build/*.h"
 ]
 readme = "src/tuneinsight/README.md"
 

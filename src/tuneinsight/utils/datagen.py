@@ -18,6 +18,7 @@ from tuneinsight.api.sdk.models.post_mock_dataset_method import PostMockDatasetM
 
 from tuneinsight.client.validation import validate_response
 from tuneinsight.client.datasource import DataSource
+from tuneinsight.client import Diapason
 
 from .mbi.domain import available_converters, DatasetContext
 
@@ -35,14 +36,14 @@ class MockGenerator:
 
     def generate(
         self,
-        client: Client,
+        client: Union[Diapason, Client],
         num_rows: int,
         table_name: str = None,
         seed: str = None,
         clear_if_exists: bool = True,
     ) -> DataSource:
         """
-        Generate a mock dataset.
+        Generates a mock dataset.
 
         Args:
             client (Client): Diapason client instance to connect to the server.
@@ -55,8 +56,15 @@ class MockGenerator:
             httpx.TimeoutException: If the request takes longer than Client.timeout.
             InvalidResponseError: If the request to the server fails.
 
+        Returns:
+            DataSource: the datasource created, containing the mock data.
+
         """
         assert num_rows > -1, "num_rows must be nonnegative."
+        # User-friendly interface: allow a Diapason object to be used here.
+        if isinstance(client, Diapason):
+            client: Client = client.client
+
         if table_name:
             # Replace spaces by underscores and remove all non-word characters.
             table_name = table_name.replace(" ", "_")
@@ -163,9 +171,9 @@ class PricesGenerator(MockGenerator):
 
     contributors: List[str]
 
-    def __init__(self):
+    def __init__(self, contributors: List[str] = None):
         MockGenerator.__init__(self, PostMockDatasetMethod.PRICES)
-        self.contributors = None
+        self.contributors = contributors
 
     def set_contributors(self, contributors: List[str]):
         """

@@ -6,10 +6,12 @@ from tuneinsight.utils.errors import hidden_traceback_scope
 
 def validate_response(response: Response):
     """
-    Validates a given response, raising Exceptions in case the response is not successful.
+    Ensures that an API call was successful.
+
+    This validates an API response and raises an Exception in case the response is not successful.
 
     Args:
-        response (Response): the response
+        response (Response): the API response.
 
     Raises:
         AuthorizationError: if the response's status code is 403.
@@ -19,15 +21,14 @@ def validate_response(response: Response):
         with hidden_traceback_scope():
             if response.status_code == 403:
                 raise AuthorizationError(response=response)
+            if response.status_code == 404:
+                raise LookupError(str(response.content))
             raise InvalidResponseError(response=response)
 
 
 class AuthorizationError(Exception):
     """
     AuthorizationError is the exception used when the response status code is 403.
-
-    Args:
-        Exception: the base exception class
     """
 
     def __init__(self, response: Response):
@@ -42,9 +43,6 @@ class AuthorizationError(Exception):
 class InvalidResponseError(Exception):
     """
     InvalidResponseError represents an exception when the response status code is erroneous.
-
-    Args:
-        Exception: the base exception class
     """
 
     def __init__(self, response: Response):

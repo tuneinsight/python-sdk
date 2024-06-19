@@ -28,7 +28,6 @@ from ...models.rot_key_gen import RotKeyGen
 from ...models.sample_extraction import SampleExtraction
 from ...models.set_intersection import SetIntersection
 from ...models.setup_session import SetupSession
-from ...models.statistical_aggregation import StatisticalAggregation
 from ...models.survival_aggregation import SurvivalAggregation
 from ...models.v_binned_aggregation import VBinnedAggregation
 from ...types import Response
@@ -59,7 +58,6 @@ def _get_kwargs(
         "SampleExtraction",
         "SetIntersection",
         "SetupSession",
-        "StatisticalAggregation",
         "SurvivalAggregation",
         "VBinnedAggregation",
     ],
@@ -108,9 +106,6 @@ def _get_kwargs(
         json_json_body = json_body.to_dict()
 
     elif isinstance(json_body, VBinnedAggregation):
-        json_json_body = json_body.to_dict()
-
-    elif isinstance(json_body, StatisticalAggregation):
         json_json_body = json_body.to_dict()
 
     elif isinstance(json_body, SetupSession):
@@ -187,7 +182,7 @@ def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Uni
 
         return response_500
     if client.raise_on_unexpected_status:
-        raise errors.UnexpectedStatus(f"Unexpected status code: {response.status_code}")
+        raise errors.UnexpectedStatus(f"Unexpected status code: {response.status_code} ({response})")
     else:
         return None
 
@@ -226,7 +221,6 @@ def sync_detailed(
         "SampleExtraction",
         "SetIntersection",
         "SetupSession",
-        "StatisticalAggregation",
         "SurvivalAggregation",
         "VBinnedAggregation",
     ],
@@ -239,7 +233,7 @@ def sync_detailed(
             'EncryptedAggregation', 'EncryptedMean', 'EncryptedPrediction', 'EncryptedRegression',
             'GWAS', 'HybridFL', 'KeySwitchedComputation', 'PrivateSearch', 'PrivateSearchSetup',
             'RelinKeyGen', 'RotKeyGen', 'SampleExtraction', 'SetIntersection', 'SetupSession',
-            'StatisticalAggregation', 'SurvivalAggregation', 'VBinnedAggregation']):
+            'SurvivalAggregation', 'VBinnedAggregation']):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -287,7 +281,6 @@ def sync(
         "SampleExtraction",
         "SetIntersection",
         "SetupSession",
-        "StatisticalAggregation",
         "SurvivalAggregation",
         "VBinnedAggregation",
     ],
@@ -300,7 +293,7 @@ def sync(
             'EncryptedAggregation', 'EncryptedMean', 'EncryptedPrediction', 'EncryptedRegression',
             'GWAS', 'HybridFL', 'KeySwitchedComputation', 'PrivateSearch', 'PrivateSearchSetup',
             'RelinKeyGen', 'RotKeyGen', 'SampleExtraction', 'SetIntersection', 'SetupSession',
-            'StatisticalAggregation', 'SurvivalAggregation', 'VBinnedAggregation']):
+            'SurvivalAggregation', 'VBinnedAggregation']):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -341,7 +334,6 @@ async def asyncio_detailed(
         "SampleExtraction",
         "SetIntersection",
         "SetupSession",
-        "StatisticalAggregation",
         "SurvivalAggregation",
         "VBinnedAggregation",
     ],
@@ -354,7 +346,7 @@ async def asyncio_detailed(
             'EncryptedAggregation', 'EncryptedMean', 'EncryptedPrediction', 'EncryptedRegression',
             'GWAS', 'HybridFL', 'KeySwitchedComputation', 'PrivateSearch', 'PrivateSearchSetup',
             'RelinKeyGen', 'RotKeyGen', 'SampleExtraction', 'SetIntersection', 'SetupSession',
-            'StatisticalAggregation', 'SurvivalAggregation', 'VBinnedAggregation']):
+            'SurvivalAggregation', 'VBinnedAggregation']):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -400,7 +392,6 @@ async def asyncio(
         "SampleExtraction",
         "SetIntersection",
         "SetupSession",
-        "StatisticalAggregation",
         "SurvivalAggregation",
         "VBinnedAggregation",
     ],
@@ -413,7 +404,7 @@ async def asyncio(
             'EncryptedAggregation', 'EncryptedMean', 'EncryptedPrediction', 'EncryptedRegression',
             'GWAS', 'HybridFL', 'KeySwitchedComputation', 'PrivateSearch', 'PrivateSearchSetup',
             'RelinKeyGen', 'RotKeyGen', 'SampleExtraction', 'SetIntersection', 'SetupSession',
-            'StatisticalAggregation', 'SurvivalAggregation', 'VBinnedAggregation']):
+            'SurvivalAggregation', 'VBinnedAggregation']):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

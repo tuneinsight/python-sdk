@@ -8,7 +8,18 @@ from IPython.core.getipython import get_ipython
 
 class Renderer:
     """
-    Wrapper over IPython display to easily write Markdown documentation.
+    Wrapper over IPython.display to easily write user-friendly Markdown documentation.
+    If IPython is not available, the markdown text is printed in the console.
+
+    Example:
+    ```
+        r = Renderer()
+        r.h1("Some square roots")
+        for x in range(1, 4):
+            r.h2("number", x)
+            r.text("The square root of", x, ",", r.math(f"\\sqrt{x}"), "is", math.sqrt(x))
+        r.end_paragraph()
+    ```
     """
 
     def __init__(self, use_ipython=None):

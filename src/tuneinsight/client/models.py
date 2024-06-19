@@ -1,4 +1,14 @@
-"""Classes to train and evaluate machine learning models in a Tune Insight instance."""
+"""
+Classes to train and evaluate machine learning models in a Tune Insight instance.
+
+🧪 Encrypted machine learning is an experimental feature. Only use with small datasets,
+   as this can take a lot of time and memory. If your use case involves machine learning
+   on a large scale dataset, contact us at contact@tuneinsight.com.
+
+🚧 This module is in active development, and likely to change dramatically in the next
+   few releases. Use with caution.
+
+"""
 
 from typing import Any, List
 from enum import Enum
@@ -11,8 +21,6 @@ from tuneinsight.api.sdk.models import (
     ModelDefinition,
     PredictionParams,
     ApproximationParams,
-)
-from tuneinsight.api.sdk.models import (
     SessionDefinition,
     Session,
     DataObjectType,
@@ -32,13 +40,13 @@ from tuneinsight.cryptolib.cryptolib import (
     encrypt_prediction_dataset,
     decrypt_prediction,
 )
-from tuneinsight.computations.regression import RegressionPredicting
+from tuneinsight.computations.regression import _RegressionPredicting
 from tuneinsight.client.dataobject import DataObject
 from tuneinsight.api.sdk.types import Response
 from tuneinsight.utils.io import data_to_bytes, data_from_bytes
 
 
-class Type(Enum):
+class ModelType(Enum):
     """
     The different types of machine learning models.
     """
@@ -190,7 +198,7 @@ class Model:
         return data_object.model.unique_id
 
     def _run_prediction(self, project: "Project", input_id: str) -> bytes:
-        comp = RegressionPredicting(project)
+        comp = _RegressionPredicting(project)
         comp["data"] = input_id
         comp["model"] = self.model.data_object.unique_id
         return comp.run(local=True, keyswitch=False, decrypt=False, release=False)
@@ -224,7 +232,7 @@ class ModelManager:
             return new_data
         except Exception as exception:
             raise AttributeError(
-                "could not convert weights to valid float values"
+                "Could not convert weights to valid float values."
             ) from exception
 
     def get_models(self) -> List[Model]:
@@ -260,7 +268,9 @@ class ModelManager:
             Model: _description_
         """
         if model_id == "" and name == "":
-            raise AttributeError("model id or name must be specified")
+            raise AttributeError(
+                "At least one of `model_id` or `name` must be specified."
+            )
         models = self.get_models()
         for m in models:
             if model_id != "":
@@ -269,12 +279,12 @@ class ModelManager:
             if name != "":
                 if m.model.name == name:
                     return m
-        raise NameError(f"model with id:{model_id} or name:{name} was not found")
+        raise NameError(f"No model with id={model_id} or name={name} was found.")
 
     def new_model(
         self,
         name: str,
-        regression_type: Type,
+        regression_type: ModelType,
         data: List[List[Any]],
         delete_if_exists: bool = False,
     ) -> Model:
@@ -299,7 +309,7 @@ class ModelManager:
                 if delete_if_exists:
                     m.delete()
                 else:
-                    raise AttributeError(f"name {name} is already taken")
+                    raise AttributeError(f"A model named {name} already exists.")
         pred_params = PredictionParams()
         pred_params.regression_type = regression_type
         pred_params.approximation_params = ApproximationParams()

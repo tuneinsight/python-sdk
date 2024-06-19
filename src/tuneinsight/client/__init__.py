@@ -1,4 +1,6 @@
 """
+# The client module
+
 Defines a client and other classes to interact with a Tune Insight instance.
 
 This module imports a subset of the classes defined by tuneinsight.client.*
@@ -7,7 +9,7 @@ with the instance.
 
 """
 
-from .dataobject import DataObject
+from .dataobject import DataObject, Result
 from .datasource import DataSource
 from .diapason import Diapason
 from .project import Project

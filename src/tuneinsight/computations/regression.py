@@ -1,4 +1,11 @@
-"""Encrypted training and evaluation of regressions."""
+"""
+Encrypted training and evaluation of regressions.
+
+🧪 Encrypted regression is an experimental feature. Only use with small datasets,
+as this can take a lot of time and memory. If your use case involves a regression
+on a large scale dataset, contact us at contact@tuneinsight.com.
+
+"""
 
 import time
 import itertools
@@ -6,16 +13,19 @@ import uuid
 from typing import List, Dict
 from typing_extensions import Self
 import pandas as pd
+
+from tuneinsight.client.dataobject import DataContent
+from tuneinsight.client.datasource import DataSource
+from tuneinsight.computations.base import ModelBasedComputation
+from tuneinsight.utils.model_performance_eval import r2_score, rmse
+
 from tuneinsight.api.sdk import models
 from tuneinsight.api.sdk.models.encrypted_regression_params import (
     EncryptedRegressionParams,
 )
-from tuneinsight.computations.base import ModelBasedComputation
-from tuneinsight.client.datasource import DataSource
-from tuneinsight.utils.model_performance_eval import r2_score, rmse
 
 
-class RegressionTraining(ModelBasedComputation):
+class _RegressionTraining(ModelBasedComputation):
     """A computation that trains a regression."""
 
     def __init__(self, project, regression_type):
@@ -27,14 +37,14 @@ class RegressionTraining(ModelBasedComputation):
             params=self.params,
         )
 
-    def _process_results(self, dataobjects) -> str:
-        return dataobjects[0].get_id()
+    def _process_results(self, results: List[DataContent]) -> str:
+        return results[0].get_id()
 
-    def _process_encrypted_results(self, dataobjects) -> str:
-        return dataobjects[0].get_id()
+    def _process_encrypted_results(self, results: List[DataContent]) -> str:
+        return results[0].get_id()
 
 
-class RegressionPredicting(ModelBasedComputation):
+class _RegressionPredicting(ModelBasedComputation):
     """A computation that evaluates a regression over some inputs."""
 
     def __init__(self, project):
@@ -44,11 +54,11 @@ class RegressionPredicting(ModelBasedComputation):
             type=models.ComputationType.ENCRYPTEDPREDICTION,
         )
 
-    def _process_results(self, dataobjects) -> bytes:
-        return dataobjects[0].get_float_matrix()
+    def _process_results(self, results: List[DataContent]) -> bytes:
+        return results[0].get_float_matrix()
 
-    def _process_encrypted_results(self, dataobjects) -> bytes:
-        return dataobjects[0].get_raw_data()
+    def _process_encrypted_results(self, results: List[DataContent]) -> bytes:
+        return results[0].get_raw_data()
 
 
 class Regression:
@@ -58,6 +68,10 @@ class Regression:
     This class enables the training and evaluation of an encrypted regression model.
     Note that this class is not itself a Computation, but more a "manager" for two
     different computation classes (since fit and predict are two different computations).
+
+    🧪 This is an experimental feature. Only use with small datasets, as this can take
+    a lot of time and memory. If your use case involves a regression on a large scale
+    dataset, contact us at contact@tuneinsight.com.
 
     """
 
@@ -73,8 +87,8 @@ class Regression:
     ):
         self.project = project
         self.regression_type = reg_type
-        self.fit_model = RegressionTraining(project, reg_type)
-        self.predict_model = RegressionPredicting(project)
+        self.fit_model = _RegressionTraining(project, reg_type)
+        self.predict_model = _RegressionPredicting(project)
         self.fit_model["timeout"] = 500
 
     def copy(self):
@@ -255,7 +269,7 @@ class Regression:
 
 
 class LinearRegression(Regression):
-    """Linear Regression"""
+    """Linear Regression (🧪 experimental feature)"""
 
     type: models.RegressionType = models.RegressionType.LINEAR
 
@@ -278,7 +292,7 @@ class LinearRegression(Regression):
 
 
 class LogisticRegression(Regression):
-    """Logistic Regression"""
+    """Logistic Regression (🧪 experimental feature)"""
 
     type: models.RegressionType = models.RegressionType.LOGISTIC
 
@@ -304,7 +318,7 @@ class LogisticRegression(Regression):
 
 
 class PoissonRegression(Regression):
-    """Poisson Regression"""
+    """Poisson Regression (🧪 experimental feature)"""
 
     type: models.RegressionType = models.RegressionType.POISSON
 

@@ -15,15 +15,16 @@ T = TypeVar("T", bound="GetLogListResponse200")
 class GetLogListResponse200:
     """
     Attributes:
-        items (Union[Unset, List['Log']]):
         total (Union[Unset, int]):
+        items (Union[Unset, List['Log']]):
     """
 
-    items: Union[Unset, List["Log"]] = UNSET
     total: Union[Unset, int] = UNSET
+    items: Union[Unset, List["Log"]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        total = self.total
         items: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.items, Unset):
             items = []
@@ -32,15 +33,13 @@ class GetLogListResponse200:
 
                 items.append(items_item)
 
-        total = self.total
-
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if items is not UNSET:
-            field_dict["items"] = items
         if total is not UNSET:
             field_dict["total"] = total
+        if items is not UNSET:
+            field_dict["items"] = items
 
         return field_dict
 
@@ -49,6 +48,8 @@ class GetLogListResponse200:
         from ..models.log import Log
 
         d = src_dict.copy()
+        total = d.pop("total", UNSET)
+
         items = []
         _items = d.pop("items", UNSET)
         for items_item_data in _items or []:
@@ -56,11 +57,9 @@ class GetLogListResponse200:
 
             items.append(items_item)
 
-        total = d.pop("total", UNSET)
-
         get_log_list_response_200 = cls(
-            items=items,
             total=total,
+            items=items,
         )
 
         get_log_list_response_200.additional_properties = d

@@ -1,4 +1,4 @@
-"""Utility to parse errors in computations and raise appropriate Python errors."""
+"""Utilities to parse errors in computations and raise appropriate Python errors."""
 
 from typing import List
 from tuneinsight.utils.errors import hidden_traceback_scope

@@ -13,23 +13,22 @@ class ResetIndex:
     """
     Attributes:
         type (PreprocessingOperationType): type of preprocessing operation
-        level (Union[Unset, List[str]]): which levels to remove from the index (all by default)
         drop (Union[Unset, bool]): whether to drop the index as a column
+        level (Union[Unset, List[str]]): which levels to remove from the index (all by default)
     """
 
     type: PreprocessingOperationType
-    level: Union[Unset, List[str]] = UNSET
     drop: Union[Unset, bool] = UNSET
+    level: Union[Unset, List[str]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         type = self.type.value
 
+        drop = self.drop
         level: Union[Unset, List[str]] = UNSET
         if not isinstance(self.level, Unset):
             level = self.level
-
-        drop = self.drop
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -38,10 +37,10 @@ class ResetIndex:
                 "type": type,
             }
         )
-        if level is not UNSET:
-            field_dict["level"] = level
         if drop is not UNSET:
             field_dict["drop"] = drop
+        if level is not UNSET:
+            field_dict["level"] = level
 
         return field_dict
 
@@ -50,14 +49,14 @@ class ResetIndex:
         d = src_dict.copy()
         type = PreprocessingOperationType(d.pop("type"))
 
-        level = cast(List[str], d.pop("level", UNSET))
-
         drop = d.pop("drop", UNSET)
+
+        level = cast(List[str], d.pop("level", UNSET))
 
         reset_index = cls(
             type=type,
-            level=level,
             drop=drop,
+            level=level,
         )
 
         reset_index.additional_properties = d

@@ -15,6 +15,7 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     *,
     client: Client,
+    remote_statuses: Union[Unset, None, bool] = UNSET,
     page: Union[Unset, None, int] = 1,
     per_page: Union[Unset, None, int] = 50,
     with_total: Union[Unset, None, bool] = True,
@@ -28,6 +29,8 @@ def _get_kwargs(
     cookies: Dict[str, Any] = client.get_cookies()
 
     params: Dict[str, Any] = {}
+    params["remoteStatuses"] = remote_statuses
+
     params["page"] = page
 
     params["perPage"] = per_page
@@ -91,7 +94,7 @@ def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Uni
 
         return response_500
     if client.raise_on_unexpected_status:
-        raise errors.UnexpectedStatus(f"Unexpected status code: {response.status_code}")
+        raise errors.UnexpectedStatus(f"Unexpected status code: {response.status_code} ({response})")
     else:
         return None
 
@@ -108,6 +111,7 @@ def _build_response(*, client: Client, response: httpx.Response) -> Response[Uni
 def sync_detailed(
     *,
     client: Client,
+    remote_statuses: Union[Unset, None, bool] = UNSET,
     page: Union[Unset, None, int] = 1,
     per_page: Union[Unset, None, int] = 50,
     with_total: Union[Unset, None, bool] = True,
@@ -118,6 +122,7 @@ def sync_detailed(
     """Get the list of projects
 
     Args:
+        remote_statuses (Union[Unset, None, bool]):
         page (Union[Unset, None, int]):  Default: 1.
         per_page (Union[Unset, None, int]):  Default: 50.
         with_total (Union[Unset, None, bool]):  Default: True.
@@ -135,6 +140,7 @@ def sync_detailed(
 
     kwargs = _get_kwargs(
         client=client,
+        remote_statuses=remote_statuses,
         page=page,
         per_page=per_page,
         with_total=with_total,
@@ -154,6 +160,7 @@ def sync_detailed(
 def sync(
     *,
     client: Client,
+    remote_statuses: Union[Unset, None, bool] = UNSET,
     page: Union[Unset, None, int] = 1,
     per_page: Union[Unset, None, int] = 50,
     with_total: Union[Unset, None, bool] = True,
@@ -164,6 +171,7 @@ def sync(
     """Get the list of projects
 
     Args:
+        remote_statuses (Union[Unset, None, bool]):
         page (Union[Unset, None, int]):  Default: 1.
         per_page (Union[Unset, None, int]):  Default: 50.
         with_total (Union[Unset, None, bool]):  Default: True.
@@ -181,6 +189,7 @@ def sync(
 
     return sync_detailed(
         client=client,
+        remote_statuses=remote_statuses,
         page=page,
         per_page=per_page,
         with_total=with_total,
@@ -193,6 +202,7 @@ def sync(
 async def asyncio_detailed(
     *,
     client: Client,
+    remote_statuses: Union[Unset, None, bool] = UNSET,
     page: Union[Unset, None, int] = 1,
     per_page: Union[Unset, None, int] = 50,
     with_total: Union[Unset, None, bool] = True,
@@ -203,6 +213,7 @@ async def asyncio_detailed(
     """Get the list of projects
 
     Args:
+        remote_statuses (Union[Unset, None, bool]):
         page (Union[Unset, None, int]):  Default: 1.
         per_page (Union[Unset, None, int]):  Default: 50.
         with_total (Union[Unset, None, bool]):  Default: True.
@@ -220,6 +231,7 @@ async def asyncio_detailed(
 
     kwargs = _get_kwargs(
         client=client,
+        remote_statuses=remote_statuses,
         page=page,
         per_page=per_page,
         with_total=with_total,
@@ -237,6 +249,7 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: Client,
+    remote_statuses: Union[Unset, None, bool] = UNSET,
     page: Union[Unset, None, int] = 1,
     per_page: Union[Unset, None, int] = 50,
     with_total: Union[Unset, None, bool] = True,
@@ -247,6 +260,7 @@ async def asyncio(
     """Get the list of projects
 
     Args:
+        remote_statuses (Union[Unset, None, bool]):
         page (Union[Unset, None, int]):  Default: 1.
         per_page (Union[Unset, None, int]):  Default: 50.
         with_total (Union[Unset, None, bool]):  Default: True.
@@ -265,6 +279,7 @@ async def asyncio(
     return (
         await asyncio_detailed(
             client=client,
+            remote_statuses=remote_statuses,
             page=page,
             per_page=per_page,
             with_total=with_total,

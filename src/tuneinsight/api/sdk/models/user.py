@@ -11,54 +11,54 @@ T = TypeVar("T", bound="User")
 class User:
     """
     Attributes:
-        username (Union[Unset, str]):
-        email (Union[Unset, str]):
         first_name (Union[Unset, str]):
         last_name (Union[Unset, str]):
+        username (Union[Unset, str]):
+        email (Union[Unset, str]):
     """
 
-    username: Union[Unset, str] = UNSET
-    email: Union[Unset, str] = UNSET
     first_name: Union[Unset, str] = UNSET
     last_name: Union[Unset, str] = UNSET
+    username: Union[Unset, str] = UNSET
+    email: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        username = self.username
-        email = self.email
         first_name = self.first_name
         last_name = self.last_name
+        username = self.username
+        email = self.email
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if username is not UNSET:
-            field_dict["username"] = username
-        if email is not UNSET:
-            field_dict["email"] = email
         if first_name is not UNSET:
             field_dict["firstName"] = first_name
         if last_name is not UNSET:
             field_dict["lastName"] = last_name
+        if username is not UNSET:
+            field_dict["username"] = username
+        if email is not UNSET:
+            field_dict["email"] = email
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        username = d.pop("username", UNSET)
-
-        email = d.pop("email", UNSET)
-
         first_name = d.pop("firstName", UNSET)
 
         last_name = d.pop("lastName", UNSET)
 
+        username = d.pop("username", UNSET)
+
+        email = d.pop("email", UNSET)
+
         user = cls(
-            username=username,
-            email=email,
             first_name=first_name,
             last_name=last_name,
+            username=username,
+            email=email,
         )
 
         user.additional_properties = d

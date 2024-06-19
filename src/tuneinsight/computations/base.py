@@ -11,12 +11,12 @@ modules in tuneinsight.computations.*.
 
 from abc import ABC, abstractmethod
 import json
-from typing import Any, List
+from typing import Any, List, Union
 import warnings
 import pandas as pd
 
 from tuneinsight.api.sdk import models
-from tuneinsight.api.sdk.types import Unset, UNSET
+from tuneinsight.api.sdk.types import is_set, is_unset, UNSET
 from tuneinsight.api.sdk.types import Response
 from tuneinsight.api.sdk.api.api_computations import (
     compute,
@@ -24,14 +24,15 @@ from tuneinsight.api.sdk.api.api_computations import (
     documentation,
 )
 from tuneinsight.api.sdk.api.api_project import post_project_computation
-from tuneinsight.api.sdk.api.api_dataobject import get_data_object
 
 from tuneinsight.computations.queries import QueryBuilder
 from tuneinsight.computations.preprocessing import PreprocessingBuilder
+from tuneinsight.client import e2ee
 from tuneinsight.client.validation import validate_response
-from tuneinsight.client.dataobject import DataObject
+from tuneinsight.client.dataobject import DataObject, Result, DataContent
 from tuneinsight.computations.errors import raise_computation_error
-from tuneinsight.utils import time_tools, deprecation
+from tuneinsight.utils import time_tools
+from tuneinsight.utils import deprecation
 from tuneinsight.utils.display import Renderer
 
 
@@ -70,16 +71,17 @@ class Computation(ABC):
     polling_initial_interval: int
     aggregation_upper_bound: float
     clipping_method: str
-    # List of all computations "results" from running this Computation.
-    recorded_computations: List[models.Computation]
     debug: bool
-
+    # If the computation times out, it is stored so that it can be resumed.
+    _timedout_computation: models.Computation = None
     # Output: the result from computations run on the instance.
     recorded_computations: List[models.Computation]
 
     def __init__(self, project: "Project"):
         """
-        Create a Computation for a project.
+        Creates a `Computation` for a project.
+
+        This sets the `Computation` in the project definition.
 
         Args:
             project (client.Project): the project to which this computation belongs.
@@ -116,29 +118,29 @@ class Computation(ABC):
         and local input requirements.
         """
         raise NotImplementedError(
-            "get_model not implemented by generic Computation object."
+            "self._get_model not implemented by generic Computation object."
         )
 
     def _pre_run_check(self):
-        """Optional checks before a computation is run."""
+        """Optional checks before a computation is run. This should raise an error if the checks fail."""
 
-    def _process_results(self, dataobjects):
+    def _process_results(self, results: List[DataContent]) -> Any:
         """Post-process the plaintext results of a computation."""
-        return dataobjects
+        return results
 
-    def _process_encrypted_results(self, dataobjects):
+    def _process_encrypted_results(self, results: List[DataContent]) -> Any:
         """Post-process encrypted results of a computation."""
-        return dataobjects
+        return results
 
     # API interfacing methods.
 
     @staticmethod
-    def field_is_set(field: Any) -> bool:
+    def _field_is_set(field: Any) -> bool:
         """Checks whether a field in a (API models) definition is set."""
-        return not (field is UNSET or field == "")
+        return is_set(field) or field != ""
 
     @staticmethod
-    def is_done(comp: models.Computation) -> bool:
+    def _is_done(comp: models.Computation) -> bool:
         """Returns whether a computation is done or not from its output model."""
         return comp.status in (
             models.ComputationStatus.ERROR,
@@ -147,11 +149,11 @@ class Computation(ABC):
 
     # This modifies an API model to enforce high-level constraints.
 
-    def _update_computation_datasource(self, comp: models.ComputationDefinition):
+    def _update_computation_datasource(self, model: models.ComputationDefinition):
         """
         Updates the definition of the input computation to have the specified datasource parameters.
         """
-        if comp.type in [
+        if model.type in [
             models.ComputationType.COLLECTIVEKEYSWITCH,
             models.ComputationType.ENCRYPTEDPREDICTION,
             models.ComputationType.PRIVATESEARCH,
@@ -163,36 +165,35 @@ class Computation(ABC):
         #  3. In the local data source (enforced on the server level).
         # Check 1.: whether this computation has a query set.
         if self.datasource.query_set:
-            comp.data_source_parameters = self.datasource.get_parameters()
+            model.data_source_parameters = self.datasource.get_model()
         # Otherwise, initialize empty data source parameters.
         else:
-            if not self.field_is_set(comp.input_data_object):
-                comp.data_source_parameters = models.ComputationDataSourceParameters()
+            if is_unset(model.input_data_object):
+                model.data_source_parameters = models.ComputationDataSourceParameters()
             # And check 2. whether the datasource has a query set.
             if self.project.datasource is not None:
                 ds = self.project.datasource
-                if ds.query_parameters:
-                    comp.data_source_parameters.data_source_query = ds.query_parameters
+                if ds.query_parameters is not None:
+                    model.data_source_parameters.data_source_query = ds.query_parameters
 
-    def _update_computation_fields(self, comp: models.ComputationDefinition):
+    def _update_computation_fields(self, model: models.ComputationDefinition):
         """
         Updates the definition of the input computation to have the same basic configuration.
         """
-        comp.wait = False
-        if not self.field_is_set(comp.project_id):
-            comp.project_id = self.project.get_id()
-        comp.timeout = int(self.max_timeout / time_tools.SECOND)
-        self._update_computation_datasource(comp=comp)
+        model.wait = False
+        if not self._field_is_set(model.project_id):
+            model.project_id = self.project.get_id()
+        model.timeout = int(self.max_timeout / time_tools.SECOND)
         if self.local_input is not None:
-            comp.local_input = self.local_input
+            model.local_input = self.local_input
         if self.clipping_method is not None:
-            comp.input_clipping_method = (
+            model.input_clipping_method = (
                 models.ComputationDefinitionInputClippingMethod(self.clipping_method)
             )
         if self.aggregation_upper_bound is not None:
-            comp.maximum_aggregated_value = self.aggregation_upper_bound
+            model.maximum_aggregated_value = self.aggregation_upper_bound
 
-    def _update_computation_preprocessing(self, comp: models.ComputationDefinition):
+    def _update_computation_preprocessing(self, model: models.ComputationDefinition):
         """
         Updates the definition of the input computation to have the specified preprocessing.
 
@@ -200,23 +201,19 @@ class Computation(ABC):
             comp (models.ComputationDefinition): the computation to post-process.
         """
         self.preprocessing.check_validity()
+        if is_unset(model.preprocessing_parameters):
+            model.preprocessing_parameters = models.ComputationPreprocessingParameters()
+        model.preprocessing_parameters = self.preprocessing.get_model()
 
-        if comp.preprocessing_parameters == UNSET:
-            comp.preprocessing_parameters = models.ComputationPreprocessingParameters()
-        comp.preprocessing_parameters = self.preprocessing.get_params()
-
-    def _get_full_model(self):
-        """Returns the API model for this computation, including additional parameters."""
+    def get_full_model(self):
+        """
+        Returns the API model for this computation, including datasource and preprocessing parameters.
+        """
         model = self._get_model()
         self._update_computation_datasource(model)
         self._update_computation_fields(model)
         self._update_computation_preprocessing(model)
         return model
-
-    def display_documentation(self):
-        """Displays documentation for this computation. Use display_workflow instead."""
-        deprecation.warn("display_documentation", "display_workflow")
-        return self.display_workflow()
 
     def display_workflow(self):
         """
@@ -227,7 +224,7 @@ class Computation(ABC):
         computation as it would be if it was run with this object.
 
         """
-        model = self._get_full_model()
+        model = self.get_full_model()
         response: Response[models.DocumentationResponse200] = (
             documentation.sync_detailed(client=self.client, json_body=model)
         )
@@ -237,10 +234,14 @@ class Computation(ABC):
 
     def _refresh(self, comp: models.Computation) -> models.Computation:
         """
-        Refreshes a _computation_ by fetching it from the client.
+        Refreshes a `models.Computation` by fetching it from the client.
 
         This fetches the computation linked to this computation ID comp.id,
         and returns the current state of this computation on the instance.
+
+        Note that this is not a computation definition, but a `models.Computation`.
+        It representations a computation that is running or has been run, and
+        includes additional fields such as the results.
 
         Args:
             comp (models.Computation): the computation to refresh.
@@ -273,8 +274,10 @@ class Computation(ABC):
 
     def set_aggregation_bound(self, max_bound: float, clipping_method: str = "error"):
         """
-        Sets an upper bound on the total aggregated value of the result in order to choose appropriate
-        aggregation parameters. Out of bound values will be treated according to the clipping method.
+        Sets an upper bound on the total aggregated value of the result.
+
+        This is used to choose appropriate aggregation parameters. Out-of-bound values
+        will be treated according to the clipping method (by default, an error is raised).
 
         Args:
             max_bound (float): the numerical bound which represents the maximum collective value.
@@ -292,7 +295,7 @@ class Computation(ABC):
         comp: models.Computation,
         interval=100 * time_tools.MILLISECOND,
         max_sleep_time=30 * time_tools.SECOND,
-    ) -> List[DataObject]:
+    ) -> Union[Result, List[DataObject]]:
         """
         Waits until a [models.]computation is finished and returns its result(s).
 
@@ -306,10 +309,12 @@ class Computation(ABC):
         Args:
             comp (models.Computation): the computation to wait for.
             interval (int, optional): time in nanoseconds to wait between polls.
-            max_sleep_time (int, optional): maximum total time in nanoseconds to wait.
+            max_sleep_time (int, optional): maximum total time in nanoseconds to wait between polls.
 
         Returns:
-            List[DataObject]: the results of the computation.
+            Result or List[DataObject]: the result of the computation, parsed as a
+               Result object. If no result is provided (which can happen in some corner cases),
+               the list of dataobjects containing data results is returned instead.
         """
         # Define initial sleeping time and start time.
         start_time = time_tools.now()
@@ -317,9 +322,14 @@ class Computation(ABC):
         current_comp = comp
 
         # Poll the computation until done.
-        while not self.is_done(current_comp):
+        while not self._is_done(current_comp):
             if time_tools.since(start_time) > self.max_timeout:
-                raise TimeoutError("The computation timed out.")
+                self._timedout_computation = current_comp
+                raise TimeoutError(
+                    f"The computation is taking longer than {self.max_timeout/time_tools.SECOND} seconds to complete. "
+                    + "While .run has timed out, the computation is still running in the backend. "
+                    + "Use .run(resume_timedout=True) to poll the computation again and wait for results."
+                )
             time_tools.sleep(sleep_time)
             current_comp = self._refresh(comp)
             if len(current_comp.warnings) > 0:
@@ -327,7 +337,10 @@ class Computation(ABC):
             if sleep_time < max_sleep_time:
                 sleep_time = int(sleep_time * 1.05)
 
-        # Raise an exception if there is an error.
+        # Reset the last timed out computation.
+        self._timedout_computation = None
+
+        # Raise an exception if there is was an error during the computation.
         if (current_comp.status == models.ComputationStatus.ERROR) or (
             len(comp.errors) > 0
         ):
@@ -338,19 +351,20 @@ class Computation(ABC):
 
         # Update recorded computation.
         self.recorded_computations.append(current_comp)
-        # Get Result models.
-        results: List[DataObject] = []
-        for dataobject_id in current_comp.results:
-            response: Response[models.DataObject] = get_data_object.sync_detailed(
-                client=self.client, data_object_id=dataobject_id
-            )
-            validate_response(response)
-            results.append(DataObject(model=response.parsed, client=self.client))
-        return results
+
+        # In some cases, the result ID can be unset even though the computation has results.
+        # When that happens, we fetch the dataobjects of the computation directly.
+        result_id = current_comp.result_id
+        if is_unset(result_id) or not result_id:
+            return [
+                DataObject.fetch_from_id(id, self.client) for id in current_comp.results
+            ]
+
+        return Result.fetch_from_id(result_id, self.client)
 
     def _launch(self, model, local: bool = False) -> models.Computation:
         """
-        Launch this computation, given its model.
+        Launches this computation, given its current API model.
 
         This starts a computation on the connected instance and returns the
         resulting computation definition from the instance. It does not wait
@@ -372,14 +386,19 @@ class Computation(ABC):
         return self._launch_with_project(model)
 
     def _launch_with_compute(self, comp):
-        """Launches a computation using the compute endpoint (for internal use only)."""
+        """
+        Launches a computation using the compute endpoint.
+
+        ⛔ This API endpoint is intended for tests, and is likely to result in errors
+        when used in production and to be deprecated. Do not use.
+        """
         response: Response[models.Computation] = compute.sync_detailed(
             client=self.client, json_body=comp
         )
         validate_response(response)
         return response.parsed
 
-    def _launch_with_project(self, comp):
+    def _launch_with_project(self, comp) -> models.Computation:
         """Launches a computation through the project computation endpoint."""
         project_id = self.project.get_id()
         if project_id is None or project_id == "":
@@ -405,6 +424,7 @@ class Computation(ABC):
         release: bool = True,
         interval=100 * time_tools.MILLISECOND,
         max_sleep_time=30 * time_tools.SECOND,
+        resume_timedout: bool = False,
     ) -> Any:
         """
         Runs this computation.
@@ -415,57 +435,97 @@ class Computation(ABC):
         Args:
             local (bool, optional): Whether to run the computation locally or remotely. Defaults to False.
             keyswitch (bool, optional): Whether to perform key switching on the results. Defaults to True.
+                [This parameter is deprecated.]
             decrypt (bool, optional): Whether to request the decryption on the results. Defaults to True.
+                [This parameter is deprecated.]
             release (bool, optional): Whether to release the results (overrides decrypt/keyswitch).
                 If set, encrypted results are automatically key switched and decrypted and a Result
                 entity is saved. Defaults to False.
             interval (int, optional): time in nanoseconds to wait between polls.
             max_sleep_time (int, optional): maximum total time in nanoseconds to wait.
+            resume_timedout (bool, False by default): whether to resume a computation that previously timed
+                out. This will raise an error if the last computation did not time out. When resuming a
+                timed out computation, all current changes to this computation are ignored, but not overwritten.
 
-        Returns:
-            List[DataObject]: A list of DataObject objects representing the results of the computation.
         """
         # Perform optional checks to have user-friendly messages in case something is missing.
         self._pre_run_check()
+        if decrypt:
+            deprecation.warn("decrypt = True", breaking=True)
+        if keyswitch:
+            deprecation.warn("keyswitch = True", breaking=True)
+
+        if resume_timedout and self._timedout_computation is None:
+            raise LookupError("The previous computation did not time out.")
 
         # Update the model to reflect high-level parameters (preprocessing etc.).
-        model = self._get_full_model()
-        # Override the decrypt/keyswitch flags if release and or local are set.
-        if release:
-            model.release_results = True
-            decrypt = False
-            keyswitch = False
-        if local:
-            keyswitch = False  # Only for collective computations.
+        model: models.ComputationDefinition = self.get_full_model()
+        if self.project.end_to_end_encrypted:
+            # If using end-to-end encryption, override other flags.
+            release = True
+        model.release_results = release
 
         # Start the computation and wait until it finishes.
-        computation = self._launch(model, local=local)
-        results = self._poll_computation(
+        if resume_timedout:
+            computation = self._timedout_computation
+        else:
+            computation = self._launch(model, local=local)
+
+        return self.fetch_results(computation, interval, max_sleep_time)
+
+    def fetch_results(
+        self,
+        computation: models.Computation,
+        interval=100 * time_tools.MILLISECOND,
+        max_sleep_time=30 * time_tools.SECOND,
+    ):
+        """
+        Fetches results for a `models.Computation` that has been started on the backend.
+
+        This waits until the computation completes (potentially timing out if the
+        computation takes too long), then fetches the results of the computation and
+        parses them as user-friendly objects.
+
+        Args:
+            computation (models.Computation): a computation that has been launched on the
+                backend. Note that this is a `models.Computation` object created by launching
+                a computation definition. You can retrieve this from the project definition.
+            interval (int, optional): time in nanoseconds to wait between polls.
+            max_sleep_time (int, optional): maximum total time in nanoseconds to wait.
+        """
+        result: Union[Result, List[DataObject]] = self._poll_computation(
             comp=computation, interval=interval, max_sleep_time=max_sleep_time
         )
-
-        # If needed, keyswitch and/or decrypt the results.
-        if keyswitch:
-            for i, dataobject in enumerate(results):
-                results[i] = self.key_switch(dataobject)
-                if decrypt:
-                    results[i] = results[i].decrypt()
+        # If using end-to-end encryption, decrypt each result.
+        if isinstance(result, Result):
+            if result.end_to_end_encrypted:
+                result = e2ee.decrypt(self.client, result)
+            # Convert the result to a list for compatibility with dataobjects.
+            if isinstance(result, Result):
+                result = [result]
 
         # Perform (optional) post-processing of the results if in plaintext.
-        self._last_raw_results = results
-        if release or decrypt:
-            return self._process_results(results)
-        return self._process_encrypted_results(results)
+        self._last_raw_results = result
+        if result[0].is_encrypted():
+            return self._process_encrypted_results(result)
+        return self._process_results(result)
 
     def key_switch(self, data_object: DataObject) -> DataObject:
         """
-        Perform a collective key switch on a data object.
+        Performs a collective key switch on a data object.
 
         Args:
             data_object: the object on which to perform the collective key switch.
         """
         key_switch = KeySwitch(self.project, cipher_vector=data_object.get_id())
         return key_switch.run(local=False, keyswitch=False)
+
+    @classmethod
+    def from_model(
+        cls, project: "Project", model: models.ComputationDefinition
+    ) -> "Computation":
+        """Initializes a Computation from its API model."""
+        raise NotImplementedError("Use <ComputationClass>.from_model.")
 
 
 class ModelBasedComputation(Computation):
@@ -488,10 +548,10 @@ class ModelBasedComputation(Computation):
         project: "Project",
         model_class,
         type: models.ComputationType,  # pylint: disable=redefined-builtin
-        **kwargs
+        **kwargs,
     ):
         """
-        Create a Computation for a specific model.
+        Creates a Computation for a specific model.
 
         Args:
             project (client.Project): the project to which this computation belongs.
@@ -515,7 +575,7 @@ class ModelBasedComputation(Computation):
                     warn_message
                     % "this computation does not appear to support differential privacy"
                 )
-            elif isinstance(self.model.dp_epsilon, Unset):
+            elif is_unset(self.model.dp_epsilon):
                 warnings.warn(
                     warn_message
                     % "the parameter dp_epsilon was not set. Using default value 0.1."
@@ -533,6 +593,32 @@ class ModelBasedComputation(Computation):
     def _get_model(self):
         return self.model
 
+    def _adapt(self, model: models.ComputationDefinition):
+        """
+        Updates internal fields of this computation to match a given API model of the same type.
+
+        This overwrites the .model attribute of this object, and adapts user-friendly fields
+        (e.g., preprocessing and datasource) of the object to reflect changes in the model.
+
+        This is used internally to initialize an object from a model (Computation.from_model).
+        """
+        assert self.model.type == model.type, "Mismatching computation types."
+        # Overwrite the model at the core of the object.
+        self.model = model
+        # Update all internal variables to be up-to-date with the model.
+        self.preprocessing = PreprocessingBuilder.from_model(
+            model.preprocessing_parameters
+        )
+        self.datasource.set_model(model.data_source_parameters)
+        if is_set(model.timeout):
+            self.max_timeout = model.timeout * time_tools.SECOND
+        if is_set(model.local_input):
+            self.local_input = model.local_input
+        if is_set(model.input_clipping_method):
+            self.clipping_method = model.input_clipping_method
+        if is_set(model.maximum_aggregated_value):
+            self.aggregation_upper_bound = model.maximum_aggregated_value
+
     # Interfacing with the model directly: use comp["attr"] = value to set a model value.
 
     def __setitem__(self, key, value):
@@ -547,7 +633,11 @@ class KeySwitch(ModelBasedComputation):
     A collective key switch computation.
 
     Collective key switches are used to collaboratively change the encryption
-    key of a ciphertext in order to enable its decryption.
+    key of a ciphertext in order to enable its decryption. This is a necessary
+    step at the end of a collective computation to be able to decrypt the result.
+
+    🔎 the `Computation.run` method automatically performs the keyswitch in the
+       backend, so you should not have to use this computation.
     """
 
     def __init__(

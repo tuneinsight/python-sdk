@@ -1,13 +1,16 @@
 from enum import Enum
-from typing import Dict, List, Callable
+from typing import Dict, List, Callable, Union
 from warnings import warn
 import pandas as pd
 
-from tuneinsight.utils.code import get_code
 from tuneinsight.api.sdk.types import UNSET
 from tuneinsight.api.sdk import models
-from tuneinsight.computations.dataset_schema import DatasetSchema
+from tuneinsight.api.sdk.types import is_set, is_unset
 from tuneinsight.api.sdk.models import PreprocessingOperationType as op_type
+from tuneinsight.api.sdk.models import ComparisonType as ct
+
+from tuneinsight.computations.dataset_schema import DatasetSchema
+from tuneinsight.utils.code import get_code
 
 
 class Operation(Enum):
@@ -25,10 +28,44 @@ class Operation(Enum):
         return op_type(self.value)
 
 
+class Comparator(Enum):
+    EQUAL = ct.EQUAL
+    GREATER = ct.GREATER
+    GREATEREQ = ct.GREATEREQ
+    LESS = ct.LESS
+    LESSEQ = ct.LESSEQ
+    NEQUAL = ct.NEQUAL
+
+    # Mapping from user-friendly symbols to Comparator models.
+    @staticmethod
+    def parse(string) -> "Comparator":
+        """Parses a string to a comparator."""
+        symbol_map = {
+            "==": Comparator.EQUAL,
+            ">": Comparator.GREATER,
+            ">=": Comparator.GREATEREQ,
+            "<": Comparator.LESS,
+            "<=": Comparator.LESSEQ,
+            "!=": Comparator.NEQUAL,
+        }
+        # If the input string is not found, return it as is.
+        return symbol_map.get(string, string)
+
+
 class PreprocessingBuilder:
     """
     Pre-processing chain builder. This class is used to build a sequence of preprocessing operations
-    that are applied sequentially on the local dataset before running the computations.
+    that are applied sequentially on the local dataset before running computations.
+
+    The preprocessing builder creates a global chain (default) of operations applied to all nodes,
+    and a compound chain for each node, which specifies operations to apply to a single node.
+
+    Each preprocessing operation takes a `nodes` argument specifying on which nodes the operation
+    applies (by default, `None`, meaning all nodes), and returns this object, so that they can
+    be chained within one Python statement.
+
+    This chain is typically attached to a computation directly (through the `.preprocessing`
+    attribute of `Computation` objects), or in the project's local data selection.
 
     """
 
@@ -39,14 +76,17 @@ class PreprocessingBuilder:
     schema: DatasetSchema
 
     def __init__(self):
+        """Creates an empty preprocessing builder."""
         self.reset()
 
     def new_schema(self) -> DatasetSchema:
+        """Creates and attaches a new dataset schema imposing constraints on data structure."""
         self.schema = DatasetSchema()
         return self.schema
 
     def new_chain(self, chain: List[models.PreprocessingOperation]):
-        """Sets the global pre-processing chain
+        """
+        Sets the global pre-processing chain to a value.
 
         Args:
             chain (List[models.PreprocessingOperation]): list of pre-processing operations constituting the chain
@@ -58,13 +98,12 @@ class PreprocessingBuilder:
         return self
 
     def new_compound_chain(self, chain: Dict[str, models.PreprocessingChain]):
-        """Sets the compound pre-processing chain
+        """
+        Sets the compound pre-processing chain to a value.
 
         Args:
-            chain (Dict[str, models.PreprocessingChain]): dictionary mapping each node to its individual preprocessing chain
-
-        Returns:
-            self (PreprocessingBuilder): the updated PreprocessingBuilder
+            chain (Dict[str, models.PreprocessingChain]): dictionary mapping each node to its
+                individual preprocessing chain.
         """
         self.compound_chain = chain
         return self
@@ -76,19 +115,25 @@ class PreprocessingBuilder:
         specified_types: List[str],
         nodes: List[str] = None,
     ):
-        """Add a one hot encoding operation to the preprocessing chain. This operation encodes a target column into one hot encoding and extends the table with the resulting columns.
+        """
+        Adds a one-hot encoding operation to the preprocessing chain.
 
+        One-hot encoding encodes a categorical column into boolean columns, one for each possible value.
+        The boolean columns are appended to the table. The list of possible values must be specified
+        beforehand (`specified_types`) to ensure that all nodes have the same data structure.
 
         Args:
-            target_column (str): the name of the column on which to perform the one-hot-encoding
-            prefix (str): the prefix of the output column name containing the one-hot encoded values
-            specified_types (List[str]): a list of categorical values to create one-hot encoding columns for (even if they are not in the target column)
-            nodes (List[str], optional): list of the name of nodes to apply the operation on, applied to all if None. Defaults to None.
+            target_column (str): the name of the column on which to perform the one-hot-encoding.
+            prefix (str): the prefix of the output column name containing the one-hot encoded values.
+            specified_types (List[str]): a list of categorical values to create one-hot encoding columns
+                for (even if they are not in the target column).
+            nodes (List[str], optional): list of the name of nodes to apply the operation on, applied
+                to all if None. Defaults to None.
 
         Returns:
             self (PreprocessingBuilder): the updated PreprocessingBuilder
         """
-        self.append_to_chain(
+        self._append_to_chain(
             models.OneHotEncoding(
                 type=models.PreprocessingOperationType.ONEHOTENCODING,
                 input_col=target_column,
@@ -106,7 +151,10 @@ class PreprocessingBuilder:
         dummy_value: str = "",
         nodes: List[str] = None,
     ):
-        """Add a select operation to the preprocessing chain. The operation selects specified columns from data.
+        """
+        Adds a select operation to the preprocessing chain.
+
+        This operation selects a set of specified columns from data. All other columns are dropped.
 
         Args:
             columns (List[str]): list of column names to be selected
@@ -117,7 +165,7 @@ class PreprocessingBuilder:
         Returns:
             self (PreprocessingBuilder): the updated PreprocessingBuilder
         """
-        self.append_to_chain(
+        self._append_to_chain(
             models.Select(
                 type=models.PreprocessingOperationType.SELECT,
                 cols=columns,
@@ -132,7 +180,10 @@ class PreprocessingBuilder:
         self, columns: List[str], create_if_missing: bool = False, dummy_value: str = ""
     ):
         """
-        set_columns sets the selected columns after all other preprocessing blocks are applied
+        Sets the selected columns after all other preprocessing blocks are applied.
+
+        This is similar to `.select`, except it always occurs after all other preprocessing
+        operations have been applied. This is always a global operation.
 
         Args:
             columns (List[str]): list of column names to be selected
@@ -147,24 +198,31 @@ class PreprocessingBuilder:
     def filter(
         self,
         target_column: str,
-        comparator: models.ComparisonType,
+        comparator: Union[str, Comparator, models.ComparisonType],
         value: str,
         numerical: bool = False,
         nodes: List[str] = None,
     ):
-        """Add a filter operation to the preprocessing chain. The operation filters rows from the data under a given condition.
+        """
+        Adds a filter operation to the preprocessing chain.
+
+        This operation filters rows from the data under a given condition. All records that do not
+        match this condition are dropped.
 
         Args:
-            target_column (str): name of column to filter on
-            comparator (models.ComparisonType): type of comparison
-            value (str): value with which to compare
+            target_column (str): name of column to filter on.
+            comparator (str or Comparator): type of comparison. Either use the Comparator enum,
+                or a user-friendly string ("==", ">", ">=", "<", "<=", or "!=").
+            value (str): value with which to compare.
             numerical (bool, optional): whether the comparison is on numerical values. Defaults to False.
             nodes (List[str], optional): list of the name of nodes to apply the operation on, applied to all if None. Defaults to None.
 
         Returns:
             self (PreprocessingBuilder): the updated PreprocessingBuilder
         """
-        self.append_to_chain(
+        if isinstance(comparator, str):
+            comparator = Comparator.parse(comparator)
+        self._append_to_chain(
             models.Filter(
                 type=models.PreprocessingOperationType.FILTER,
                 col_name=target_column,
@@ -178,7 +236,9 @@ class PreprocessingBuilder:
 
     def isin(self, target_column: str, values: List[str], nodes: List[str] = None):
         """
-        Adds a filter operation to the preprocessing chain that filters any rows whose 'target_column' attribute is not present in the list of provided 'values'.
+        Adds a "is in" filter operation to the preprocessing chain.
+
+        This operation filters any rows whose 'target_column' attribute is not present in the list of provided 'values'.
 
         Args:
             target_column (str): the column to check the membership with.
@@ -188,7 +248,7 @@ class PreprocessingBuilder:
         Returns:
             self (PreprocessingBuilder): the updated PreprocessingBuilder
         """
-        self.append_to_chain(
+        self._append_to_chain(
             models.Filter(
                 type=models.PreprocessingOperationType.FILTER,
                 col_name=target_column,
@@ -200,8 +260,12 @@ class PreprocessingBuilder:
         )
         return self
 
-    def counts(self, output_column_name: str, nodes: List[str] = None):
-        """Add a counts operation to the preprocessing chain. The operation concatenates a new column filled with ones.
+    def counts(self, output_column_name: str = "count", nodes: List[str] = None):
+        """
+        Adds a counts operation to the preprocessing chain.
+
+        This operation appends a new column filled with ones (called `output_column_name`) to the dataset.
+        When using Aggregation operations, summing this column gives a number of columns.
 
         Args:
             output_column_name (str): name of the column to store the counts. If not specified, the name 'count' will be used.
@@ -210,7 +274,7 @@ class PreprocessingBuilder:
         Returns:
             self (PreprocessingBuilder): the updated PreprocessingBuilder
         """
-        self.append_to_chain(
+        self._append_to_chain(
             models.Counts(
                 type=models.PreprocessingOperationType.COUNTS,
                 output_col=output_column_name,
@@ -220,8 +284,10 @@ class PreprocessingBuilder:
         return self
 
     def transpose(self, copy: bool = False, nodes: List[str] = None):
-        """Add a transpose operation to the preprocessing chain. The operation transposes the index and columns of the data.
+        """
+        Adds a transpose operation to the preprocessing chain.
 
+        This operation transposes the index and columns of the data (see `pandas.DataFrame.transpose`).
 
         Args:
             copy (bool, optional): Whether to copy the data after transposing. Defaults to False.
@@ -230,7 +296,7 @@ class PreprocessingBuilder:
         Returns:
             self (PreprocessingBuilder): the updated PreprocessingBuilder
         """
-        self.append_to_chain(
+        self._append_to_chain(
             models.Transpose(
                 type=models.PreprocessingOperationType.TRANSPOSE, copy=copy
             ),
@@ -245,7 +311,10 @@ class PreprocessingBuilder:
         append: bool = False,
         nodes: List[str] = None,
     ):
-        """Add a set index operation to the preprocessing chain. The operation sets the DataFrame index using existing columns.
+        """
+        Adds a set_index operation to the preprocessing chain.
+
+        This operation sets the DataFrame index to one or more existing columns in the data.
 
         Args:
             columns (List[str]): list of column names to set as index
@@ -256,7 +325,7 @@ class PreprocessingBuilder:
         Returns:
             self (PreprocessingBuilder): the updated PreprocessingBuilder
         """
-        self.append_to_chain(
+        self._append_to_chain(
             models.SetIndex(
                 type=models.PreprocessingOperationType.SETINDEX,
                 cols=columns,
@@ -270,17 +339,22 @@ class PreprocessingBuilder:
     def reset_index(
         self, drop: bool = False, level: List[str] = None, nodes: List[str] = None
     ):
-        """Add a reset index operation to the preprocessing chain. The operation resets the DataFrame index (or a level of it).
+        """
+        Add a reset_index operation to the preprocessing chain.
+
+        This operation resets the DataFrame index (or a level of it if the index has several columns).
+        See `pandas.DataFrame.reset_index` for details.
 
         Args:
-            drop (bool, optional):  Whether to insert index into dataframe columns. This resets the index to the default integer index. Defaults to False.
+            drop (bool, optional):  Whether to insert index into dataframe columns. This resets the index
+                to the default integer index. Defaults to False.
             level (List[str], optional): list of column names to remove from index. Defaults to None.
             nodes (List[str], optional): list of the name of nodes to apply the operation on, applied to all if None. Defaults to None.
 
         Returns:
             self (PreprocessingBuilder): the updated PreprocessingBuilder
         """
-        self.append_to_chain(
+        self._append_to_chain(
             models.ResetIndex(
                 type=models.PreprocessingOperationType.RESETINDEX,
                 drop=drop,
@@ -298,20 +372,25 @@ class PreprocessingBuilder:
         errors: bool = True,
         nodes: List[str] = None,
     ):
-        """Add a rename operation to the preprocessing chain. The operation alters axis labels.
+        """
+        Adds a rename operation to the preprocessing chain.
+
+        This operation alters the axis labels. By default, this operation renames the columns of a dataset.
 
         Args:
             mapper (dict): Dict of name transformations to apply.
             axis (models.RenameAxis, optional): Axis to apply renaming to. Defaults to models.RenameAxis.COLUMNS.
             copy (bool, optional): Whether to copy underlying data. Defaults to True.
-            errors (bool, optional): If True raise a KeyError when a dict-like mapper, index, or columns contains labels that are not present in the Index being transformed. If False existing keys will be renamed and extra keys will be ignored. Defaults to True.
+            errors (bool, optional): If True raise a KeyError when a dict-like mapper, index, or columns contains
+                labels that are not present in the Index being transformed. If False existing keys will be renamed
+                and extra keys will be ignored. Defaults to True.
             nodes (List[str], optional): list of the name of nodes to apply the operation on, applied to all if None. Defaults to None.
 
         Returns:
             self (PreprocessingBuilder): the updated PreprocessingBuilder
         """
         mapper = models.RenameMapper.from_dict(mapper)
-        self.append_to_chain(
+        self._append_to_chain(
             models.Rename(
                 type=models.PreprocessingOperationType.RENAME,
                 mapper=mapper,
@@ -330,19 +409,23 @@ class PreprocessingBuilder:
         errors: bool = True,
         nodes: List[str] = None,
     ):
-        """Add an as type operation to the preprocessing chain. The operation casts column types.
+        """
+        Adds an as_type operation to the preprocessing chain.
+
+        The operation casts column types, converting the data in one or more columns to specific type(s).
 
         Args:
-            type_map (dict):  Dict which maps column names to the data types they should be cast to.
+            type_map (dict):  Dict which maps column names to the data types (str) they should be cast to.
             copy (bool, optional): Whether to return a copy of the data. Defaults to True.
-            errors (bool, optional): If True raise a KeyError if a column in the type_map does not exist in the data. If False existing columns will be cast and extra columns will be ignored. Defaults to True.
+            errors (bool, optional): If True raise a KeyError if a column in the type_map does not exist in the data.
+                If False existing columns will be cast and extra columns will be ignored. Defaults to True.
             nodes (List[str], optional): list of the name of nodes to apply the operation on, applied to all if None. Defaults to None.
 
         Returns:
             self (PreprocessingBuilder): the updated PreprocessingBuilder
         """
         type_map = models.AsTypeTypeMap.from_dict(type_map)
-        self.append_to_chain(
+        self._append_to_chain(
             models.AsType(
                 type=models.PreprocessingOperationType.ASTYPE,
                 type_map=type_map,
@@ -360,8 +443,11 @@ class PreprocessingBuilder:
         names: List[str] = None,
         nodes: List[str] = None,
     ):
-        """Add an extract operation to the preprocessing chain. The operation extracts field values from dict-like columns.
+        """
+        Adds an extract operation to the preprocessing chain.
 
+        This operation extracts field values from columns that contain dict-like data.
+        For instance, extract(field="a") on data=["{'a': 1}"] would return [1].
 
         Args:
             field (str): name of the field to extract
@@ -373,7 +459,7 @@ class PreprocessingBuilder:
             self (PreprocessingBuilder): the updated PreprocessingBuilder
         """
         assert isinstance(columns, list)
-        self.append_to_chain(
+        self._append_to_chain(
             models.ExtractDictField(
                 type=models.PreprocessingOperationType.EXTRACTDICTFIELD,
                 field=field,
@@ -392,12 +478,19 @@ class PreprocessingBuilder:
         regex_type: models.ApplyRegExRegexType = models.ApplyRegExRegexType.MATCH,
         nodes: List[str] = None,
     ):
-        """Add an apply regex operation to the preprocessing chain. The operation applies a regular expression to columns.
+        """
+        Adds an apply_regex operation to the preprocessing chain.
+
+        The operation applies a regular expression to one or more columns. This creates new
+        columns (or changes values in-place) containing either a matching value (for regex_type=MATCH),
+        an integer (the position of a match, for regex_type=POSITION), or the list of all matches
+        (for regex_type=FINDALL).
 
         Args:
             regex (str): regular expression to apply.
             columns (List[str]):  list of column names to apply the regular expression to.
-            regex_type (models.ApplyRegExRegexType, optional): defines what we want to retrieve from the regex (see ApplyRegExRegexType). Defaults to models.ApplyRegExRegexType.MATCH.
+            regex_type (models.ApplyRegExRegexType, optional): defines what we want to retrieve from the regex
+                (see ApplyRegExRegexType). Defaults to models.ApplyRegExRegexType.MATCH.
             names (List[str]): names of resulting columns. If None, this operation is in place.
             nodes (List[str], optional): list of the name of nodes to apply the operation on, applied to all if None. Defaults to None.
 
@@ -405,7 +498,7 @@ class PreprocessingBuilder:
             self (PreprocessingBuilder): the updated PreprocessingBuilder
         """
         assert isinstance(columns, list)
-        self.append_to_chain(
+        self._append_to_chain(
             models.ApplyRegEx(
                 type=models.PreprocessingOperationType.APPLYREGEX,
                 regex=regex,
@@ -421,15 +514,20 @@ class PreprocessingBuilder:
         self, input_: str, min_v: float, max_v: float, nodes: List[str] = None
     ):
         """
-        quantiles computes the local quantiles (min,q1,median,q3,max) of the input column,
-        and then applies the following transformation to each quantile:
-        - normalization using the given `min_v` and `max_v` values.
-        - scaling by the dataset size.
-        The output contains a single row with each transformed quantiles and as the last column the dataset size.
-        This operation is intended to be used whenever collective quantiles are approximated through a weighted aggregation.
+        Adds a quantiles operation to the preprocessing chain.
+
+        This computes the normalized local quantiles (min,q1,median,q3,max) of the input column.
+        It operates in three steps:
+         1. the quantiles are computed exactly on the data.
+         2. the quantiles are normalized using the given `min_v` and `max_v` values.
+         3. the results are by the dataset size.
+
+        The output of this operation transforms the dataset to a single row with each transformed
+        quantile, and the dataset size as last column. This operation should only be used in the
+        context of an aggregation, in order to approximate the collective quantiles.
         Due to the output format, it is discouraged to run any other operation after running this one.
-        After running a collective aggregation on the preprocessed values, the original values can be retrieved by performing the inverse transformation
-        as a client-side post-processing operation.
+        After running a collective aggregation on the preprocessed values, the original values can be
+        retrieved by performing the inverse transformation as a client-side post-processing operation.
 
         Args:
             input_ (str): the column from which to compute the quantiles
@@ -440,7 +538,7 @@ class PreprocessingBuilder:
         Returns:
             self (PreprocessingBuilder): the updated PreprocessingBuilder
         """
-        self.append_to_chain(
+        self._append_to_chain(
             models.Quantiles(
                 type=models.PreprocessingOperationType.QUANTILES,
                 input_=input_,
@@ -462,22 +560,25 @@ class PreprocessingBuilder:
         nodes: List[str] = None,
     ):
         """
-        time_diff computes the time difference between two datetime columns (must be parsable dates/times)
+        Adds a time_diff operation to the preprocessing chain.
+
+        This operation computes the time difference between two datetime columns.
+        The columns must be parsable dates/times. A new column is created.
 
         Args:
-            start (str): the column indicating the start of the measurement
-            end (str): the column indicating the end of the measurement
-            output (str): the output column name
+            start (str): the column indicating the first column (start of a measurement).
+            end (str): the column indicating the second column (end of the measurement).
+            output (str): the output column name.
             unit (models.TimeUnit, optional): the time unit to use. Defaults to models.TimeUnit.WEEKS.
             unit_value (int, optional): the value to use as interval for the time unit, defaults to 4.
             filter_na (bool, optional): whether to filter NaN values in both columns beforehand. Defaults to True.
             nodes (List[str], optional): the list of nodes to apply this preprocessing operation to. Defaults to None.
 
         Returns:
-            _type_: _description_
+            self (PreprocessingBuilder): the updated PreprocessingBuilder
         """
         duration = models.Duration(unit=unit, value=unit_value)
-        self.append_to_chain(
+        self._append_to_chain(
             models.TimeDiff(
                 type=models.PreprocessingOperationType.TIMEDIFF,
                 start=start,
@@ -492,7 +593,10 @@ class PreprocessingBuilder:
 
     def dropna(self, subset: List[str] = None, nodes: List[str] = None):
         """
-        dropna Drops all rows that contain NaN values, calls the standard pandas function, it also converts strings with the value 'NaN' to actual NaN values
+        Adds a drop-n/a operation to the preprocessing chain.
+
+        This operation drops all rows that contain NaN values, using the standard pandas function.
+        Note: it treats the strings 'NaN' has an actual NaN values (in addition to "").
 
         Args:
             nodes (List[str], optional): the list of nodes to apply this preprocessing operation to. Defaults to None.
@@ -501,7 +605,7 @@ class PreprocessingBuilder:
         """
         if subset is None:
             subset = UNSET
-        self.append_to_chain(
+        self._append_to_chain(
             models.Dropna(type=models.PreprocessingOperationType.DROPNA, subset=subset),
             nodes,
         )
@@ -516,7 +620,9 @@ class PreprocessingBuilder:
         nodes: List[str] = None,
     ):
         """
-        apply_mapping creates a new column based on another column, given a mapping defined by the user
+        Adds an apply_mapping operation to the preprocessing chain.
+
+        This operation creates a new column based on another column, given a mapping defined by the user.
 
         Args:
             input_ (str): the source column
@@ -533,7 +639,7 @@ class PreprocessingBuilder:
         for key, value in sm.additional_properties.items():
             sm.additional_properties[key] = str(value)
 
-        self.append_to_chain(
+        self._append_to_chain(
             models.ApplyMapping(
                 type=models.PreprocessingOperationType.APPLYMAPPING,
                 input_=input_,
@@ -554,7 +660,11 @@ class PreprocessingBuilder:
         nodes: List[str] = None,
     ):
         """
-        cut transforms a numeric variable into categories according to a list of cuts and labels defined by the user
+        Adds a cut operation to the preprocessing chain.
+
+        This operation "bins" a numerical variable: it transforms each value into a category (bin),
+        according to a list of cuts and labels defined by the user. For instance, the cuts [a, b]
+        would create three categories: (, a), [a, b), [b, ).
 
         Args:
             input_ (str): name of the input column
@@ -569,14 +679,14 @@ class PreprocessingBuilder:
 
         if len(labels) != len(cuts) - 1:
             raise ValueError(
-                f"wrong number of labels, expected {len(cuts) - 1}, got {len(labels)}"
+                f"Number of labels ({len(labels)}) does not match number of cuts + 1 ({len(cuts) - 1} + 1)."
             )
         # Make sure the values passed are in appropriate format
         for i, _ in enumerate(cuts):
             cuts[i] = float(cuts[i])
         for i, _ in enumerate(labels):
             labels[i] = str(labels[i])
-        self.append_to_chain(
+        self._append_to_chain(
             models.Cut(
                 type=models.PreprocessingOperationType.CUT,
                 input_=input_,
@@ -590,32 +700,34 @@ class PreprocessingBuilder:
 
     def deviation_squares(
         self,
-        input_: str,
-        output_: str,
+        input_column: str,
+        output_column: str,
         mean: float,
         count: int = 0,
         nodes: List[str] = None,
     ):
         """
-        deviation_squares creates a new column where each value is equal to (df[input] - mean)^2- / (count - 1)
-        if count is < 1 then the denominator is equal to 1 (computes the squared deviation)
-        should be used when computing the variance of a variable once the global mean and count are known
+        Adds a deviation_squares operation to the preprocessing chain.
+
+        This operation creates a new column where each value is equal to (df[input_column] - mean)^2 / (count - 1),
+        where mean and count are fixed input variables. If count is < 1 then the denominator is set to 1.
+        This should be used when computing the variance of a variable once the global mean and count are known.
 
         Args:
-            input_ (str): the input column
-            output_ (str): the output column
+            input_column (str): the input column
+            output_column (str): the output column
             mean (float): the previously computed global mean
             count (int, optional): the previously computed global count. Defaults to 0.
             nodes (List[str], optional): the nodes to assign the preprocessing operation to. Defaults to None.
         """
         mean = float(mean)
         count = int(count)
-        self.append_to_chain(
+        self._append_to_chain(
             models.DeviationSquares(
                 models.PreprocessingOperationType.DEVIATIONSQUARES,
                 count=count,
-                input_=input_,
-                output=output_,
+                input_=input_column,
+                output=output_column,
                 mean=mean,
             ),
             nodes=nodes,
@@ -630,7 +742,11 @@ class PreprocessingBuilder:
         nodes: List[str] = None,
     ):
         """
-        add_columns adds the specified columns together, if the columns are not numerical a separator can be additionally specified
+        Adds an add_columns operation to the preprocessing chain.
+
+        This operation adds together the specified columns, creating a new output column.
+        By default, this operation is not numerical, and concatenates strings (with an
+        optional separator). If numerical is True, arithmetic sum is used instead.
 
         Args:
             input_cols (str): the columns to add together
@@ -639,7 +755,7 @@ class PreprocessingBuilder:
             numerical (bool, optional): whether or not to add numerically. Defaults to False.
             nodes (List[str], optional): the nodes for which the preprocessing applies to. Defaults to None.
         """
-        self.append_to_chain(
+        self._append_to_chain(
             models.AddColumns(
                 type=models.PreprocessingOperationType.ADDCOLUMNS,
                 input_columns=input_cols,
@@ -658,13 +774,21 @@ class PreprocessingBuilder:
         nodes: List[str] = None,
     ):
         """
-        custom adds a custom python preprocessing block to the chain.
-        **WARNING**: This preprocessing operation can be dangerous as it enables the users to run code on other organization's machine.
-        Workflows containing such preprocessing blocks should always be carefully reviewed by the responsible data controllers from each
-        participating organization before approving the project.
+        Adds a custom python preprocessing block to the chain.
+
+        This operation runs a specified Python function on each input dataset, and uses the output of that
+        function as processed dataset. In principle, arbitrary functions can be used here, although `import`
+        statements are forbidden, and only the `np` and `pd` modules are available. This can be used to define
+        complex preprocessing operations.
+
+        🔥 This preprocessing operation can be dangerous as it enables the users to run code on other organization's
+        machine. Workflows containing such preprocessing blocks should always be carefully reviewed by the responsible
+        data controllers from each participating organization before approving the project. This operation can be
+        disabled at the instance level, and may not be avaulable in oyur project.
 
         Args:
-            function (Callable[[pd.DataFrame], pd.DataFrame]): the preprocessing operation, must be a python function which takes as input a dataframe and returns a new dataframe
+            function (Callable[[pd.DataFrame], pd.DataFrame]): the preprocessing operation, must be a python function
+                which takes as input a dataframe and returns a new dataframe.
             name (str, optional): common name given to the operation, for indicative purposes. Defaults to "".
             description (str, optional): description given to the operation for indicative purposes. Defaults to "".
             nodes (List[str], optional): the nodes for which the preprocessing block will apply to. Defaults to None.
@@ -672,7 +796,7 @@ class PreprocessingBuilder:
         Returns:
             self (PreprocessingBuilder): the updated PreprocessingBuilder
         """
-        self.append_to_chain(
+        self._append_to_chain(
             models.Custom(
                 type=models.PreprocessingOperationType.CUSTOM,
                 name=name,
@@ -689,7 +813,8 @@ class PreprocessingBuilder:
         clinical_nodes: List[str],
         sample_cols: List[str],
     ):
-        """Add the necessary preprocessing operations for a Genome-Wide Association Study.
+        """
+        Adds the preprocessing operations required for a Genome-Wide Association Study.
 
         Args:
             genomic_nodes (List[str]): list of names of the nodes containing genomic data.
@@ -717,7 +842,8 @@ class PreprocessingBuilder:
     def create_survival_columns(
         self, params: "SurvivalParameters", nodes: List[str] = None
     ):
-        """Add the necessary preprocessing operations for a survival analysis.
+        """
+        Adds the preprocessing operations required for a survival analysis.
 
         Args:
             params (computations.SurvivalParameters): parameters of the survival analysis.
@@ -726,13 +852,14 @@ class PreprocessingBuilder:
         Returns:
             self (PreprocessingBuilder): the updated PreprocessingBuilder
         """
-        self.append_to_chain(params.get_preprocessing_op(), nodes)
+        self._append_to_chain(params.get_preprocessing_op(), nodes)
         return self
 
-    def append_to_chain(
+    def _append_to_chain(
         self, op: models.PreprocessingOperation, nodes: List[str] = None
     ):
-        """Append a preprocessing operation to the global or compound chain.
+        """
+        Appends a preprocessing operation to the global or compound chain.
 
         Args:
             op (models.PreprocessingOperation): the preprocessing operation to append
@@ -751,10 +878,8 @@ class PreprocessingBuilder:
                     self.compound_chain[node] = node_chain
 
     def check_validity(self):
-        """
-        Check the validity of the preprocessing chains.
-        """
-        if self.check_chain(self.chain) is True:
+        """Checks that the preprocessing chains are valid."""
+        if self._check_chain(self.chain) is True:
             warn(
                 "Preprocessing chain contains one hot encoding without a subsequent select. This could lead to an error if nodes have different categorical values. \n Chain: "
                 + str(self.chain),
@@ -762,7 +887,7 @@ class PreprocessingBuilder:
             )
 
         for node, node_chain in self.compound_chain.items():
-            if self.check_chain(node_chain.chain) is True:
+            if self._check_chain(node_chain.chain) is True:
                 warn(
                     "Preprocessing chain for node "
                     + node
@@ -772,9 +897,9 @@ class PreprocessingBuilder:
                 )
 
     @staticmethod
-    def check_chain(chain: models.PreprocessingChain) -> bool:
+    def _check_chain(chain: models.PreprocessingChain) -> bool:
         """
-        Check that a preprocessing chain contains a select after one hot encoding.
+        Checks that a preprocessing chain contains a select after one hot encoding.
         """
         one_hot_without_select = False
         for ppo in chain:
@@ -785,7 +910,7 @@ class PreprocessingBuilder:
 
         return one_hot_without_select
 
-    def get_params(self) -> models.ComputationPreprocessingParameters:
+    def get_model(self) -> models.ComputationPreprocessingParameters:
         """Returns these parameters as an API model."""
         res = models.ComputationPreprocessingParameters()
         self.check_validity()
@@ -815,3 +940,20 @@ class PreprocessingBuilder:
         )
         self.output_selection_set = False
         self.schema = None
+
+    @classmethod
+    def from_model(cls, model: models.ComputationPreprocessingParameters):
+        """Initializes a PreprocessingBuilder from an API model."""
+        p = cls()
+        if is_unset(model):
+            return p
+        if is_set(model.global_preprocessing):
+            p.new_chain(model.global_preprocessing.chain)
+        if is_set(model.compound_preprocessing):
+            p.new_compound_chain(model.compound_preprocessing.chain)
+        if is_set(model.select):
+            p.output_selection = model.select
+            p.output_selection_set = True
+        if is_set(model.dataset_schema):
+            p.schema = model.dataset_schema
+        return p

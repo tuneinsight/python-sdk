@@ -59,7 +59,7 @@ def get_total_time(comp: models.Computation) -> int:
 
 def get_total_communication(comp: models.Computation) -> int:
     """
-    Returns the total egress + ingress communication of the computation.
+    Returns the total egress plus ingress communication of the computation.
 
     This is recorded from the point of view of the node that returned the provided schema.
 
@@ -84,6 +84,9 @@ def plot_benchmarks(
 ):
     """
     Plots the results of a benchmark.
+
+    This uses matplotlib to draw the evolution of computation time and communication
+    egress and ingress as a function of a free variable.
 
     Args:
         x_values (List[Any]): the x-axis variables/settings

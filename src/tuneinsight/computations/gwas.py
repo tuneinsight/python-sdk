@@ -4,18 +4,20 @@ from typing import List
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+
+from tuneinsight.client.dataobject import DataContent
+from tuneinsight.computations.base import ModelBasedComputation, ComputationResult
+from tuneinsight.utils.plots import style_plot
+
 from tuneinsight.api.sdk import models
 from tuneinsight.api.sdk.types import UNSET
-from tuneinsight.computations.base import ModelBasedComputation, ComputationResult
-from tuneinsight.utils import deprecation
-from tuneinsight.utils.plots import style_plot
 
 
 class GWASResults(ComputationResult):
     """Results from a GWAS computation."""
 
-    def __init__(self, dataobject):
-        result = dataobject.get_float_matrix()
+    def __init__(self, result: DataContent):
+        result = result.get_float_matrix()
         p_values = result.data[0]
         if len(result.columns) == len(p_values):
             data = {"locus": result.columns, "p_value": p_values}
@@ -130,19 +132,20 @@ class GWAS(ModelBasedComputation):
             self.model.cohort_id = cohort.cohort_id
             self.model.join_id = cohort.join_id
 
-    def _process_results(self, dataobjects) -> pd.DataFrame:
+    @classmethod
+    def from_model(cls, project: "Project", model: models.GWAS) -> "GWAS":
+        model = models.GWAS.from_dict(model.to_dict())
+        comp = GWAS(
+            project,
+            target_label=model.target_label,
+            variants_organization=model.variants_organization,
+            matching_params=model.matching_params,
+            covariates=model.covariates,
+            locus_range=model.locus_range,
+        )
+        comp._adapt(model)
+        return comp
+
+    def _process_results(self, results: List[DataContent]) -> pd.DataFrame:
         """Returns the p-values of the GWAS linear regression."""
-        return GWASResults(dataobjects[0])
-
-    @staticmethod
-    def plot_manhattan(p_values: pd.DataFrame):
-        """
-        Displays the GWAS result as a TI-branded manhattan plot.
-
-        Args:
-            p_values (pd.DataFrame): DataFrame containing p-values.
-
-        """
-        deprecation.warn("GWAS.plot_manhattan", "GWASResults.plot")
-        if isinstance(p_values, GWASResults):
-            p_values.plot()
+        return GWASResults(results[0])
