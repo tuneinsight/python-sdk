@@ -24,6 +24,7 @@ from tuneinsight.api.sdk.api.api_project import (
     post_project,
     get_project,
     get_project_list,
+    post_project_join,
 )
 from tuneinsight.api.sdk.api.api_datasource import get_data_source_list
 from tuneinsight.api.sdk.api.api_dataobject import get_data_object
@@ -37,7 +38,7 @@ from tuneinsight.client.validation import validate_response
 from tuneinsight.client.auth import config
 from tuneinsight.client.auth import auth
 from tuneinsight.client.models import ModelManager
-from tuneinsight.utils import time_tools, deprecation
+from tuneinsight.utils import time_tools
 
 
 @attr.s(auto_attribs=True)
@@ -609,13 +610,26 @@ To avoid this, delete the project on other nodes, or create a differently-named 
             run_async=run_async,
             description=description,
         )
-        # authorization_status = models.AuthorizationStatus.UNAUTHORIZED)
         proj_response: Response[models.Project] = post_project.sync_detailed(
             client=self._get_client(), json_body=proj_def
         )
         validate_response(proj_response)
         p = Project(model=proj_response.parsed, client=self._get_client())
         return p
+
+    def join_project_with_token(self, token: str) -> Project:
+        """
+        Joins a project using a sharing token.
+
+        Args:
+            token: the sharing token of the project, obtained from Project.get_sharing_token.
+
+        Returns:
+            Project: the project that was just joined.
+        """
+        resp = post_project_join.sync_detailed(client=self.client, token=token)
+        validate_response(response=resp)
+        return self.get_project(project_id=resp.parsed)
 
     def get_project(self, project_id: str = None, name: str = None) -> Project:
         """
@@ -671,21 +685,6 @@ To avoid this, delete the project on other nodes, or create a differently-named 
         for project in response.parsed:
             projects.append(Project(model=project, client=self._get_client()))
         return projects
-
-    def get_project_by_name(self, name: str) -> Project:
-        """Returns a project by name.
-
-        Args:
-            name (str): name of the project
-
-        Raises:
-            LookupError: if the project is not found
-
-        Returns:
-            Project: the project
-        """
-        deprecation.warn("get_project_by_name", "get_project(name=...)")
-        return self.get_project(name=name)
 
     def clear_project(self, project_id: str = None, name: str = None):
         """

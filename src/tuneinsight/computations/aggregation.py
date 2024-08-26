@@ -162,12 +162,13 @@ class Aggregation(ModelBasedComputation):
     ) -> "Aggregation":
         """Initializes an Aggregation from its API model."""
         model = models.EncryptedAggregation.from_dict(model.to_dict())
-        comp = cls(
-            project,
-            columns=none_if_unset(model.columns),
-            groups=none_if_unset(model.groups),
-            include_count=false_if_unset(model.include_count),
-        )
+        with project.disable_patch():
+            comp = cls(
+                project,
+                columns=none_if_unset(model.columns),
+                groups=none_if_unset(model.groups),
+                include_count=false_if_unset(model.include_count),
+            )
         comp._adapt(model)
         return comp
 

@@ -35,7 +35,8 @@ class Policy(models.ComputationPolicy):
         """
         p = cls()
         for attr_name, attr_value in policy.__dict__.items():
-            setattr(p, attr_name, attr_value)
+            if not isinstance(attr_value, Unset) and attr_value is not None:
+                setattr(p, attr_name, attr_value)
         return p
 
     def __init__(self):
@@ -47,7 +48,7 @@ class Policy(models.ComputationPolicy):
         self.dp_policy = models.DPPolicy()
 
     def add_authorized_preprocessing(
-        self, operations: Union[List[Operation], "PreprocessingBuilder"]
+        self, operations: Union[List[Operation], "PreprocessingBuilder"]  # type: ignore
     ):
         """
         Authorizes a preprocessing operation.
@@ -66,7 +67,7 @@ class Policy(models.ComputationPolicy):
             )
         self.authorized_preprocessing_operations = list(auth_operations)
 
-    def add_authorized_query(self, query: str):
+    def add_authorized_query(self, query: str, name: str = ""):
         """
         Adds a datasource query to the set of authorized queries.
 
@@ -76,9 +77,50 @@ class Policy(models.ComputationPolicy):
         Args:
             query (str): the data source query string
         """
-        queries = set(self.authorized_data_source_queries)
-        queries.add(query)
-        self.authorized_data_source_queries = list(queries)
+        if self.authorized_data_source_queries is Unset:
+            self.authorized_data_source_queries = []
+        self.authorized_data_source_queries.append(
+            models.WhitelistedQuery(name=name, raw_query=query)
+        )
+
+    def set_column_restrictions(self, restricted: bool = True):
+        """
+        Controls whether the input dataset columns must be restricted to the set of authorized columns
+        that have been added to this policy
+
+        Args:
+            restricted (bool, optional): Whether to restrict columns or not. Defaults to True.
+        """
+        self.dp_policy.restrict_columns = restricted
+
+    def add_authorized_column(
+        self,
+        column: str,
+        categorical: bool = False,
+        max_categories: Union[int, float] = 0,
+    ):
+        """
+        adds a column to the set of authorized columns in the dataset.
+
+        Args:
+            column (str): the column to authorize querying on.
+            categorical (bool, optional): whether the column should always be treated as a categorical column. Defaults to False.
+            max_categories (int | float, optional): when the column is categorical, maximum amount of categories that it can take. Defaults to 0.
+                This value can also be set as a factor of the dataset size between 0 and 1.
+        """
+        col = models.AuthorizedColumn(name=column, categorical=categorical)
+        if max_categories > 0:
+            if max_categories < 1:
+                col.max_categories = models.Threshold(
+                    relative_factor=max_categories, type=models.ThresholdType.RELATIVE
+                )
+            else:
+                col.max_categories = models.Threshold(
+                    fixed_value=max_categories, type=models.ThresholdType.FIXED
+                )
+        if self.dp_policy.authorized_columns is Unset:
+            self.dp_policy.authorized_columns = []
+        self.dp_policy.authorized_columns.append(col)
 
     @staticmethod
     def __new_threshold(
@@ -127,42 +169,6 @@ class Policy(models.ComputationPolicy):
             relative_factor (float, optional): factor of the dataset size when relative. Defaults to 0.2.
         """
         self.dp_policy.max_column_count = self.__new_threshold(
-            relative, fixed_value, relative_factor
-        )
-
-    def set_min_frequencies(
-        self,
-        relative: bool = False,
-        fixed_value: int = 10,
-        relative_factor: float = 0.2,
-    ):
-        """
-        Sets the minimum absolute frequency (count) required when the input dataset is used for counting.
-
-        Args:
-            relative (bool, optional): whether the threshold is relative or not. Defaults to False.
-            fixed_value (int, optional): fixed value for the threshold. Defaults to 10.
-            relative_factor (float, optional): the factor of the dataset size when the threshold is relative. Defaults to 0.2.
-        """
-        self.dp_policy.min_frequencies = self.__new_threshold(
-            relative, fixed_value, relative_factor
-        )
-
-    def set_max_factor(
-        self,
-        relative: bool = False,
-        fixed_value: int = 10,
-        relative_factor: float = 0.2,
-    ):
-        """
-        Sets the maximum number of factors any categorical column can take as input.
-
-        Args:
-            relative (bool, optional): whether the threshold is relative or not. Defaults to False.
-            fixed_value (int, optional): fixed value for the threshold. Defaults to 10.
-            relative_factor (float, optional): the factor of the dataset size when the threshold is relative. Defaults to 0.1.
-        """
-        self.dp_policy.max_factors = self.__new_threshold(
             relative, fixed_value, relative_factor
         )
 
@@ -225,6 +231,40 @@ class Policy(models.ComputationPolicy):
         comp_types = set(self.authorized_computation_types)
         comp_types.add(models.ComputationType(computation_type.to_computation_type()))
         self.authorized_computation_types = list(comp_types)
+
+    def set_contract(
+        self,
+        computation_type=False,
+        computation_parameters=False,
+        preprocessing=False,
+        data_query=False,
+    ):
+        """
+        Sets the authorization contract of the project.
+
+        Once a project is authorized by at least one participant, the authorization contract
+        defines what parts of the project can still be modified by participants. Hence, all
+        runs of the project will have the exact same locked parts, but can potentially differ
+        in non-locked parts (as well as changes in the underlying data).
+
+        The parameters of this function are the different parts of a project that can opened
+        up under an authorization contract. Setting True to a parameters opens it up for
+        modification. The default is False (restrictive).
+
+        Parameters:
+            computation_type: whether the computation type of the project can change.
+            computation_parameters: whether computation parameters can change.
+            preprocessing: whether the preprocessing chain can change.
+            data_query: whether the query performed on the data can change.
+        """
+        if computation_type and not computation_parameters:
+            raise ValueError("Inconsistent contract")
+        self.authorization_contract = models.AuthorizationContract(
+            computation_type=computation_type,
+            computation_parameters=computation_type,
+            preprocessing=preprocessing,
+            data_query=data_query,
+        )
 
     def set_min_dataset_size(self, local_size: int = None, collective_size: int = None):
         """
@@ -347,14 +387,14 @@ def display_dp_policy(dp: models.DPPolicy, r: Renderer = None):
     """Displays a user-friendly description of a DP policy using IPython.display."""
     if r is None:
         r = Renderer()
-    if isinstance(dp.authorized_variables, list) and len(dp.authorized_variables) > 0:
+    if isinstance(dp.authorized_columns, list) and len(dp.authorized_columns) > 0:
         r.h4("Dataset column validation")
         r(
             "This check ensures that the input dataset only contains a set of authorized columns."
         )
         r(
             "Any column that is not in the following set",
-            r.code(dp.authorized_variables),
+            r.code([column.name for column in dp.authorized_columns]),
             "is automatically dropped from the input dataset.",
         )
     if not isinstance(dp.min_dataset_size, Unset):
@@ -374,39 +414,11 @@ def display_dp_policy(dp: models.DPPolicy, r: Renderer = None):
         r.it(
             "The collective dataset size is computed under encryption and then decrypted by all participants."
         )
-    if not isinstance(dp.min_frequencies, Unset):
-        r.h3("Minimum Frequency Check")
-        r(
-            "This check validates input datasets that are used to compute collective frequencies in order to avoid eventual individual information that may leak from releasing frequency results."
-        )
-        display_threshold(r, "Threshold", dp.min_frequencies)
-        r(
-            "This ensures that any Frequency",
-            r.math("F"),
-            "is such that",
-            r.math("F = 0"),
-            "or",
-            r.math("F = N"),
-            "or",
-            r.math("T <= F <= N - T") + ",",
-            "where",
-            r.math("N"),
-            "is the local dataset size and",
-            r.math("T"),
-            "is the value of the threshold.",
-        )
     if not isinstance(dp.max_column_count, Unset):
         r.h3("Maximum Number of Columns")
         display_threshold(r, "Threshold", dp.max_column_count)
         r(
             "this limits the number of columns which can be created during the preprocessing, avoiding that a subsequent aggregation leaks individual information."
-        )
-
-    if not isinstance(dp.max_factors, Unset):
-        r.h3("Maximum Number of Factors")
-        display_threshold(r, "Threshold", dp.max_factors)
-        r(
-            "Verifies for each categorical variable that the number of factors does not exceed the threshold"
         )
 
     use_dp = (

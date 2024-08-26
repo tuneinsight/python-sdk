@@ -16,8 +16,6 @@ class ComputationType(str, Enum):
     KEYSWITCHEDCOMPUTATION = "keySwitchedComputation"
     VBINNEDAGGREGATION = "vBinnedAggregation"
     SETUPSESSION = "setupSession"
-    DISTRIBUTEDJOIN = "distributedJoin"
-    SAMPLEEXTRACTION = "sampleExtraction"
     GWAS = "GWAS"
     SURVIVALAGGREGATION = "survivalAggregation"
     HYBRIDFL = "hybridFL"

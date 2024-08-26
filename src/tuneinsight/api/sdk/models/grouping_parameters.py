@@ -12,6 +12,10 @@ class GroupingParameters:
     """provides flexible settings to define a grouping operation on the records.
 
     Attributes:
+        bin_center (Union[Unset, float]): center around which the numerical bins are created. For example, if binSize=10
+            and center=5,
+            the bins will correspond to ..., [-15,-5), [-5,5), [5,15), ...
+        bin_size (Union[Unset, float]): size of the bins.
         column (Union[Unset, str]): column from which the groups are created.
         cuts (Union[Unset, List[float]]): array of cuts to define variable-sized numerical bins. Each value defines the
             min and max bounds for the bins.
@@ -20,22 +24,20 @@ class GroupingParameters:
         numeric (Union[Unset, bool]): explicitly specifies the grouping to be done on numerical bins.
         possible_values (Union[Unset, List[str]]): list of accepted values for groups. if a record is not classified in
             this list, it is discarded unless a default group value is provided.
-        bin_center (Union[Unset, float]): center around which the numerical bins are created. For example, if binSize=10
-            and center=5,
-            the bins will correspond to ..., [-15,-5), [-5,5), [5,15), ...
-        bin_size (Union[Unset, float]): size of the bins.
     """
 
+    bin_center: Union[Unset, float] = UNSET
+    bin_size: Union[Unset, float] = UNSET
     column: Union[Unset, str] = UNSET
     cuts: Union[Unset, List[float]] = UNSET
     default_group: Union[Unset, str] = UNSET
     numeric: Union[Unset, bool] = UNSET
     possible_values: Union[Unset, List[str]] = UNSET
-    bin_center: Union[Unset, float] = UNSET
-    bin_size: Union[Unset, float] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        bin_center = self.bin_center
+        bin_size = self.bin_size
         column = self.column
         cuts: Union[Unset, List[float]] = UNSET
         if not isinstance(self.cuts, Unset):
@@ -47,12 +49,13 @@ class GroupingParameters:
         if not isinstance(self.possible_values, Unset):
             possible_values = self.possible_values
 
-        bin_center = self.bin_center
-        bin_size = self.bin_size
-
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if bin_center is not UNSET:
+            field_dict["binCenter"] = bin_center
+        if bin_size is not UNSET:
+            field_dict["binSize"] = bin_size
         if column is not UNSET:
             field_dict["column"] = column
         if cuts is not UNSET:
@@ -63,16 +66,16 @@ class GroupingParameters:
             field_dict["numeric"] = numeric
         if possible_values is not UNSET:
             field_dict["possibleValues"] = possible_values
-        if bin_center is not UNSET:
-            field_dict["binCenter"] = bin_center
-        if bin_size is not UNSET:
-            field_dict["binSize"] = bin_size
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
+        bin_center = d.pop("binCenter", UNSET)
+
+        bin_size = d.pop("binSize", UNSET)
+
         column = d.pop("column", UNSET)
 
         cuts = cast(List[float], d.pop("cuts", UNSET))
@@ -83,18 +86,14 @@ class GroupingParameters:
 
         possible_values = cast(List[str], d.pop("possibleValues", UNSET))
 
-        bin_center = d.pop("binCenter", UNSET)
-
-        bin_size = d.pop("binSize", UNSET)
-
         grouping_parameters = cls(
+            bin_center=bin_center,
+            bin_size=bin_size,
             column=column,
             cuts=cuts,
             default_group=default_group,
             numeric=numeric,
             possible_values=possible_values,
-            bin_center=bin_center,
-            bin_size=bin_size,
         )
 
         grouping_parameters.additional_properties = d

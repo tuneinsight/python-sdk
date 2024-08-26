@@ -26,7 +26,8 @@ class _ErrorObject:
 cwd = Path(__file__).absolute().parent
 arch = platform.machine()
 os = platform.system().lower()
-cryptolib_path = cwd / f"build/cryptolib-{os}_{arch}.so"
+ext = "dll" if os == "windows" else "so"
+cryptolib_path = cwd / "build" / f"cryptolib-{os}_{arch}.{ext}"
 
 # If not found, the shared library will be an object that raises errors whenever it is used.
 so = _ErrorObject()
@@ -37,7 +38,7 @@ if not exists(cryptolib_path):
     )
 else:
     try:
-        so = ctypes.cdll.LoadLibrary(cryptolib_path)
+        so = ctypes.cdll.LoadLibrary(str(cryptolib_path))
     except OSError as err:
         warnings.warn(
             f"Failed to load cryptolib ({err}). Some functionality might be affected."

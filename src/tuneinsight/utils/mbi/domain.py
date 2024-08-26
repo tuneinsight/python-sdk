@@ -105,13 +105,20 @@ class ContinuousAttribute(MBIColumnConverter):
     # Note that the conversion (esp. to_mbi) is lossy, meaning that doing
     # to_mbi -> from_mbi will not return the same values.
 
-    def __init__(self, min_value: float, max_value: float, bins: Union[int, list] = 10):
+    def __init__(
+        self,
+        min_value: float,
+        max_value: float,
+        bins: Union[int, list] = 10,
+        allow_missing: bool = False,
+    ):
         """
         Args
             min_value: the smallest value that this attribute can take.
             max_value: the highest value that this attribute can take.
             bins: the edges of bins to use to discretize this attribute for MBI. If an
                 integer is provided, the domain is divided into that many uniform bins.
+            allow_missing: whether empty/NaN values are allowed (encoded after the last bin).
 
         """
         self.min_value = min_value
@@ -120,34 +127,58 @@ class ContinuousAttribute(MBIColumnConverter):
             self.bins = np.linspace(min_value, max_value, bins + 1)
         else:
             self.bins = bins
+        self.allow_missing = allow_missing
+        # The last value is where we allocate missing values.
+        if self.allow_missing:
+            self._missing_bin = len(self.bins)
         self.bin_size = (max_value - min_value) / self.size
 
     def to_mbi(self, column: pd.Series) -> pd.Series:
+        if self.allow_missing:
+            # Convert "" to a NaN (which is treated appropriately afterwards).
+            column[column == ""] = np.nan
         # digitize returns, for each value in the column, the number of the bin
         # it is located in, starting at 0 (before any bin), and ending at num_bins+1
         # (after the last bin). We remove 1 to make 0 be the first bin.
         mbi_column = np.digitize(column, self.bins) - 1
         # Handling values outside the interval: assign to closest bin.
         mbi_column[mbi_column < 0] = 0
-        mbi_column[mbi_column >= self.size] = self.size - 1
+        mbi_column[mbi_column >= self.num_bins] = self.num_bins - 1
+        if self.allow_missing:
+            # Wherever there was a NaN, allocate the value to the last additional value.
+            mbi_column[pd.isna(column)] = self._missing_bin
         return mbi_column
 
     @property
     def size(self):
         return len(self.bins) - 1
 
+    @property
+    def num_bins(self):
+        return len(self.bins) - 1
+
 
 class IntegerAttribute(ContinuousAttribute):
     """Models an attribute taking integer values in some range."""
 
-    def __init__(self, min_value: int, max_value: int, bins: Union[int, list] = 10):
+    def __init__(
+        self,
+        min_value: int,
+        max_value: int,
+        bins: Union[int, list] = 10,
+        allow_missing: bool = False,
+    ):
         """(See ContinuousAttribute for documentation.)"""
         # Additional check: if there are less values than bins, use less bins.
         if isinstance(bins, int):
             num_values = max_value - min_value + 1
             bins = min(bins, num_values)
         ContinuousAttribute.__init__(
-            self, min_value=min_value, max_value=max_value, bins=bins
+            self,
+            min_value=min_value,
+            max_value=max_value,
+            bins=bins,
+            allow_missing=allow_missing,
         )
 
 
@@ -162,6 +193,7 @@ class DateAttribute(IntegerAttribute):
         end_date: str,
         bins: Union[int, list] = 10,
         strformat: str = "%Y-%m-%d",
+        allow_missing: bool = False,
     ):
         """
         Args
@@ -169,6 +201,7 @@ class DateAttribute(IntegerAttribute):
             end_date: the latest acceptable date.
             bins: either a number of bins, or specific cutoff values to use for discretisation.
             strformat: a formatting str acceptable by datetime.strptime to represent dates.
+            allow_missing: whether missing values are allowed (encoded after the last bin).
 
         """
         self.strformat = strformat
@@ -182,10 +215,18 @@ class DateAttribute(IntegerAttribute):
         # case where `bins` is a list of dates.
         if not isinstance(bins, int):
             bins = [self._date_to_days_since_start(d) for d in bins]
-        IntegerAttribute.__init__(self, min_value=0, max_value=gap.days, bins=bins)
+        IntegerAttribute.__init__(
+            self,
+            min_value=0,
+            max_value=gap.days,
+            bins=bins,
+            allow_missing=allow_missing,
+        )
 
     def _date_to_days_since_start(self, date: str) -> int:
         """Convert a date (str) to the number of days since self.start_date."""
+        if self.allow_missing and date == "":
+            return np.nan
         return (self.str_to_date(date) - self.start_date).days
 
     def to_mbi(self, column: pd.Series) -> pd.Series:

@@ -84,3 +84,17 @@ def regression_prediction(
     if activation is not None:
         return activation(z)
     return z
+
+
+def accuracy(y_true: np.ndarray, y_scores_pred: np.ndarray, threshold=0.5):
+    """
+    Computes the accuracy of a binary prediction.
+
+    Args:
+        y_true: the truth array, an array of {0, 1}.
+        y_scores_pred: the *scores* predicted by a classifier, typically in [0, 1].
+        threshold: the threshold for the scores (scores above it are considered a prediction of 1).
+    """
+    y_true = y_true.astype(float) >= threshold
+    y_pred = y_scores_pred >= threshold
+    return np.mean(y_true == y_pred)

@@ -15,15 +15,16 @@ T = TypeVar("T", bound="GetProjectNetworkStatusResponse200Item")
 class GetProjectNetworkStatusResponse200Item:
     """
     Attributes:
-        statuses (Union[Unset, List['NodeStatus']]):
         from_ (Union[Unset, str]):
+        statuses (Union[Unset, List['NodeStatus']]):
     """
 
-    statuses: Union[Unset, List["NodeStatus"]] = UNSET
     from_: Union[Unset, str] = UNSET
+    statuses: Union[Unset, List["NodeStatus"]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        from_ = self.from_
         statuses: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.statuses, Unset):
             statuses = []
@@ -32,15 +33,13 @@ class GetProjectNetworkStatusResponse200Item:
 
                 statuses.append(statuses_item)
 
-        from_ = self.from_
-
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if statuses is not UNSET:
-            field_dict["statuses"] = statuses
         if from_ is not UNSET:
             field_dict["from"] = from_
+        if statuses is not UNSET:
+            field_dict["statuses"] = statuses
 
         return field_dict
 
@@ -49,6 +48,8 @@ class GetProjectNetworkStatusResponse200Item:
         from ..models.node_status import NodeStatus
 
         d = src_dict.copy()
+        from_ = d.pop("from", UNSET)
+
         statuses = []
         _statuses = d.pop("statuses", UNSET)
         for statuses_item_data in _statuses or []:
@@ -56,11 +57,9 @@ class GetProjectNetworkStatusResponse200Item:
 
             statuses.append(statuses_item)
 
-        from_ = d.pop("from", UNSET)
-
         get_project_network_status_response_200_item = cls(
-            statuses=statuses,
             from_=from_,
+            statuses=statuses,
         )
 
         get_project_network_status_response_200_item.additional_properties = d

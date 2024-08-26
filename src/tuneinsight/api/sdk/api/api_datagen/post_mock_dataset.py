@@ -21,6 +21,7 @@ def _get_kwargs(
     seed: Union[Unset, None, str] = UNSET,
     create_datasource: Union[Unset, None, bool] = UNSET,
     clear_if_exists: Union[Unset, None, bool] = UNSET,
+    tracking_id: Union[Unset, None, str] = UNSET,
 ) -> Dict[str, Any]:
     url = "{}/mock/dataset".format(client.base_url)
 
@@ -41,6 +42,8 @@ def _get_kwargs(
     params["createDatasource"] = create_datasource
 
     params["clearIfExists"] = clear_if_exists
+
+    params["trackingId"] = tracking_id
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
@@ -114,6 +117,7 @@ def sync_detailed(
     seed: Union[Unset, None, str] = UNSET,
     create_datasource: Union[Unset, None, bool] = UNSET,
     clear_if_exists: Union[Unset, None, bool] = UNSET,
+    tracking_id: Union[Unset, None, str] = UNSET,
 ) -> Response[Union[Any, DataSource, Error]]:
     """Request the creation of a mock dataset.
 
@@ -124,6 +128,7 @@ def sync_detailed(
         seed (Union[Unset, None, str]):
         create_datasource (Union[Unset, None, bool]):
         clear_if_exists (Union[Unset, None, bool]):
+        tracking_id (Union[Unset, None, str]):
         json_body (str):
 
     Raises:
@@ -143,6 +148,7 @@ def sync_detailed(
         seed=seed,
         create_datasource=create_datasource,
         clear_if_exists=clear_if_exists,
+        tracking_id=tracking_id,
     )
 
     response = httpx.request(
@@ -163,6 +169,7 @@ def sync(
     seed: Union[Unset, None, str] = UNSET,
     create_datasource: Union[Unset, None, bool] = UNSET,
     clear_if_exists: Union[Unset, None, bool] = UNSET,
+    tracking_id: Union[Unset, None, str] = UNSET,
 ) -> Optional[Union[Any, DataSource, Error]]:
     """Request the creation of a mock dataset.
 
@@ -173,6 +180,7 @@ def sync(
         seed (Union[Unset, None, str]):
         create_datasource (Union[Unset, None, bool]):
         clear_if_exists (Union[Unset, None, bool]):
+        tracking_id (Union[Unset, None, str]):
         json_body (str):
 
     Raises:
@@ -192,6 +200,7 @@ def sync(
         seed=seed,
         create_datasource=create_datasource,
         clear_if_exists=clear_if_exists,
+        tracking_id=tracking_id,
     ).parsed
 
 
@@ -205,6 +214,7 @@ async def asyncio_detailed(
     seed: Union[Unset, None, str] = UNSET,
     create_datasource: Union[Unset, None, bool] = UNSET,
     clear_if_exists: Union[Unset, None, bool] = UNSET,
+    tracking_id: Union[Unset, None, str] = UNSET,
 ) -> Response[Union[Any, DataSource, Error]]:
     """Request the creation of a mock dataset.
 
@@ -215,6 +225,7 @@ async def asyncio_detailed(
         seed (Union[Unset, None, str]):
         create_datasource (Union[Unset, None, bool]):
         clear_if_exists (Union[Unset, None, bool]):
+        tracking_id (Union[Unset, None, str]):
         json_body (str):
 
     Raises:
@@ -234,6 +245,7 @@ async def asyncio_detailed(
         seed=seed,
         create_datasource=create_datasource,
         clear_if_exists=clear_if_exists,
+        tracking_id=tracking_id,
     )
 
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
@@ -252,6 +264,7 @@ async def asyncio(
     seed: Union[Unset, None, str] = UNSET,
     create_datasource: Union[Unset, None, bool] = UNSET,
     clear_if_exists: Union[Unset, None, bool] = UNSET,
+    tracking_id: Union[Unset, None, str] = UNSET,
 ) -> Optional[Union[Any, DataSource, Error]]:
     """Request the creation of a mock dataset.
 
@@ -262,6 +275,7 @@ async def asyncio(
         seed (Union[Unset, None, str]):
         create_datasource (Union[Unset, None, bool]):
         clear_if_exists (Union[Unset, None, bool]):
+        tracking_id (Union[Unset, None, str]):
         json_body (str):
 
     Raises:
@@ -282,5 +296,6 @@ async def asyncio(
             seed=seed,
             create_datasource=create_datasource,
             clear_if_exists=clear_if_exists,
+            tracking_id=tracking_id,
         )
     ).parsed

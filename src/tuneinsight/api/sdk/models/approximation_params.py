@@ -10,30 +10,30 @@ class ApproximationParams:
     """parameters for polynomial approximation
 
     Attributes:
+        approximation_degree (int): The degree for the sigmoid approximation. Default: 28.
         approximation_interval_max (float): The higher bound for the approximation. The features must respect it.
             Default: 8.0.
         approximation_interval_min (float): The lower bound for the approximation. The features must respect it.
             Default: -8.0.
-        approximation_degree (int): The degree for the sigmoid approximation. Default: 28.
     """
 
+    approximation_degree: int = 28
     approximation_interval_max: float = 8.0
     approximation_interval_min: float = -8.0
-    approximation_degree: int = 28
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        approximation_degree = self.approximation_degree
         approximation_interval_max = self.approximation_interval_max
         approximation_interval_min = self.approximation_interval_min
-        approximation_degree = self.approximation_degree
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
+                "approximationDegree": approximation_degree,
                 "approximationIntervalMax": approximation_interval_max,
                 "approximationIntervalMin": approximation_interval_min,
-                "approximationDegree": approximation_degree,
             }
         )
 
@@ -42,16 +42,16 @@ class ApproximationParams:
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
+        approximation_degree = d.pop("approximationDegree")
+
         approximation_interval_max = d.pop("approximationIntervalMax")
 
         approximation_interval_min = d.pop("approximationIntervalMin")
 
-        approximation_degree = d.pop("approximationDegree")
-
         approximation_params = cls(
+            approximation_degree=approximation_degree,
             approximation_interval_max=approximation_interval_max,
             approximation_interval_min=approximation_interval_min,
-            approximation_degree=approximation_degree,
         )
 
         approximation_params.additional_properties = d

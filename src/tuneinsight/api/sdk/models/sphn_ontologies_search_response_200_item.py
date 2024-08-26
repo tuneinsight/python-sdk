@@ -17,10 +17,12 @@ class SphnOntologiesSearchResponse200Item:
     Attributes:
         ontology (Union[Unset, str]):
         results (Union[Unset, List['SphnOntologySearchResult']]):
+        total (Union[Unset, int]):
     """
 
     ontology: Union[Unset, str] = UNSET
     results: Union[Unset, List["SphnOntologySearchResult"]] = UNSET
+    total: Union[Unset, int] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -33,6 +35,8 @@ class SphnOntologiesSearchResponse200Item:
 
                 results.append(results_item)
 
+        total = self.total
+
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
@@ -40,6 +44,8 @@ class SphnOntologiesSearchResponse200Item:
             field_dict["ontology"] = ontology
         if results is not UNSET:
             field_dict["results"] = results
+        if total is not UNSET:
+            field_dict["total"] = total
 
         return field_dict
 
@@ -57,9 +63,12 @@ class SphnOntologiesSearchResponse200Item:
 
             results.append(results_item)
 
+        total = d.pop("total", UNSET)
+
         sphn_ontologies_search_response_200_item = cls(
             ontology=ontology,
             results=results,
+            total=total,
         )
 
         sphn_ontologies_search_response_200_item.additional_properties = d

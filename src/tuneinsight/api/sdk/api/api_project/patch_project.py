@@ -8,7 +8,7 @@ from ...client import Client
 from ...models.error import Error
 from ...models.project import Project
 from ...models.project_definition import ProjectDefinition
-from ...types import Response
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
@@ -16,11 +16,17 @@ def _get_kwargs(
     *,
     client: Client,
     json_body: ProjectDefinition,
+    reset_share_token: Union[Unset, None, bool] = UNSET,
 ) -> Dict[str, Any]:
     url = "{}/projects/{projectId}".format(client.base_url, projectId=project_id)
 
     headers: Dict[str, str] = client.get_headers()
     cookies: Dict[str, Any] = client.get_cookies()
+
+    params: Dict[str, Any] = {}
+    params["resetShareToken"] = reset_share_token
+
+    params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
     json_json_body = json_body.to_dict()
 
@@ -43,6 +49,7 @@ def _get_kwargs(
         "timeout": client.get_timeout(),
         "proxies": proxies,
         "json": json_json_body,
+        "params": params,
     }
 
 
@@ -91,11 +98,13 @@ def sync_detailed(
     *,
     client: Client,
     json_body: ProjectDefinition,
+    reset_share_token: Union[Unset, None, bool] = UNSET,
 ) -> Response[Union[Error, Project]]:
     """Edit a project
 
     Args:
         project_id (str):
+        reset_share_token (Union[Unset, None, bool]):
         json_body (ProjectDefinition):
 
     Raises:
@@ -110,6 +119,7 @@ def sync_detailed(
         project_id=project_id,
         client=client,
         json_body=json_body,
+        reset_share_token=reset_share_token,
     )
 
     response = httpx.request(
@@ -125,11 +135,13 @@ def sync(
     *,
     client: Client,
     json_body: ProjectDefinition,
+    reset_share_token: Union[Unset, None, bool] = UNSET,
 ) -> Optional[Union[Error, Project]]:
     """Edit a project
 
     Args:
         project_id (str):
+        reset_share_token (Union[Unset, None, bool]):
         json_body (ProjectDefinition):
 
     Raises:
@@ -144,6 +156,7 @@ def sync(
         project_id=project_id,
         client=client,
         json_body=json_body,
+        reset_share_token=reset_share_token,
     ).parsed
 
 
@@ -152,11 +165,13 @@ async def asyncio_detailed(
     *,
     client: Client,
     json_body: ProjectDefinition,
+    reset_share_token: Union[Unset, None, bool] = UNSET,
 ) -> Response[Union[Error, Project]]:
     """Edit a project
 
     Args:
         project_id (str):
+        reset_share_token (Union[Unset, None, bool]):
         json_body (ProjectDefinition):
 
     Raises:
@@ -171,6 +186,7 @@ async def asyncio_detailed(
         project_id=project_id,
         client=client,
         json_body=json_body,
+        reset_share_token=reset_share_token,
     )
 
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
@@ -184,11 +200,13 @@ async def asyncio(
     *,
     client: Client,
     json_body: ProjectDefinition,
+    reset_share_token: Union[Unset, None, bool] = UNSET,
 ) -> Optional[Union[Error, Project]]:
     """Edit a project
 
     Args:
         project_id (str):
+        reset_share_token (Union[Unset, None, bool]):
         json_body (ProjectDefinition):
 
     Raises:
@@ -204,5 +222,6 @@ async def asyncio(
             project_id=project_id,
             client=client,
             json_body=json_body,
+            reset_share_token=reset_share_token,
         )
     ).parsed

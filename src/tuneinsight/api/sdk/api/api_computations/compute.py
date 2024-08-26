@@ -11,7 +11,6 @@ from ...models.collective_key_gen import CollectiveKeyGen
 from ...models.collective_key_switch import CollectiveKeySwitch
 from ...models.computation import Computation
 from ...models.dataset_statistics import DatasetStatistics
-from ...models.distributed_join import DistributedJoin
 from ...models.dummy import Dummy
 from ...models.encrypted_aggregation import EncryptedAggregation
 from ...models.encrypted_mean import EncryptedMean
@@ -25,7 +24,6 @@ from ...models.private_search import PrivateSearch
 from ...models.private_search_setup import PrivateSearchSetup
 from ...models.relin_key_gen import RelinKeyGen
 from ...models.rot_key_gen import RotKeyGen
-from ...models.sample_extraction import SampleExtraction
 from ...models.set_intersection import SetIntersection
 from ...models.setup_session import SetupSession
 from ...models.survival_aggregation import SurvivalAggregation
@@ -42,7 +40,6 @@ def _get_kwargs(
         "CollectiveKeyGen",
         "CollectiveKeySwitch",
         "DatasetStatistics",
-        "DistributedJoin",
         "Dummy",
         "EncryptedAggregation",
         "EncryptedMean",
@@ -55,7 +52,6 @@ def _get_kwargs(
         "PrivateSearchSetup",
         "RelinKeyGen",
         "RotKeyGen",
-        "SampleExtraction",
         "SetIntersection",
         "SetupSession",
         "SurvivalAggregation",
@@ -109,12 +105,6 @@ def _get_kwargs(
         json_json_body = json_body.to_dict()
 
     elif isinstance(json_body, SetupSession):
-        json_json_body = json_body.to_dict()
-
-    elif isinstance(json_body, DistributedJoin):
-        json_json_body = json_body.to_dict()
-
-    elif isinstance(json_body, SampleExtraction):
         json_json_body = json_body.to_dict()
 
     elif isinstance(json_body, GWAS):
@@ -205,7 +195,6 @@ def sync_detailed(
         "CollectiveKeyGen",
         "CollectiveKeySwitch",
         "DatasetStatistics",
-        "DistributedJoin",
         "Dummy",
         "EncryptedAggregation",
         "EncryptedMean",
@@ -218,7 +207,6 @@ def sync_detailed(
         "PrivateSearchSetup",
         "RelinKeyGen",
         "RotKeyGen",
-        "SampleExtraction",
         "SetIntersection",
         "SetupSession",
         "SurvivalAggregation",
@@ -229,11 +217,11 @@ def sync_detailed(
 
     Args:
         json_body (Union['AggregatedDatasetLength', 'Bootstrap', 'CollectiveKeyGen',
-            'CollectiveKeySwitch', 'DatasetStatistics', 'DistributedJoin', 'Dummy',
-            'EncryptedAggregation', 'EncryptedMean', 'EncryptedPrediction', 'EncryptedRegression',
-            'GWAS', 'HybridFL', 'KeySwitchedComputation', 'PrivateSearch', 'PrivateSearchSetup',
-            'RelinKeyGen', 'RotKeyGen', 'SampleExtraction', 'SetIntersection', 'SetupSession',
-            'SurvivalAggregation', 'VBinnedAggregation']):
+            'CollectiveKeySwitch', 'DatasetStatistics', 'Dummy', 'EncryptedAggregation',
+            'EncryptedMean', 'EncryptedPrediction', 'EncryptedRegression', 'GWAS', 'HybridFL',
+            'KeySwitchedComputation', 'PrivateSearch', 'PrivateSearchSetup', 'RelinKeyGen',
+            'RotKeyGen', 'SetIntersection', 'SetupSession', 'SurvivalAggregation',
+            'VBinnedAggregation']):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -265,7 +253,6 @@ def sync(
         "CollectiveKeyGen",
         "CollectiveKeySwitch",
         "DatasetStatistics",
-        "DistributedJoin",
         "Dummy",
         "EncryptedAggregation",
         "EncryptedMean",
@@ -278,7 +265,6 @@ def sync(
         "PrivateSearchSetup",
         "RelinKeyGen",
         "RotKeyGen",
-        "SampleExtraction",
         "SetIntersection",
         "SetupSession",
         "SurvivalAggregation",
@@ -289,11 +275,11 @@ def sync(
 
     Args:
         json_body (Union['AggregatedDatasetLength', 'Bootstrap', 'CollectiveKeyGen',
-            'CollectiveKeySwitch', 'DatasetStatistics', 'DistributedJoin', 'Dummy',
-            'EncryptedAggregation', 'EncryptedMean', 'EncryptedPrediction', 'EncryptedRegression',
-            'GWAS', 'HybridFL', 'KeySwitchedComputation', 'PrivateSearch', 'PrivateSearchSetup',
-            'RelinKeyGen', 'RotKeyGen', 'SampleExtraction', 'SetIntersection', 'SetupSession',
-            'SurvivalAggregation', 'VBinnedAggregation']):
+            'CollectiveKeySwitch', 'DatasetStatistics', 'Dummy', 'EncryptedAggregation',
+            'EncryptedMean', 'EncryptedPrediction', 'EncryptedRegression', 'GWAS', 'HybridFL',
+            'KeySwitchedComputation', 'PrivateSearch', 'PrivateSearchSetup', 'RelinKeyGen',
+            'RotKeyGen', 'SetIntersection', 'SetupSession', 'SurvivalAggregation',
+            'VBinnedAggregation']):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -318,7 +304,6 @@ async def asyncio_detailed(
         "CollectiveKeyGen",
         "CollectiveKeySwitch",
         "DatasetStatistics",
-        "DistributedJoin",
         "Dummy",
         "EncryptedAggregation",
         "EncryptedMean",
@@ -331,7 +316,6 @@ async def asyncio_detailed(
         "PrivateSearchSetup",
         "RelinKeyGen",
         "RotKeyGen",
-        "SampleExtraction",
         "SetIntersection",
         "SetupSession",
         "SurvivalAggregation",
@@ -342,11 +326,11 @@ async def asyncio_detailed(
 
     Args:
         json_body (Union['AggregatedDatasetLength', 'Bootstrap', 'CollectiveKeyGen',
-            'CollectiveKeySwitch', 'DatasetStatistics', 'DistributedJoin', 'Dummy',
-            'EncryptedAggregation', 'EncryptedMean', 'EncryptedPrediction', 'EncryptedRegression',
-            'GWAS', 'HybridFL', 'KeySwitchedComputation', 'PrivateSearch', 'PrivateSearchSetup',
-            'RelinKeyGen', 'RotKeyGen', 'SampleExtraction', 'SetIntersection', 'SetupSession',
-            'SurvivalAggregation', 'VBinnedAggregation']):
+            'CollectiveKeySwitch', 'DatasetStatistics', 'Dummy', 'EncryptedAggregation',
+            'EncryptedMean', 'EncryptedPrediction', 'EncryptedRegression', 'GWAS', 'HybridFL',
+            'KeySwitchedComputation', 'PrivateSearch', 'PrivateSearchSetup', 'RelinKeyGen',
+            'RotKeyGen', 'SetIntersection', 'SetupSession', 'SurvivalAggregation',
+            'VBinnedAggregation']):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -376,7 +360,6 @@ async def asyncio(
         "CollectiveKeyGen",
         "CollectiveKeySwitch",
         "DatasetStatistics",
-        "DistributedJoin",
         "Dummy",
         "EncryptedAggregation",
         "EncryptedMean",
@@ -389,7 +372,6 @@ async def asyncio(
         "PrivateSearchSetup",
         "RelinKeyGen",
         "RotKeyGen",
-        "SampleExtraction",
         "SetIntersection",
         "SetupSession",
         "SurvivalAggregation",
@@ -400,11 +382,11 @@ async def asyncio(
 
     Args:
         json_body (Union['AggregatedDatasetLength', 'Bootstrap', 'CollectiveKeyGen',
-            'CollectiveKeySwitch', 'DatasetStatistics', 'DistributedJoin', 'Dummy',
-            'EncryptedAggregation', 'EncryptedMean', 'EncryptedPrediction', 'EncryptedRegression',
-            'GWAS', 'HybridFL', 'KeySwitchedComputation', 'PrivateSearch', 'PrivateSearchSetup',
-            'RelinKeyGen', 'RotKeyGen', 'SampleExtraction', 'SetIntersection', 'SetupSession',
-            'SurvivalAggregation', 'VBinnedAggregation']):
+            'CollectiveKeySwitch', 'DatasetStatistics', 'Dummy', 'EncryptedAggregation',
+            'EncryptedMean', 'EncryptedPrediction', 'EncryptedRegression', 'GWAS', 'HybridFL',
+            'KeySwitchedComputation', 'PrivateSearch', 'PrivateSearchSetup', 'RelinKeyGen',
+            'RotKeyGen', 'SetIntersection', 'SetupSession', 'SurvivalAggregation',
+            'VBinnedAggregation']):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
