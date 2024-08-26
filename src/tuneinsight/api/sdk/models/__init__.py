@@ -11,12 +11,15 @@ from .apply_reg_ex_regex_type import ApplyRegExRegexType
 from .approximation_params import ApproximationParams
 from .as_type import AsType
 from .as_type_type_map import AsTypeTypeMap
+from .authorization_contract import AuthorizationContract
 from .authorization_status import AuthorizationStatus
+from .authorized_column import AuthorizedColumn
 from .backup_definition import BackupDefinition
 from .backup_type import BackupType
 from .binning_parameters import BinningParameters
 from .binning_parameters_method import BinningParametersMethod
 from .bootstrap import Bootstrap
+from .capability import Capability
 from .categorical_column import CategoricalColumn
 from .ciphertable import Ciphertable
 from .client import Client
@@ -34,7 +37,6 @@ from .comparison_type import ComparisonType
 from .computation import Computation
 from .computation_data_source_parameters import ComputationDataSourceParameters
 from .computation_definition import ComputationDefinition
-from .computation_definition_input_clipping_method import ComputationDefinitionInputClippingMethod
 from .computation_error import ComputationError
 from .computation_error_type import ComputationErrorType
 from .computation_list_response import ComputationListResponse
@@ -78,7 +80,6 @@ from .dataset_schema_columns import DatasetSchemaColumns
 from .dataset_statistics import DatasetStatistics
 from .dataset_validation import DatasetValidation
 from .deviation_squares import DeviationSquares
-from .distributed_join import DistributedJoin
 from .documentation_response_200 import DocumentationResponse200
 from .dp_policy import DPPolicy
 from .drop import Drop
@@ -189,6 +190,7 @@ from .project_base import ProjectBase
 from .project_computation import ProjectComputation
 from .project_definition import ProjectDefinition
 from .project_participant_status import ProjectParticipantStatus
+from .project_specification import ProjectSpecification
 from .project_status import ProjectStatus
 from .project_step_item import ProjectStepItem
 from .protocol_definition import ProtocolDefinition
@@ -217,7 +219,6 @@ from .rot_key_gen_rotations_item import RotKeyGenRotationsItem
 from .run_mode import RunMode
 from .run_project_parameters import RunProjectParameters
 from .s3_parameters import S3Parameters
-from .sample_extraction import SampleExtraction
 from .select import Select
 from .session import Session
 from .session_definition import SessionDefinition
@@ -241,6 +242,7 @@ from .string_matrix import StringMatrix
 from .survival import Survival
 from .survival_aggregation import SurvivalAggregation
 from .survival_aggregation_subgroups_item import SurvivalAggregationSubgroupsItem
+from .task_progress import TaskProgress
 from .threshold import Threshold
 from .threshold_type import ThresholdType
 from .time_diff import TimeDiff
@@ -256,6 +258,7 @@ from .user_definition_client_roles import UserDefinitionClientRoles
 from .user_definition_disableable_credential_types_item import UserDefinitionDisableableCredentialTypesItem
 from .user_list_query import UserListQuery
 from .v_binned_aggregation import VBinnedAggregation
+from .whitelisted_query import WhitelistedQuery
 from .workflow_item import WorkflowItem
 from .workflow_item_data import WorkflowItemData
 from .workflow_item_position import WorkflowItemPosition
@@ -273,12 +276,15 @@ __all__ = (
     "ApproximationParams",
     "AsType",
     "AsTypeTypeMap",
+    "AuthorizationContract",
     "AuthorizationStatus",
+    "AuthorizedColumn",
     "BackupDefinition",
     "BackupType",
     "BinningParameters",
     "BinningParametersMethod",
     "Bootstrap",
+    "Capability",
     "CategoricalColumn",
     "Ciphertable",
     "Client",
@@ -296,7 +302,6 @@ __all__ = (
     "Computation",
     "ComputationDataSourceParameters",
     "ComputationDefinition",
-    "ComputationDefinitionInputClippingMethod",
     "ComputationError",
     "ComputationErrorType",
     "ComputationListResponse",
@@ -338,7 +343,6 @@ __all__ = (
     "DataSourceType",
     "DataSourceTypesInfo",
     "DeviationSquares",
-    "DistributedJoin",
     "DocumentationResponse200",
     "DPPolicy",
     "Drop",
@@ -449,6 +453,7 @@ __all__ = (
     "ProjectComputation",
     "ProjectDefinition",
     "ProjectParticipantStatus",
+    "ProjectSpecification",
     "ProjectStatus",
     "ProjectStepItem",
     "ProtocolDefinition",
@@ -477,7 +482,6 @@ __all__ = (
     "RunMode",
     "RunProjectParameters",
     "S3Parameters",
-    "SampleExtraction",
     "Select",
     "Session",
     "SessionDefinition",
@@ -501,6 +505,7 @@ __all__ = (
     "Survival",
     "SurvivalAggregation",
     "SurvivalAggregationSubgroupsItem",
+    "TaskProgress",
     "Threshold",
     "ThresholdType",
     "TimeDiff",
@@ -516,6 +521,7 @@ __all__ = (
     "UserDefinitionDisableableCredentialTypesItem",
     "UserListQuery",
     "VBinnedAggregation",
+    "WhitelistedQuery",
     "WorkflowItem",
     "WorkflowItemData",
     "WorkflowItemPosition",

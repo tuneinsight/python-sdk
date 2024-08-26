@@ -19,10 +19,19 @@ from tuneinsight.api.sdk.types import UNSET, is_set, none_if_unset, false_if_uns
 class MatchingResult(ComputationResult):
     """
     Output of a Matching operation when a cohort is not expected.
+    To use this object as input, use `on_previous_result=this.as_input()` in `Computation.run`.
     """
 
-    def __init__(self, dataobjects):
-        self.data = dataobjects[0].get_dataframe()
+    def __init__(self, results: List[DataContent]):
+        if len(results) == 0:
+            raise ValueError(
+                "No results were sent by the server. Please contact your administrator."
+            )
+        result_dataobject = results[0].get_dataobject()
+        self.encrypted = result_dataobject.encrypted
+        self.data_object = result_dataobject
+        if not self.encrypted:
+            self.data = results[0].get_dataframe()
 
     def add_ratio(self, all_parties: List[str]):
         """
@@ -35,12 +44,29 @@ class MatchingResult(ComputationResult):
             all_parties (List[str]): list of the names of the parties involved in the PSI.
                 This should be a list of valid column names in the underlying dataframe.
         """
+        if self.encrypted:
+            raise AttributeError("add_ratio cannot be called on encrypted results")
         self.data["psi_ratio"] = (
             self.data[all_parties].replace({"true": 1, "false": 0}).mean(axis=1)
         )
 
     def as_table(self) -> pd.DataFrame:
+        if self.encrypted:
+            raise AttributeError("as_table cannot be called on encrypted results")
         return self.data
+
+    def as_input(self) -> models.DataObject:
+        """
+        Returns a reference to the results that can be reused as inputs to computations.
+        ⚠️ WARNING: Not all computations currently support reusing results as input.
+        Computations currently supporting this:
+        - Aggregation
+        - Survival
+
+        Returns:
+            models.DataObject: The remote data object reference.
+        """
+        return self.data_object
 
     def plot(self, title: str = "", x_label: str = "", y_label: str = ""):
         """
@@ -53,6 +79,8 @@ class MatchingResult(ComputationResult):
             x_label (str): plot x label
             y_label (str): plot y label
         """
+        if self.encrypted:
+            raise AttributeError("plot cannot be called on encrypted results.")
         if "psi_ratio" not in self.data.columns:
             raise ValueError(
                 "Columns psi_ratio not found. Run `.add_ratio` (the name of all parties must be provided)."
@@ -103,8 +131,9 @@ class Matching(ModelBasedComputation):
         fuzzy: bool = False,
         fuzzy_columns: Union[str, List[str]] = None,
         local_input: Union[Any, List[Any], pd.DataFrame] = None,
-        cohort: bool = False,
         hide_origin: bool = False,
+        share_results: bool = False,
+        encrypted_results: bool = False,
     ):
         """
         Creates a Matching computation.
@@ -126,6 +155,13 @@ class Matching(ModelBasedComputation):
 
             hide_origin (bool, optional): If set to True, matches are aggregated across instances before decryption.
               This prevents revealing which instances held matching records.
+
+            share_results (bool,optional): If set to True, then the decrypted matching identifiers are shared with the other participating instances.
+                This is useful when the goal is to reuse the result of the matching in another collective computation, as it ensures that all participants can reuse the result.
+
+            encrypted_results (bool,optional): If set to True, then the matches are not decrypted by the requesting instance. Instead the matches are kept encrypted under a collective key
+                and can be reused to compute statistics over all matching records, without revealing which records have matched.
+                This mode is currently 🧪 experimental: it is subject to change in next versions, and is time-consuming (about 15 minutes per run).
         """
 
         matching_columns, fuzzy_params = self._parse_columns(
@@ -133,11 +169,7 @@ class Matching(ModelBasedComputation):
             fuzzy=fuzzy,
             fuzzy_columns=fuzzy_columns,
         )
-        # Handle the cohort case by setting the output format accordingly.
-        self.cohort = cohort
-        result_format = models.SetIntersectionOutputFormat(
-            "cohort" if cohort else "dataset"
-        )
+        self.encrypted_results = encrypted_results
         # Initialize the computation for these settings.
         super().__init__(
             project,
@@ -145,8 +177,9 @@ class Matching(ModelBasedComputation):
             type=models.ComputationType.SETINTERSECTION,
             matching_columns=[str(c) for c in matching_columns],
             fuzzy_params=fuzzy_params,
-            result_format=result_format,
             hide_matching_origin=hide_origin,
+            encrypted_results=encrypted_results,
+            share_results=share_results,
         )
         self.all_columns = []
         self.all_columns.extend(matching_columns)
@@ -158,39 +191,41 @@ class Matching(ModelBasedComputation):
 
     @classmethod
     def from_model(
-        cls, project: "Project", model: models.SetIntersection
+        cls, project: "Project", model: models.SetIntersection  # type: ignore
     ) -> "Matching":
         """Initializes a Matching computation from its API model."""
         model = models.SetIntersection.from_dict(model.to_dict())
-        comp = Matching(
-            project,
-            columns=none_if_unset(model.matching_columns),
-            fuzzy=is_set(model.fuzzy_params),
-            fuzzy_columns=(
-                model.fuzzy_params.phonetic_columns  # pylint: disable=no-member
-                if is_set(model.fuzzy_params)
-                else None
-            ),
-            cohort=model.result_format == models.SetIntersectionOutputFormat.COHORT,
-            hide_origin=false_if_unset(model.hide_matching_origin),
-        )
+        with project.disable_patch():
+            comp = Matching(
+                project,
+                columns=none_if_unset(model.matching_columns),
+                fuzzy=is_set(model.fuzzy_params),
+                fuzzy_columns=(
+                    model.fuzzy_params.phonetic_columns  # pylint: disable=no-member
+                    if is_set(model.fuzzy_params)
+                    else None
+                ),
+                hide_origin=false_if_unset(model.hide_matching_origin),
+                encrypted_results=model.encrypted_results,
+                share_results=model.share_results,
+            )
         comp._adapt(model)
         return comp
 
     def _process_results(
         self, results: List[DataContent]
     ) -> Union[Cohort, MatchingResult]:
-        """Creates a Cohort or a DataFrame from the output of the computation."""
-        if self.cohort:
-            return Cohort(self.project, cohort_id=results[0].get_id())
+        """Creates a MatchingResult from the output of the computation."""
         return MatchingResult(results)
 
     def _process_encrypted_results(
         self, results: List[DataContent]
-    ) -> Union[Cohort, DataContent]:
-        if self.cohort:
-            return Cohort(self.project, cohort_id=results[0].get_id())
-        return results  # No post-processing otherwise.
+    ) -> Union[Cohort, MatchingResult]:
+        """Creates a MatchingResult from the output of the computation (encrypted)."""
+        return self._process_results(results)
+
+    def _override_model(self, model: models.ComputationDefinition):
+        model.release_results = not self.encrypted_results
 
     @staticmethod
     def _parse_columns(

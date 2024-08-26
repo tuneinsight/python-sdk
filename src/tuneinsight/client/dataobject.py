@@ -94,6 +94,12 @@ class DataContent:
         """
 
     @abstractmethod
+    def get_dataobject(self) -> models.DataObject:
+        """
+        Returns the data object associated with the content.
+        """
+
+    @abstractmethod
     def is_encrypted(self) -> bool:
         """
         Returns whether the content of this object is encrypted.
@@ -147,6 +153,12 @@ class DataContent:
         """
         return self._get_as_type(models.Statistics, models.ContentType.STATISTICS)
 
+    def get_prediction(self) -> models.Prediction:
+        """
+        Returns the content of the dataobject as a models.Prediction, if possible.
+        """
+        return self._get_as_type(models.Prediction, models.ContentType.PREDICTION)
+
     def get_dataframe(self) -> pd.DataFrame:
         """
         Returns the content of the dataobject as a dataframe.
@@ -189,7 +201,7 @@ class DataObject(DataContent):
         data: bytes = None,
     ):
         """
-        Create a data object in the Tune Insight instance.
+        Creates a data object in the Tune Insight instance.
 
         Returns:
             The data object newly created.
@@ -210,6 +222,22 @@ class DataObject(DataContent):
         if data is not None:
             data_object.load_data_from_bytes(data)
         return data_object
+
+    @classmethod
+    def create_from_dataframe(cls, client: Client, data: pd.DataFrame):
+        """
+        Creates a (plaintext) DataObject in the Tune Insight instance from a DataFrame.
+
+        Args:
+            client: the client to connect to the API.
+            data (pd.DataFrame): the data to upload as a Pandas DataFrame.
+
+        """
+        return cls.create(
+            client,
+            do_type=models.DataObjectType.TABLE,
+            data=data.to_csv().encode("utf-8"),
+        )
 
     @classmethod
     def fetch_from_id(cls, dataobject_id: str, client: Client):
@@ -241,6 +269,15 @@ class DataObject(DataContent):
         )
         validate_response(response)
         return response.parsed
+
+    def get_dataobject(self) -> models.DataObject:
+        """
+        Returns the data object model
+
+        Returns:
+            models.DataObject: the data object model
+        """
+        return self.model
 
     def is_encrypted(self) -> bool:
         """
@@ -334,6 +371,17 @@ class Result(DataContent):
     def get_content(self) -> models.Content:
         """Returns the data content of this result."""
         return self.model.content
+
+    def get_dataobject(self) -> models.DataObject:
+        """
+        Returns the data object model associated with this result.
+
+        Returns:
+            models.DataObject: the data object model
+        """
+        return DataObject.fetch_from_id(
+            self.model.result.data_object_id, self.client
+        ).model
 
     def is_encrypted(self) -> bool:
         """

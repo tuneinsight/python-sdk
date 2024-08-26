@@ -1,7 +1,7 @@
 """Classes to interact with datasources in a Tune Insight instance."""
 
 from typing import Any
-from io import StringIO, BytesIO
+from io import BytesIO
 import pandas as pd
 
 from tuneinsight.api.sdk.types import Response
@@ -20,8 +20,8 @@ from tuneinsight.api.sdk.api.api_dataobject import post_data_object
 
 from tuneinsight.client.validation import validate_response
 from tuneinsight.client.dataobject import DataObject
+from tuneinsight.utils.tracking import ProgressTracker, new_task_id
 from tuneinsight.utils.io import generate_dataframe_chunks, generate_csv_records
-from tuneinsight.utils import deprecation
 
 
 class DataSource:
@@ -246,48 +246,6 @@ class DataSource:
         validate_response(response)
         return DataObject(model=response.parsed, client=self.client)
 
-    def upload_csv_data(self, path: str):
-        """
-        Uploads the data in a CSV file to this datasource.
-
-        This reads the contents of a CSV file (at `path` on disk), and uploads them
-        to this datasource (in append mode).
-
-        Args:
-            path (str): path to the CSV file.
-        """
-        deprecation.warn("load_csv_data", "load_data")
-        with open(path, mode="+rb") as f:
-            file_type = File(payload=f, file_name="test")
-            mpd = models.PutDataSourceDataMultipartData(
-                data_source_request_data=file_type
-            )
-            response: Response[models.DataSource] = put_data_source_data.sync_detailed(
-                client=self.client,
-                data_source_id=self.model.id,
-                multipart_data=mpd,
-            )
-            f.close()
-            validate_response(response)
-
-    def upload_dataframe(self, df: pd.DataFrame):
-        """
-        Uploads a dataframe to use as datasource content.
-
-        Args:
-            df (pd.DataFrame): the data to upload.
-        """
-        deprecation.warn("upload_dataframe", "upload_data")
-        f = StringIO(initial_value="")
-        df.to_csv(f, index=False)
-        mpd = models.PutDataSourceDataMultipartData(
-            data_source_request_data_raw=f.getvalue()
-        )
-        response: Response[models.DataSource] = put_data_source_data.sync_detailed(
-            client=self.client, data_source_id=self.model.id, multipart_data=mpd
-        )
-        validate_response(response)
-
     def upload_data(
         self,
         df: pd.DataFrame = None,
@@ -429,6 +387,7 @@ class DataSource:
         name: str = UNSET,
         num_rows: int = UNSET,
         epsilon: float = UNSET,
+        track_progress: bool = False,
     ) -> "DataSource":
         """
         Generates a synthetic dataset that mimics this datasource.
@@ -452,6 +411,7 @@ class DataSource:
                 method with this value of epsilon. The synthetic data produced by this
                 method is guaranteed to be privacy-preserving, but will be less accurate.
                 A good default value is epsilon=1. This will work better with large datasets.
+            track_progress (bool, optional): whether to track the progress of the generation task.
         """
         # If no query is provided, but this datasource has a local query, use it.
         if query is None and self.query_parameters is not None:
@@ -460,6 +420,10 @@ class DataSource:
         # This is a default case that will work for mock data.
         if isinstance(table, Unset) and isinstance(query, Unset):
             table = self.model.name
+        task_id = new_task_id() if track_progress else None
+        if track_progress:
+            tracker = ProgressTracker(task_id)
+            tracker.start_background(self.client)
         response = post_synthetic_dataset.sync_detailed(
             client=self.client,
             data_source_id=self.get_id(),
@@ -468,6 +432,7 @@ class DataSource:
             query=query,
             table_name=name,
             dp_epsilon=epsilon,
+            tracking_id=task_id,
         )
         validate_response(response)
         ds = DataSource(response.parsed, self.client)

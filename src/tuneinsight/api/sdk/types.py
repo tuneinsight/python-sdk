@@ -24,6 +24,11 @@ def is_set(v: Any) -> bool:
     return not is_unset(v)
 
 
+def is_empty(v: Any) -> bool:
+    """Returns whether an API model is either Unset or its to_dict is equal to {}."""
+    return is_unset(v) or len(v.to_dict()) == 0
+
+
 def value_if_unset(v: Any, default: Any) -> Any:
     """If v is Unset, returns the default value. Otherwise returns v unchanged."""
     if is_set(v):

@@ -12,28 +12,22 @@ class ExternalMlHistory:
     """Training history of external ML containing the evolution of the metrics during training
 
     Attributes:
-        start_timestamps (List[List[float]]): Starting timestamps of local training epochs in unix milliseconds
-            timestamps
         end_timestamps (List[List[float]]): Ending timestamps of local training epochs in unix milliseconds timestamps
         metrics (List[str]): Metrics at each round at each local epoch
+        start_timestamps (List[List[float]]): Starting timestamps of local training epochs in unix milliseconds
+            timestamps
         init_metrics (Union[Unset, List[str]]): Metrics at each round before local training
         init_timestamps (Union[Unset, List[float]]): Init timestamps of local training in unix milliseconds timestamps
     """
 
-    start_timestamps: List[List[float]]
     end_timestamps: List[List[float]]
     metrics: List[str]
+    start_timestamps: List[List[float]]
     init_metrics: Union[Unset, List[str]] = UNSET
     init_timestamps: Union[Unset, List[float]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        start_timestamps = []
-        for start_timestamps_item_data in self.start_timestamps:
-            start_timestamps_item = start_timestamps_item_data
-
-            start_timestamps.append(start_timestamps_item)
-
         end_timestamps = []
         for end_timestamps_item_data in self.end_timestamps:
             end_timestamps_item = end_timestamps_item_data
@@ -41,6 +35,12 @@ class ExternalMlHistory:
             end_timestamps.append(end_timestamps_item)
 
         metrics = self.metrics
+
+        start_timestamps = []
+        for start_timestamps_item_data in self.start_timestamps:
+            start_timestamps_item = start_timestamps_item_data
+
+            start_timestamps.append(start_timestamps_item)
 
         init_metrics: Union[Unset, List[str]] = UNSET
         if not isinstance(self.init_metrics, Unset):
@@ -54,9 +54,9 @@ class ExternalMlHistory:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "startTimestamps": start_timestamps,
                 "endTimestamps": end_timestamps,
                 "metrics": metrics,
+                "startTimestamps": start_timestamps,
             }
         )
         if init_metrics is not UNSET:
@@ -69,13 +69,6 @@ class ExternalMlHistory:
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        start_timestamps = []
-        _start_timestamps = d.pop("startTimestamps")
-        for start_timestamps_item_data in _start_timestamps:
-            start_timestamps_item = cast(List[float], start_timestamps_item_data)
-
-            start_timestamps.append(start_timestamps_item)
-
         end_timestamps = []
         _end_timestamps = d.pop("endTimestamps")
         for end_timestamps_item_data in _end_timestamps:
@@ -85,14 +78,21 @@ class ExternalMlHistory:
 
         metrics = cast(List[str], d.pop("metrics"))
 
+        start_timestamps = []
+        _start_timestamps = d.pop("startTimestamps")
+        for start_timestamps_item_data in _start_timestamps:
+            start_timestamps_item = cast(List[float], start_timestamps_item_data)
+
+            start_timestamps.append(start_timestamps_item)
+
         init_metrics = cast(List[str], d.pop("initMetrics", UNSET))
 
         init_timestamps = cast(List[float], d.pop("initTimestamps", UNSET))
 
         external_ml_history = cls(
-            start_timestamps=start_timestamps,
             end_timestamps=end_timestamps,
             metrics=metrics,
+            start_timestamps=start_timestamps,
             init_metrics=init_metrics,
             init_timestamps=init_timestamps,
         )

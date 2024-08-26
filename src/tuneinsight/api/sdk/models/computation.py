@@ -19,72 +19,69 @@ class Computation:
     """Metadata of a computation.
 
     Attributes:
-        status (ComputationStatus): Status of the computation.
-        id (str): Identifier of a computation, unique across all computing nodes.
         definition (ComputationDefinition): Generic computation.
-        results (Union[Unset, List[str]]): Identifier(s) of the resulting data object(s). Available only when the status
-            is completed.
-        started_at (Union[Unset, str]):
-        updated_at (Union[Unset, str]):
+        id (str): Identifier of a computation, unique across all computing nodes.
+        status (ComputationStatus): Status of the computation.
         created_at (Union[Unset, str]):
-        execution_cost (Union[Unset, float]): the cost of the computation when an execution quota has been setup.
-        errors (Union[Unset, List['ComputationError']]): list of errors that occurred during the computation
-        progress (Union[Unset, int]):
-        ended_at (Union[Unset, str]):
-        warnings (Union[Unset, List[str]]): list of warnings that occurred during the computation
         data_source_id (Union[Unset, None, str]): Unique identifier of a data source.
-        project_id (Union[Unset, str]): Unique identifier of a project.
+        description (Union[Unset, str]):
+        egress (Union[Unset, int]): keeps track of the number of bytes sent during a computation to serve as a bandwidth
+            measure
+        ended_at (Union[Unset, str]):
+        errors (Union[Unset, List['ComputationError']]): list of errors that occurred during the computation
+        execution_cost (Union[Unset, float]): the cost of the computation when an execution quota has been setup.
         ingress (Union[Unset, int]): keeps track of the number of bytes received during a computation to serve as a
             bandwidth measure
         local (Union[Unset, bool]):
         measurements (Union[Unset, List['Measurement']]): list of benchmarking measurements done on the computation
         owner (Union[Unset, str]): identifier of the end user that has requested the computation
+        progress (Union[Unset, int]):
+        project_id (Union[Unset, str]): Unique identifier of a project.
         result_id (Union[Unset, str]): Unique identifier of a result.
+        results (Union[Unset, List[str]]): Identifier(s) of the resulting data object(s). Available only when the status
+            is completed.
+        started_at (Union[Unset, str]):
+        updated_at (Union[Unset, str]):
         visible (Union[Unset, bool]): False if the computation is internal and should not be displayed to the user by
             default
-        description (Union[Unset, str]):
-        egress (Union[Unset, int]): keeps track of the number of bytes sent during a computation to serve as a bandwidth
-            measure
+        warnings (Union[Unset, List[str]]): list of warnings that occurred during the computation
     """
 
-    status: ComputationStatus
-    id: str
     definition: "ComputationDefinition"
-    results: Union[Unset, List[str]] = UNSET
-    started_at: Union[Unset, str] = UNSET
-    updated_at: Union[Unset, str] = UNSET
+    id: str
+    status: ComputationStatus
     created_at: Union[Unset, str] = UNSET
-    execution_cost: Union[Unset, float] = UNSET
-    errors: Union[Unset, List["ComputationError"]] = UNSET
-    progress: Union[Unset, int] = UNSET
-    ended_at: Union[Unset, str] = UNSET
-    warnings: Union[Unset, List[str]] = UNSET
     data_source_id: Union[Unset, None, str] = UNSET
-    project_id: Union[Unset, str] = UNSET
+    description: Union[Unset, str] = UNSET
+    egress: Union[Unset, int] = UNSET
+    ended_at: Union[Unset, str] = UNSET
+    errors: Union[Unset, List["ComputationError"]] = UNSET
+    execution_cost: Union[Unset, float] = UNSET
     ingress: Union[Unset, int] = UNSET
     local: Union[Unset, bool] = UNSET
     measurements: Union[Unset, List["Measurement"]] = UNSET
     owner: Union[Unset, str] = UNSET
+    progress: Union[Unset, int] = UNSET
+    project_id: Union[Unset, str] = UNSET
     result_id: Union[Unset, str] = UNSET
+    results: Union[Unset, List[str]] = UNSET
+    started_at: Union[Unset, str] = UNSET
+    updated_at: Union[Unset, str] = UNSET
     visible: Union[Unset, bool] = UNSET
-    description: Union[Unset, str] = UNSET
-    egress: Union[Unset, int] = UNSET
+    warnings: Union[Unset, List[str]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        status = self.status.value
-
-        id = self.id
         definition = self.definition.to_dict()
 
-        results: Union[Unset, List[str]] = UNSET
-        if not isinstance(self.results, Unset):
-            results = self.results
+        id = self.id
+        status = self.status.value
 
-        started_at = self.started_at
-        updated_at = self.updated_at
         created_at = self.created_at
-        execution_cost = self.execution_cost
+        data_source_id = self.data_source_id
+        description = self.description
+        egress = self.egress
+        ended_at = self.ended_at
         errors: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.errors, Unset):
             errors = []
@@ -93,14 +90,7 @@ class Computation:
 
                 errors.append(errors_item)
 
-        progress = self.progress
-        ended_at = self.ended_at
-        warnings: Union[Unset, List[str]] = UNSET
-        if not isinstance(self.warnings, Unset):
-            warnings = self.warnings
-
-        data_source_id = self.data_source_id
-        project_id = self.project_id
+        execution_cost = self.execution_cost
         ingress = self.ingress
         local = self.local
         measurements: Union[Unset, List[Dict[str, Any]]] = UNSET
@@ -112,42 +102,43 @@ class Computation:
                 measurements.append(measurements_item)
 
         owner = self.owner
+        progress = self.progress
+        project_id = self.project_id
         result_id = self.result_id
+        results: Union[Unset, List[str]] = UNSET
+        if not isinstance(self.results, Unset):
+            results = self.results
+
+        started_at = self.started_at
+        updated_at = self.updated_at
         visible = self.visible
-        description = self.description
-        egress = self.egress
+        warnings: Union[Unset, List[str]] = UNSET
+        if not isinstance(self.warnings, Unset):
+            warnings = self.warnings
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "status": status,
-                "id": id,
                 "definition": definition,
+                "id": id,
+                "status": status,
             }
         )
-        if results is not UNSET:
-            field_dict["results"] = results
-        if started_at is not UNSET:
-            field_dict["startedAt"] = started_at
-        if updated_at is not UNSET:
-            field_dict["updatedAt"] = updated_at
         if created_at is not UNSET:
             field_dict["createdAt"] = created_at
-        if execution_cost is not UNSET:
-            field_dict["executionCost"] = execution_cost
-        if errors is not UNSET:
-            field_dict["errors"] = errors
-        if progress is not UNSET:
-            field_dict["progress"] = progress
-        if ended_at is not UNSET:
-            field_dict["endedAt"] = ended_at
-        if warnings is not UNSET:
-            field_dict["warnings"] = warnings
         if data_source_id is not UNSET:
             field_dict["dataSourceId"] = data_source_id
-        if project_id is not UNSET:
-            field_dict["projectId"] = project_id
+        if description is not UNSET:
+            field_dict["description"] = description
+        if egress is not UNSET:
+            field_dict["egress"] = egress
+        if ended_at is not UNSET:
+            field_dict["endedAt"] = ended_at
+        if errors is not UNSET:
+            field_dict["errors"] = errors
+        if execution_cost is not UNSET:
+            field_dict["executionCost"] = execution_cost
         if ingress is not UNSET:
             field_dict["ingress"] = ingress
         if local is not UNSET:
@@ -156,14 +147,22 @@ class Computation:
             field_dict["measurements"] = measurements
         if owner is not UNSET:
             field_dict["owner"] = owner
+        if progress is not UNSET:
+            field_dict["progress"] = progress
+        if project_id is not UNSET:
+            field_dict["projectId"] = project_id
         if result_id is not UNSET:
             field_dict["resultId"] = result_id
+        if results is not UNSET:
+            field_dict["results"] = results
+        if started_at is not UNSET:
+            field_dict["startedAt"] = started_at
+        if updated_at is not UNSET:
+            field_dict["updatedAt"] = updated_at
         if visible is not UNSET:
             field_dict["visible"] = visible
-        if description is not UNSET:
-            field_dict["description"] = description
-        if egress is not UNSET:
-            field_dict["egress"] = egress
+        if warnings is not UNSET:
+            field_dict["warnings"] = warnings
 
         return field_dict
 
@@ -174,21 +173,21 @@ class Computation:
         from ..models.measurement import Measurement
 
         d = src_dict.copy()
-        status = ComputationStatus(d.pop("status"))
+        definition = ComputationDefinition.from_dict(d.pop("definition"))
 
         id = d.pop("id")
 
-        definition = ComputationDefinition.from_dict(d.pop("definition"))
-
-        results = cast(List[str], d.pop("results", UNSET))
-
-        started_at = d.pop("startedAt", UNSET)
-
-        updated_at = d.pop("updatedAt", UNSET)
+        status = ComputationStatus(d.pop("status"))
 
         created_at = d.pop("createdAt", UNSET)
 
-        execution_cost = d.pop("executionCost", UNSET)
+        data_source_id = d.pop("dataSourceId", UNSET)
+
+        description = d.pop("description", UNSET)
+
+        egress = d.pop("egress", UNSET)
+
+        ended_at = d.pop("endedAt", UNSET)
 
         errors = []
         _errors = d.pop("errors", UNSET)
@@ -197,15 +196,7 @@ class Computation:
 
             errors.append(errors_item)
 
-        progress = d.pop("progress", UNSET)
-
-        ended_at = d.pop("endedAt", UNSET)
-
-        warnings = cast(List[str], d.pop("warnings", UNSET))
-
-        data_source_id = d.pop("dataSourceId", UNSET)
-
-        project_id = d.pop("projectId", UNSET)
+        execution_cost = d.pop("executionCost", UNSET)
 
         ingress = d.pop("ingress", UNSET)
 
@@ -220,37 +211,45 @@ class Computation:
 
         owner = d.pop("owner", UNSET)
 
+        progress = d.pop("progress", UNSET)
+
+        project_id = d.pop("projectId", UNSET)
+
         result_id = d.pop("resultId", UNSET)
+
+        results = cast(List[str], d.pop("results", UNSET))
+
+        started_at = d.pop("startedAt", UNSET)
+
+        updated_at = d.pop("updatedAt", UNSET)
 
         visible = d.pop("visible", UNSET)
 
-        description = d.pop("description", UNSET)
-
-        egress = d.pop("egress", UNSET)
+        warnings = cast(List[str], d.pop("warnings", UNSET))
 
         computation = cls(
-            status=status,
-            id=id,
             definition=definition,
-            results=results,
-            started_at=started_at,
-            updated_at=updated_at,
+            id=id,
+            status=status,
             created_at=created_at,
-            execution_cost=execution_cost,
-            errors=errors,
-            progress=progress,
-            ended_at=ended_at,
-            warnings=warnings,
             data_source_id=data_source_id,
-            project_id=project_id,
+            description=description,
+            egress=egress,
+            ended_at=ended_at,
+            errors=errors,
+            execution_cost=execution_cost,
             ingress=ingress,
             local=local,
             measurements=measurements,
             owner=owner,
+            progress=progress,
+            project_id=project_id,
             result_id=result_id,
+            results=results,
+            started_at=started_at,
+            updated_at=updated_at,
             visible=visible,
-            description=description,
-            egress=egress,
+            warnings=warnings,
         )
 
         computation.additional_properties = d

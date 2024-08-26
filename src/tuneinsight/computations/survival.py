@@ -296,14 +296,15 @@ class SurvivalAnalysis(ModelBasedComputation):
                     # All variables should have the same fuzzy value.
                     fuzzy = True
                 matching_columns.append(mc.name)
-        comp = SurvivalAnalysis(
-            project,
-            survival_parameters=SurvivalParameters.from_model(
-                model.survival_parameters
-            ),
-            matching_columns=matching_columns,
-            fuzzy_matching=fuzzy,
-        )
+        with project.disable_patch():
+            comp = SurvivalAnalysis(
+                project,
+                survival_parameters=SurvivalParameters.from_model(
+                    model.survival_parameters
+                ),
+                matching_columns=matching_columns,
+                fuzzy_matching=fuzzy,
+            )
         comp._adapt(model)
         return comp
 

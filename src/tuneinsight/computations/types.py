@@ -18,8 +18,6 @@ from tuneinsight.computations import (
     Statistics,
 )
 
-from tuneinsight.utils import deprecation
-
 
 class Type(Enum):
     """
@@ -32,15 +30,12 @@ class Type(Enum):
     REGRESSION = ct.ENCRYPTEDREGRESSION
     PREDICTION = ct.ENCRYPTEDPREDICTION
     INTERSECTION = ct.SETINTERSECTION
-    JOIN = ct.DISTRIBUTEDJOIN
-    SAMPLE_EXTRACTION = ct.SAMPLEEXTRACTION
     GWAS = ct.GWAS
     SURVIVAL_ANALYSIS = ct.SURVIVALAGGREGATION
     DATASET_STATISTICS = ct.DATASETSTATISTICS
 
     def to_computation_type(self) -> ct:
         # The warning is here, because putting it at top-level causes the diapason import to print a warning.
-        deprecation.warn("computations.types.Type", "api.sdk.models.ComputationType")
         return ct(self.value)
 
 
@@ -51,8 +46,6 @@ displayed_types = {
     Type.REGRESSION: "Regression",
     Type.PREDICTION: "Prediction",
     Type.INTERSECTION: "Private Set Intersection",
-    Type.JOIN: "Secure Join",
-    Type.SAMPLE_EXTRACTION: "Sample Extraction",
     Type.GWAS: "GWAS",
     Type.SURVIVAL_ANALYSIS: "Survival Analysis",
     Type.DATASET_STATISTICS: "Secure Quantiles Computation",

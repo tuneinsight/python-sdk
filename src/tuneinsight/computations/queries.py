@@ -128,10 +128,9 @@ class QueryBuilder:
         params = ComputationDataSourceParameters()
         if self.query_set:
             params.data_source_query = self.global_query
-            params.compound_query = models.DataSourceCompoundQuery()
-            params.compound_query.additional_properties = self.compound_query
-        if len(self.compound_query) == 0:
-            params.compound_disabled = True
+            if self.compound_query:
+                params.compound_query = models.DataSourceCompoundQuery()
+                params.compound_query.additional_properties = self.compound_query
         return params
 
     def set_model(self, model: models.ComputationDataSourceParameters):

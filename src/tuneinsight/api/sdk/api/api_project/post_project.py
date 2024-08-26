@@ -46,6 +46,10 @@ def _get_kwargs(
 
 
 def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[Error, Project]]:
+    if response.status_code == HTTPStatus.OK:
+        response_200 = Project.from_dict(response.json())
+
+        return response_200
     if response.status_code == HTTPStatus.CREATED:
         response_201 = Project.from_dict(response.json())
 

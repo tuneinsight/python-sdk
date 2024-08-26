@@ -19,6 +19,7 @@ def _get_kwargs(
     table_name: Union[Unset, None, str] = UNSET,
     num_rows: Union[Unset, None, int] = UNSET,
     dp_epsilon: Union[Unset, None, float] = UNSET,
+    tracking_id: Union[Unset, None, str] = UNSET,
 ) -> Dict[str, Any]:
     url = "{}/synthetic/dataset".format(client.base_url)
 
@@ -37,6 +38,8 @@ def _get_kwargs(
     params["numRows"] = num_rows
 
     params["dpEpsilon"] = dp_epsilon
+
+    params["trackingId"] = tracking_id
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
@@ -103,6 +106,7 @@ def sync_detailed(
     table_name: Union[Unset, None, str] = UNSET,
     num_rows: Union[Unset, None, int] = UNSET,
     dp_epsilon: Union[Unset, None, float] = UNSET,
+    tracking_id: Union[Unset, None, str] = UNSET,
 ) -> Response[Union[DataSource, Error]]:
     """Request the creation of a synthetic dataset from a real dataset.
 
@@ -113,6 +117,7 @@ def sync_detailed(
         table_name (Union[Unset, None, str]):
         num_rows (Union[Unset, None, int]):
         dp_epsilon (Union[Unset, None, float]):
+        tracking_id (Union[Unset, None, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -130,6 +135,7 @@ def sync_detailed(
         table_name=table_name,
         num_rows=num_rows,
         dp_epsilon=dp_epsilon,
+        tracking_id=tracking_id,
     )
 
     response = httpx.request(
@@ -149,6 +155,7 @@ def sync(
     table_name: Union[Unset, None, str] = UNSET,
     num_rows: Union[Unset, None, int] = UNSET,
     dp_epsilon: Union[Unset, None, float] = UNSET,
+    tracking_id: Union[Unset, None, str] = UNSET,
 ) -> Optional[Union[DataSource, Error]]:
     """Request the creation of a synthetic dataset from a real dataset.
 
@@ -159,6 +166,7 @@ def sync(
         table_name (Union[Unset, None, str]):
         num_rows (Union[Unset, None, int]):
         dp_epsilon (Union[Unset, None, float]):
+        tracking_id (Union[Unset, None, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -176,6 +184,7 @@ def sync(
         table_name=table_name,
         num_rows=num_rows,
         dp_epsilon=dp_epsilon,
+        tracking_id=tracking_id,
     ).parsed
 
 
@@ -188,6 +197,7 @@ async def asyncio_detailed(
     table_name: Union[Unset, None, str] = UNSET,
     num_rows: Union[Unset, None, int] = UNSET,
     dp_epsilon: Union[Unset, None, float] = UNSET,
+    tracking_id: Union[Unset, None, str] = UNSET,
 ) -> Response[Union[DataSource, Error]]:
     """Request the creation of a synthetic dataset from a real dataset.
 
@@ -198,6 +208,7 @@ async def asyncio_detailed(
         table_name (Union[Unset, None, str]):
         num_rows (Union[Unset, None, int]):
         dp_epsilon (Union[Unset, None, float]):
+        tracking_id (Union[Unset, None, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -215,6 +226,7 @@ async def asyncio_detailed(
         table_name=table_name,
         num_rows=num_rows,
         dp_epsilon=dp_epsilon,
+        tracking_id=tracking_id,
     )
 
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
@@ -232,6 +244,7 @@ async def asyncio(
     table_name: Union[Unset, None, str] = UNSET,
     num_rows: Union[Unset, None, int] = UNSET,
     dp_epsilon: Union[Unset, None, float] = UNSET,
+    tracking_id: Union[Unset, None, str] = UNSET,
 ) -> Optional[Union[DataSource, Error]]:
     """Request the creation of a synthetic dataset from a real dataset.
 
@@ -242,6 +255,7 @@ async def asyncio(
         table_name (Union[Unset, None, str]):
         num_rows (Union[Unset, None, int]):
         dp_epsilon (Union[Unset, None, float]):
+        tracking_id (Union[Unset, None, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -260,5 +274,6 @@ async def asyncio(
             table_name=table_name,
             num_rows=num_rows,
             dp_epsilon=dp_epsilon,
+            tracking_id=tracking_id,
         )
     ).parsed

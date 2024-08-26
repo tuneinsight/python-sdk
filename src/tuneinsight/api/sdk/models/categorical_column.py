@@ -12,50 +12,49 @@ class CategoricalColumn:
     """definition of a column in a dataset with categorical data specifying expected values
 
     Attributes:
-        values (Union[Unset, List[str]]): list of string values to find in the column
         name (Union[Unset, str]): name of the column
         other_label (Union[Unset, str]): label to give to values that do not fall into the values array Default:
             'other'.
+        values (Union[Unset, List[str]]): list of string values to find in the column
     """
 
-    values: Union[Unset, List[str]] = UNSET
     name: Union[Unset, str] = UNSET
     other_label: Union[Unset, str] = "other"
+    values: Union[Unset, List[str]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        name = self.name
+        other_label = self.other_label
         values: Union[Unset, List[str]] = UNSET
         if not isinstance(self.values, Unset):
             values = self.values
 
-        name = self.name
-        other_label = self.other_label
-
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if values is not UNSET:
-            field_dict["values"] = values
         if name is not UNSET:
             field_dict["name"] = name
         if other_label is not UNSET:
             field_dict["otherLabel"] = other_label
+        if values is not UNSET:
+            field_dict["values"] = values
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        values = cast(List[str], d.pop("values", UNSET))
-
         name = d.pop("name", UNSET)
 
         other_label = d.pop("otherLabel", UNSET)
 
+        values = cast(List[str], d.pop("values", UNSET))
+
         categorical_column = cls(
-            values=values,
             name=name,
             other_label=other_label,
+            values=values,
         )
 
         categorical_column.additional_properties = d

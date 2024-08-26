@@ -22,59 +22,63 @@ T = TypeVar("T", bound="DataSource")
 class DataSource:
     """
     Attributes:
-        id (Union[Unset, None, str]): Unique identifier of a data source.
         access_scope (Union[Unset, AccessScope]): defines the scope of access given to a resource
+        attributes (Union[Unset, List[str]]): optional list of attributes.
         authorized_users (Union[Unset, List[str]]):
+        clear_if_exists (Union[Unset, bool]): If true and a data source with the same name already exists, delete it.
         configuration (Union[Unset, DataSourceConfig]): data source configuration
         consent_type (Union[Unset, DataSourceConsentType]): Consent type given to the data source.
+        credentials (Union[Unset, Credentials]): The credentials needed to access the data source.
+        id (Union[Unset, None, str]): Unique identifier of a data source.
+        is_mock (Union[Unset, bool]): Whether this datasource contains mock/synthetic data and should not be used in
+            production.
         name (Union[Unset, str]):
         structure_template_json (Union[Unset, DataSourceDefinitionStructureTemplateJSON]): data source's structure
             template (used to determine the query builder structure, if provided)
         type (Union[Unset, DataSourceType]):
-        attributes (Union[Unset, List[str]]): optional list of attributes.
-        clear_if_exists (Union[Unset, bool]): If true and a data source with the same name already exists, delete it.
-        credentials (Union[Unset, Credentials]): The credentials needed to access the data source.
-        is_mock (Union[Unset, bool]): Whether this datasource contains mock/synthetic data and should not be used in
-            production.
+        created_at (Union[Unset, str]):
         metadata (Union[Unset, DataSourceMetadata]): metadata about a datasource
         owner (Union[Unset, str]):
         projects (Union[Unset, List[str]]): ids of connected projects
         selections (Union[Unset, List['LocalDataSelection']]): list of local data selections associated with the data
             source
         updated_at (Union[Unset, str]):
-        created_at (Union[Unset, str]):
     """
 
-    id: Union[Unset, None, str] = UNSET
     access_scope: Union[Unset, AccessScope] = UNSET
+    attributes: Union[Unset, List[str]] = UNSET
     authorized_users: Union[Unset, List[str]] = UNSET
+    clear_if_exists: Union[Unset, bool] = False
     configuration: Union[Unset, "DataSourceConfig"] = UNSET
     consent_type: Union[Unset, DataSourceConsentType] = UNSET
+    credentials: Union[Unset, "Credentials"] = UNSET
+    id: Union[Unset, None, str] = UNSET
+    is_mock: Union[Unset, bool] = UNSET
     name: Union[Unset, str] = UNSET
     structure_template_json: Union[Unset, "DataSourceDefinitionStructureTemplateJSON"] = UNSET
     type: Union[Unset, DataSourceType] = UNSET
-    attributes: Union[Unset, List[str]] = UNSET
-    clear_if_exists: Union[Unset, bool] = False
-    credentials: Union[Unset, "Credentials"] = UNSET
-    is_mock: Union[Unset, bool] = UNSET
+    created_at: Union[Unset, str] = UNSET
     metadata: Union[Unset, "DataSourceMetadata"] = UNSET
     owner: Union[Unset, str] = UNSET
     projects: Union[Unset, List[str]] = UNSET
     selections: Union[Unset, List["LocalDataSelection"]] = UNSET
     updated_at: Union[Unset, str] = UNSET
-    created_at: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        id = self.id
         access_scope: Union[Unset, str] = UNSET
         if not isinstance(self.access_scope, Unset):
             access_scope = self.access_scope.value
+
+        attributes: Union[Unset, List[str]] = UNSET
+        if not isinstance(self.attributes, Unset):
+            attributes = self.attributes
 
         authorized_users: Union[Unset, List[str]] = UNSET
         if not isinstance(self.authorized_users, Unset):
             authorized_users = self.authorized_users
 
+        clear_if_exists = self.clear_if_exists
         configuration: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.configuration, Unset):
             configuration = self.configuration.to_dict()
@@ -83,6 +87,12 @@ class DataSource:
         if not isinstance(self.consent_type, Unset):
             consent_type = self.consent_type.value
 
+        credentials: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.credentials, Unset):
+            credentials = self.credentials.to_dict()
+
+        id = self.id
+        is_mock = self.is_mock
         name = self.name
         structure_template_json: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.structure_template_json, Unset):
@@ -92,16 +102,7 @@ class DataSource:
         if not isinstance(self.type, Unset):
             type = self.type.value
 
-        attributes: Union[Unset, List[str]] = UNSET
-        if not isinstance(self.attributes, Unset):
-            attributes = self.attributes
-
-        clear_if_exists = self.clear_if_exists
-        credentials: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.credentials, Unset):
-            credentials = self.credentials.to_dict()
-
-        is_mock = self.is_mock
+        created_at = self.created_at
         metadata: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.metadata, Unset):
             metadata = self.metadata.to_dict()
@@ -120,35 +121,36 @@ class DataSource:
                 selections.append(selections_item)
 
         updated_at = self.updated_at
-        created_at = self.created_at
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if id is not UNSET:
-            field_dict["id"] = id
         if access_scope is not UNSET:
             field_dict["accessScope"] = access_scope
+        if attributes is not UNSET:
+            field_dict["attributes"] = attributes
         if authorized_users is not UNSET:
             field_dict["authorizedUsers"] = authorized_users
+        if clear_if_exists is not UNSET:
+            field_dict["clearIfExists"] = clear_if_exists
         if configuration is not UNSET:
             field_dict["configuration"] = configuration
         if consent_type is not UNSET:
             field_dict["consentType"] = consent_type
+        if credentials is not UNSET:
+            field_dict["credentials"] = credentials
+        if id is not UNSET:
+            field_dict["id"] = id
+        if is_mock is not UNSET:
+            field_dict["isMock"] = is_mock
         if name is not UNSET:
             field_dict["name"] = name
         if structure_template_json is not UNSET:
             field_dict["structureTemplateJSON"] = structure_template_json
         if type is not UNSET:
             field_dict["type"] = type
-        if attributes is not UNSET:
-            field_dict["attributes"] = attributes
-        if clear_if_exists is not UNSET:
-            field_dict["clearIfExists"] = clear_if_exists
-        if credentials is not UNSET:
-            field_dict["credentials"] = credentials
-        if is_mock is not UNSET:
-            field_dict["isMock"] = is_mock
+        if created_at is not UNSET:
+            field_dict["createdAt"] = created_at
         if metadata is not UNSET:
             field_dict["metadata"] = metadata
         if owner is not UNSET:
@@ -159,8 +161,6 @@ class DataSource:
             field_dict["selections"] = selections
         if updated_at is not UNSET:
             field_dict["updatedAt"] = updated_at
-        if created_at is not UNSET:
-            field_dict["createdAt"] = created_at
 
         return field_dict
 
@@ -173,8 +173,6 @@ class DataSource:
         from ..models.local_data_selection import LocalDataSelection
 
         d = src_dict.copy()
-        id = d.pop("id", UNSET)
-
         _access_scope = d.pop("accessScope", UNSET)
         access_scope: Union[Unset, AccessScope]
         if isinstance(_access_scope, Unset):
@@ -182,7 +180,11 @@ class DataSource:
         else:
             access_scope = AccessScope(_access_scope)
 
+        attributes = cast(List[str], d.pop("attributes", UNSET))
+
         authorized_users = cast(List[str], d.pop("authorizedUsers", UNSET))
+
+        clear_if_exists = d.pop("clearIfExists", UNSET)
 
         _configuration = d.pop("configuration", UNSET)
         configuration: Union[Unset, DataSourceConfig]
@@ -197,6 +199,17 @@ class DataSource:
             consent_type = UNSET
         else:
             consent_type = DataSourceConsentType(_consent_type)
+
+        _credentials = d.pop("credentials", UNSET)
+        credentials: Union[Unset, Credentials]
+        if isinstance(_credentials, Unset):
+            credentials = UNSET
+        else:
+            credentials = Credentials.from_dict(_credentials)
+
+        id = d.pop("id", UNSET)
+
+        is_mock = d.pop("isMock", UNSET)
 
         name = d.pop("name", UNSET)
 
@@ -214,18 +227,7 @@ class DataSource:
         else:
             type = DataSourceType(_type)
 
-        attributes = cast(List[str], d.pop("attributes", UNSET))
-
-        clear_if_exists = d.pop("clearIfExists", UNSET)
-
-        _credentials = d.pop("credentials", UNSET)
-        credentials: Union[Unset, Credentials]
-        if isinstance(_credentials, Unset):
-            credentials = UNSET
-        else:
-            credentials = Credentials.from_dict(_credentials)
-
-        is_mock = d.pop("isMock", UNSET)
+        created_at = d.pop("createdAt", UNSET)
 
         _metadata = d.pop("metadata", UNSET)
         metadata: Union[Unset, DataSourceMetadata]
@@ -247,27 +249,25 @@ class DataSource:
 
         updated_at = d.pop("updatedAt", UNSET)
 
-        created_at = d.pop("createdAt", UNSET)
-
         data_source = cls(
-            id=id,
             access_scope=access_scope,
+            attributes=attributes,
             authorized_users=authorized_users,
+            clear_if_exists=clear_if_exists,
             configuration=configuration,
             consent_type=consent_type,
+            credentials=credentials,
+            id=id,
+            is_mock=is_mock,
             name=name,
             structure_template_json=structure_template_json,
             type=type,
-            attributes=attributes,
-            clear_if_exists=clear_if_exists,
-            credentials=credentials,
-            is_mock=is_mock,
+            created_at=created_at,
             metadata=metadata,
             owner=owner,
             projects=projects,
             selections=selections,
             updated_at=updated_at,
-            created_at=created_at,
         )
 
         data_source.additional_properties = d

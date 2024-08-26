@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
@@ -9,6 +9,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.node import Node
+    from ..models.user import User
 
 
 T = TypeVar("T", bound="Network")
@@ -27,7 +28,7 @@ class Network:
             (does not apply to projects)
         topology (Union[Unset, Topology]): Network Topologies. 'star' or 'tree'. In star topology all nodes are
             connected to a central node. In tree topology all nodes are connected and aware of each other.
-        users (Union[Unset, List[str]]): list of users in the network
+        users (Union[Unset, List['User']]): list of users in the network
         visibility_type (Union[Unset, NetworkVisibilityType]): represents the type of visibility leaf nodes have in a
             network
     """
@@ -37,7 +38,7 @@ class Network:
     nodes: Union[Unset, List["Node"]] = UNSET
     restricted: Union[Unset, None, bool] = UNSET
     topology: Union[Unset, Topology] = UNSET
-    users: Union[Unset, List[str]] = UNSET
+    users: Union[Unset, List["User"]] = UNSET
     visibility_type: Union[Unset, NetworkVisibilityType] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -60,9 +61,13 @@ class Network:
         if not isinstance(self.topology, Unset):
             topology = self.topology.value
 
-        users: Union[Unset, List[str]] = UNSET
+        users: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.users, Unset):
-            users = self.users
+            users = []
+            for users_item_data in self.users:
+                users_item = users_item_data.to_dict()
+
+                users.append(users_item)
 
         visibility_type: Union[Unset, str] = UNSET
         if not isinstance(self.visibility_type, Unset):
@@ -91,6 +96,7 @@ class Network:
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         from ..models.node import Node
+        from ..models.user import User
 
         d = src_dict.copy()
         name = d.pop("name", UNSET)
@@ -118,7 +124,12 @@ class Network:
         else:
             topology = Topology(_topology)
 
-        users = cast(List[str], d.pop("users", UNSET))
+        users = []
+        _users = d.pop("users", UNSET)
+        for users_item_data in _users or []:
+            users_item = User.from_dict(users_item_data)
+
+            users.append(users_item)
 
         _visibility_type = d.pop("visibilityType", UNSET)
         visibility_type: Union[Unset, NetworkVisibilityType]

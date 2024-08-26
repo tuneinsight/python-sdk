@@ -72,14 +72,15 @@ class EncryptedMean(ModelBasedComputation):
     ) -> "EncryptedMean":
         """Initializes an EncryptedMean from its API model."""
         model = models.EncryptedMean.from_dict(model.to_dict())
-        comp = cls(
-            project,
-            variables=model.variables,
-            participant=model.participant,
-            grouping_keys=model.grouping_keys,
-            min_participants=value_if_unset(model.min_participants, 5),
-            outlier_threshold=value_if_unset(model.outlier_threshold, 2),
-        )
+        with project.disable_patch():
+            comp = cls(
+                project,
+                variables=model.variables,
+                participant=model.participant,
+                grouping_keys=model.grouping_keys,
+                min_participants=value_if_unset(model.min_participants, 5),
+                outlier_threshold=value_if_unset(model.outlier_threshold, 2),
+            )
         comp._adapt(model)
         return comp
 

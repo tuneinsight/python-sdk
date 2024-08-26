@@ -6,6 +6,7 @@ class SphnOntologiesSearchOntologiesItem(str, Enum):
     ATC = "ATC"
     LOINC = "LOINC"
     CHOP = "CHOP"
+    SNOMED = "SNOMED"
 
     def __str__(self) -> str:
         return str(self.value)

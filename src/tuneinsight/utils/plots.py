@@ -143,7 +143,7 @@ def add_ti_branding(axis: plt.Axes, local=False):
         )
 
     logo = Image.open(HERE + "/graphical/TuneInsight_logo.png")
-    rsize = logo.resize((np.array(logo.size) / 4).astype(int))
+    rsize = logo.resize(tuple((np.array(logo.size) / 4).astype(int)))
 
     axis.figure.figimage(
         rsize,

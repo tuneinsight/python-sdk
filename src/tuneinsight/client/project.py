@@ -1,6 +1,7 @@
 """Classes to interact with Tune Insight projects."""
 
-from typing import List, Tuple, Union, Any
+from contextlib import contextmanager
+from typing import Dict, List, Tuple, Union, Any
 import warnings
 
 from dateutil.parser import isoparse
@@ -11,14 +12,14 @@ import pandas as pd
 from tuneinsight.api.sdk.types import UNSET, is_set, is_unset
 from tuneinsight.api.sdk.types import Response
 from tuneinsight.api.sdk import models
-from tuneinsight.api.sdk.models import ComputationType as Type
-from tuneinsight.api.sdk import client as api_client
 from tuneinsight.api.sdk.api.api_project import (
-    patch_project,
-    post_project_computation,
-    get_project,
     delete_project,
+    get_project,
+    patch_project,
+    post_project_authorize,
+    post_project_request_authorization,
 )
+from tuneinsight.api.sdk import client as api_client
 from tuneinsight.api.sdk.api.api_datasource import get_data_source
 from tuneinsight.api.sdk.api.api_computations import documentation
 
@@ -43,7 +44,8 @@ from tuneinsight.client.validation import validate_response
 from tuneinsight.client.datasource import DataSource
 from tuneinsight.computations.local_data_selection import LocalDataSelection
 from tuneinsight.utils.display import Renderer
-from tuneinsight.utils import deprecation
+
+# pylint: disable=too-many-lines
 
 
 @attr.s(auto_attribs=True)
@@ -77,12 +79,36 @@ class Project:
 
     datasource: DataSource = None
 
+    # Internal flag that disables PATCH operations. This is used to make breaking changes
+    # to SDK objects without sending them to the instance. Do not set manually: use
+    # .disable_patch() within a with statement.
+    _disable_patch: bool = False
+
     def __attrs_post_init__(self):
         """Create a datasource object if one is defined in the project model."""
         if is_set(self.model.data_source_id) and self.model.data_source_id:
             self.datasource = DataSource.fetch_from_id(
                 self.client, self.model.data_source_id
             )
+
+    @contextmanager
+    def disable_patch(self):
+        """
+        Disables patching operations on this project within a `with` statement.
+
+        Can be used to make breaking changes to SDK objects without sending them
+        to the instance, such as changing parts of a locked project in several
+        incompatible steps.
+
+        Example:
+            ```
+            with project.disable_patch():
+                # Operatio
+            ```
+        """
+        self._disable_patch = True
+        yield self
+        self._disable_patch = False
 
     # Internal methods.
 
@@ -130,6 +156,19 @@ class Project:
             str: the name of the project.
         """
         return self.model.name
+
+    def get_recurring_parameters(self) -> str:
+        """
+        get_recurring_parameters returns the recurring parameters of the project
+
+        Returns:
+            dict: recurring parameters of the project
+        """
+        return {
+            "start_time": self.model.recurring_start_time,
+            "interval": self.model.recurring_interval,
+            "end_time": self.model.recurring_end_time,
+        }
 
     def get_description(self) -> str:
         """
@@ -200,17 +239,6 @@ class Project:
         return self.model.authorized_users
 
     # Setters for model values.
-
-    def set_computation_type(self, comp_type: Type):
-        """
-        Sets the computation type of the project's computation definition.
-
-        This creates an empty computation definition of the chosen type. Intended for tests.
-
-        """
-        deprecation.warn(".set_computation_type", "the Computation class")
-        definition = models.ComputationDefinition(type=comp_type)
-        self.set_computation(definition)
 
     def set_contribution_status(self, contributes: bool):
         """
@@ -312,7 +340,7 @@ class Project:
         """
         if isinstance(users, str):
             users = [users]
-        already_authorized = self.model.authorized_users
+        already_authorized = self.model.authorized_users or []
         if is_unset(already_authorized):
             already_authorized = []
         # Get the (sorted) list of unique users in the lists.
@@ -341,11 +369,17 @@ class Project:
         Only authorize a project after you have carefully reviewed the computation
         parameters, data query parameters, and policy of this project.
         """
-        self._patch(
-            proj_def=models.ProjectDefinition(
-                authorization_status=models.AuthorizationStatus.AUTHORIZED
-            )
+        if self.get_authorization_status() == models.AuthorizationStatus.AUTHORIZED:
+            raise ValueError("Project already authorized.")
+        model_def = models.ProjectDefinition.from_dict(self.model.to_dict())
+        model_def.participants = UNSET
+        resp = post_project_authorize.sync_detailed(
+            client=self.client,
+            project_id=self.get_id(),
+            json_body=model_def,  # The current version of the project.
+            authorize=True,
         )
+        validate_response(response=resp)
 
     def unauthorize(self):
         """
@@ -353,11 +387,38 @@ class Project:
 
         Other participants will not be able to run collective computations on this project.
         """
-        self._patch(
-            proj_def=models.ProjectDefinition(
-                authorization_status=models.AuthorizationStatus.UNAUTHORIZED
-            )
+        if self.get_authorization_status() == models.AuthorizationStatus.DENIED:
+            raise ValueError("Project authorization already denied.")
+        resp = post_project_authorize.sync_detailed(
+            client=self.client,
+            project_id=self.get_id(),
+            json_body=models.ProjectDefinition(),  # Not required.
+            authorize=False,
         )
+        validate_response(response=resp)
+
+    def request_authorization(self, revoke=False):
+        """
+        Requests authorization to run this project.
+
+        Projects need to be approved by data protection officiers or administrators
+        before they can be run (even locally). This function requests authorization.
+        Once authorization is requested, the project becomes locked according to
+        the authorization contract.
+
+        If revoke is set to True, this revokes a previous authorization request,
+        allowing the project to be modified again.
+
+        Args:
+            revoke (bool, default False): whether to revoke a previous authorization
+                request instead of requesting authorization.
+        """
+        resp = post_project_request_authorization.sync_detailed(
+            client=self.client,
+            project_id=self.get_id(),
+            revoke=revoke,
+        )
+        validate_response(response=resp)
 
     def share(self):
         """
@@ -412,6 +473,30 @@ class Project:
         ds = self.get_input_datasource()
         return ds.get_dataframe(query=query)
 
+    def set_recurring(
+        self,
+        start_time: Union[str, None],
+        interval: Union[int, None],
+        end_time: Union[str, None],
+    ):
+        """
+        set_recurring Sets the project's recurring parameters
+
+        Args:
+            start_time (str): start time (ISO 8601) of the recurring execution
+            end_time (str): end time (ISO 8601) of the recurring execution
+            interval (int): interval of the recurring execution in minutes
+        """
+
+        self._patch(
+            proj_def=models.ProjectDefinition(
+                recurring_start_time=str(start_time),
+                recurring_interval=interval,
+                recurring_end_time=str(end_time),
+                broadcast=True,
+            )
+        )
+
     def get_local_data_selection(self) -> LocalDataSelection:
         """
         Returns the local data selection settings for the project.
@@ -437,26 +522,6 @@ class Project:
         lds = LocalDataSelection(update_func)
         self._refresh()
         return lds
-
-    # Advanced computations interface.
-
-    def run(
-        self,
-    ) -> models.Project:
-        """
-        Runs the computation defined on the project.
-
-        This runs the computation set with self.set_computation.
-
-        Returns:
-            models.Project: Project Computation Created
-        """
-        deprecation.warn("Project.run", "Computation.run")
-        response: Response[models.Project] = post_project_computation.sync_detailed(
-            project_id=self.get_id(), client=self.client, json_body=None
-        )
-        validate_response(response)
-        return response.parsed
 
     # List of all computations that can be created in this project.
 
@@ -852,6 +917,36 @@ class Project:
             next_alloc = quota.next_allocation.strftime("%Y-%m-%d %H:%M:%S %Z%z")
             return quota_val, next_alloc
         return quota_val
+
+    def get_sharing_links(self) -> Dict[str, str]:
+        """
+        Returns sharing links for each instance.
+
+        When a project is shared, only administrators have access to the project.
+        An administrator must then manually add other users to the project.
+        Alternatively, users can be provided with a *sharing link*, that when clicked,
+        will open the web interface and register them to the project.
+
+        Returns:
+            A dictionary mapping instance name to the sharing link for that instance.
+        """
+        if is_unset(self.model.participants):
+            return {}
+        token = self.get_sharing_token()
+        links = {}
+        for participant in self.model.participants:
+            node = participant.node
+            if is_set(node):
+                # For the test development:
+                url = node.url.replace("http://nginx:3100", "http://localhost:4200")
+                links[node.name] = f"{url}/join/{token}"
+        return links
+
+    def get_sharing_token(self) -> str:
+        """Returns the sharing token for this project. See get_sharing_links for more info."""
+        if not self.model.shared:
+            warnings.warn("Project not shared yet: sharing token will not work.")
+        return self.model.share_token
 
     def display_overview(self):
         """
