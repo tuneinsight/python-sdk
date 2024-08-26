@@ -11,38 +11,38 @@ T = TypeVar("T", bound="PostUserResponse201")
 class PostUserResponse201:
     """
     Attributes:
-        id (Union[Unset, str]): User id
         email (Union[Unset, str]): User email
+        id (Union[Unset, str]): User id
     """
 
-    id: Union[Unset, str] = UNSET
     email: Union[Unset, str] = UNSET
+    id: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        id = self.id
         email = self.email
+        id = self.id
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if id is not UNSET:
-            field_dict["id"] = id
         if email is not UNSET:
             field_dict["email"] = email
+        if id is not UNSET:
+            field_dict["id"] = id
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        id = d.pop("id", UNSET)
-
         email = d.pop("email", UNSET)
 
+        id = d.pop("id", UNSET)
+
         post_user_response_201 = cls(
-            id=id,
             email=email,
+            id=id,
         )
 
         post_user_response_201.additional_properties = d

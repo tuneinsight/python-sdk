@@ -16,12 +16,16 @@ class SphnOntologySearchResult:
         code (Union[Unset, str]):
         description (Union[Unset, str]):
         name (Union[Unset, str]):
+        uri (Union[Unset, str]):
+        version (Union[Unset, str]):
     """
 
     breadcrumb: Union[Unset, str] = UNSET
     code: Union[Unset, str] = UNSET
     description: Union[Unset, str] = UNSET
     name: Union[Unset, str] = UNSET
+    uri: Union[Unset, str] = UNSET
+    version: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -29,6 +33,8 @@ class SphnOntologySearchResult:
         code = self.code
         description = self.description
         name = self.name
+        uri = self.uri
+        version = self.version
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -41,6 +47,10 @@ class SphnOntologySearchResult:
             field_dict["description"] = description
         if name is not UNSET:
             field_dict["name"] = name
+        if uri is not UNSET:
+            field_dict["uri"] = uri
+        if version is not UNSET:
+            field_dict["version"] = version
 
         return field_dict
 
@@ -55,11 +65,17 @@ class SphnOntologySearchResult:
 
         name = d.pop("name", UNSET)
 
+        uri = d.pop("uri", UNSET)
+
+        version = d.pop("version", UNSET)
+
         sphn_ontology_search_result = cls(
             breadcrumb=breadcrumb,
             code=code,
             description=description,
             name=name,
+            uri=uri,
+            version=version,
         )
 
         sphn_ontology_search_result.additional_properties = d

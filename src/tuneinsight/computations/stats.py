@@ -162,7 +162,8 @@ class Statistics(ModelBasedComputation):
                     warnings.warn(
                         f"Quantities mismatching between variables (will use {quantities})."
                     )
-        comp = Statistics(project, variables=[], quantities=quantities)
+        with project.disable_patch():
+            comp = Statistics(project, variables=[], quantities=quantities)
         # Add the variables one by one.
         if is_set(conf):
             for variable in conf:

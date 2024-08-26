@@ -16,8 +16,9 @@ import warnings
 import pandas as pd
 
 from tuneinsight.api.sdk import models
-from tuneinsight.api.sdk.types import is_set, is_unset, UNSET
+from tuneinsight.api.sdk.types import is_set, is_unset, is_empty, UNSET
 from tuneinsight.api.sdk.types import Response
+from tuneinsight.api.sdk.models import DataObjectType as InputType
 from tuneinsight.api.sdk.api.api_computations import (
     compute,
     get_computation,
@@ -69,15 +70,15 @@ class Computation(ABC):
     local_input: models.LocalInput
     max_timeout: int
     polling_initial_interval: int
-    aggregation_upper_bound: float
-    clipping_method: str
+    precision: int
+    ignore_boundary_checks: bool
     debug: bool
     # If the computation times out, it is stored so that it can be resumed.
     _timedout_computation: models.Computation = None
     # Output: the result from computations run on the instance.
     recorded_computations: List[models.Computation]
 
-    def __init__(self, project: "Project"):
+    def __init__(self, project: "Project"):  # type: ignore
         """
         Creates a `Computation` for a project.
 
@@ -101,11 +102,14 @@ class Computation(ABC):
         self.local_input = None
         self.recorded_computations = []
         self.max_timeout = 600 * time_tools.SECOND
-        self.aggregation_upper_bound = None
-        self.clipping_method = None
+        self.precision = None
+        self.ignore_boundary_checks = False
         self.debug = False
         # Useful for debugging the post-processing.
         self._last_raw_results = None
+        # Once the parameters are set, set this as a computation in the project.
+        # The project computation will be overwritten at each .run -- this is used for authorization purposes.
+        self.project.set_computation(self.get_full_model())
 
     # Methods to override.
 
@@ -123,6 +127,9 @@ class Computation(ABC):
 
     def _pre_run_check(self):
         """Optional checks before a computation is run. This should raise an error if the checks fail."""
+
+    def _override_model(self, _: models.ComputationDefinition):
+        """Optional model overrides before running the computation"""
 
     def _process_results(self, results: List[DataContent]) -> Any:
         """Post-process the plaintext results of a computation."""
@@ -146,6 +153,28 @@ class Computation(ABC):
             models.ComputationStatus.ERROR,
             models.ComputationStatus.SUCCESS,
         )
+
+    @staticmethod
+    def _validate_input_data(
+        input_data: models.DataObject, model: models.ComputationDefinition, local: bool
+    ):
+        if input_data.type not in [
+            InputType.COHORT,
+            InputType.FLOAT_MATRIX,
+            InputType.TABLE,
+        ]:
+            raise ValueError(f"invalid input type: {input_data.type}.")
+        if input_data.type == InputType.COHORT and model.type not in [
+            models.ComputationType.ENCRYPTEDAGGREGATION,
+            models.ComputationType.GWAS,
+        ]:
+            raise ValueError(
+                f"cohort cannot be used as an input to a {model.type} computation."
+            )
+        if not local and not input_data.shared:
+            raise ValueError(
+                "local object cannot be used as input to a collective computation."
+            )
 
     # This modifies an API model to enforce high-level constraints.
 
@@ -181,29 +210,42 @@ class Computation(ABC):
         Updates the definition of the input computation to have the same basic configuration.
         """
         model.wait = False
+        model.ignore_boundary_checks = self.ignore_boundary_checks
         if not self._field_is_set(model.project_id):
             model.project_id = self.project.get_id()
         model.timeout = int(self.max_timeout / time_tools.SECOND)
         if self.local_input is not None:
             model.local_input = self.local_input
-        if self.clipping_method is not None:
-            model.input_clipping_method = (
-                models.ComputationDefinitionInputClippingMethod(self.clipping_method)
-            )
-        if self.aggregation_upper_bound is not None:
-            model.maximum_aggregated_value = self.aggregation_upper_bound
+        if self.precision is not None:
+            if self.precision < 1 or self.precision > 32:
+                raise ValueError("precision must be set to a value in [1,32]")
+            model.precision = int(round(self.precision))
 
     def _update_computation_preprocessing(self, model: models.ComputationDefinition):
         """
         Updates the definition of the input computation to have the specified preprocessing.
-
-        Args
-            comp (models.ComputationDefinition): the computation to post-process.
         """
         self.preprocessing.check_validity()
         if is_unset(model.preprocessing_parameters):
             model.preprocessing_parameters = models.ComputationPreprocessingParameters()
         model.preprocessing_parameters = self.preprocessing.get_model()
+
+    def _update_computation_from_project(self, model: models.ComputationDefinition):
+        """
+        Updates the definition of the input computation from fields in the project model.
+
+        This applies the local data selection fields of the project, if defined. While this also
+        happens on the server side (so is redundant), this ensures that the computation definitions
+        are consistent between the server and the client.
+
+        """
+        lds = self.project.model.local_data_selection_definition
+
+        if is_set(lds):
+            if is_set(lds.preprocessing) and is_empty(model.preprocessing_parameters):
+                model.preprocessing_parameters = lds.preprocessing
+            if is_set(lds.data_selection) and is_empty(model.data_source_parameters):
+                model.data_source_parameters = lds.data_selection
 
     def get_full_model(self):
         """
@@ -213,6 +255,7 @@ class Computation(ABC):
         self._update_computation_datasource(model)
         self._update_computation_fields(model)
         self._update_computation_preprocessing(model)
+        self._update_computation_from_project(model)
         return model
 
     def display_workflow(self):
@@ -271,24 +314,6 @@ class Computation(ABC):
                 col_list[i] = str(v)
             local_input.additional_properties[str(col)] = col_list
         self.local_input = local_input
-
-    def set_aggregation_bound(self, max_bound: float, clipping_method: str = "error"):
-        """
-        Sets an upper bound on the total aggregated value of the result.
-
-        This is used to choose appropriate aggregation parameters. Out-of-bound values
-        will be treated according to the clipping method (by default, an error is raised).
-
-        Args:
-            max_bound (float): the numerical bound which represents the maximum collective value.
-            clipping_method (str, optional): the method used to treat out of bound values:
-                'error': abort computation,
-                'warning': clip values and issue a warning to the user,
-                'silent': clip without any warning,
-                'none': values are never clipped. Defaults to 'error'.
-        """
-        self.clipping_method = clipping_method
-        self.aggregation_upper_bound = max_bound
 
     def _poll_computation(
         self,
@@ -362,7 +387,7 @@ class Computation(ABC):
 
         return Result.fetch_from_id(result_id, self.client)
 
-    def _launch(self, model, local: bool = False) -> models.Computation:
+    def _launch(self, model: models.ComputationDefinition) -> models.Computation:
         """
         Launches this computation, given its current API model.
 
@@ -372,9 +397,7 @@ class Computation(ABC):
 
         Args
             model (models.ComputationDefinition): The model definition of the computation.
-            local (bool, optional): Whether to run the computation locally or remotely. Defaults to False.
         """
-        model.local = local
         if self.debug:
             print("Launching computation with definition:")
             print(json.dumps(model.to_dict(), indent=4))
@@ -424,6 +447,7 @@ class Computation(ABC):
         release: bool = True,
         interval=100 * time_tools.MILLISECOND,
         max_sleep_time=30 * time_tools.SECOND,
+        on_previous_result: models.DataObject = None,
         resume_timedout: bool = False,
     ) -> Any:
         """
@@ -434,15 +458,20 @@ class Computation(ABC):
 
         Args:
             local (bool, optional): Whether to run the computation locally or remotely. Defaults to False.
-            keyswitch (bool, optional): Whether to perform key switching on the results. Defaults to True.
+            keyswitch (bool, optional): Whether to perform key switching on the results. Defaults to False.
                 [This parameter is deprecated.]
-            decrypt (bool, optional): Whether to request the decryption on the results. Defaults to True.
+            decrypt (bool, optional): Whether to request the decryption on the results. Defaults to False.
                 [This parameter is deprecated.]
             release (bool, optional): Whether to release the results (overrides decrypt/keyswitch).
                 If set, encrypted results are automatically key switched and decrypted and a Result
-                entity is saved. Defaults to False.
+                entity is saved. Defaults to True.
             interval (int, optional): time in nanoseconds to wait between polls.
+
             max_sleep_time (int, optional): maximum total time in nanoseconds to wait.
+
+            on_previous_result (models.DataObject,optional): remote object (usually output from another computation) to use as an input.
+                This overrides the datasource of the project.
+
             resume_timedout (bool, False by default): whether to resume a computation that previously timed
                 out. This will raise an error if the last computation did not time out. When resuming a
                 timed out computation, all current changes to this computation are ignored, but not overwritten.
@@ -459,19 +488,19 @@ class Computation(ABC):
             raise LookupError("The previous computation did not time out.")
 
         # Update the model to reflect high-level parameters (preprocessing etc.).
-        model: models.ComputationDefinition = self.get_full_model()
-        if self.project.end_to_end_encrypted:
-            # If using end-to-end encryption, override other flags.
-            release = True
-        model.release_results = release
+        model: models.ComputationDefinition = self._get_model_before_launch(
+            local, release, on_previous_result
+        )
 
         # Start the computation and wait until it finishes.
         if resume_timedout:
             computation = self._timedout_computation
         else:
-            computation = self._launch(model, local=local)
+            computation = self._launch(model)
 
-        return self.fetch_results(computation, interval, max_sleep_time)
+        results = self.fetch_results(computation, interval, max_sleep_time)
+
+        return results
 
     def fetch_results(
         self,
@@ -496,6 +525,7 @@ class Computation(ABC):
         result: Union[Result, List[DataObject]] = self._poll_computation(
             comp=computation, interval=interval, max_sleep_time=max_sleep_time
         )
+
         # If using end-to-end encryption, decrypt each result.
         if isinstance(result, Result):
             if result.end_to_end_encrypted:
@@ -510,6 +540,31 @@ class Computation(ABC):
             return self._process_encrypted_results(result)
         return self._process_results(result)
 
+    def _get_model_before_launch(
+        self,
+        local: bool = False,
+        release: bool = True,
+        on_previous_result: models.DataObject = None,
+    ) -> models.ComputationDefinition:
+        # Update the model to reflect high-level parameters (preprocessing etc.).
+        model: models.ComputationDefinition = self.get_full_model()
+        if self.project.end_to_end_encrypted:
+            # If using end-to-end encryption, override other flags.
+            release = True
+        model.release_results = release
+        model.local = local
+
+        if on_previous_result is not None:
+            self._validate_input_data(on_previous_result, model, local)
+            if local:
+                model.local_input_id = on_previous_result.unique_id
+            else:
+                model.input_data_object = on_previous_result.unique_id
+
+        # Start the computation and wait until it finishes.
+        self._override_model(model)
+        return model
+
     def key_switch(self, data_object: DataObject) -> DataObject:
         """
         Performs a collective key switch on a data object.
@@ -522,7 +577,7 @@ class Computation(ABC):
 
     @classmethod
     def from_model(
-        cls, project: "Project", model: models.ComputationDefinition
+        cls, project: "Project", model: models.ComputationDefinition  # type: ignore
     ) -> "Computation":
         """Initializes a Computation from its API model."""
         raise NotImplementedError("Use <ComputationClass>.from_model.")
@@ -545,7 +600,7 @@ class ModelBasedComputation(Computation):
 
     def __init__(
         self,
-        project: "Project",
+        project: "Project",  # type: ignore
         model_class,
         type: models.ComputationType,  # pylint: disable=redefined-builtin
         **kwargs,
@@ -561,8 +616,8 @@ class ModelBasedComputation(Computation):
             type: the computation type (required by all API models).
             **kwargs (optional): additional keyword arguments to pass to the model class.
         """
-        super().__init__(project)
         self.model = model_class(type=type, project_id=project.get_id(), **kwargs)
+        super().__init__(project)
         # Check DP compatibility (for now, with a friendly warning).
         if project.is_differentially_private:
             warn_message = (
@@ -614,10 +669,12 @@ class ModelBasedComputation(Computation):
             self.max_timeout = model.timeout * time_tools.SECOND
         if is_set(model.local_input):
             self.local_input = model.local_input
-        if is_set(model.input_clipping_method):
-            self.clipping_method = model.input_clipping_method
-        if is_set(model.maximum_aggregated_value):
-            self.aggregation_upper_bound = model.maximum_aggregated_value
+        if is_set(model.ignore_boundary_checks):
+            self.ignore_boundary_checks = model.ignore_boundary_checks
+        if is_set(model.precision):
+            self.precision = model.precision
+        # Update the computation in the project to send the updates to the .
+        self.project.set_computation(self)
 
     # Interfacing with the model directly: use comp["attr"] = value to set a model value.
 

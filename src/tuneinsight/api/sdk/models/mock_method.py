@@ -9,6 +9,7 @@ class MockMethod(str, Enum):
     PRICES = "prices"
     PERSONS = "persons"
     SKUS = "skus"
+    CYBER_LOGS = "cyber_logs"
     CUSTOM_FUNCTION = "custom_function"
 
     def __str__(self) -> str:

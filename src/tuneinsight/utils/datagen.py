@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 
 from tuneinsight.utils.code import get_code
+from tuneinsight.utils.tracking import ProgressTracker, new_task_id
 from tuneinsight.api.sdk.types import Response
 from tuneinsight.api.sdk import Client
 
@@ -41,6 +42,7 @@ class MockGenerator:
         table_name: str = None,
         seed: str = None,
         clear_if_exists: bool = True,
+        track_progress: bool = False,
     ) -> DataSource:
         """
         Generates a mock dataset.
@@ -51,6 +53,7 @@ class MockGenerator:
             table_name (str, optional): name of the database table to generate.
             seed (str, optional): seed of the pseudo-random number generator.
             clear_if_exists (bool, optional): whether to delete a datasource with the same name (default True).
+            track_progress (bool, optional): whether to track the progress of the generation task
 
         Raises:
             httpx.TimeoutException: If the request takes longer than Client.timeout.
@@ -72,6 +75,12 @@ class MockGenerator:
         else:
             table_name = f"mock_{self.method}"
         config: str = json.dumps(self.get_config())
+        # If required, track progress asynchronously with a progress bar.
+        task_id = new_task_id() if track_progress else None
+        if track_progress:
+            tracker = ProgressTracker(task_id)
+            tracker.start_background(client)
+        # Perform the API call.
         response: Response = post_mock_dataset.sync_detailed(
             client=client,
             json_body=config,
@@ -80,6 +89,7 @@ class MockGenerator:
             numrows=num_rows,
             seed=seed,
             clear_if_exists=clear_if_exists,
+            tracking_id=task_id,
         )
         validate_response(response=response)
         # The response contains the description of the datasource created by the call.
@@ -234,6 +244,34 @@ class PersonsGenerator(MockGenerator):
         MockGenerator.__init__(self, PostMockDatasetMethod.PERSONS)
 
 
+class CyberLogsGenerator(MockGenerator):
+    """Cyber logs generation based on MISP RestSearch API with controlled collision probability.
+
+    This produces mock logs from a network monitoring system. This has the attributes: "ip_src", "ip_dst", "url", "port", "hostname", "mac_address"
+     - ip_src: source IP address (str).
+     - ip_dst: destination IP address (str).
+     - url: source url (str).
+     - port:  source port.
+     - hostname: source hostname.
+     - mac_address: source mac address.
+
+    """
+
+    pool_size: int
+    ipv6_prob: float
+
+    def __init__(self, pool_size: int = 10000, ipv6_prob: float = 0.1):
+        MockGenerator.__init__(self, PostMockDatasetMethod.CYBER_LOGS)
+        self.pool_size = pool_size
+        self.ipv6_prob = ipv6_prob
+
+    def get_config(self) -> dict:
+        return {
+            "pool_size": self.pool_size,
+            "ipv6_prob": self.ipv6_prob,
+        }
+
+
 class CustomFunctionGenerator(MockGenerator):
     """Custom Function Generation
 
@@ -337,18 +375,14 @@ class _AttributeParser:
     FORMAT = {
         TYPE.CONTINUOUS: (
             {"min_value", "max_value"},
-            {
-                "bins",
-            },
+            {"bins", "allow_missing"},
         ),
         TYPE.INTEGER: (
             {"min_value", "max_value"},
-            {
-                "bins",
-            },
+            {"bins", "allow_missing"},
         ),
         TYPE.CATEGORICAL: ({"possible_values"}, set()),
-        TYPE.DATE: ({"start_date", "end_date"}, {"bins", "strformat"}),
+        TYPE.DATE: ({"start_date", "end_date"}, {"bins", "strformat", "allow_missing"}),
         TYPE.IDENTIFIER: ({"pattern"}, set()),
         TYPE.NAME: (set(), {"pattern", "female_proportion", "locale"}),
     }
@@ -407,6 +441,7 @@ class _AttributeParser:
         min_value: float,
         max_value: float,
         bins: Union[int, list] = None,
+        missing: bool = False,
     ):
         """
         Add a continuous-valued attribute to the data description.
@@ -417,6 +452,7 @@ class _AttributeParser:
             min_value: the maximum value that this attribute can take.
             bins (optional, default 10): the extremities of the bins in which to discretize this attribute.
                 If an integer is provided, the domain is divided into `bins` bins of uniform size.
+            missing (optional, default False): whether to generate missing values (NaNs) as well.
 
         The range of this attribute (min and max) is required for the mock generator, which
         discretizes possible values in histogram bins.
@@ -427,10 +463,16 @@ class _AttributeParser:
             min_value=min_value,
             max_value=max_value,
             bins=bins,
+            allow_missing=missing,
         )
 
     def add_integer(
-        self, name: str, min_value: int, max_value: int, bins: Union[int, list] = None
+        self,
+        name: str,
+        min_value: int,
+        max_value: int,
+        bins: Union[int, list] = None,
+        missing: bool = False,
     ):
         """
         Add an integer-valued attribute to the data description.
@@ -441,6 +483,7 @@ class _AttributeParser:
             min_value: the maximum value that this attribute can take.
             bins (optional, default 10): the extremities of the bins in which to group values.
                 If an integer is provided, the domain is divided into `bins` bins of uniform size.
+            missing (optional, default False): whether to generate missing values (NaNs) as well.
 
         Like continuous attributes, the possible values of an integer attribute are grouped
         in consecutive bins. This is to avoid representing distributions with a very large
@@ -452,6 +495,7 @@ class _AttributeParser:
             min_value=min_value,
             max_value=max_value,
             bins=bins,
+            allow_missing=missing,
         )
 
     def add_boolean(self, name: str):
@@ -485,6 +529,7 @@ class _AttributeParser:
         end: str,
         bins: Union[int, List[str]] = None,
         strformat: str = None,
+        missing: bool = False,
     ):
         """
         Add a date column to the data description.
@@ -496,6 +541,7 @@ class _AttributeParser:
             bins (optional, default 10): the extremities of the bins in which to group values.
                 If an integer is provided, the domain is divided into `bins` bins of uniform size.
             strformat (optional, default %Y-%m-%d): a formatting str acceptable by datetime.strptime to represent dates.
+            missing (optional, default False): whether to generate missing values (empty strings "") as well.
         """
         self._add_attribute(
             name,
@@ -504,6 +550,7 @@ class _AttributeParser:
             end_date=end,
             bins=bins,
             strformat=strformat,
+            allow_missing=missing,
         )
 
     def add_identifier(self, name: str, pattern: str):

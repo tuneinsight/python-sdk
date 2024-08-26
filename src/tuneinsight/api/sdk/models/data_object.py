@@ -17,6 +17,7 @@ class DataObject:
         encrypted (Union[Unset, bool]):
         has_data (Union[Unset, bool]): whether the dataobject's data has been set
         session_id (Union[Unset, str]): Unique identifier of a session
+        shared (Union[Unset, bool]): whether the dataobject reference exists for other participants in the project.
         shared_id (Union[Unset, str]): Shared identifier of a data object.
         type (Union[Unset, DataObjectType]): type of the dataobject
         unique_id (Union[Unset, str]): Unique identifier of a data object.
@@ -26,6 +27,7 @@ class DataObject:
     encrypted: Union[Unset, bool] = UNSET
     has_data: Union[Unset, bool] = UNSET
     session_id: Union[Unset, str] = UNSET
+    shared: Union[Unset, bool] = UNSET
     shared_id: Union[Unset, str] = UNSET
     type: Union[Unset, DataObjectType] = UNSET
     unique_id: Union[Unset, str] = UNSET
@@ -36,6 +38,7 @@ class DataObject:
         encrypted = self.encrypted
         has_data = self.has_data
         session_id = self.session_id
+        shared = self.shared
         shared_id = self.shared_id
         type: Union[Unset, str] = UNSET
         if not isinstance(self.type, Unset):
@@ -55,6 +58,8 @@ class DataObject:
             field_dict["hasData"] = has_data
         if session_id is not UNSET:
             field_dict["sessionId"] = session_id
+        if shared is not UNSET:
+            field_dict["shared"] = shared
         if shared_id is not UNSET:
             field_dict["sharedId"] = shared_id
         if type is not UNSET:
@@ -74,6 +79,8 @@ class DataObject:
         has_data = d.pop("hasData", UNSET)
 
         session_id = d.pop("sessionId", UNSET)
+
+        shared = d.pop("shared", UNSET)
 
         shared_id = d.pop("sharedId", UNSET)
 
@@ -97,6 +104,7 @@ class DataObject:
             encrypted=encrypted,
             has_data=has_data,
             session_id=session_id,
+            shared=shared,
             shared_id=shared_id,
             type=type,
             unique_id=unique_id,

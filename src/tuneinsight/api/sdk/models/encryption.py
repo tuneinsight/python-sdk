@@ -11,38 +11,38 @@ T = TypeVar("T", bound="Encryption")
 class Encryption:
     """
     Attributes:
-        key (Union[Unset, str]):
         cryptosystem (Union[Unset, str]):
+        key (Union[Unset, str]):
     """
 
-    key: Union[Unset, str] = UNSET
     cryptosystem: Union[Unset, str] = UNSET
+    key: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        key = self.key
         cryptosystem = self.cryptosystem
+        key = self.key
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if key is not UNSET:
-            field_dict["key"] = key
         if cryptosystem is not UNSET:
             field_dict["cryptosystem"] = cryptosystem
+        if key is not UNSET:
+            field_dict["key"] = key
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        key = d.pop("key", UNSET)
-
         cryptosystem = d.pop("cryptosystem", UNSET)
 
+        key = d.pop("key", UNSET)
+
         encryption = cls(
-            key=key,
             cryptosystem=cryptosystem,
+            key=key,
         )
 
         encryption.additional_properties = d

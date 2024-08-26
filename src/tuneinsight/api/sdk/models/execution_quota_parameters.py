@@ -23,25 +23,30 @@ class ExecutionQuotaParameters:
     Otherwise, a unit represents one computation.
 
         Attributes:
+            allocation (Union[Unset, float]): quota allocated initially.
+            allocation_interval (Union[Unset, Duration]): definition of a date-independent time interval
             increment (Union[Unset, float]): value incremented after each allocation interval
             local_computations_use_budget (Union[Unset, bool]): whether local computations consume the execution quota
             max_allocation (Union[Unset, float]): maximum value that can be taken by the execution quota
             scope (Union[Unset, ExecutionQuotaParametersScope]): scope of the quota
             start (Union[Unset, datetime.datetime]): date time at which the quota is effective
-            allocation (Union[Unset, float]): quota allocated initially.
-            allocation_interval (Union[Unset, Duration]): definition of a date-independent time interval
     """
 
+    allocation: Union[Unset, float] = UNSET
+    allocation_interval: Union[Unset, "Duration"] = UNSET
     increment: Union[Unset, float] = UNSET
     local_computations_use_budget: Union[Unset, bool] = False
     max_allocation: Union[Unset, float] = UNSET
     scope: Union[Unset, ExecutionQuotaParametersScope] = UNSET
     start: Union[Unset, datetime.datetime] = UNSET
-    allocation: Union[Unset, float] = UNSET
-    allocation_interval: Union[Unset, "Duration"] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        allocation = self.allocation
+        allocation_interval: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.allocation_interval, Unset):
+            allocation_interval = self.allocation_interval.to_dict()
+
         increment = self.increment
         local_computations_use_budget = self.local_computations_use_budget
         max_allocation = self.max_allocation
@@ -53,14 +58,13 @@ class ExecutionQuotaParameters:
         if not isinstance(self.start, Unset):
             start = self.start.isoformat()
 
-        allocation = self.allocation
-        allocation_interval: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.allocation_interval, Unset):
-            allocation_interval = self.allocation_interval.to_dict()
-
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if allocation is not UNSET:
+            field_dict["allocation"] = allocation
+        if allocation_interval is not UNSET:
+            field_dict["allocationInterval"] = allocation_interval
         if increment is not UNSET:
             field_dict["increment"] = increment
         if local_computations_use_budget is not UNSET:
@@ -71,10 +75,6 @@ class ExecutionQuotaParameters:
             field_dict["scope"] = scope
         if start is not UNSET:
             field_dict["start"] = start
-        if allocation is not UNSET:
-            field_dict["allocation"] = allocation
-        if allocation_interval is not UNSET:
-            field_dict["allocationInterval"] = allocation_interval
 
         return field_dict
 
@@ -83,6 +83,15 @@ class ExecutionQuotaParameters:
         from ..models.duration import Duration
 
         d = src_dict.copy()
+        allocation = d.pop("allocation", UNSET)
+
+        _allocation_interval = d.pop("allocationInterval", UNSET)
+        allocation_interval: Union[Unset, Duration]
+        if isinstance(_allocation_interval, Unset):
+            allocation_interval = UNSET
+        else:
+            allocation_interval = Duration.from_dict(_allocation_interval)
+
         increment = d.pop("increment", UNSET)
 
         local_computations_use_budget = d.pop("localComputationsUseBudget", UNSET)
@@ -103,23 +112,14 @@ class ExecutionQuotaParameters:
         else:
             start = isoparse(_start)
 
-        allocation = d.pop("allocation", UNSET)
-
-        _allocation_interval = d.pop("allocationInterval", UNSET)
-        allocation_interval: Union[Unset, Duration]
-        if isinstance(_allocation_interval, Unset):
-            allocation_interval = UNSET
-        else:
-            allocation_interval = Duration.from_dict(_allocation_interval)
-
         execution_quota_parameters = cls(
+            allocation=allocation,
+            allocation_interval=allocation_interval,
             increment=increment,
             local_computations_use_budget=local_computations_use_budget,
             max_allocation=max_allocation,
             scope=scope,
             start=start,
-            allocation=allocation,
-            allocation_interval=allocation_interval,
         )
 
         execution_quota_parameters.additional_properties = d

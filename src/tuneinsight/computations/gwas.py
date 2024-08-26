@@ -135,14 +135,15 @@ class GWAS(ModelBasedComputation):
     @classmethod
     def from_model(cls, project: "Project", model: models.GWAS) -> "GWAS":
         model = models.GWAS.from_dict(model.to_dict())
-        comp = GWAS(
-            project,
-            target_label=model.target_label,
-            variants_organization=model.variants_organization,
-            matching_params=model.matching_params,
-            covariates=model.covariates,
-            locus_range=model.locus_range,
-        )
+        with project.disable_patch():
+            comp = GWAS(
+                project,
+                target_label=model.target_label,
+                variants_organization=model.variants_organization,
+                matching_params=model.matching_params,
+                covariates=model.covariates,
+                locus_range=model.locus_range,
+            )
         comp._adapt(model)
         return comp
 

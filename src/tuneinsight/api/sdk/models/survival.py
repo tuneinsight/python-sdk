@@ -17,6 +17,10 @@ class Survival:
     """
     Attributes:
         type (PreprocessingOperationType): type of preprocessing operation
+        duration_col (Union[Unset, str]): the name of the column that stores the duration for each sample, the values
+            stored must be integers Default: 'duration'.
+        end_event (Union[Unset, str]): the column that must contain the timestamps of the end event (can be empty if no
+            event happened)
         event_col (Union[Unset, str]): the name of the column that stores the event status for each sample Default:
             'event'.
         event_val (Union[Unset, str]): the event value indicating a survival event (i.e. death)
@@ -24,25 +28,23 @@ class Survival:
         num_frames (Union[Unset, int]): the number of time frames to take into account starting from the start of the
             survival
         start_event (Union[Unset, str]): the event column that must contain the timestamps of the start of the trial
-        duration_col (Union[Unset, str]): the name of the column that stores the duration for each sample, the values
-            stored must be integers Default: 'duration'.
-        end_event (Union[Unset, str]): the column that must contain the timestamps of the end event (can be empty if no
-            event happened)
     """
 
     type: PreprocessingOperationType
+    duration_col: Union[Unset, str] = "duration"
+    end_event: Union[Unset, str] = UNSET
     event_col: Union[Unset, str] = "event"
     event_val: Union[Unset, str] = UNSET
     interval: Union[Unset, "Duration"] = UNSET
     num_frames: Union[Unset, int] = UNSET
     start_event: Union[Unset, str] = UNSET
-    duration_col: Union[Unset, str] = "duration"
-    end_event: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         type = self.type.value
 
+        duration_col = self.duration_col
+        end_event = self.end_event
         event_col = self.event_col
         event_val = self.event_val
         interval: Union[Unset, Dict[str, Any]] = UNSET
@@ -51,8 +53,6 @@ class Survival:
 
         num_frames = self.num_frames
         start_event = self.start_event
-        duration_col = self.duration_col
-        end_event = self.end_event
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -61,6 +61,10 @@ class Survival:
                 "type": type,
             }
         )
+        if duration_col is not UNSET:
+            field_dict["durationCol"] = duration_col
+        if end_event is not UNSET:
+            field_dict["endEvent"] = end_event
         if event_col is not UNSET:
             field_dict["eventCol"] = event_col
         if event_val is not UNSET:
@@ -71,10 +75,6 @@ class Survival:
             field_dict["numFrames"] = num_frames
         if start_event is not UNSET:
             field_dict["startEvent"] = start_event
-        if duration_col is not UNSET:
-            field_dict["durationCol"] = duration_col
-        if end_event is not UNSET:
-            field_dict["endEvent"] = end_event
 
         return field_dict
 
@@ -84,6 +84,10 @@ class Survival:
 
         d = src_dict.copy()
         type = PreprocessingOperationType(d.pop("type"))
+
+        duration_col = d.pop("durationCol", UNSET)
+
+        end_event = d.pop("endEvent", UNSET)
 
         event_col = d.pop("eventCol", UNSET)
 
@@ -100,19 +104,15 @@ class Survival:
 
         start_event = d.pop("startEvent", UNSET)
 
-        duration_col = d.pop("durationCol", UNSET)
-
-        end_event = d.pop("endEvent", UNSET)
-
         survival = cls(
             type=type,
+            duration_col=duration_col,
+            end_event=end_event,
             event_col=event_col,
             event_val=event_val,
             interval=interval,
             num_frames=num_frames,
             start_event=start_event,
-            duration_col=duration_col,
-            end_event=end_event,
         )
 
         survival.additional_properties = d

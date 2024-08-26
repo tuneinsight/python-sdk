@@ -8,12 +8,13 @@ from ...client import Client
 from ...models.error import Error
 from ...models.sphn_ontologies_search_ontologies_item import SphnOntologiesSearchOntologiesItem
 from ...models.sphn_ontologies_search_response_200_item import SphnOntologiesSearchResponse200Item
-from ...types import UNSET, Response
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
     client: Client,
+    limit: Union[Unset, None, int] = UNSET,
     query: str,
     ontologies: List[SphnOntologiesSearchOntologiesItem],
 ) -> Dict[str, Any]:
@@ -23,6 +24,8 @@ def _get_kwargs(
     cookies: Dict[str, Any] = client.get_cookies()
 
     params: Dict[str, Any] = {}
+    params["limit"] = limit
+
     params["query"] = query
 
     json_ontologies = []
@@ -101,12 +104,14 @@ def _build_response(
 def sync_detailed(
     *,
     client: Client,
+    limit: Union[Unset, None, int] = UNSET,
     query: str,
     ontologies: List[SphnOntologiesSearchOntologiesItem],
 ) -> Response[Union[Error, List["SphnOntologiesSearchResponse200Item"]]]:
     """Search the SPHN ontologies
 
     Args:
+        limit (Union[Unset, None, int]):
         query (str):
         ontologies (List[SphnOntologiesSearchOntologiesItem]):
 
@@ -120,6 +125,7 @@ def sync_detailed(
 
     kwargs = _get_kwargs(
         client=client,
+        limit=limit,
         query=query,
         ontologies=ontologies,
     )
@@ -135,12 +141,14 @@ def sync_detailed(
 def sync(
     *,
     client: Client,
+    limit: Union[Unset, None, int] = UNSET,
     query: str,
     ontologies: List[SphnOntologiesSearchOntologiesItem],
 ) -> Optional[Union[Error, List["SphnOntologiesSearchResponse200Item"]]]:
     """Search the SPHN ontologies
 
     Args:
+        limit (Union[Unset, None, int]):
         query (str):
         ontologies (List[SphnOntologiesSearchOntologiesItem]):
 
@@ -154,6 +162,7 @@ def sync(
 
     return sync_detailed(
         client=client,
+        limit=limit,
         query=query,
         ontologies=ontologies,
     ).parsed
@@ -162,12 +171,14 @@ def sync(
 async def asyncio_detailed(
     *,
     client: Client,
+    limit: Union[Unset, None, int] = UNSET,
     query: str,
     ontologies: List[SphnOntologiesSearchOntologiesItem],
 ) -> Response[Union[Error, List["SphnOntologiesSearchResponse200Item"]]]:
     """Search the SPHN ontologies
 
     Args:
+        limit (Union[Unset, None, int]):
         query (str):
         ontologies (List[SphnOntologiesSearchOntologiesItem]):
 
@@ -181,6 +192,7 @@ async def asyncio_detailed(
 
     kwargs = _get_kwargs(
         client=client,
+        limit=limit,
         query=query,
         ontologies=ontologies,
     )
@@ -194,12 +206,14 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: Client,
+    limit: Union[Unset, None, int] = UNSET,
     query: str,
     ontologies: List[SphnOntologiesSearchOntologiesItem],
 ) -> Optional[Union[Error, List["SphnOntologiesSearchResponse200Item"]]]:
     """Search the SPHN ontologies
 
     Args:
+        limit (Union[Unset, None, int]):
         query (str):
         ontologies (List[SphnOntologiesSearchOntologiesItem]):
 
@@ -214,6 +228,7 @@ async def asyncio(
     return (
         await asyncio_detailed(
             client=client,
+            limit=limit,
             query=query,
             ontologies=ontologies,
         )
