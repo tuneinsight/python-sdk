@@ -95,7 +95,7 @@ class MockGenerator:
         # The response contains the description of the datasource created by the call.
         self.datasource = DataSource(model=response.parsed, client=client)
         # Set the query on the datasource (since we know what table we want).
-        self.datasource.set_query(f"select * from {table_name}")
+        self.datasource.set_local_query(f"select * from {table_name}")
         return self.datasource
 
     @property
@@ -306,7 +306,8 @@ class CustomFunctionGenerator(MockGenerator):
 
 
 class GenericGenerator(MockGenerator):
-    """Mock generator for arbitrary data
+    """
+    Mock generator for data of a configurable format.
 
     This generator can be configured to produce mock tabular data of any format, and
     to add arbitrary distributions and correlations for attributes.
@@ -314,10 +315,21 @@ class GenericGenerator(MockGenerator):
     This generator requires a data format describing the attributes. This can be either
     from a JSON file, or by manually adding columns through method columns.
 
-    Additionally, "measurements" (the simulated results of queries) can be provided
-    to describe the distribution of the mock data.
+    Additionally, _measurements_ (the simulated results of queries) can be provided
+    to describe the distribution of the mock data, and _constraints_ can be applied to
+    modify these measurements to apply high-level requirements.
+
+    This object has three high-level objects that can be used to configure the generator:
+
+    1. `attributes`: add and configure individual attributes (see `AttributeParser`),
+    2. `measurements`: add and configure measurements, i.e., specifications of the attribute distribution (see `MeasurementParser`),
+    3. `constraints`: add and configure high-level constraints on the distribution (see `ConstraintParser`).
 
     """
+
+    attributes: "AttributeParser"
+    measurements: "MeasurementParser"
+    constraints: "ConstraintParser"
 
     def __init__(self, data_format=None):
         MockGenerator.__init__(self, PostMockDatasetMethod.GENERIC)
@@ -326,11 +338,11 @@ class GenericGenerator(MockGenerator):
         self.data_format = data_format if data_format is not None else []
         # These objects provide an object-oriented interface to the configuration (the lists).
         # The attributes entry ingests the data format fed as argument.
-        self.attrs = self.attributes = _AttributeParser(self.data_format)
-        self.msrs = self.measurements = _MeasurementParser(
+        self.attrs = self.attributes = AttributeParser(self.data_format)
+        self.msrs = self.measurements = MeasurementParser(
             self.measurement_list, self.attrs
         )
-        self.ctrs = self.constraints = _ConstraintParser(
+        self.ctrs = self.constraints = ConstraintParser(
             self.attrs, self.constraint_list
         )
 
@@ -354,11 +366,12 @@ class GenericGenerator(MockGenerator):
         }
 
 
-class _AttributeParser:
-    """Attribute parser for the generic mock generator.
+class AttributeParser:
+    """
+    Attribute parser for the generic mock generator.
 
-    _AttributeParser objects ensure that the arguments sent to the generic generator are
-    valid, and allows users to add new attributes through a safe and easy interface.
+    `AttributeParser` objects offer a high-level interface to create and validate the
+    part of the configuration of the generic generator that defines attributes.
     """
 
     class TYPE(str, Enum):
@@ -388,6 +401,7 @@ class _AttributeParser:
     }
 
     def __init__(self, data_format):
+        """Internal method -- use `GenericGenerator.attributes`."""
         # Check that the data format is valid.
         self.validate(data_format)
         # To embed domains and perform measurements, we instantiate local
@@ -403,11 +417,11 @@ class _AttributeParser:
             self._add_attribute(**attribute_config)
 
     def validate(self, list_of_attributes: List[dict]):
-        """Assert that a data format is valid. Raises error if not."""
+        """Asserts that a data format is valid. Raises error if not."""
         for attr in list_of_attributes:
             assert "name" in attr, "Missing attribute name."
             assert "type" in attr, "Missing attribute type."
-            c = _AttributeParser.FORMAT.get(attr["type"])
+            c = AttributeParser.FORMAT.get(attr["type"])
             assert c is not None, f"Unknown type {c}."
             required, optional = c
             for req in required:
@@ -424,7 +438,7 @@ class _AttributeParser:
         assert name not in self.converters, f"Variable {name} already exists."
         # Remove optional arguments from the payload.
         # This is because providing a None (null) value will overwrite defaults.
-        for optional_arg in _AttributeParser.FORMAT[type][1]:
+        for optional_arg in AttributeParser.FORMAT[type][1]:
             if optional_arg in attributes and attributes[optional_arg] is None:
                 del attributes[optional_arg]
         attr_values = {"name": name, "type": type, **attributes}
@@ -444,7 +458,7 @@ class _AttributeParser:
         missing: bool = False,
     ):
         """
-        Add a continuous-valued attribute to the data description.
+        Adds a continuous-valued attribute to the data description.
 
         Args:
             name: the name of this attribute (column) in the database.
@@ -459,7 +473,7 @@ class _AttributeParser:
         """
         self._add_attribute(
             name,
-            _AttributeParser.TYPE.CONTINUOUS,
+            AttributeParser.TYPE.CONTINUOUS,
             min_value=min_value,
             max_value=max_value,
             bins=bins,
@@ -475,7 +489,7 @@ class _AttributeParser:
         missing: bool = False,
     ):
         """
-        Add an integer-valued attribute to the data description.
+        Adds an integer-valued attribute to the data description.
 
         Args:
             name: the name of this attribute (column) in the database.
@@ -491,7 +505,7 @@ class _AttributeParser:
         """
         self._add_attribute(
             name,
-            _AttributeParser.TYPE.INTEGER,
+            AttributeParser.TYPE.INTEGER,
             min_value=min_value,
             max_value=max_value,
             bins=bins,
@@ -500,7 +514,7 @@ class _AttributeParser:
 
     def add_boolean(self, name: str):
         """
-        Add a boolean-valued attribute to the data description.
+        Adds a boolean-valued attribute to the data description.
 
         Boolean values are stored as integers with value 0 or 1.
 
@@ -511,7 +525,7 @@ class _AttributeParser:
 
     def add_categorical(self, name: str, possible_values: List[str]):
         """
-        Add a categorical-valued attribute to the data description.
+        Adds a categorical-valued attribute to the data description.
 
         Args:
             name: the name of this attribute (column) in the database.
@@ -519,7 +533,7 @@ class _AttributeParser:
                 attribute can take.
         """
         self._add_attribute(
-            name, _AttributeParser.TYPE.CATEGORICAL, possible_values=possible_values
+            name, AttributeParser.TYPE.CATEGORICAL, possible_values=possible_values
         )
 
     def add_date(
@@ -532,7 +546,7 @@ class _AttributeParser:
         missing: bool = False,
     ):
         """
-        Add a date column to the data description.
+        Adds a date column to the data description.
 
         Args:
             name: the name of this attribute (column) in the database.
@@ -545,7 +559,7 @@ class _AttributeParser:
         """
         self._add_attribute(
             name,
-            _AttributeParser.TYPE.DATE,
+            AttributeParser.TYPE.DATE,
             start_date=start,
             end_date=end,
             bins=bins,
@@ -555,7 +569,7 @@ class _AttributeParser:
 
     def add_identifier(self, name: str, pattern: str):
         """
-        Add an identifier to the data description.
+        Adds an identifier to the data description.
 
         Identifiers are columns with unique values, independent from everything else,
         that follow a specific pattern (the only argument of this function).
@@ -569,7 +583,7 @@ class _AttributeParser:
 
         For instance, "ddCC_hh-ccc" could generate "18TI_b3-adw".
         """
-        self._add_attribute(name, _AttributeParser.TYPE.IDENTIFIER, pattern=pattern)
+        self._add_attribute(name, AttributeParser.TYPE.IDENTIFIER, pattern=pattern)
 
     def add_name(
         self,
@@ -579,7 +593,7 @@ class _AttributeParser:
         locale: str = None,
     ):
         """
-        Add a name column to the data description.
+        Adds a name column to the data description.
 
         Names are identifiers, sampled randomly among the most popular swiss names.
 
@@ -592,18 +606,25 @@ class _AttributeParser:
         """
         self._add_attribute(
             name,
-            _AttributeParser.TYPE.NAME,
+            AttributeParser.TYPE.NAME,
             pattern=pattern,
             female_proportion=female_proportion,
             locale=locale,
         )
 
 
-class _MeasurementParser:
-    """Measurement parser for the generic generator.
+class MeasurementParser:
+    """
+    Measurement parser for the generic generator.
 
-    _MeasurementParser ensures that the measurements added to the configuration are
-    valid, and provides an easy to use interface for users.
+    `MeasurementParser` objects offer a high-level interface to create and validate the
+    part of the configuration of the generic generator that defines measurements.
+
+    A _measurement_ is the result of a query performed on the data (e.g., a histogram of
+    values for one attribute). Measurements are typically used in synthetic data to create
+    data that replicates important features from the real data. For mock data, these
+    measurements are used to constraint the distribution of the mock data.
+
     """
 
     class STYLES(str, Enum):
@@ -613,7 +634,8 @@ class _MeasurementParser:
         UNIFORM = "uniform"
         DISTRIBUTION = "distribution"
 
-    def __init__(self, measurement_list: list, attributes: _AttributeParser):
+    def __init__(self, measurement_list: list, attributes: AttributeParser):
+        """Internal method -- use `GenericGenerator.measurements`."""
         self.measurement_list = measurement_list
         self.attributes = attributes
 
@@ -628,7 +650,7 @@ class _MeasurementParser:
         self, variables: List[str], measurement: np.array, noise_scale: float = None
     ):
         """
-        Add a marginal to the measurements.
+        Adds a marginal to the measurements.
 
         Args
             variables (str or list of str): the variables whose k-way marginal is measured.
@@ -650,7 +672,7 @@ class _MeasurementParser:
         for name in variables:
             assert name in self.attributes.converters, f"Unknown variable {name}."
         self._add_measurement(
-            _MeasurementParser.STYLES.FULL,
+            MeasurementParser.STYLES.FULL,
             variables=variables,
             noisy_marginal=list(measurement),
             noise_scale=noise_scale,
@@ -660,7 +682,7 @@ class _MeasurementParser:
         self, variables, distribution="normal", num_samples=None, **distribution_params
     ):
         """
-        Add a pseudo-measurement defined by a distribution from np.random.
+        Adds a pseudo-measurement defined by a distribution from np.random.
 
         Args:
             variables (str or list[str]): one or more variable names which follow the distribution.
@@ -676,16 +698,22 @@ class _MeasurementParser:
         if isinstance(variables, str):
             variables = [variables]
         self._add_measurement(
-            _MeasurementParser.STYLES.DISTRIBUTION,
+            MeasurementParser.STYLES.DISTRIBUTION,
             variables=variables,
             distribution=distribution,
             num_samples=num_samples,
             **distribution_params,
         )
 
-    def measure(self, dataset, variables, noise_scale=None, laplace=True):
+    def measure(
+        self,
+        dataset: pd.DataFrame,
+        variables: List[str],
+        noise_scale=None,
+        laplace=True,
+    ):
         """
-        Measure a marginal from a pandas DataFrame and use it as measurement.
+        Measures a marginal from a pandas DataFrame and use it as measurement.
 
         Args
             dataset (pd.DataFrame): data from which the marginal is measured.
@@ -712,14 +740,21 @@ class _MeasurementParser:
         self.add_marginal(variables, measurement, noise_scale)
 
 
-class _ConstraintParser:
-    """Constraint parser for the generic generator."""
+class ConstraintParser:
+    """
+    Constraint parser for the generic generator.
+
+    Constraints modify the configuration of the generator to enforce high-level
+    constraints on the data. This can be used to make the data more realistic.
+
+    """
 
     class TYPES(str, Enum):
         ZEROES = "zeroes"
         CORRELATION = "correlation"
 
-    def __init__(self, attributes: _AttributeParser, constraint_list: list):
+    def __init__(self, attributes: AttributeParser, constraint_list: list):
+        """Internal method -- use `GenericGenerator.constraints`."""
         self.attributes = attributes
         self.constraint_list = constraint_list
 
@@ -732,7 +767,7 @@ class _ConstraintParser:
 
     def apply_structural_zeroes(self, variables: List[str], index: List[int]):
         """
-        Require structural zeroes in specific indices of the dataset.
+        Requires structural zeroes in specific indices of the dataset.
 
         This ensures that for all measurements that include at least all these
         variables, the marginal bin corresponding to AND_i variables[i] == index[i]
@@ -751,12 +786,12 @@ class _ConstraintParser:
             index
         ), "Mismatch between variables and index length."
         self._add_constraint(
-            _ConstraintParser.TYPES.ZEROES, variables, index=list(index)
+            ConstraintParser.TYPES.ZEROES, variables, index=list(index)
         )
 
     def apply_correlation(self, variables: List[str], correlation: float):
         """
-        Require two variables to be correlated with some strength.
+        Requires that two variables are correlated with some strength.
 
         Args
             variables: a list of two variables to be made correlated.
@@ -768,12 +803,10 @@ class _ConstraintParser:
           this variable as a proxy for the "strength" of the correlation, with the sign of this
           number indicating the "direction" of the correlation (negative = inversely correlated).
         """
-        assert (
-            len(variables) == 2
-        ), "Correlation can only have be between two variables."
+        assert len(variables) == 2, "Correlation can only be between two variables."
         assert (
             -1 <= correlation <= 1
         ), "Correlation coefficient must be between -1 and 1."
         self._add_constraint(
-            _ConstraintParser.TYPES.CORRELATION, variables, correlation=correlation
+            ConstraintParser.TYPES.CORRELATION, variables, correlation=correlation
         )

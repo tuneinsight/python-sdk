@@ -1,18 +1,17 @@
 """Classes to interact with datasources in a Tune Insight instance."""
 
 from typing import Any
-from io import BytesIO
+from io import StringIO
 import pandas as pd
 
 from tuneinsight.api.sdk.types import Response
 from tuneinsight.api.sdk import Client
 from tuneinsight.api.sdk import models
-from tuneinsight.api.sdk.types import Unset, UNSET, File
+from tuneinsight.api.sdk.types import Unset, UNSET
 from tuneinsight.api.sdk.api.api_datagen import post_synthetic_dataset
 from tuneinsight.api.sdk.api.api_datasource import (
     post_data_source,
-    put_data_source_data,
-    post_data_source_data,
+    patch_data_source_data,
     delete_data_source,
     get_data_source,
 )
@@ -52,7 +51,7 @@ class DataSource:
     def __init__(self, model: models.DataSource, client: Client):
         self.model = model
         self.client = client
-        self.query_parameters = None
+        self.local_query_parameters = None
         self.upload_chunk_size = 2048  # uploads 2048 records at each request.
 
     ## Methods to create a datasource.
@@ -253,6 +252,8 @@ class DataSource:
         table_name: str = "",
         replace: bool = False,
         verbose: bool = False,
+        skip_invalid_rows: bool = False,
+        delimiter: str = ",",
     ):
         """
         Uploads data to a data source. Data can be either appended or replaced.
@@ -263,6 +264,9 @@ class DataSource:
             table_name (str, optional): name of the table to upload the data to. Required when the data source is a database. Defaults to "".
             replace (bool, optional): Whether to replace the existing data from the table. Defaults to False.
             verbose (bool, optional): When set to true, the upload progress is shown. Defaults to False.
+            skip_invalid_rows (bool, optional): When set to true, then rows that are detected as invalid as they do not comply with the schema
+                                                will no be inserted into the data source. Default to False.
+            delimiter (str, optional): delimiter to use when parsing the csv data. Defaults to ",".
 
         Raises:
             ValueError: If no data is provided or the table name is missing when required.
@@ -276,8 +280,6 @@ class DataSource:
             )
         if self.model.type == models.DataSourceType.DATABASE and table_name == "":
             raise ValueError("table name must be provided")
-        if df is None and csv_path is None:
-            raise ValueError("data frame or csv file path must be provided")
 
         if df is not None:
             generator = generate_dataframe_chunks(df, self.upload_chunk_size)
@@ -288,7 +290,11 @@ class DataSource:
         uploaded_records = 0
         for chunk_df in generator:
             self._upload_data_file(
-                chunk_df, table_name=table_name, replace=first_chunk and replace
+                chunk_df,
+                table_name=table_name,
+                replace=first_chunk and replace,
+                delimiter=delimiter,
+                skip_invalid_rows=skip_invalid_rows,
             )
             uploaded_records += self.upload_chunk_size
             if verbose:
@@ -298,45 +304,44 @@ class DataSource:
             print()
 
     def _upload_data_file(
-        self, df: pd.DataFrame, table_name: str = "", replace: bool = False
+        self,
+        df: pd.DataFrame,
+        table_name: str = "",
+        replace: bool = False,
+        skip_invalid_rows: bool = False,
+        delimiter: str = ",",
     ):
-        f = BytesIO()
+        f = StringIO(initial_value="")
         df.to_csv(f, index=False)
-        file_name = table_name
-        # for some reason the file name needs to be non empty
-        if table_name == "":
-            file_name = "datasource_upload"
         self._upload_data(
-            file=File(payload=f, file_name=file_name),
+            data=f.getvalue(),
             table_name=table_name,
             replace=replace,
+            skip_invalid_rows=skip_invalid_rows,
+            delimiter=delimiter,
         )
 
     def _upload_data(
         self,
-        str_data: str = UNSET,
-        file: File = UNSET,
+        data: str,
         table_name: str = "",
         replace: bool = False,
+        skip_invalid_rows: bool = False,
+        delimiter: str = ",",
     ):
-        if replace:
-            mpd = models.PutDataSourceDataMultipartData(
-                data_source_request_data_raw=str_data,
-                data_source_request_data=file,
-                table_name=table_name,
+        response: Response[models.DataUploadResponse] = (
+            patch_data_source_data.sync_detailed(
+                client=self.client,
+                data_source_id=self.model.id,
+                json_body=models.DataUploadParams(
+                    data=data,
+                    replace=replace,
+                    table_name=table_name,
+                    delimiter=delimiter,
+                    skip_invalid_rows=skip_invalid_rows,
+                ),
             )
-            response: Response[models.DataSource] = put_data_source_data.sync_detailed(
-                client=self.client, data_source_id=self.model.id, multipart_data=mpd
-            )
-        else:
-            mpd = models.PostDataSourceDataMultipartData(
-                data_source_request_data_raw=str_data,
-                data_source_request_data=file,
-                table_name=table_name,
-            )
-            response: Response[models.DataSource] = post_data_source_data.sync_detailed(
-                client=self.client, data_source_id=self.model.id, multipart_data=mpd
-            )
+        )
         validate_response(response)
 
     def get_dataframe(self, query: Any = "", json_path: str = "") -> pd.DataFrame:
@@ -357,8 +362,8 @@ class DataSource:
         Raises:
             AuthorizationError: if the client is not the owner of the datasource.
         """
-        if not query and self.query_parameters is not None:
-            query = self.query_parameters.database_query
+        if not query and self.local_query_parameters is not None:
+            query = self.local_query_parameters.database_query
         do = self.adapt(
             do_type=models.DataObjectType.TABLE, query=query, json_path=json_path
         )
@@ -414,8 +419,8 @@ class DataSource:
             track_progress (bool, optional): whether to track the progress of the generation task.
         """
         # If no query is provided, but this datasource has a local query, use it.
-        if query is None and self.query_parameters is not None:
-            query = self.query_parameters.database_query
+        if query is None and self.local_query_parameters is not None:
+            query = self.local_query_parameters.database_query
         # If the user specified neither the query nor the table name, use the datasource name as table.
         # This is a default case that will work for mock data.
         if isinstance(table, Unset) and isinstance(query, Unset):
@@ -438,17 +443,18 @@ class DataSource:
         ds = DataSource(response.parsed, self.client)
         # For synthetic data, the table name is the same as the datasource name, so set the local query.
         if not isinstance(ds.model.name, Unset):
-            ds.set_query(f"select * from {ds.model.name}")
+            ds.set_local_query(f"select * from {ds.model.name}")
         return ds
 
     ## Methods to interact with queries etc.
-    def set_query(self, query: str):
+    def set_local_query(self, query: str):
         """
-        Sets the database query to use for this datasource.
+        Sets a default database query to use for this datasource.
 
-        When this datasource is used in a project, its query will override the query defined
-        in the local data selection of the project (if any), but not the query defined in the
-        computation definition (which take precedence).
+        This default query will then be used when interacting with the datasource directly,
+        e.g., to generate synthetic data. However, this query will not be used in projects.
+        To set the database query to use in a project, use the local data selection with
+        `project.get_local_data_selection()` or set the computation's query.
 
         Note that this is specific to the Diapason implementation, and the query is not
         persisted on the Tune Insight instance.
@@ -456,7 +462,7 @@ class DataSource:
         Args
             query (str): the SQL query to use to fet the data from the datasource.
         """
-        self.query_parameters = models.DataSourceQuery(database_query=query)
+        self.local_query_parameters = models.DataSourceQuery(database_query=query)
 
 
 ## Internal functions to manipulate configurations.

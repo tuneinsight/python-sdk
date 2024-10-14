@@ -1,20 +1,46 @@
 """
-# The Computations module
+# Running computations
 
-Defines classes to create and interact with computation on a Tune Insight instance.
+This module defines classes to create and run computations on a Tune Insight instance,
+as well as get and analyze the results from computations.
 
-The core class defined by this module is Computation, which interfaces with
-the API bindings to run computations and get their results.
+## The `Computation` architecture
 
-Specific computations are defined by the models.Computation model. This module
-defines wrapper classes that allow a more user friendly interface to these
-computations. The wrapper classes usually have less flexibility than modifying
-the model from the API, but provide post-processing capabilities tailored to
-the specific computations (e.g., plotting utilities).
+The core class defined by this module is `Computation`, which interfaces with
+the API bindings to run computations and get their results. All computations are
+created and parameterized via their constructor method:
+
+```python
+    computation = ComputationClass(project, **additional_parameters)
+```
+
+This also sets the computation on the `project`, and broadcasts it to all other
+project participants. Running a computation on the project is done with the `.run`
+method (and its key parameter `local`):
+
+```python
+    result = computation.run(local=False)
+```
+
+Specific computations inherit from the base `Computation` class, and provide high-level
+pre-processing of arguments, high-level post-processing of results, and additional methods
+to visualize results.
 
 This module also defines high-level classes to interface with policies, data queries,
 and preprocessing (which are shared by all computations).
 
+## Documentation page
+
+https://dev.tuneinsight.com/docs/Usage/python-sdk/computations/
+
+## Importing computations
+
+All computation classes are available from the `tuneinsight.computations` module directly.
+For instance, to create an `Aggregation` computation, use
+
+```python
+from tuneinsight.computations import Aggregation
+```
 """
 
 from .base import Computation, ModelBasedComputation, KeySwitch, ComputationResult

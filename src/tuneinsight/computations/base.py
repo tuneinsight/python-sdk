@@ -15,6 +15,7 @@ from typing import Any, List, Union
 import warnings
 import pandas as pd
 
+from tuneinsight.api.sdk import client as api_client
 from tuneinsight.api.sdk import models
 from tuneinsight.api.sdk.types import is_set, is_unset, is_empty, UNSET
 from tuneinsight.api.sdk.types import Response
@@ -59,9 +60,9 @@ class Computation(ABC):
     """
 
     # Low-level attributes: the project, client, and model of the current computation.
-    project = UNSET
-    client = UNSET
-    model = UNSET
+    project: "Project" = UNSET
+    client: api_client.Client = UNSET
+    model: models.Project = UNSET
 
     # High-level interfaces to set the computation definition.
     # Note that these are not direct attributes of the computation definition.
@@ -188,22 +189,14 @@ class Computation(ABC):
             models.ComputationType.PRIVATESEARCH,
         ]:
             return
-        # The data source query can be set at three levels (in decreasing precedence):
-        #  1. In this object (computation definition),
-        #  2. In the Datasource object of the project (project),
-        #  3. In the local data source (enforced on the server level).
-        # Check 1.: whether this computation has a query set.
+        # Apply the datasource query.
         if self.datasource.query_set:
             model.data_source_parameters = self.datasource.get_model()
         # Otherwise, initialize empty data source parameters.
         else:
             if is_unset(model.input_data_object):
                 model.data_source_parameters = models.ComputationDataSourceParameters()
-            # And check 2. whether the datasource has a query set.
-            if self.project.datasource is not None:
-                ds = self.project.datasource
-                if ds.query_parameters is not None:
-                    model.data_source_parameters.data_source_query = ds.query_parameters
+                # Check if the project has a local data selection.
 
     def _update_computation_fields(self, model: models.ComputationDefinition):
         """
@@ -421,7 +414,9 @@ class Computation(ABC):
         validate_response(response)
         return response.parsed
 
-    def _launch_with_project(self, comp) -> models.Computation:
+    def _launch_with_project(
+        self, comp: models.ComputationDefinition
+    ) -> models.Computation:
         """Launches a computation through the project computation endpoint."""
         project_id = self.project.get_id()
         if project_id is None or project_id == "":
@@ -430,7 +425,12 @@ class Computation(ABC):
         # This is required, otherwise calling comp.run() could run another computation.
         # Note that this will not work if the client does not have the appropriate authorization.
         self.project.set_computation(comp)
-        params = models.RunProjectParameters(computation_definition=comp)
+        run_mode = models.RunMode.COLLECTIVE
+        if comp.local or not self.project.model.shared:
+            run_mode = models.RunMode.LOCAL
+        params = models.RunProjectParameters(
+            computation_definition=comp, run_mode=run_mode
+        )
         response: Response[models.ProjectComputation] = (
             post_project_computation.sync_detailed(
                 project_id=project_id, client=self.client, json_body=params

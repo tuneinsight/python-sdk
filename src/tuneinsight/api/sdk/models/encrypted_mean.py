@@ -74,10 +74,12 @@ class EncryptedMean:
             allowing the aggregation to be performed on distinct groups based on the specified keys.
         min_participants (Union[Unset, int]): defines the minimum number of participating organizations for each
             aggregated group.
+            If there are not enough participants for a single group, then the collective mean computation will be skipped
+            for this group.
+            Note that this parameter is ignored when the computation is run locally as there will always be only one
+            participant locally.
         outlier_threshold (Union[Unset, float]): the threshold T to use to filter out outlier values.
             A value x will be considered an outlier if abs(x - mean) > T * STD.
-        participant (Union[Unset, str]): optional column that is used to identify the name of the participant.
-            If empty, the name of the instance will be used instead.
         variables (Union[Unset, List[str]]): list of variables to compute the mean on.
     """
 
@@ -104,7 +106,6 @@ class EncryptedMean:
     grouping_keys: Union[Unset, List[str]] = UNSET
     min_participants: Union[Unset, int] = UNSET
     outlier_threshold: Union[Unset, float] = UNSET
-    participant: Union[Unset, str] = UNSET
     variables: Union[Unset, List[str]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -151,7 +152,6 @@ class EncryptedMean:
 
         min_participants = self.min_participants
         outlier_threshold = self.outlier_threshold
-        participant = self.participant
         variables: Union[Unset, List[str]] = UNSET
         if not isinstance(self.variables, Unset):
             variables = self.variables
@@ -207,8 +207,6 @@ class EncryptedMean:
             field_dict["minParticipants"] = min_participants
         if outlier_threshold is not UNSET:
             field_dict["outlierThreshold"] = outlier_threshold
-        if participant is not UNSET:
-            field_dict["participant"] = participant
         if variables is not UNSET:
             field_dict["variables"] = variables
 
@@ -293,8 +291,6 @@ class EncryptedMean:
 
         outlier_threshold = d.pop("outlierThreshold", UNSET)
 
-        participant = d.pop("participant", UNSET)
-
         variables = cast(List[str], d.pop("variables", UNSET))
 
         encrypted_mean = cls(
@@ -321,7 +317,6 @@ class EncryptedMean:
             grouping_keys=grouping_keys,
             min_participants=min_participants,
             outlier_threshold=outlier_threshold,
-            participant=participant,
             variables=variables,
         )
 

@@ -2,9 +2,15 @@
 
 import os
 import json
-from ast import literal_eval
 from dotenv import load_dotenv
 import yaml
+
+
+def _bool(string: str) -> bool:
+    """Interprets a user-provided string to boolean, using common defaults (true / yes / y / 1)."""
+    if string.lower() in ["1", "true", "yes", "y"]:
+        return True
+    return False
 
 
 def _to_dict(obj):
@@ -97,17 +103,35 @@ class ClientConfiguration:
     http_proxy: str
     https_proxy: str
 
-    def __init__(self, url, security, http_proxy: str = None, https_proxy: str = None):
+    def __init__(
+        self,
+        url: str,
+        security: SecurityConfiguration,
+        http_proxy: str = None,
+        https_proxy: str = None,
+        strict: bool = False,
+    ):
         """
-        Initializes a client.
+        Initializes a client configuration.
 
         Args:
-            url (str): The URL of the Tune Insight API
-            security (str): The security settings of the configuration.
+            url (str): The URL of the Tune Insight API.
+            security (SecurityConfiguration): The security settings of the configuration.
             http_proxy (str, optional): The HTTP proxy to be used. Defaults to None.
             https_proxy (str, optional): The HTTPS proxy to be used. Defaults to None.
+            strict (boolean, default False): if true, the exact url is used. If False, this
+                attempts to append "/api" to the url (as it's the most common case).
         """
         self.url = url
+        # Allow users to make a mistake and forget the /api (except when running locally where the path might not be needed).
+        if (
+            not strict
+            and not url.startswith("http://localhost")
+            and not url.endswith("/api")
+        ):
+            if not url.endswith("/"):
+                self.url += "/"
+            self.url += "api"
         self.security = security
         self.http_proxy = http_proxy
         self.https_proxy = https_proxy
@@ -128,7 +152,8 @@ class ClientConfiguration:
 
         """
         security = SecurityConfiguration.from_json(json_dct.get("security"))
-        client = ClientConfiguration(json_dct.get("url"), security)
+        strict = json_dct.get("strict", False)
+        client = ClientConfiguration(json_dct.get("url"), security, strict=strict)
         client.http_proxy = json_dct.get("http_proxy") or client.http_proxy
         client.https_proxy = json_dct.get("https_proxy") or client.https_proxy
         return client
@@ -189,11 +214,13 @@ class ClientConfiguration:
             username=os.getenv("TI_USERNAME"),
             password=os.getenv("TI_PASSWORD"),
             static_token=os.getenv("TI_STATIC_TOKEN"),
-            verify_ssl=literal_eval(os.getenv("TI_VERIFY_SSL")),
+            verify_ssl=_bool(os.getenv("TI_VERIFY_SSL")),
             oidc_config=oidc_config,
         )
         client = ClientConfiguration(
-            url=os.getenv("NODE_URL"), security=security_config
+            url=os.getenv("NODE_URL"),
+            security=security_config,
+            strict=os.getenv("URL_STRICT") or False,
         )
 
         client.http_proxy = os.getenv("HTTP_PROXY") or client.http_proxy

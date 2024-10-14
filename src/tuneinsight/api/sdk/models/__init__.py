@@ -74,12 +74,15 @@ from .data_source_query_preview import DataSourceQueryPreview
 from .data_source_table import DataSourceTable
 from .data_source_type import DataSourceType
 from .data_source_types_info import DataSourceTypesInfo
+from .data_upload_params import DataUploadParams
+from .data_upload_response import DataUploadResponse
 from .database_type import DatabaseType
 from .dataset_schema import DatasetSchema
 from .dataset_schema_columns import DatasetSchemaColumns
 from .dataset_statistics import DatasetStatistics
 from .dataset_validation import DatasetValidation
 from .deviation_squares import DeviationSquares
+from .displayed_capability import DisplayedCapability
 from .documentation_response_200 import DocumentationResponse200
 from .dp_policy import DPPolicy
 from .drop import Drop
@@ -256,6 +259,8 @@ from .user_definition_access import UserDefinitionAccess
 from .user_definition_attributes import UserDefinitionAttributes
 from .user_definition_client_roles import UserDefinitionClientRoles
 from .user_definition_disableable_credential_types_item import UserDefinitionDisableableCredentialTypesItem
+from .user_group import UserGroup
+from .user_info import UserInfo
 from .user_list_query import UserListQuery
 from .v_binned_aggregation import VBinnedAggregation
 from .whitelisted_query import WhitelistedQuery
@@ -342,7 +347,10 @@ __all__ = (
     "DataSourceTable",
     "DataSourceType",
     "DataSourceTypesInfo",
+    "DataUploadParams",
+    "DataUploadResponse",
     "DeviationSquares",
+    "DisplayedCapability",
     "DocumentationResponse200",
     "DPPolicy",
     "Drop",
@@ -519,6 +527,8 @@ __all__ = (
     "UserDefinitionAttributes",
     "UserDefinitionClientRoles",
     "UserDefinitionDisableableCredentialTypesItem",
+    "UserGroup",
+    "UserInfo",
     "UserListQuery",
     "VBinnedAggregation",
     "WhitelistedQuery",

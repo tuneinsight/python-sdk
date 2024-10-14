@@ -1,4 +1,19 @@
-"""High-level Python interface to the Tune Insight crypto library."""
+"""
+# High-level Python interface to the Tune Insight crypto library.
+
+This library provides Python bindings to the Lattigo library. It is intended mostly
+for internal use.
+
+In case you see recurrent warnings or errors related to the cryptolib, consult
+[the documentation](https://dev.tuneinsight.com/docs/Usage/python-sdk/reference_docs/cryptolib/)
+for troubleshooting options.
+
+### Importing from `cryptolib`
+
+```python
+from tuneinsight.cryptolib import *
+```
+"""
 
 import ctypes
 from pathlib import Path
@@ -66,7 +81,7 @@ def new_hefloat_operator_from_b64_hefloat_parameters(
     Returns:
         hefloat_operator_id (bytes): The HEFloat Operator id
     """
-    b64_hefloat_operator = so.NewHEFloatOperatorFromB64Parameters
+    b64_hefloat_operator = so.NewCkksOperatorFromB64Parameters
     b64_hefloat_operator.restype = ctypes.c_char_p
     hefloat_operator_id = b64_hefloat_operator(hefloat_parameters_b64.encode())
     if hefloat_operator_id is None:
@@ -83,7 +98,7 @@ def new_hefloat_operator_from_b64_scheme_context(scheme_context_b64: str) -> byt
     Returns:
         hefloat_operator_id (bytes): The HEFloat Operator id
     """
-    b64_hefloat_operator = so.NewHEFloatOperatorFromB64SchemeContext
+    b64_hefloat_operator = so.NewCkksOperatorFromB64SchemeContext
     b64_hefloat_operator.restype = ctypes.c_char_p
     hefloat_operator_id = b64_hefloat_operator(scheme_context_b64.encode())
     if hefloat_operator_id is None:
@@ -365,7 +380,7 @@ def test_polynomial_evaluation_hefloat_params() -> str:
     Returns:
         cryptoparameters_b64 (str): Base64 encoded marshalled HEFloat cryptoparameters
     """
-    new_test_polynomial_hefloat_params = so.NewPolynomialHEFloatParams
+    new_test_polynomial_hefloat_params = so.NewPolynomialCkksParams
     new_test_polynomial_hefloat_params.restype = ctypes.c_char_p
     cryptoparameters_b64 = new_test_polynomial_hefloat_params()
     if cryptoparameters_b64 is None:

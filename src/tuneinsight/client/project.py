@@ -43,6 +43,7 @@ from tuneinsight.computations.types import model_type_to_class
 from tuneinsight.client.validation import validate_response
 from tuneinsight.client.datasource import DataSource
 from tuneinsight.computations.local_data_selection import LocalDataSelection
+from tuneinsight.utils import deprecation
 from tuneinsight.utils.display import Renderer
 
 # pylint: disable=too-many-lines
@@ -54,10 +55,9 @@ class Project:
     A project saved in the Tune Insight instance.
 
     Projects define a network of participants and a computation to run collectively,
-    using one (input) datasource in each instance, potentially constrained by
-    policies. The core of a project is thus the definition of the computation that
-    will be run: a project object has many new_... methods to create a computation
-    on the project.
+    using one (input) datasource in each instance, potentially constrained by policies.
+    Computations are added on this project by instantiating `tuneinsight.computations.Computation`
+    objects with this object as first argument.
 
     Importantly, a project can only be linked to one computation at a time,
     but this computation can change over time. For instance, one can set up
@@ -287,7 +287,7 @@ class Project:
             )
         )
 
-    def set_input_datasource(self, ds: Union[DataSource, str]):
+    def set_datasource(self, ds: Union[DataSource, str]):
         """
         Sets this project's input datasource.
 
@@ -304,6 +304,11 @@ class Project:
             self.datasource = ds
         else:
             self.datasource = DataSource.fetch_from_id(self.client, ds)
+
+    def set_input_datasource(self, ds: Union[DataSource, str]):
+        """Sets this project's input datasource. Clone of `Project.set_datasource`. Up for deprecation."""
+        deprecation.warn("set_input_datasource", "set_datasource")
+        self.set_datasource(ds)
 
     def set_policy(self, policy: Policy):
         """
@@ -328,6 +333,10 @@ class Project:
 
         proj_def = models.ProjectDefinition(policy=policy)
         self._patch(proj_def=proj_def)
+
+    def reset_policy(self):
+        """Resets the policy of this project (sets an empty policy)."""
+        self.set_policy(models.ComputationPolicy())
 
     def add_authorized_users(self, users: Union[str, List[str]]):
         """
@@ -419,6 +428,17 @@ class Project:
             revoke=revoke,
         )
         validate_response(response=resp)
+
+    def revoke_authorization(self):
+        """
+        Revokes the authorization request of this project.
+
+        This resets all previously given authorization of all participants and resets the
+        project to draft status, meaning it can be edited again.
+
+        This is identical to `request_authorization(revoke=True)`.
+        """
+        self.request_authorization(revoke=True)
 
     def share(self):
         """
@@ -536,19 +556,31 @@ class Project:
         Returns:
             Aggregation: The aggregation computation
         """
+        deprecation.warn(
+            "project.new_aggregation",
+            "tuneinsight.computations.Aggregation(project, ...)",
+            version="0.13.0",
+        )
         return Aggregation(project=self, columns=columns)
 
     def new_encrypted_mean(
-        self, variables: List[str], participant: str
+        self, columns: List[str], grouping_columns: List[str]
     ) -> EncryptedMean:
         """
         Creates a new EncryptedMean Computation in this project.
 
         Args
-            variables (list[str]): the variables for which to compute the mean and stddev.
-            participant (str): name of the participants column.
+            columns (list[str]): the columns for which to compute the mean and stddev.
+            grouping_columns (list[str]): the columns from which groups are created.
         """
-        return EncryptedMean(project=self, variables=variables, participant=participant)
+        deprecation.warn(
+            "project.new_encrypted_mean",
+            "tuneinsight.computations.EncryptedMean(project, ...)",
+            version="0.13.0",
+        )
+        return EncryptedMean(
+            project=self, columns=columns, grouping_columns=grouping_columns
+        )
 
     def new_gwas(self) -> GWAS:
         """
@@ -557,6 +589,11 @@ class Project:
         Returns:
             GWAS: The GWAS computation
         """
+        deprecation.warn(
+            "project.new_gwas",
+            "tuneinsight.computations.GWAS(project, ...)",
+            version="0.13.0",
+        )
         return GWAS(project=self)
 
     def new_linear_regression(
@@ -571,6 +608,11 @@ class Project:
         Returns:
             LinearRegression: The linear regression computation
         """
+        deprecation.warn(
+            "project.new_linear_regression",
+            "tuneinsight.computations.LinearRegression(project, ...)",
+            version="0.13.0",
+        )
         return LinearRegression(
             project=self,
             continuous_labels=continuous_labels,
@@ -589,6 +631,11 @@ class Project:
         Returns:
             LogisticRegression: The logistic regression computation
         """
+        deprecation.warn(
+            "project.new_logistic_regression",
+            "tuneinsight.computations.LogisticRegression(project, ...)",
+            version="0.13.0",
+        )
         return LogisticRegression(
             project=self,
             approximation_params=approximation_params,
@@ -601,6 +648,11 @@ class Project:
         Returns:
             PoissonRegression: The poisson regression computation
         """
+        deprecation.warn(
+            "project.new_poisson_regression",
+            "tuneinsight.computations.PoissonRegression(project, ...)",
+            version="0.13.0",
+        )
         return PoissonRegression(project=self)
 
     def new_survival_aggregation(
@@ -615,6 +667,11 @@ class Project:
         Returns:
             SurvivalAggregation: The survival aggregation computation
         """
+        deprecation.warn(
+            "project.new_survival_aggregation",
+            "tuneinsight.computations.SurvivalAnalysis(project, ...)",
+            version="0.13.0",
+        )
         return SurvivalAnalysis(project=self, survival_parameters=parameters)
 
     def new_hybrid_fl(
@@ -632,6 +689,11 @@ class Project:
         Returns:
             HybridFL: the hybrid federated learning computation instance
         """
+        deprecation.warn(
+            "project.new_hybrid_fl",
+            "tuneinsight.computations.HybridFL(project, ...)",
+            version="0.13.0",
+        )
         return HybridFL(project=self, task_id=task_id, learning_params=learning_params)
 
     def new_statistics(self, variables: List[str] = None) -> Statistics:
@@ -644,6 +706,11 @@ class Project:
         Returns:
             DatasetStatistics: the dataset statistics computation instance
         """
+        deprecation.warn(
+            "project.new_statistics",
+            "tuneinsight.computations.Statistics(project, ...)",
+            version="0.13.0",
+        )
         return Statistics(project=self, variables=variables)
 
     def new_matching(self, columns: Union[str, List[str]]) -> Matching:
@@ -656,6 +723,11 @@ class Project:
         Returns:
             Matching: the Matching computation instance
         """
+        deprecation.warn(
+            "project.new_matching",
+            "tuneinsight.computations.Matching(project, ...)",
+            version="0.13.0",
+        )
         return Matching(project=self, columns=columns)
 
     # Retrieving computations run on this project.
@@ -868,6 +940,30 @@ class Project:
             r("Project has no policy.")
             return
         display_policy(policy, detailed=detailed, show_queries=show_queries)
+
+    @contextmanager
+    def policy(self):
+        """
+        Context manager to modify the project's policy.
+
+        Usage:
+
+        ```python
+            with project.policy() as p:
+                # Modify p here.
+        ```
+
+        This is equivalent to the more unwieldy:
+
+        ```python
+        p = project.get_policy()
+        # Modify p here.
+        project.set_policy(p)
+        ```
+        """
+        policy = self.get_policy()
+        yield policy
+        self.set_policy(policy)
 
     def get_policy(self) -> Policy:
         """

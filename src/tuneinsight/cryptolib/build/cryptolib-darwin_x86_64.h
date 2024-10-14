@@ -79,27 +79,27 @@ extern "C" {
 //
 extern char* GetLastGoError();
 
-// NewPolynomialHEFloatParams creates a new set of hefloat parameters given test params for polynomial evaluation
+// NewPolynomialCkksParams creates a new set of ckks parameters given test params for polynomial evaluation
 // and returns them serialized with Marshall Binary and encoded in base64
 //
-extern char* NewPolynomialHEFloatParams();
+extern char* NewPolynomialCkksParams();
 
-// NewTestPredictionParams creates a new set of HeFloatOperator hefloat given test params for prediction
+// NewTestPredictionParams creates a new set of CkksOperator ckks given test params for prediction
 // and returns them serialized with Marshall Binary and encoded in base64
 //
 extern char* NewTestPredictionParams();
 
-// NewHEFloatOperatorFromB64Parameters takes a b64 encoded marshalled hefloat.Parameters to
-// instantiate a new hefloat operator.
+// NewCkksOperatorFromB64Parameters takes a b64 encoded marshalled ckks.Parameters to
+// instantiate a new ckks operator.
 //
-extern char* NewHEFloatOperatorFromB64Parameters(char* b64params);
+extern char* NewCkksOperatorFromB64Parameters(char* b64params);
 
-// NewHEFloatOperatorFromB64SchemeContext takes a b64 encoded marshalled scheme.Context to
-// instantiate a new hefloat operator.
+// NewCkksOperatorFromB64SchemeContext takes a b64 encoded marshalled scheme.Context to
+// instantiate a new ckks operator.
 //
-extern char* NewHEFloatOperatorFromB64SchemeContext(char* b64Context);
+extern char* NewCkksOperatorFromB64SchemeContext(char* b64Context);
 
-// GenKeyPair generates a serialized key pair using as first argument the id of the HeFloatOperator
+// GenKeyPair generates a serialized key pair using as first argument the id of the CkksOperator
 //
 extern char* GenKeyPair(char* id);
 extern char* GetSecretKeyB64(char* id);
@@ -131,7 +131,7 @@ extern void* DecryptPredictionResult(char* id, void* ciphertext, size_t ctSize);
 //
 extern void* EncryptPredictionDataset(char* id, void* csv, size_t csvSize, char* b64PredParams, int removeHeader);
 
-// GenRelinearizationKey generates a relinearization using as first argument the id of the HeFloatOperator
+// GenRelinearizationKey generates a relinearization using as first argument the id of the CkksOperator
 // write a test that calls one of those functions
 // pass failing payload: catch error in python
 //
@@ -153,11 +153,11 @@ extern size_t DecodeBase64UrlSize(char* base64data);
 //
 extern char* GenerateEvaluator(char* id);
 
-// GenerateEncryptor instantiates the encryptor in the hefloat operator.
+// GenerateEncryptor instantiates the encryptor in the ckks operator.
 //
 extern char* GenerateEncryptor(char* id);
 
-// GenerateDecryptor instaniates the decryptor in the hefloat operator.
+// GenerateDecryptor instaniates the decryptor in the ckks operator.
 //
 extern char* GenerateDecryptor(char* id);
 

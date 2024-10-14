@@ -250,6 +250,7 @@ class SurvivalAnalysis(ModelBasedComputation):
         matching_organization: str = "",
         matching_columns: List[str] = None,
         fuzzy_matching: bool = False,
+        dp_epsilon: float = UNSET,
     ):
         """
         Initializes a Survival Analysis.
@@ -260,6 +261,8 @@ class SurvivalAnalysis(ModelBasedComputation):
             matching_organization (str): the organization with whom to match records.
             matching_columns (list of str): the columns to use for the matching.
             fuzzy_matching (bool, default False): whether to match approximately (fuzzy).
+            dp_epsilon (float, optional): The privacy budget to use with this workflow.
+                Defaults to UNSET, in which case differential privacy is not used.
         """
         super().__init__(
             project,
@@ -277,6 +280,7 @@ class SurvivalAnalysis(ModelBasedComputation):
                 if matching_columns is not None
                 else []
             ),
+            dp_epsilon=dp_epsilon,
         )
         # Also save the survival parameters for post-processing.
         self.survival_parameters = survival_parameters
@@ -374,3 +378,5 @@ class SurvivalAnalysis(ModelBasedComputation):
         self.model.subgroups.append(
             models.SurvivalAggregationSubgroupsItem(filter_=filter_operation, name=name)
         )
+        # Update the computation with this subgroup (and broadcast changes).
+        self.project.set_computation(self)

@@ -35,9 +35,8 @@ class EncryptedMean(ModelBasedComputation):
     def __init__(
         self,
         project,
-        variables: List[str],
-        participant: str,
-        grouping_keys: List[str] = UNSET,
+        columns: List[str],
+        grouping_columns: List[str] = UNSET,
         min_participants: int = 5,
         outlier_threshold: int = 2,
     ):
@@ -46,8 +45,7 @@ class EncryptedMean(ModelBasedComputation):
 
         Args
             project (client.Project): the project to which this computation belongs.
-            variables (list[str]): the variables for which to compute the mean and stddev.
-            participant (str): name of the participants column.
+            columns (list[str]): the columns for which to compute the mean and stddev.
             grouping_keys (list[str]): columns by which to disaggregate the mean (groupby).
             min_participants (int, default 5): minimum number of participants required for
                 this computation. If less participants are available for a set of grouping
@@ -59,25 +57,24 @@ class EncryptedMean(ModelBasedComputation):
             project,
             model_class=models.EncryptedMean,
             type=models.ComputationType.ENCRYPTEDMEAN,
-            variables=variables,
-            participant=participant,
-            grouping_keys=grouping_keys,
+            variables=columns,
+            grouping_keys=grouping_columns,
             min_participants=min_participants,
             outlier_threshold=outlier_threshold,
+            release_results=True,
         )
 
     @classmethod
     def from_model(
-        cls, project: "Project", model: models.EncryptedMean
+        cls, project: "Project", model: models.EncryptedMean  # type: ignore
     ) -> "EncryptedMean":
         """Initializes an EncryptedMean from its API model."""
         model = models.EncryptedMean.from_dict(model.to_dict())
         with project.disable_patch():
             comp = cls(
                 project,
-                variables=model.variables,
-                participant=model.participant,
-                grouping_keys=model.grouping_keys,
+                columns=model.variables,
+                grouping_columns=model.grouping_keys,
                 min_participants=value_if_unset(model.min_participants, 5),
                 outlier_threshold=value_if_unset(model.outlier_threshold, 2),
             )

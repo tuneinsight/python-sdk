@@ -5,7 +5,7 @@ import json
 import warnings
 import pandas as pd
 from tuneinsight.api.sdk import models
-from tuneinsight.api.sdk.types import UNSET, none_if_unset, false_if_unset
+from tuneinsight.api.sdk.types import UNSET, is_set, none_if_unset, false_if_unset
 from tuneinsight.client.dataobject import DataContent
 from tuneinsight.computations.base import ModelBasedComputation
 from tuneinsight.utils.plots import hist_grouped, hist
@@ -67,70 +67,68 @@ class Aggregation(ModelBasedComputation):
         **kwargs,
     ):
         """
-        Creates a new Encrypted Aggregation / Sum workflow.
+        Creates a new encrypted aggregation workflow.
         This workflow computes the sum of the dataset's columns under encryption.
 
-        Parameters
-        ----------
-        project : Project
-            The project to run the computation with.
+        Args:
+            project (`Project`): The project to run the computation with.
 
-        columns : list[models.ColumnProperties  |  str] | str, default: None
-            The list of column names or single column to aggregate from the input dataset.
-            If no columns are specified, then the workflow will use all of the dataset's columns.
-            Columns can be either provided as a list of string values corresponding to their column names or
-            as a models.ColumnProperties, which can specify minimum and maximum bounds for the column values to be taken into account
-            when clipping and/or differential privacy is being used.
+            columns (`list[models.ColumnProperties|str]|str`):
+                The list of column names or single column to aggregate from the input dataset.
+                If no columns are specified, then the workflow will use all of the dataset's columns.
+                Columns can be either provided as a list of string values corresponding to their column names or
+                as a models.ColumnProperties, which can specify minimum and maximum bounds for the column values to be taken into account
+                when clipping and/or differential privacy is being used.
 
-        groups : List[any], default: None
-            Groups to use to perform a group-by operation locally before aggregating the columns per-group.
-            Groups can be specified using multiple syntax:
-            - 'column':
-                groups the data according to categorical values found in the 'column'.
-            - ('column',['category_1','category_2']):
-                groups the data according to categorical values from 'column' that matches either 'category_1' or 'category_2'.
-            - ('column',['category_1','category_2'],'default_value'):
-                assigns the 'default_value' group to the record by default when the record does not match the specified
-                categories.
-            - ('column',10): groups are determined using numerical bins with a bin size of 10 according to the values in 'column'.
-                This results in intervals such as ..., [-10,0), [0,10), [10,20), ...
-            - ('column',10,-5): groups are determined using numerical bins with a bin size of 10 centered around -5.
-                This results in intervals such as ..., [-15,-5), [-5,5), [5,15), ...
-            - ('column',[0,40,50]): groups are determined using numerical bins with varying bin sizes determined by the provided list of cuts.
-                This results in intervals such as (,0), [0,40), [40,50),[50,)
+            groups (`str|List[any]`):
+                Groups to use to perform a group-by operation locally before aggregating the columns per-group.
+                Groups can be specified using multiple syntax:
+                    'column': groups the data according to categorical values found in the 'column'.
+                    ('column',['category_1','category_2']): groups the data according to categorical values from
+                        column' that matches either 'category_1' or 'category_2'.
+                    ('column',['category_1','category_2'],'default_value'): assigns the 'default_value' group to
+                        the record by default when the record does not match the specified categories.
+                    ('column',bin_size): groups are determined using numerical bins with a bin size of 10 according to
+                        the values in 'column'. For `bin_size = 10`, this results in intervals such as ..., [-10,0), [0,10), [10,20), ...
+                    ('column',bin_size,bin_center): groups are determined using numerical bins with a bin size of `bin_size` centered
+                        around `bin_center`. For `bin_size = 10` and `bin_center = -5`, this results in intervals such as ..., [-15,-5), [-5,5), [5,15), ...
+                    ('column',[bin_edge_1,...,bin_edge_k]): groups are determined using numerical bins with varying bin sizes determined
+                        by the provided list of cuts. This results in intervals such as (,0), [0,40), [40,50), [50,).
+                    List[`models.GroupingParameters`]: to directly specify the grouping parameters using the API models.
 
-        include_count (bool, optional):
-            Controls whether the output will contain the total number of aggregated records.
-            Defaults to False.
+            include_count (bool, optional):
+                Controls whether the output will contain the total number of aggregated records.
+                Defaults to False.
 
+            allow_missing_columns (bool, optional):
+                When set to true, dummy zero-value columns are created for any columns specified in the 'columns' parameter that are missing in the input dataset.
+                If set to false, an error is returned if any of the specified columns are missing from the input dataset.
+                If no columns are specified and the columns from each participant are not identical, an error is returned.
+                When grouping columns are specified, they must exist in the dataset regardless of the value of this parameter.
+                However, the records from each participant do not need to fall into all groups.
 
-        allow_missing_columns (bool, optional):
-            When set to true, dummy zero-value columns are created for any columns specified in the 'columns' parameter that are missing in the input dataset.
-            If set to false, an error is returned if any of the specified columns are missing from the input dataset.
-            If no columns are specified and the columns from each participant are not identical, an error is returned.
-            When grouping columns are specified, they must exist in the dataset regardless of the value of this parameter.
-            However, the records from each participant do not need to fall into all groups.
+            average (bool, optional):
+                Controls whether the aggregated results are automatically averaged on the client-side.
+                If this is set, then the include_count parameter gets automatically set to True.
+                This allows the client to use the record count to compute the average in the post-processing phase.
+                Defaults to False.
 
-        average (bool, optional):
-            Controls whether the aggregated results are automatically averaged on the client-side.
-            If this is set, then the include_count parameter gets automatically set to True.
-            This allows the client to use the record count to compute the average in the post-processing phase.
-            Defaults to False.
+            float_precision (int, optional):
+                Numerical precision of the output aggregated values. Defaults to 2.
 
-        float_precision (int, optional):
-            Numerical precision of the output aggregated values. Defaults to 2.
+            cohort (Cohort, optional):
+                Cohort (Set Intersection workflow result) that can be reused as an input to this workflow. Defaults to None.
 
-        cohort (Cohort, optional):
-            Cohort (Set Intersection workflow result) that can be reused as an input to this workflow. Defaults to None.
-
-        dp_epsilon (float, optional):
-            The privacy budget to use with this workflow. Defaults to UNSET, in which case differential privacy is not used.
+            dp_epsilon (float, optional):
+                The privacy budget to use with this workflow. Defaults to UNSET, in which case differential privacy is not used.
         """
 
         # convert columns to appropriate API representation
         columns = Aggregation._parse_columns(columns=columns)
         # convert groups to appropriate API representation
         groups = Aggregation._parse_groups(groups=groups)
+        if project.is_differentially_private:
+            self._assert_dp_groups_compatibility(groups)
         # if groups are specified but columns are not, then set include count to true
         # if the average is requested then include average in.
         if (len(groups) > 0 and len(columns) == 0) or average:
@@ -235,6 +233,22 @@ class Aggregation(ModelBasedComputation):
                 warnings.warn(f"parsing {col} output column to JSON: {e}")
                 cols.append({"aggregatedColumn": col, "groups": [], "count": False})
         return cols
+
+    @staticmethod
+    def _assert_dp_groups_compatibility(groups: List[models.GroupingParameters]):
+        """
+        Asserts whether grouping parameters are compatible with differential privacy.
+        """
+        for group in groups:
+            if false_if_unset(group.numeric):
+                # Numerical attribute: check that cuts are defined.
+                assert is_set(
+                    group.cuts
+                ), "cuts must be defined for numerical values when using differential privacy."
+            else:
+                assert is_set(
+                    group.possible_values
+                ), "possible_values must be defined for categorical values when using differential privacy."
 
     def compute_approximate_quantiles(
         self, column: str, min_v: float = 0, max_v: float = 200, local: bool = False

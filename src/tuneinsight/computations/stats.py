@@ -2,7 +2,6 @@
 
 from typing import List, Dict, Any, Union
 import warnings
-import math
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -30,7 +29,7 @@ class StatisticsResults(ComputationResult):
 
     def as_table(self) -> pd.DataFrame:
         """Returns a pandas DataFrame containing the statistics."""
-        cols = ["name", "mean", "variance", "min", "median", "max", "IQR"]
+        cols = ["name", "mean", "variance", "stddev", "min", "median", "max", "IQR"]
         data = []
         for res in self.results:
             data.append(
@@ -38,6 +37,7 @@ class StatisticsResults(ComputationResult):
                     res.name,
                     res.mean,
                     res.variance,
+                    res.stddev,
                     res.min_,
                     res.median,
                     res.max_,
@@ -71,7 +71,7 @@ class StatisticsResults(ComputationResult):
             )
             names.append(var_name)
             means.append(res.mean)
-            deviations.append(math.sqrt(res.variance))
+            deviations.append(res.stddev)
 
         ax[0].errorbar(names, means, deviations, linestyle="None", marker="o", color=c)
         ax[1].bxp(boxes, showfliers=False, medianprops={"color": c})

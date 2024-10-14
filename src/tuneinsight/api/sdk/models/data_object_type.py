@@ -29,6 +29,7 @@ class DataObjectType(str, Enum):
     PIR_DATASET = "pir-dataset"
     ENCRYPTED_PIR_SEARCH = "encrypted-pir-search"
     ENCRYPTED_PIR_RESULT = "encrypted-pir-result"
+    ENCRYPTED_DATA_OBJECT = "encrypted-data-object"
 
     def __str__(self) -> str:
         return str(self.value)

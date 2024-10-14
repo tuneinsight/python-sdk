@@ -22,6 +22,10 @@ class GetNetworkMetadataResponse200:
         default_topology (Union[Unset, str]): Indicates the default topology of the network used when creating a
             project. Values can be "star" or "tree".
         dpo_authorization_enabled (Union[Unset, bool]): Indicates if collective projects require authorization.
+        e_2_ee_enforced (Union[Unset, bool]): Indicates if the instance is configured to only allow end-to-end encrypted
+            computations.
+            When this mode is activated, the e2e project setting cannot be toggled off anymore and only computations
+            supporting e2e mode can be launched.
         network_type (Union[Unset, GetNetworkMetadataResponse200NetworkType]): Indicates the type of network. Values can
             be "default" or "sse".
         networks (Union[Unset, List['Network']]):
@@ -32,6 +36,7 @@ class GetNetworkMetadataResponse200:
     compound_queries_enabled: Union[Unset, bool] = UNSET
     default_topology: Union[Unset, str] = UNSET
     dpo_authorization_enabled: Union[Unset, bool] = UNSET
+    e_2_ee_enforced: Union[Unset, bool] = UNSET
     network_type: Union[Unset, GetNetworkMetadataResponse200NetworkType] = UNSET
     networks: Union[Unset, List["Network"]] = UNSET
     nodes: Union[Unset, List["Node"]] = UNSET
@@ -42,6 +47,7 @@ class GetNetworkMetadataResponse200:
         compound_queries_enabled = self.compound_queries_enabled
         default_topology = self.default_topology
         dpo_authorization_enabled = self.dpo_authorization_enabled
+        e_2_ee_enforced = self.e_2_ee_enforced
         network_type: Union[Unset, str] = UNSET
         if not isinstance(self.network_type, Unset):
             network_type = self.network_type.value
@@ -75,6 +81,8 @@ class GetNetworkMetadataResponse200:
             field_dict["defaultTopology"] = default_topology
         if dpo_authorization_enabled is not UNSET:
             field_dict["dpoAuthorizationEnabled"] = dpo_authorization_enabled
+        if e_2_ee_enforced is not UNSET:
+            field_dict["e2eeEnforced"] = e_2_ee_enforced
         if network_type is not UNSET:
             field_dict["networkType"] = network_type
         if networks is not UNSET:
@@ -97,6 +105,8 @@ class GetNetworkMetadataResponse200:
         default_topology = d.pop("defaultTopology", UNSET)
 
         dpo_authorization_enabled = d.pop("dpoAuthorizationEnabled", UNSET)
+
+        e_2_ee_enforced = d.pop("e2eeEnforced", UNSET)
 
         _network_type = d.pop("networkType", UNSET)
         network_type: Union[Unset, GetNetworkMetadataResponse200NetworkType]
@@ -125,6 +135,7 @@ class GetNetworkMetadataResponse200:
             compound_queries_enabled=compound_queries_enabled,
             default_topology=default_topology,
             dpo_authorization_enabled=dpo_authorization_enabled,
+            e_2_ee_enforced=e_2_ee_enforced,
             network_type=network_type,
             networks=networks,
             nodes=nodes,

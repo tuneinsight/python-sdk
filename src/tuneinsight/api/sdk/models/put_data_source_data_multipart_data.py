@@ -15,11 +15,13 @@ class PutDataSourceDataMultipartData:
         data_source_request_data (Union[Unset, File]): Data source data file. Supported format: CSV.
         data_source_request_data_raw (Union[Unset, str]): Data source data provided as raw string csv
         table_name (Union[Unset, str]): optional table name to upload data to.
+        delimiter (Union[Unset, str]): optional delimiter setting for csv loading
     """
 
     data_source_request_data: Union[Unset, File] = UNSET
     data_source_request_data_raw: Union[Unset, str] = UNSET
     table_name: Union[Unset, str] = UNSET
+    delimiter: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -29,6 +31,7 @@ class PutDataSourceDataMultipartData:
 
         data_source_request_data_raw = self.data_source_request_data_raw
         table_name = self.table_name
+        delimiter = self.delimiter
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -39,6 +42,8 @@ class PutDataSourceDataMultipartData:
             field_dict["dataSourceRequestDataRaw"] = data_source_request_data_raw
         if table_name is not UNSET:
             field_dict["tableName"] = table_name
+        if delimiter is not UNSET:
+            field_dict["delimiter"] = delimiter
 
         return field_dict
 
@@ -57,6 +62,9 @@ class PutDataSourceDataMultipartData:
             if isinstance(self.table_name, Unset)
             else (None, str(self.table_name).encode(), "text/plain")
         )
+        delimiter = (
+            self.delimiter if isinstance(self.delimiter, Unset) else (None, str(self.delimiter).encode(), "text/plain")
+        )
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(
@@ -69,6 +77,8 @@ class PutDataSourceDataMultipartData:
             field_dict["dataSourceRequestDataRaw"] = data_source_request_data_raw
         if table_name is not UNSET:
             field_dict["tableName"] = table_name
+        if delimiter is not UNSET:
+            field_dict["delimiter"] = delimiter
 
         return field_dict
 
@@ -86,10 +96,13 @@ class PutDataSourceDataMultipartData:
 
         table_name = d.pop("tableName", UNSET)
 
+        delimiter = d.pop("delimiter", UNSET)
+
         put_data_source_data_multipart_data = cls(
             data_source_request_data=data_source_request_data,
             data_source_request_data_raw=data_source_request_data_raw,
             table_name=table_name,
+            delimiter=delimiter,
         )
 
         put_data_source_data_multipart_data.additional_properties = d

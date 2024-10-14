@@ -26,6 +26,7 @@ class StatisticResult:
         median (Union[Unset, None, float]):
         min_ (Union[Unset, None, float]):
         quantiles (Union[Unset, List[float]]):
+        stddev (Union[Unset, None, float]):
         variance (Union[Unset, None, float]):
     """
 
@@ -39,6 +40,7 @@ class StatisticResult:
     median: Union[Unset, None, float] = UNSET
     min_: Union[Unset, None, float] = UNSET
     quantiles: Union[Unset, List[float]] = UNSET
+    stddev: Union[Unset, None, float] = UNSET
     variance: Union[Unset, None, float] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -59,6 +61,7 @@ class StatisticResult:
         if not isinstance(self.quantiles, Unset):
             quantiles = self.quantiles
 
+        stddev = self.stddev
         variance = self.variance
 
         field_dict: Dict[str, Any] = {}
@@ -84,6 +87,8 @@ class StatisticResult:
             field_dict["min"] = min_
         if quantiles is not UNSET:
             field_dict["quantiles"] = quantiles
+        if stddev is not UNSET:
+            field_dict["stddev"] = stddev
         if variance is not UNSET:
             field_dict["variance"] = variance
 
@@ -119,6 +124,8 @@ class StatisticResult:
 
         quantiles = cast(List[float], d.pop("quantiles", UNSET))
 
+        stddev = d.pop("stddev", UNSET)
+
         variance = d.pop("variance", UNSET)
 
         statistic_result = cls(
@@ -132,6 +139,7 @@ class StatisticResult:
             median=median,
             min_=min_,
             quantiles=quantiles,
+            stddev=stddev,
             variance=variance,
         )
 

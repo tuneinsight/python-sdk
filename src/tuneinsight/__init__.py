@@ -1,5 +1,3 @@
-"""Tune Insight Diapason SDK."""
-
 # Import the key class.
 from .client import Diapason
 

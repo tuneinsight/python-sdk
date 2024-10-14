@@ -1,6 +1,4 @@
 """
-# The diapason module
-
 `Diapason` defines the client used to interact with Tune Insight instances.
 This client is initialized by connecting and authenticating to an instance.
 The client serves as an entrypoint to the server, and can be used to interact
@@ -143,6 +141,7 @@ class Diapason:
         http_proxy: str = "",
         https_proxy: str = "",
         verify_ssl: bool = True,
+        strict: bool = False,
     ):
         """
         Creates a client from the specified attributes.
@@ -159,6 +158,8 @@ class Diapason:
             http_proxy (str): the HTTP proxy to use (default is none).
             https_proxy (str): the HTTPS proxy to use (default is none).
             verify_ssl (bool): whether to verify SSL certificates (default is True).
+            strict (bool): whether to use api_url as is (if True), or try and append /api if the url doesn't
+                end in /api and strict = False. Set to true only if the API url does not end in /api.
 
         """
         conf = {
@@ -173,6 +174,7 @@ class Diapason:
             "url": api_url,
             "http_proxy": http_proxy,
             "https_proxy": https_proxy,
+            "strict": strict,
         }
         conf = config.ClientConfiguration.from_json(conf)
         return cls(conf)
@@ -186,6 +188,7 @@ class Diapason:
         oidc_url: str = "https://auth.tuneinsight.com/auth/",
         oidc_realm: str = "ti-realm",
         verify_ssl: bool = True,
+        strict: bool = False,
     ) -> "Diapason":
         """
         Creates a client with service account credentials.
@@ -197,6 +200,8 @@ class Diapason:
             oidc_url (str): where to find the OIDC auth server (default is the Tune Insight auth endpoint).
             oidc_realm (str): the OIDC realm (default ti-realm).
             verify_ssl (bool): whether to verify SSL certificates (default is True).
+            strict (bool): whether to use api_url as is (if True), or try and append /api if the url doesn't
+                end in /api and strict = False. Set to true only if the API url does not end in /api.
 
         """
         conf = config.ClientConfiguration(
@@ -213,6 +218,7 @@ class Diapason:
                 "",
                 verify_ssl,
             ),
+            strict=strict,
         )
         return cls(conf)
 
@@ -538,7 +544,7 @@ class Diapason:
         topology: models.Topology = UNSET,
         authorized_users: list = None,
         participants: list = None,
-        non_contributor: bool = False,
+        non_contributor: bool = UNSET,
         run_async: bool = True,
         description: str = None,
     ) -> Project:
@@ -563,8 +569,8 @@ class Diapason:
             authorized_users (Union[Unset, List[str]]): The IDs of the users who can run the project. If left empty,
                 only the user creating the project and administrators are authorized.
             participants (Union[Unset, List[str]]): The IDs of the users who participate in the project.
-            non_contributor (bool, default False): indicates that this participant participates in the
-                computations but does not contribute any data.
+            non_contributor (bool, default UNSET): indicates that this participant participates in the
+                computations but does not contribute any data. If left unchanged, this uses instance settings.
             run_async (bool, default True): whether to run computations asynchronously.
             description (str,default None): optional description of the project. Defaults to None.
 

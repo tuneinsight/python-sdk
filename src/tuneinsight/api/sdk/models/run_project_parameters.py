@@ -18,11 +18,14 @@ class RunProjectParameters:
 
     Attributes:
         computation_definition (Union[Unset, ComputationDefinition]): Generic computation.
+        requesting_instance_id (Union[Unset, str]): name of the instance that requested to run the project, when the
+            project is being run from a leaf instance.
         run_mode (Union[Unset, RunMode]): Defines the mode in which to run a computation (local, collective, or both)
         wait (Union[Unset, None, bool]): whether to run the computation synchronously
     """
 
     computation_definition: Union[Unset, "ComputationDefinition"] = UNSET
+    requesting_instance_id: Union[Unset, str] = UNSET
     run_mode: Union[Unset, RunMode] = UNSET
     wait: Union[Unset, None, bool] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
@@ -32,6 +35,7 @@ class RunProjectParameters:
         if not isinstance(self.computation_definition, Unset):
             computation_definition = self.computation_definition.to_dict()
 
+        requesting_instance_id = self.requesting_instance_id
         run_mode: Union[Unset, str] = UNSET
         if not isinstance(self.run_mode, Unset):
             run_mode = self.run_mode.value
@@ -43,6 +47,8 @@ class RunProjectParameters:
         field_dict.update({})
         if computation_definition is not UNSET:
             field_dict["computationDefinition"] = computation_definition
+        if requesting_instance_id is not UNSET:
+            field_dict["requestingInstanceId"] = requesting_instance_id
         if run_mode is not UNSET:
             field_dict["runMode"] = run_mode
         if wait is not UNSET:
@@ -62,6 +68,8 @@ class RunProjectParameters:
         else:
             computation_definition = ComputationDefinition.from_dict(_computation_definition)
 
+        requesting_instance_id = d.pop("requestingInstanceId", UNSET)
+
         _run_mode = d.pop("runMode", UNSET)
         run_mode: Union[Unset, RunMode]
         if isinstance(_run_mode, Unset):
@@ -73,6 +81,7 @@ class RunProjectParameters:
 
         run_project_parameters = cls(
             computation_definition=computation_definition,
+            requesting_instance_id=requesting_instance_id,
             run_mode=run_mode,
             wait=wait,
         )

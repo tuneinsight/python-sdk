@@ -33,7 +33,11 @@ class Project:
             a client to query the data source all participants of the project and return the clear text result
         allow_shared_edit (Union[Unset, bool]): True if this project can be modified after being shared. Modifications
             of a shared project will be broadcasted to the network
-        authorized_users (Union[Unset, List[str]]): The IDs of the users who can run the project
+        authorized_instances (Union[Unset, List[str]]): list of instances that are allowed to request computations in
+            the project.
+            Can only be modified by project administrators from the instance that created this project.
+        authorized_users (Union[Unset, List[str]]): list of users that are allowed to request computations in the
+            project.
         computation_definition (Union[Unset, ComputationDefinition]): Generic computation.
         created_by_node (Union[Unset, str]): ID (alias) of node where the project was first created
         created_by_user (Union[Unset, str]): ID of user who created the project
@@ -66,6 +70,9 @@ class Project:
             project will run indefinitely
         recurring_interval (Union[Unset, None, int]): Interval between each repetition in minutes
         recurring_start_time (Union[Unset, None, str]): ISO 8601 datetime when the repetition should start
+        restrict_instances (Union[Unset, None, bool]): whether to restrict which instances are allowed request
+            computations in the project.
+            Can only be modified by project administrators from the instance that created this project.
         run_async (Union[Unset, bool]): flag indicating if computation should be run asynchronously
         share_token (Union[Unset, str]): the sharing token
         shared (Union[Unset, bool]): True if the project has once been shared across the participants
@@ -97,6 +104,7 @@ class Project:
 
     allow_clear_query: Union[Unset, bool] = UNSET
     allow_shared_edit: Union[Unset, bool] = UNSET
+    authorized_instances: Union[Unset, List[str]] = UNSET
     authorized_users: Union[Unset, List[str]] = UNSET
     computation_definition: Union[Unset, "ComputationDefinition"] = UNSET
     created_by_node: Union[Unset, str] = UNSET
@@ -121,6 +129,7 @@ class Project:
     recurring_end_time: Union[Unset, None, str] = UNSET
     recurring_interval: Union[Unset, None, int] = UNSET
     recurring_start_time: Union[Unset, None, str] = UNSET
+    restrict_instances: Union[Unset, None, bool] = UNSET
     run_async: Union[Unset, bool] = UNSET
     share_token: Union[Unset, str] = UNSET
     shared: Union[Unset, bool] = UNSET
@@ -146,6 +155,10 @@ class Project:
     def to_dict(self) -> Dict[str, Any]:
         allow_clear_query = self.allow_clear_query
         allow_shared_edit = self.allow_shared_edit
+        authorized_instances: Union[Unset, List[str]] = UNSET
+        if not isinstance(self.authorized_instances, Unset):
+            authorized_instances = self.authorized_instances
+
         authorized_users: Union[Unset, List[str]] = UNSET
         if not isinstance(self.authorized_users, Unset):
             authorized_users = self.authorized_users
@@ -188,6 +201,7 @@ class Project:
         recurring_end_time = self.recurring_end_time
         recurring_interval = self.recurring_interval
         recurring_start_time = self.recurring_start_time
+        restrict_instances = self.restrict_instances
         run_async = self.run_async
         share_token = self.share_token
         shared = self.shared
@@ -258,6 +272,8 @@ class Project:
             field_dict["allowClearQuery"] = allow_clear_query
         if allow_shared_edit is not UNSET:
             field_dict["allowSharedEdit"] = allow_shared_edit
+        if authorized_instances is not UNSET:
+            field_dict["authorizedInstances"] = authorized_instances
         if authorized_users is not UNSET:
             field_dict["authorizedUsers"] = authorized_users
         if computation_definition is not UNSET:
@@ -306,6 +322,8 @@ class Project:
             field_dict["recurringInterval"] = recurring_interval
         if recurring_start_time is not UNSET:
             field_dict["recurringStartTime"] = recurring_start_time
+        if restrict_instances is not UNSET:
+            field_dict["restrictInstances"] = restrict_instances
         if run_async is not UNSET:
             field_dict["runAsync"] = run_async
         if share_token is not UNSET:
@@ -364,6 +382,8 @@ class Project:
         allow_clear_query = d.pop("allowClearQuery", UNSET)
 
         allow_shared_edit = d.pop("allowSharedEdit", UNSET)
+
+        authorized_instances = cast(List[str], d.pop("authorizedInstances", UNSET))
 
         authorized_users = cast(List[str], d.pop("authorizedUsers", UNSET))
 
@@ -437,6 +457,8 @@ class Project:
         recurring_interval = d.pop("recurringInterval", UNSET)
 
         recurring_start_time = d.pop("recurringStartTime", UNSET)
+
+        restrict_instances = d.pop("restrictInstances", UNSET)
 
         run_async = d.pop("runAsync", UNSET)
 
@@ -531,6 +553,7 @@ class Project:
         project = cls(
             allow_clear_query=allow_clear_query,
             allow_shared_edit=allow_shared_edit,
+            authorized_instances=authorized_instances,
             authorized_users=authorized_users,
             computation_definition=computation_definition,
             created_by_node=created_by_node,
@@ -555,6 +578,7 @@ class Project:
             recurring_end_time=recurring_end_time,
             recurring_interval=recurring_interval,
             recurring_start_time=recurring_start_time,
+            restrict_instances=restrict_instances,
             run_async=run_async,
             share_token=share_token,
             shared=shared,

@@ -9,7 +9,7 @@ from tuneinsight.computations.preprocessing import Operation
 from tuneinsight.computations.types import Type, displayed_types
 from tuneinsight.utils.display import Renderer
 from tuneinsight.api.sdk import models
-from tuneinsight.api.sdk.types import Unset
+from tuneinsight.api.sdk.types import is_set, is_unset
 
 
 class Policy(models.ComputationPolicy):
@@ -35,7 +35,7 @@ class Policy(models.ComputationPolicy):
         """
         p = cls()
         for attr_name, attr_value in policy.__dict__.items():
-            if not isinstance(attr_value, Unset) and attr_value is not None:
+            if is_set(attr_value) and attr_value is not None:
                 setattr(p, attr_name, attr_value)
         return p
 
@@ -77,7 +77,7 @@ class Policy(models.ComputationPolicy):
         Args:
             query (str): the data source query string
         """
-        if self.authorized_data_source_queries is Unset:
+        if is_unset(self.authorized_data_source_queries):
             self.authorized_data_source_queries = []
         self.authorized_data_source_queries.append(
             models.WhitelistedQuery(name=name, raw_query=query)
@@ -100,7 +100,7 @@ class Policy(models.ComputationPolicy):
         max_categories: Union[int, float] = 0,
     ):
         """
-        adds a column to the set of authorized columns in the dataset.
+        Adds a column to the set of authorized columns in the dataset.
 
         Args:
             column (str): the column to authorize querying on.
@@ -118,12 +118,12 @@ class Policy(models.ComputationPolicy):
                 col.max_categories = models.Threshold(
                     fixed_value=max_categories, type=models.ThresholdType.FIXED
                 )
-        if self.dp_policy.authorized_columns is Unset:
+        if is_unset(self.dp_policy.authorized_columns):
             self.dp_policy.authorized_columns = []
         self.dp_policy.authorized_columns.append(col)
 
     @staticmethod
-    def __new_threshold(
+    def _new_threshold(
         relative: bool = False, fixed_value: int = 10, relative_factor: float = 0.2
     ) -> models.Threshold:
         if relative:
@@ -142,10 +142,18 @@ class Policy(models.ComputationPolicy):
 
         When using DP, additional randomness is added to the outputs of a project
         in order to protect the privacy of data subjects. Only a subset of operations
-        are allowed when using differential privacy. Each computation exhausts a
-        fraction of the execution quota (called privacy budget).
+        are allowed when using differential privacy.
 
-        See the documentation for more details.
+        Typically, DP is used with an execution quota, called the _privacy budget_. The higher
+        the quota, the higher the privacy loss. Use `Policy.set_quota` to define it.
+        Each computation run under DP is assigned a (user-defined) `dp_epsilon` value that defines
+        the amount of the execution quota used when running it.
+
+        See [the documentation](https://docs.tuneinsight.com/docs/Learn/Privacy/#differential-privacy)
+        for an introduction to the concepts of differential privacy.
+
+        The [SDK documentation](https://dev.tuneinsight.com/docs/Usage/python-sdk/advanced/#differential-privacy)
+        gives a detailed code example on how to use differential privacy in a project.
 
         """
         self.dp_policy.use_differential_privacy = True
@@ -168,7 +176,7 @@ class Policy(models.ComputationPolicy):
             fixed_value (int, optional): absolute maximum value when not relative. Defaults to 5.
             relative_factor (float, optional): factor of the dataset size when relative. Defaults to 0.2.
         """
-        self.dp_policy.max_column_count = self.__new_threshold(
+        self.dp_policy.max_column_count = self._new_threshold(
             relative, fixed_value, relative_factor
         )
 
@@ -218,6 +226,10 @@ class Policy(models.ComputationPolicy):
             allocation_interval=interval,
         )
 
+    def set_budget(self, *args, **kwargs):
+        """Sets the execution quota (privacy budget) of the project. Clone of `Policy.set_quota`."""
+        self.set_quota(*args, **kwargs)
+
     def add_authorized_computation_type(self, computation_type: Type):
         """
         Adds a computation type to the list of whitelisted computation types. If no computations type were set before,
@@ -226,7 +238,7 @@ class Policy(models.ComputationPolicy):
         Args:
             computation_type (Type): the type of computation / workflow to whitelist.
         """
-        if isinstance(self.authorized_computation_types, Unset):
+        if is_unset(self.authorized_computation_types):
             self.authorized_computation_types = []
         comp_types = set(self.authorized_computation_types)
         comp_types.add(models.ComputationType(computation_type.to_computation_type()))
@@ -261,10 +273,16 @@ class Policy(models.ComputationPolicy):
             raise ValueError("Inconsistent contract")
         self.authorization_contract = models.AuthorizationContract(
             computation_type=computation_type,
-            computation_parameters=computation_type,
+            computation_parameters=computation_parameters,
             preprocessing=preprocessing,
             data_query=data_query,
         )
+
+    def get_contract(self) -> models.AuthorizationContract:
+        """Returns the authorization contract of the policy."""
+        if is_set(self.authorization_contract):
+            return self.authorization_contract
+        return models.AuthorizationContract(False, False, False, False)
 
     def set_min_dataset_size(self, local_size: int = None, collective_size: int = None):
         """
@@ -316,10 +334,15 @@ def display_policy(
         show_queries (bool, optional): whether to display the list of restricted data source queries. Defaults to True.
     """
     r = Renderer()
+    r.h3("Authorization contract")
+    r(
+        "Once authorization is requested, the project is locked. The project's authorization contract requires that:"
+    )
+    display_authorization_contract(r, p.authorization_contract)
     if (
         p.restrict_data_source_queries
         or p.restrict_preprocessing_operations
-        or not isinstance(p.authorized_computation_types, Unset)
+        or is_set(p.authorized_computation_types)
     ):
         r.h3("Workflow Restrictions")
         r(
@@ -342,7 +365,7 @@ def display_policy(
         else:
             r("- The policy allows only specific data source queries (not shown here).")
     if (
-        not isinstance(p.authorized_computation_types, Unset)
+        is_set(p.authorized_computation_types)
         and len(p.authorized_computation_types) > 0
     ):
         r(
@@ -356,7 +379,7 @@ def display_policy(
             r(f"- {displayed_type}")
     else:
         r("The policy allow running any computation type.")
-    if not isinstance(p.dp_policy, Unset):
+    if is_set(p.dp_policy):
         dp = p.dp_policy
         display_dp_policy(dp)
     if detailed:
@@ -381,6 +404,21 @@ def display_threshold(r: Renderer, text: str, t: models.Threshold):
         )
 
 
+def display_authorization_contract(r: Renderer, t: models.AuthorizationContract):
+    """Displays a user-friendly description of an authorization contract using IPython.display."""
+    if is_unset(t):
+        t = models.AuthorizationContract(False, False, False, False)
+
+    def render(name, value):
+        not_ = is_set(value) and value
+        r(f"- The {name} can{not_} change.")
+
+    render("computation type", t.computation_type)
+    render("computation parameters", t.computation_parameters)
+    render("preprocessing parameters of the computation", t.preprocessing)
+    render("data query", t.data_query)
+
+
 # pylint: disable=R0915
 # (disabled because this function is responsible for generating markdown for many parameters, refactoring it does not make things neater)
 def display_dp_policy(dp: models.DPPolicy, r: Renderer = None):
@@ -397,14 +435,14 @@ def display_dp_policy(dp: models.DPPolicy, r: Renderer = None):
             r.code([column.name for column in dp.authorized_columns]),
             "is automatically dropped from the input dataset.",
         )
-    if not isinstance(dp.min_dataset_size, Unset):
+    if is_set(dp.min_dataset_size):
         r.h3("Local dataset minimum size validation")
         r(
             "The dataset must contain at least",
             r.code(dp.min_dataset_size),
             "or the computation will be aborted.",
         )
-    if not isinstance(dp.min_global_dataset_size, Unset):
+    if is_set(dp.min_global_dataset_size):
         r.h3("Collective dataset minimum size validation")
         r(
             "The collective dataset must contain at least",
@@ -414,24 +452,21 @@ def display_dp_policy(dp: models.DPPolicy, r: Renderer = None):
         r.it(
             "The collective dataset size is computed under encryption and then decrypted by all participants."
         )
-    if not isinstance(dp.max_column_count, Unset):
+    if is_set(dp.max_column_count):
         r.h3("Maximum Number of Columns")
         display_threshold(r, "Threshold", dp.max_column_count)
         r(
             "this limits the number of columns which can be created during the preprocessing, avoiding that a subsequent aggregation leaks individual information."
         )
 
-    use_dp = (
-        not isinstance(dp.use_differential_privacy, Unset)
-        and dp.use_differential_privacy
-    )
+    use_dp = is_set(dp.use_differential_privacy) and dp.use_differential_privacy
     if use_dp:
         r.h3("This project uses differential privacy.")
         r(
             "Only computations that support differential privacy can be run on this project.",
             "Each computation will use some of the budget.",
         )
-    if not isinstance(dp.execution_quota_parameters, Unset):
+    if is_set(dp.execution_quota_parameters):
         bp = dp.execution_quota_parameters
         r.h4("Query Limiting parameters")
         alloc_start = bp.start.strftime("%Y-%m-%d %H:%M:%S %Z%z")
@@ -439,7 +474,7 @@ def display_dp_policy(dp: models.DPPolicy, r: Renderer = None):
         if scope == "":
             scope = "project"
         allocated = bp.allocation
-        if isinstance(allocated, Unset):
+        if is_unset(allocated):
             allocated = 0
 
         quota = "budget $\\varepsilon$" if use_dp else "quota"
@@ -458,11 +493,7 @@ def display_dp_policy(dp: models.DPPolicy, r: Renderer = None):
             f"- A {quota} of {allocated} is initially allocated at the following date `{alloc_start}`."
         )
 
-        if (
-            not isinstance(bp.increment, Unset)
-            and bp.increment > 0
-            and not isinstance(bp.allocation_interval, Unset)
-        ):
+        if is_set(bp.increment) and bp.increment > 0 and is_set(bp.allocation_interval):
             r(
                 f"- The {quota} is reallocated by {bp.increment} queries each {bp.allocation_interval.value} {bp.allocation_interval.unit} and cannot exceed {bp.max_allocation}."
             )
