@@ -14,16 +14,17 @@ class Cut:
     Attributes:
         type (PreprocessingOperationType): type of preprocessing operation
         cuts (Union[Unset, List[float]]): cuts to use
-        input_ (Union[Unset, str]): column to use as input
+        input_column (Union[Unset, str]): column to use as input
         labels (Union[Unset, List[str]]): labels to use for the cuts
-        output (Union[Unset, str]): column to use as output
+        output_column (Union[Unset, str]): column to use as output. If not specified, the input column is used (in
+            place).
     """
 
     type: PreprocessingOperationType
     cuts: Union[Unset, List[float]] = UNSET
-    input_: Union[Unset, str] = UNSET
+    input_column: Union[Unset, str] = UNSET
     labels: Union[Unset, List[str]] = UNSET
-    output: Union[Unset, str] = UNSET
+    output_column: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -33,12 +34,12 @@ class Cut:
         if not isinstance(self.cuts, Unset):
             cuts = self.cuts
 
-        input_ = self.input_
+        input_column = self.input_column
         labels: Union[Unset, List[str]] = UNSET
         if not isinstance(self.labels, Unset):
             labels = self.labels
 
-        output = self.output
+        output_column = self.output_column
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -49,12 +50,12 @@ class Cut:
         )
         if cuts is not UNSET:
             field_dict["cuts"] = cuts
-        if input_ is not UNSET:
-            field_dict["input"] = input_
+        if input_column is not UNSET:
+            field_dict["inputColumn"] = input_column
         if labels is not UNSET:
             field_dict["labels"] = labels
-        if output is not UNSET:
-            field_dict["output"] = output
+        if output_column is not UNSET:
+            field_dict["outputColumn"] = output_column
 
         return field_dict
 
@@ -65,18 +66,18 @@ class Cut:
 
         cuts = cast(List[float], d.pop("cuts", UNSET))
 
-        input_ = d.pop("input", UNSET)
+        input_column = d.pop("inputColumn", UNSET)
 
         labels = cast(List[str], d.pop("labels", UNSET))
 
-        output = d.pop("output", UNSET)
+        output_column = d.pop("outputColumn", UNSET)
 
         cut = cls(
             type=type,
             cuts=cuts,
-            input_=input_,
+            input_column=input_column,
             labels=labels,
-            output=output,
+            output_column=output_column,
         )
 
         cut.additional_properties = d

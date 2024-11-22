@@ -12,12 +12,15 @@ class ResultDefinition:
     """user-defined computation result fields
 
     Attributes:
+        display_local (Union[Unset, None, bool]): frontend flag used to toggle the display of the local result when the
+            result has both a collective and local output.
         is_large (Union[Unset, None, bool]): format to display the result
         shared (Union[Unset, None, bool]): if set to true, the result is shared with users from the same project
         tags (Union[Unset, List[str]]):
         title (Union[Unset, str]): title given to the result
     """
 
+    display_local: Union[Unset, None, bool] = UNSET
     is_large: Union[Unset, None, bool] = UNSET
     shared: Union[Unset, None, bool] = UNSET
     tags: Union[Unset, List[str]] = UNSET
@@ -25,6 +28,7 @@ class ResultDefinition:
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        display_local = self.display_local
         is_large = self.is_large
         shared = self.shared
         tags: Union[Unset, List[str]] = UNSET
@@ -36,6 +40,8 @@ class ResultDefinition:
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if display_local is not UNSET:
+            field_dict["displayLocal"] = display_local
         if is_large is not UNSET:
             field_dict["isLarge"] = is_large
         if shared is not UNSET:
@@ -50,6 +56,8 @@ class ResultDefinition:
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
+        display_local = d.pop("displayLocal", UNSET)
+
         is_large = d.pop("isLarge", UNSET)
 
         shared = d.pop("shared", UNSET)
@@ -59,6 +67,7 @@ class ResultDefinition:
         title = d.pop("title", UNSET)
 
         result_definition = cls(
+            display_local=display_local,
             is_large=is_large,
             shared=shared,
             tags=tags,

@@ -17,32 +17,34 @@ class TimeDiff:
     """
     Attributes:
         type (PreprocessingOperationType): type of preprocessing operation
-        end (Union[Unset, str]): column that contains timestamps representing the end of the measured difference
+        end_column (Union[Unset, str]): column that contains timestamps representing the end of the measured difference
         filter_na (Union[Unset, bool]): whether or not to filter null values
         interval (Union[Unset, Duration]): definition of a date-independent time interval
-        output (Union[Unset, str]): the output column that stores the numerical values for the time difference
-        start (Union[Unset, str]): column that contains timestamps representing the start of the measured difference
+        output_column (Union[Unset, str]): the output column that stores the numerical values for the time difference
+            (if not specified, "duration" is used)
+        start_column (Union[Unset, str]): column that contains timestamps representing the start of the measured
+            difference
     """
 
     type: PreprocessingOperationType
-    end: Union[Unset, str] = UNSET
+    end_column: Union[Unset, str] = UNSET
     filter_na: Union[Unset, bool] = UNSET
     interval: Union[Unset, "Duration"] = UNSET
-    output: Union[Unset, str] = UNSET
-    start: Union[Unset, str] = UNSET
+    output_column: Union[Unset, str] = UNSET
+    start_column: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         type = self.type.value
 
-        end = self.end
+        end_column = self.end_column
         filter_na = self.filter_na
         interval: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.interval, Unset):
             interval = self.interval.to_dict()
 
-        output = self.output
-        start = self.start
+        output_column = self.output_column
+        start_column = self.start_column
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -51,16 +53,16 @@ class TimeDiff:
                 "type": type,
             }
         )
-        if end is not UNSET:
-            field_dict["end"] = end
+        if end_column is not UNSET:
+            field_dict["endColumn"] = end_column
         if filter_na is not UNSET:
             field_dict["filterNA"] = filter_na
         if interval is not UNSET:
             field_dict["interval"] = interval
-        if output is not UNSET:
-            field_dict["output"] = output
-        if start is not UNSET:
-            field_dict["start"] = start
+        if output_column is not UNSET:
+            field_dict["outputColumn"] = output_column
+        if start_column is not UNSET:
+            field_dict["startColumn"] = start_column
 
         return field_dict
 
@@ -71,7 +73,7 @@ class TimeDiff:
         d = src_dict.copy()
         type = PreprocessingOperationType(d.pop("type"))
 
-        end = d.pop("end", UNSET)
+        end_column = d.pop("endColumn", UNSET)
 
         filter_na = d.pop("filterNA", UNSET)
 
@@ -82,17 +84,17 @@ class TimeDiff:
         else:
             interval = Duration.from_dict(_interval)
 
-        output = d.pop("output", UNSET)
+        output_column = d.pop("outputColumn", UNSET)
 
-        start = d.pop("start", UNSET)
+        start_column = d.pop("startColumn", UNSET)
 
         time_diff = cls(
             type=type,
-            end=end,
+            end_column=end_column,
             filter_na=filter_na,
             interval=interval,
-            output=output,
-            start=start,
+            output_column=output_column,
+            start_column=start_column,
         )
 
         time_diff.additional_properties = d

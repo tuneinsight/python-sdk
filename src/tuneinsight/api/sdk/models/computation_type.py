@@ -3,17 +3,12 @@ from enum import Enum
 
 class ComputationType(str, Enum):
     DUMMY = "dummy"
-    COLLECTIVEKEYGEN = "collectiveKeyGen"
-    RELINKEYGEN = "relinKeyGen"
-    ROTKEYGEN = "rotKeyGen"
-    BOOTSTRAP = "bootstrap"
     COLLECTIVEKEYSWITCH = "collectiveKeySwitch"
     ENCRYPTEDAGGREGATION = "encryptedAggregation"
     AGGREGATEDDATASETLENGTH = "aggregatedDatasetLength"
     ENCRYPTEDREGRESSION = "encryptedRegression"
     ENCRYPTEDPREDICTION = "encryptedPrediction"
     SETINTERSECTION = "setIntersection"
-    KEYSWITCHEDCOMPUTATION = "keySwitchedComputation"
     VBINNEDAGGREGATION = "vBinnedAggregation"
     SETUPSESSION = "setupSession"
     GWAS = "GWAS"

@@ -13,32 +13,32 @@ class PhoneticEncoding:
     """
     Attributes:
         type (PreprocessingOperationType): type of preprocessing operation
-        input_col (str): column to encode values on
-        output_col (Union[Unset, str]): name of the column to store the encodings. If not specified, the encodings
-            overwrite the input column values.
+        input_column (str): column containing the values to encode
+        output_column (Union[Unset, str]): if specified, name of the column created to store the encodings. If not
+            specified, the encodings overwrite the input column values in place.
     """
 
     type: PreprocessingOperationType
-    input_col: str
-    output_col: Union[Unset, str] = UNSET
+    input_column: str
+    output_column: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         type = self.type.value
 
-        input_col = self.input_col
-        output_col = self.output_col
+        input_column = self.input_column
+        output_column = self.output_column
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "type": type,
-                "inputCol": input_col,
+                "inputColumn": input_column,
             }
         )
-        if output_col is not UNSET:
-            field_dict["outputCol"] = output_col
+        if output_column is not UNSET:
+            field_dict["outputColumn"] = output_column
 
         return field_dict
 
@@ -47,14 +47,14 @@ class PhoneticEncoding:
         d = src_dict.copy()
         type = PreprocessingOperationType(d.pop("type"))
 
-        input_col = d.pop("inputCol")
+        input_column = d.pop("inputColumn")
 
-        output_col = d.pop("outputCol", UNSET)
+        output_column = d.pop("outputColumn", UNSET)
 
         phonetic_encoding = cls(
             type=type,
-            input_col=input_col,
-            output_col=output_col,
+            input_column=input_column,
+            output_column=output_column,
         )
 
         phonetic_encoding.additional_properties = d

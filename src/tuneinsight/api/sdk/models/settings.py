@@ -18,6 +18,7 @@ class Settings:
     """instance settings that is configurable by the administrator.
 
     Attributes:
+        color_theme (Union[Unset, None, str]): Color theme of the instance
         access_with_python (Union[Unset, None, bool]): whether or not to enable the access with Python in Project
             Workflows.
         authorized_project_types (Union[Unset, List[WorkflowType]]): array of project types that are available for
@@ -29,23 +30,27 @@ class Settings:
         default_contract (Union[Unset, AuthorizationContract]): describes what parts of the computation are allowed to
             change when a project is authorized
         default_data_source (Union[Unset, None, str]): Unique identifier of a data source.
+        feasibility_layout (Union[Unset, None, bool]): whether or not to enable the feasibility mode layout.
         selectable_data_source (Union[Unset, None, bool]): whether or not the datasource of the project can be modified.
         set_project_policies (Union[Unset, None, bool]): whether policies can be set for projects.
         sparql_query_builder (Union[Unset, None, bool]): whether or not to enable the SparQL Query Builder.
     """
 
+    color_theme: Union[Unset, None, str] = UNSET
     access_with_python: Union[Unset, None, bool] = UNSET
     authorized_project_types: Union[Unset, List[WorkflowType]] = UNSET
     auto_approve_specification: Union[Unset, "ProjectSpecification"] = UNSET
     auto_reject_specification: Union[Unset, "ProjectSpecification"] = UNSET
     default_contract: Union[Unset, "AuthorizationContract"] = UNSET
     default_data_source: Union[Unset, None, str] = UNSET
+    feasibility_layout: Union[Unset, None, bool] = UNSET
     selectable_data_source: Union[Unset, None, bool] = UNSET
     set_project_policies: Union[Unset, None, bool] = UNSET
     sparql_query_builder: Union[Unset, None, bool] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        color_theme = self.color_theme
         access_with_python = self.access_with_python
         authorized_project_types: Union[Unset, List[str]] = UNSET
         if not isinstance(self.authorized_project_types, Unset):
@@ -68,6 +73,7 @@ class Settings:
             default_contract = self.default_contract.to_dict()
 
         default_data_source = self.default_data_source
+        feasibility_layout = self.feasibility_layout
         selectable_data_source = self.selectable_data_source
         set_project_policies = self.set_project_policies
         sparql_query_builder = self.sparql_query_builder
@@ -75,6 +81,8 @@ class Settings:
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if color_theme is not UNSET:
+            field_dict["ColorTheme"] = color_theme
         if access_with_python is not UNSET:
             field_dict["accessWithPython"] = access_with_python
         if authorized_project_types is not UNSET:
@@ -87,6 +95,8 @@ class Settings:
             field_dict["defaultContract"] = default_contract
         if default_data_source is not UNSET:
             field_dict["defaultDataSource"] = default_data_source
+        if feasibility_layout is not UNSET:
+            field_dict["feasibilityLayout"] = feasibility_layout
         if selectable_data_source is not UNSET:
             field_dict["selectableDataSource"] = selectable_data_source
         if set_project_policies is not UNSET:
@@ -102,6 +112,8 @@ class Settings:
         from ..models.project_specification import ProjectSpecification
 
         d = src_dict.copy()
+        color_theme = d.pop("ColorTheme", UNSET)
+
         access_with_python = d.pop("accessWithPython", UNSET)
 
         authorized_project_types = []
@@ -134,6 +146,8 @@ class Settings:
 
         default_data_source = d.pop("defaultDataSource", UNSET)
 
+        feasibility_layout = d.pop("feasibilityLayout", UNSET)
+
         selectable_data_source = d.pop("selectableDataSource", UNSET)
 
         set_project_policies = d.pop("setProjectPolicies", UNSET)
@@ -141,12 +155,14 @@ class Settings:
         sparql_query_builder = d.pop("sparqlQueryBuilder", UNSET)
 
         settings = cls(
+            color_theme=color_theme,
             access_with_python=access_with_python,
             authorized_project_types=authorized_project_types,
             auto_approve_specification=auto_approve_specification,
             auto_reject_specification=auto_reject_specification,
             default_contract=default_contract,
             default_data_source=default_data_source,
+            feasibility_layout=feasibility_layout,
             selectable_data_source=selectable_data_source,
             set_project_policies=set_project_policies,
             sparql_query_builder=sparql_query_builder,

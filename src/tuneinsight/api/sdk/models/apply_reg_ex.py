@@ -14,16 +14,18 @@ class ApplyRegEx:
     """
     Attributes:
         type (PreprocessingOperationType): type of preprocessing operation
-        regex (str): regular expression to apply
-        cols (Union[Unset, List[str]]): cols from which to extract field
-        names (Union[Unset, List[str]]): names of resulting columns (if none, no new columns are created)
-        regex_type (Union[Unset, ApplyRegExRegexType]): defines what we want to retrieve from the regex
+        regex (str): Regular expression to apply
+        input_columns (Union[Unset, List[str]]): Columns to which the RegEx is applied
+        output_columns (Union[Unset, List[str]]): If specified, names of the newly created columns (if not, no new
+            columns are created, and the operation is in place).
+        regex_type (Union[Unset, ApplyRegExRegexType]): Defines what is extracted from the regex (if not specified,
+            match is used as default).
     """
 
     type: PreprocessingOperationType
     regex: str
-    cols: Union[Unset, List[str]] = UNSET
-    names: Union[Unset, List[str]] = UNSET
+    input_columns: Union[Unset, List[str]] = UNSET
+    output_columns: Union[Unset, List[str]] = UNSET
     regex_type: Union[Unset, ApplyRegExRegexType] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -31,13 +33,13 @@ class ApplyRegEx:
         type = self.type.value
 
         regex = self.regex
-        cols: Union[Unset, List[str]] = UNSET
-        if not isinstance(self.cols, Unset):
-            cols = self.cols
+        input_columns: Union[Unset, List[str]] = UNSET
+        if not isinstance(self.input_columns, Unset):
+            input_columns = self.input_columns
 
-        names: Union[Unset, List[str]] = UNSET
-        if not isinstance(self.names, Unset):
-            names = self.names
+        output_columns: Union[Unset, List[str]] = UNSET
+        if not isinstance(self.output_columns, Unset):
+            output_columns = self.output_columns
 
         regex_type: Union[Unset, str] = UNSET
         if not isinstance(self.regex_type, Unset):
@@ -51,12 +53,12 @@ class ApplyRegEx:
                 "regex": regex,
             }
         )
-        if cols is not UNSET:
-            field_dict["cols"] = cols
-        if names is not UNSET:
-            field_dict["names"] = names
+        if input_columns is not UNSET:
+            field_dict["inputColumns"] = input_columns
+        if output_columns is not UNSET:
+            field_dict["outputColumns"] = output_columns
         if regex_type is not UNSET:
-            field_dict["regex_type"] = regex_type
+            field_dict["regexType"] = regex_type
 
         return field_dict
 
@@ -67,11 +69,11 @@ class ApplyRegEx:
 
         regex = d.pop("regex")
 
-        cols = cast(List[str], d.pop("cols", UNSET))
+        input_columns = cast(List[str], d.pop("inputColumns", UNSET))
 
-        names = cast(List[str], d.pop("names", UNSET))
+        output_columns = cast(List[str], d.pop("outputColumns", UNSET))
 
-        _regex_type = d.pop("regex_type", UNSET)
+        _regex_type = d.pop("regexType", UNSET)
         regex_type: Union[Unset, ApplyRegExRegexType]
         if isinstance(_regex_type, Unset):
             regex_type = UNSET
@@ -81,8 +83,8 @@ class ApplyRegEx:
         apply_reg_ex = cls(
             type=type,
             regex=regex,
-            cols=cols,
-            names=names,
+            input_columns=input_columns,
+            output_columns=output_columns,
             regex_type=regex_type,
         )
 

@@ -23,27 +23,13 @@ from tuneinsight.api.sdk import client as api_client
 from tuneinsight.api.sdk.api.api_datasource import get_data_source
 from tuneinsight.api.sdk.api.api_computations import documentation
 
-from tuneinsight.computations import (
-    Computation,
-    Aggregation,
-    EncryptedMean,
-    GWAS,
-    Matching,
-    SurvivalAnalysis,
-    SurvivalParameters,
-    LinearRegression,
-    LogisticRegression,
-    PoissonRegression,
-    HybridFL,
-    Statistics,
-)
-from tuneinsight.computations.policy import Policy, display_policy
+from tuneinsight.computations import Computation
+from tuneinsight.computations.policy import Policy
 from tuneinsight.computations.dataset_schema import DatasetSchema
 from tuneinsight.computations.types import model_type_to_class
 from tuneinsight.client.validation import validate_response
 from tuneinsight.client.datasource import DataSource
 from tuneinsight.computations.local_data_selection import LocalDataSelection
-from tuneinsight.utils import deprecation
 from tuneinsight.utils.display import Renderer
 
 # pylint: disable=too-many-lines
@@ -106,9 +92,10 @@ class Project:
                 # Operatio
             ```
         """
+        _disable_patch_prev = self._disable_patch
         self._disable_patch = True
         yield self
-        self._disable_patch = False
+        self._disable_patch = _disable_patch_prev
 
     # Internal methods.
 
@@ -131,11 +118,34 @@ class Project:
         Args:
             proj_def (models.ProjectDefinition): the definition to patch with.
         """
+        if self._disable_patch:
+            return
         resp: Response[models.Project] = patch_project.sync_detailed(
             client=self.client, project_id=self.get_id(), json_body=proj_def
         )
         validate_response(response=resp)
         self.model = resp.parsed
+        self._display_error()
+
+    def _display_error(self, hard: bool = False):
+        """Raises warnings containing errors recorded in the project.
+
+        Projects have an "error" field that logs errors that occured during operations, but did
+        not block these operations from completing. These errors typically occur when parts of the
+        operation could complete, but some parts could not (usually, because of errors occuring in
+        remote participants out of this user's control). This method displays the error as a
+        warning
+
+        Args:
+            hard (bool, optional): Whether to raise an error instead of a warning. Defaults to False.
+        """
+        if is_set(self.model.error) and self.model.error:
+            if hard:
+                # pylint: disable=broad-exception-raised
+                raise Exception(self.model.error)
+            # If multiple errors occur, they will be listed on separate lines.
+            for error in self.model.error.split("\n"):
+                warnings.warn(f"Error occured in project {self.get_id()}: {error}")
 
     # Getters for model values.
 
@@ -304,11 +314,6 @@ class Project:
             self.datasource = ds
         else:
             self.datasource = DataSource.fetch_from_id(self.client, ds)
-
-    def set_input_datasource(self, ds: Union[DataSource, str]):
-        """Sets this project's input datasource. Clone of `Project.set_datasource`. Up for deprecation."""
-        deprecation.warn("set_input_datasource", "set_datasource")
-        self.set_datasource(ds)
 
     def set_policy(self, policy: Policy):
         """
@@ -545,191 +550,6 @@ class Project:
 
     # List of all computations that can be created in this project.
 
-    def new_aggregation(self, columns: List[any] = None) -> Aggregation:
-        """
-        Creates a new Aggregation Computation in this project.
-
-        Args:
-            columns (optional): list of variables or column names to perform the aggregation on.
-                If none are provided, all dataset columns will be aggregated, if possible.
-
-        Returns:
-            Aggregation: The aggregation computation
-        """
-        deprecation.warn(
-            "project.new_aggregation",
-            "tuneinsight.computations.Aggregation(project, ...)",
-            version="0.13.0",
-        )
-        return Aggregation(project=self, columns=columns)
-
-    def new_encrypted_mean(
-        self, columns: List[str], grouping_columns: List[str]
-    ) -> EncryptedMean:
-        """
-        Creates a new EncryptedMean Computation in this project.
-
-        Args
-            columns (list[str]): the columns for which to compute the mean and stddev.
-            grouping_columns (list[str]): the columns from which groups are created.
-        """
-        deprecation.warn(
-            "project.new_encrypted_mean",
-            "tuneinsight.computations.EncryptedMean(project, ...)",
-            version="0.13.0",
-        )
-        return EncryptedMean(
-            project=self, columns=columns, grouping_columns=grouping_columns
-        )
-
-    def new_gwas(self) -> GWAS:
-        """
-        Creates a new GWAS in this project.
-
-        Returns:
-            GWAS: The GWAS computation
-        """
-        deprecation.warn(
-            "project.new_gwas",
-            "tuneinsight.computations.GWAS(project, ...)",
-            version="0.13.0",
-        )
-        return GWAS(project=self)
-
-    def new_linear_regression(
-        self, continuous_labels: bool = False
-    ) -> LinearRegression:
-        """
-        Creates a new LinearRegression in this project (🧪 experimental feature).
-
-        Args:
-            continuous_labels (bool): If true, then expects continuous labels (i.e. not binary).
-
-        Returns:
-            LinearRegression: The linear regression computation
-        """
-        deprecation.warn(
-            "project.new_linear_regression",
-            "tuneinsight.computations.LinearRegression(project, ...)",
-            version="0.13.0",
-        )
-        return LinearRegression(
-            project=self,
-            continuous_labels=continuous_labels,
-        )
-
-    def new_logistic_regression(
-        self,
-        approximation_params: models.approximation_params.ApproximationParams = UNSET,
-    ) -> LogisticRegression:
-        """
-        Creates a new LogisticRegression in this project (🧪 experimental feature).
-
-        Args:
-            approximation_params: parameters of the sigmoid approximation.
-
-        Returns:
-            LogisticRegression: The logistic regression computation
-        """
-        deprecation.warn(
-            "project.new_logistic_regression",
-            "tuneinsight.computations.LogisticRegression(project, ...)",
-            version="0.13.0",
-        )
-        return LogisticRegression(
-            project=self,
-            approximation_params=approximation_params,
-        )
-
-    def new_poisson_regression(self) -> PoissonRegression:
-        """
-        Creates a new PoissonRegression in this project (🧪 experimental feature).
-
-        Returns:
-            PoissonRegression: The poisson regression computation
-        """
-        deprecation.warn(
-            "project.new_poisson_regression",
-            "tuneinsight.computations.PoissonRegression(project, ...)",
-            version="0.13.0",
-        )
-        return PoissonRegression(project=self)
-
-    def new_survival_aggregation(
-        self, parameters: SurvivalParameters
-    ) -> SurvivalAnalysis:
-        """
-        Creates a new SurvivalAggregation in this project.
-
-        Args:
-            parameters (SurvivalParameters): configuration for the survival aggregation.
-
-        Returns:
-            SurvivalAggregation: The survival aggregation computation
-        """
-        deprecation.warn(
-            "project.new_survival_aggregation",
-            "tuneinsight.computations.SurvivalAnalysis(project, ...)",
-            version="0.13.0",
-        )
-        return SurvivalAnalysis(project=self, survival_parameters=parameters)
-
-    def new_hybrid_fl(
-        self,
-        task_id: str,
-        learning_params: models.HybridFLLearningParams,
-    ) -> HybridFL:
-        """
-        Creates a new HybridFL in this project (🧪 experimental feature).
-
-        Args
-            task_id (str): a unique identifier for this learning task.
-            learning_params (models.HybridDFLLEarningParams): parameters of the computation.
-
-        Returns:
-            HybridFL: the hybrid federated learning computation instance
-        """
-        deprecation.warn(
-            "project.new_hybrid_fl",
-            "tuneinsight.computations.HybridFL(project, ...)",
-            version="0.13.0",
-        )
-        return HybridFL(project=self, task_id=task_id, learning_params=learning_params)
-
-    def new_statistics(self, variables: List[str] = None) -> Statistics:
-        """
-        Creates a new DatasetStatistics computation in the project.
-
-        Args:
-            variables (list of str or dict): the variables to which this computation applies.
-
-        Returns:
-            DatasetStatistics: the dataset statistics computation instance
-        """
-        deprecation.warn(
-            "project.new_statistics",
-            "tuneinsight.computations.Statistics(project, ...)",
-            version="0.13.0",
-        )
-        return Statistics(project=self, variables=variables)
-
-    def new_matching(self, columns: Union[str, List[str]]) -> Matching:
-        """
-        Creates a new Matching computation in the project.
-
-        Args:
-            columns (str or list[str]): the column or list of columns on which to match records.
-
-        Returns:
-            Matching: the Matching computation instance
-        """
-        deprecation.warn(
-            "project.new_matching",
-            "tuneinsight.computations.Matching(project, ...)",
-            version="0.13.0",
-        )
-        return Matching(project=self, columns=columns)
-
     # Retrieving computations run on this project.
 
     def get_computation(
@@ -747,13 +567,15 @@ class Project:
             computation: a `tuneinsight.Computation` object that can be used to modify the
                 computation set on this project.
         """
-        if computation_definition is None:
-            self._refresh()
-            computation_definition = self.model.computation_definition
-            if is_unset(computation_definition):
-                raise ValueError("This project has no computation definition.")
-        _class = model_type_to_class(computation_definition.type)
-        return _class.from_model(self, computation_definition)
+        # Instantiating computations patches the project -- we do not want this here.
+        with self.disable_patch():
+            if computation_definition is None:
+                self._refresh()
+                computation_definition = self.model.computation_definition
+                if is_unset(computation_definition):
+                    raise ValueError("This project has no computation definition.")
+            _class = model_type_to_class(computation_definition.type)
+            return _class.from_model(self, computation_definition)
 
     def get_computations(self) -> List[models.Computation]:
         """Returns the list of all computations that have been run on this project."""
@@ -775,7 +597,14 @@ class Project:
         """
         output = []
         for computation in self.get_computations():
-            if computation.status == models.ComputationStatus.SUCCESS:
+            if computation.status == models.ComputationStatus.SUCCESS and is_set(
+                computation.definition
+            ):
+                if (
+                    computation.definition.type
+                    == models.ComputationType.COLLECTIVEKEYSWITCH
+                ):
+                    continue
                 comp: Computation = self.get_computation(computation.definition)
                 result = comp.fetch_results(computation)
                 output.append((comp, result))
@@ -933,13 +762,13 @@ class Project:
                 Defaults to False.
         """
         self._refresh()
-        policy = self.model.policy
         r = Renderer()
         r.h1(self.model.name, "Policy")
-        if is_unset(policy):
+        if is_unset(self.model.policy):
             r("Project has no policy.")
             return
-        display_policy(policy, detailed=detailed, show_queries=show_queries)
+        policy = self.get_policy()
+        policy.display(detailed=detailed, show_queries=show_queries)
 
     @contextmanager
     def policy(self):
@@ -978,9 +807,8 @@ class Project:
     @property
     def is_differentially_private(self):
         """Returns whether differential privacy is enabled for this project."""
-        if is_unset(self.model.policy):
-            return False
-        dp_policy = self.model.policy.dp_policy
+        policy = self.get_policy()
+        dp_policy = policy.data_policy.dp_policy
         if is_unset(dp_policy):
             return False
         return dp_policy.use_differential_privacy

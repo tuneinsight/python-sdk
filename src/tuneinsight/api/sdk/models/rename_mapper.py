@@ -7,7 +7,7 @@ T = TypeVar("T", bound="RenameMapper")
 
 @attr.s(auto_attribs=True)
 class RenameMapper:
-    """transformations to apply to that axis’ values"""
+    """transformations to apply to that axis' values"""
 
     additional_properties: Dict[str, str] = attr.ib(init=False, factory=dict)
 

@@ -15,25 +15,25 @@ class DeviationSquares:
         type (PreprocessingOperationType): type of preprocessing operation
         count (Union[Unset, float]): dataset count used for computing the variance, if < 2 then the sum of squares will
             be divided by 1
-        input_ (Union[Unset, str]): column to use as input
+        input_column (Union[Unset, str]): column to use as input
         mean (Union[Unset, float]): mean to compute the deviation from
-        output (Union[Unset, str]): column to use as output
+        output_column (Union[Unset, str]): column to use as output
     """
 
     type: PreprocessingOperationType
     count: Union[Unset, float] = UNSET
-    input_: Union[Unset, str] = UNSET
+    input_column: Union[Unset, str] = UNSET
     mean: Union[Unset, float] = UNSET
-    output: Union[Unset, str] = UNSET
+    output_column: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         type = self.type.value
 
         count = self.count
-        input_ = self.input_
+        input_column = self.input_column
         mean = self.mean
-        output = self.output
+        output_column = self.output_column
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -44,12 +44,12 @@ class DeviationSquares:
         )
         if count is not UNSET:
             field_dict["count"] = count
-        if input_ is not UNSET:
-            field_dict["input"] = input_
+        if input_column is not UNSET:
+            field_dict["inputColumn"] = input_column
         if mean is not UNSET:
             field_dict["mean"] = mean
-        if output is not UNSET:
-            field_dict["output"] = output
+        if output_column is not UNSET:
+            field_dict["outputColumn"] = output_column
 
         return field_dict
 
@@ -60,18 +60,18 @@ class DeviationSquares:
 
         count = d.pop("count", UNSET)
 
-        input_ = d.pop("input", UNSET)
+        input_column = d.pop("inputColumn", UNSET)
 
         mean = d.pop("mean", UNSET)
 
-        output = d.pop("output", UNSET)
+        output_column = d.pop("outputColumn", UNSET)
 
         deviation_squares = cls(
             type=type,
             count=count,
-            input_=input_,
+            input_column=input_column,
             mean=mean,
-            output=output,
+            output_column=output_column,
         )
 
         deviation_squares.additional_properties = d

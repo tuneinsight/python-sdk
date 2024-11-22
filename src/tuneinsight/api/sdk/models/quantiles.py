@@ -13,13 +13,13 @@ class Quantiles:
     """
     Attributes:
         type (PreprocessingOperationType): type of preprocessing operation
-        input_ (Union[Unset, str]): column to use as input
+        input_column (Union[Unset, str]): column to use as input
         max_ (Union[Unset, float]): maximum value used for normalization Default: 100.0.
         min_ (Union[Unset, float]): minimum value used for normalization
     """
 
     type: PreprocessingOperationType
-    input_: Union[Unset, str] = UNSET
+    input_column: Union[Unset, str] = UNSET
     max_: Union[Unset, float] = 100.0
     min_: Union[Unset, float] = 0.0
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
@@ -27,7 +27,7 @@ class Quantiles:
     def to_dict(self) -> Dict[str, Any]:
         type = self.type.value
 
-        input_ = self.input_
+        input_column = self.input_column
         max_ = self.max_
         min_ = self.min_
 
@@ -38,8 +38,8 @@ class Quantiles:
                 "type": type,
             }
         )
-        if input_ is not UNSET:
-            field_dict["input"] = input_
+        if input_column is not UNSET:
+            field_dict["inputColumn"] = input_column
         if max_ is not UNSET:
             field_dict["max"] = max_
         if min_ is not UNSET:
@@ -52,7 +52,7 @@ class Quantiles:
         d = src_dict.copy()
         type = PreprocessingOperationType(d.pop("type"))
 
-        input_ = d.pop("input", UNSET)
+        input_column = d.pop("inputColumn", UNSET)
 
         max_ = d.pop("max", UNSET)
 
@@ -60,7 +60,7 @@ class Quantiles:
 
         quantiles = cls(
             type=type,
-            input_=input_,
+            input_column=input_column,
             max_=max_,
             min_=min_,
         )

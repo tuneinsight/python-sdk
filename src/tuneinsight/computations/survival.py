@@ -129,11 +129,11 @@ class SurvivalParameters:
         interval = models.Duration(unit=self.unit, value=self.unit_value)
         return models.Survival(
             models.PreprocessingOperationType.SURVIVAL,
-            duration_col=self.duration_col,
-            event_col=self.event_col,
-            event_val=self.event_val,
-            start_event=self.start_event,
-            end_event=self.end_event,
+            duration_column=self.duration_col,
+            event_column=self.event_col,
+            event_value=self.event_val,
+            start_event_column=self.start_event,
+            end_event_column=self.end_event,
             interval=interval,
             num_frames=self.num_frames,
         )
@@ -308,6 +308,7 @@ class SurvivalAnalysis(ModelBasedComputation):
                 ),
                 matching_columns=matching_columns,
                 fuzzy_matching=fuzzy,
+                dp_epsilon=model.dp_epsilon,
             )
         comp._adapt(model)
         return comp
@@ -369,7 +370,7 @@ class SurvivalAnalysis(ModelBasedComputation):
         """
         filter_operation = models.Filter(
             type=models.PreprocessingOperationType.FILTER,
-            col_name=target_column,
+            column=target_column,
             comparator=comparator,
             value=str(value),
             numerical=numerical,

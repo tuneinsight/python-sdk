@@ -34,7 +34,6 @@ from tuneinsight.client.validation import validate_response
 from tuneinsight.client.dataobject import DataObject, Result, DataContent
 from tuneinsight.computations.errors import raise_computation_error
 from tuneinsight.utils import time_tools
-from tuneinsight.utils import deprecation
 from tuneinsight.utils.display import Renderer
 
 
@@ -98,8 +97,8 @@ class Computation(ABC):
                 "A computation initialized without a client will not be able to run."
             )
         # Set the "high-level" interfaces.
-        self.preprocessing = PreprocessingBuilder()
-        self.datasource = QueryBuilder()
+        self.preprocessing = PreprocessingBuilder(self._patch_project)
+        self.datasource = QueryBuilder(self._patch_project)
         self.local_input = None
         self.recorded_computations = []
         self.max_timeout = 600 * time_tools.SECOND
@@ -111,6 +110,10 @@ class Computation(ABC):
         # Once the parameters are set, set this as a computation in the project.
         # The project computation will be overwritten at each .run -- this is used for authorization purposes.
         self.project.set_computation(self.get_full_model())
+
+    def _patch_project(self):
+        """Called whenever the preprocessing or datasource is updated."""
+        self.project.set_computation(self)
 
     # Methods to override.
 
@@ -442,8 +445,6 @@ class Computation(ABC):
     def run(
         self,
         local: bool = False,
-        keyswitch: bool = False,
-        decrypt: bool = False,
         release: bool = True,
         interval=100 * time_tools.MILLISECOND,
         max_sleep_time=30 * time_tools.SECOND,
@@ -458,13 +459,11 @@ class Computation(ABC):
 
         Args:
             local (bool, optional): Whether to run the computation locally or remotely. Defaults to False.
-            keyswitch (bool, optional): Whether to perform key switching on the results. Defaults to False.
-                [This parameter is deprecated.]
-            decrypt (bool, optional): Whether to request the decryption on the results. Defaults to False.
-                [This parameter is deprecated.]
+
             release (bool, optional): Whether to release the results (overrides decrypt/keyswitch).
                 If set, encrypted results are automatically key switched and decrypted and a Result
                 entity is saved. Defaults to True.
+
             interval (int, optional): time in nanoseconds to wait between polls.
 
             max_sleep_time (int, optional): maximum total time in nanoseconds to wait.
@@ -479,10 +478,6 @@ class Computation(ABC):
         """
         # Perform optional checks to have user-friendly messages in case something is missing.
         self._pre_run_check()
-        if decrypt:
-            deprecation.warn("decrypt = True", breaking=True)
-        if keyswitch:
-            deprecation.warn("keyswitch = True", breaking=True)
 
         if resume_timedout and self._timedout_computation is None:
             raise LookupError("The previous computation did not time out.")
@@ -505,8 +500,8 @@ class Computation(ABC):
     def fetch_results(
         self,
         computation: models.Computation,
-        interval=100 * time_tools.MILLISECOND,
-        max_sleep_time=30 * time_tools.SECOND,
+        interval: int = 100 * time_tools.MILLISECOND,
+        max_sleep_time: int = 30 * time_tools.SECOND,
     ):
         """
         Fetches results for a `models.Computation` that has been started on the backend.
@@ -553,6 +548,7 @@ class Computation(ABC):
             release = True
         model.release_results = release
         model.local = local
+        model.run_mode = models.RunMode.LOCAL if local else models.RunMode.COLLECTIVE
 
         if on_previous_result is not None:
             self._validate_input_data(on_previous_result, model, local)
@@ -573,7 +569,7 @@ class Computation(ABC):
             data_object: the object on which to perform the collective key switch.
         """
         key_switch = KeySwitch(self.project, cipher_vector=data_object.get_id())
-        return key_switch.run(local=False, keyswitch=False)
+        return key_switch.run(local=False, release=False)
 
     @classmethod
     def from_model(
@@ -621,9 +617,9 @@ class ModelBasedComputation(Computation):
         # Check DP compatibility (for now, with a friendly warning).
         if project.is_differentially_private:
             warn_message = (
-                "This project has differential privacy enabled, but %s."
-                + "This will likely cause an error when running the computation."
-                + "Contact your administrator for more details."
+                "This project has differential privacy enabled, but %s. "
+                "This will likely cause an error when running the computation. "
+                "Contact your administrator for more details."
             )
             if not hasattr(self.model, "dp_epsilon"):
                 warnings.warn(
@@ -664,6 +660,7 @@ class ModelBasedComputation(Computation):
         self.preprocessing = PreprocessingBuilder.from_model(
             model.preprocessing_parameters
         )
+        self.preprocessing.update_function = self._patch_project
         self.datasource.set_model(model.data_source_parameters)
         if is_set(model.timeout):
             self.max_timeout = model.timeout * time_tools.SECOND

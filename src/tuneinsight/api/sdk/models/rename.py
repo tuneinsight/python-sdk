@@ -18,16 +18,14 @@ class Rename:
     """
     Attributes:
         type (PreprocessingOperationType): type of preprocessing operation
-        mapper (RenameMapper): transformations to apply to that axis’ values
-        axis (Union[Unset, RenameAxis]): axis to target with mapper
-        copy (Union[Unset, bool]): whether to return a copy
-        errors (Union[Unset, bool]): Control raising of exceptions on invalid data for provided dtype
+        mapper (RenameMapper): transformations to apply to that axis' values
+        axis (Union[Unset, RenameAxis]): axis to target with mapper (default columns)
+        errors (Union[Unset, bool]): If true, an exception is raised on invalid data for provided dtype.
     """
 
     type: PreprocessingOperationType
     mapper: "RenameMapper"
     axis: Union[Unset, RenameAxis] = UNSET
-    copy: Union[Unset, bool] = UNSET
     errors: Union[Unset, bool] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -40,7 +38,6 @@ class Rename:
         if not isinstance(self.axis, Unset):
             axis = self.axis.value
 
-        copy = self.copy
         errors = self.errors
 
         field_dict: Dict[str, Any] = {}
@@ -53,8 +50,6 @@ class Rename:
         )
         if axis is not UNSET:
             field_dict["axis"] = axis
-        if copy is not UNSET:
-            field_dict["copy"] = copy
         if errors is not UNSET:
             field_dict["errors"] = errors
 
@@ -76,15 +71,12 @@ class Rename:
         else:
             axis = RenameAxis(_axis)
 
-        copy = d.pop("copy", UNSET)
-
         errors = d.pop("errors", UNSET)
 
         rename = cls(
             type=type,
             mapper=mapper,
             axis=axis,
-            copy=copy,
             errors=errors,
         )
 

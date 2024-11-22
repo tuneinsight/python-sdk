@@ -16,6 +16,8 @@ T = TypeVar("T", bound="Result")
 class Result:
     """
     Attributes:
+        display_local (Union[Unset, None, bool]): frontend flag used to toggle the display of the local result when the
+            result has both a collective and local output.
         is_large (Union[Unset, None, bool]): format to display the result
         shared (Union[Unset, None, bool]): if set to true, the result is shared with users from the same project
         tags (Union[Unset, List[str]]):
@@ -27,15 +29,17 @@ class Result:
         data_object_id (Union[Unset, str]): Unique identifier of a data object.
         end_to_end_encrypted (Union[Unset, bool]):
         id (Union[Unset, str]): Unique identifier of a result.
+        local_data_object_id (Union[Unset, str]): Unique identifier of a data object.
         metadata (Union[Unset, ResultMetadata]): various metadata field along with the result to provide additional
             context
         original_ciphertext_id (Union[Unset, str]): Unique identifier of a data object.
-        owner (Union[Unset, str]):
+        owner (Union[Unset, str]): the name of the user that launched the computation.
         switching_key_id (Union[Unset, str]): Unique identifier of a data object.
         switching_params (Union[Unset, str]):
         updated_at (Union[Unset, str]):
     """
 
+    display_local: Union[Unset, None, bool] = UNSET
     is_large: Union[Unset, None, bool] = UNSET
     shared: Union[Unset, None, bool] = UNSET
     tags: Union[Unset, List[str]] = UNSET
@@ -47,6 +51,7 @@ class Result:
     data_object_id: Union[Unset, str] = UNSET
     end_to_end_encrypted: Union[Unset, bool] = UNSET
     id: Union[Unset, str] = UNSET
+    local_data_object_id: Union[Unset, str] = UNSET
     metadata: Union[Unset, "ResultMetadata"] = UNSET
     original_ciphertext_id: Union[Unset, str] = UNSET
     owner: Union[Unset, str] = UNSET
@@ -56,6 +61,7 @@ class Result:
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        display_local = self.display_local
         is_large = self.is_large
         shared = self.shared
         tags: Union[Unset, List[str]] = UNSET
@@ -73,6 +79,7 @@ class Result:
         data_object_id = self.data_object_id
         end_to_end_encrypted = self.end_to_end_encrypted
         id = self.id
+        local_data_object_id = self.local_data_object_id
         metadata: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.metadata, Unset):
             metadata = self.metadata.to_dict()
@@ -86,6 +93,8 @@ class Result:
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if display_local is not UNSET:
+            field_dict["displayLocal"] = display_local
         if is_large is not UNSET:
             field_dict["isLarge"] = is_large
         if shared is not UNSET:
@@ -108,6 +117,8 @@ class Result:
             field_dict["endToEndEncrypted"] = end_to_end_encrypted
         if id is not UNSET:
             field_dict["id"] = id
+        if local_data_object_id is not UNSET:
+            field_dict["localDataObjectId"] = local_data_object_id
         if metadata is not UNSET:
             field_dict["metadata"] = metadata
         if original_ciphertext_id is not UNSET:
@@ -128,6 +139,8 @@ class Result:
         from ..models.result_metadata import ResultMetadata
 
         d = src_dict.copy()
+        display_local = d.pop("displayLocal", UNSET)
+
         is_large = d.pop("isLarge", UNSET)
 
         shared = d.pop("shared", UNSET)
@@ -155,6 +168,8 @@ class Result:
 
         id = d.pop("id", UNSET)
 
+        local_data_object_id = d.pop("localDataObjectId", UNSET)
+
         _metadata = d.pop("metadata", UNSET)
         metadata: Union[Unset, ResultMetadata]
         if isinstance(_metadata, Unset):
@@ -173,6 +188,7 @@ class Result:
         updated_at = d.pop("updatedAt", UNSET)
 
         result = cls(
+            display_local=display_local,
             is_large=is_large,
             shared=shared,
             tags=tags,
@@ -184,6 +200,7 @@ class Result:
             data_object_id=data_object_id,
             end_to_end_encrypted=end_to_end_encrypted,
             id=id,
+            local_data_object_id=local_data_object_id,
             metadata=metadata,
             original_ciphertext_id=original_ciphertext_id,
             owner=owner,

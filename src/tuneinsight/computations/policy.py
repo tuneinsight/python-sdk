@@ -5,33 +5,32 @@ from typing import List, Union
 import json
 import datetime
 
-from tuneinsight.computations.preprocessing import Operation
 from tuneinsight.computations.types import Type, displayed_types
 from tuneinsight.utils.display import Renderer
 from tuneinsight.api.sdk import models
-from tuneinsight.api.sdk.types import is_set, is_unset
+from tuneinsight.api.sdk.types import Unset, is_set, is_unset
 
 
-class Policy(models.ComputationPolicy):
+class DataPolicy(models.DatasourcePolicy):
     """
-    Policy related to a computation.
+    Data-related policies.
 
-    A policy defines a set of constraints and disclosure prevention mechanisms
-    that are applied to a project in order to limit what users can do and the
-    amount of personal information leakage.
+    These policies define a set of constraints and disclosure prevention mechanisms
+    that are applied in computations in order to limit information leakage.
 
+    Data policies can be set either in a project or a data source.
     """
 
     @classmethod
-    def from_model(cls, policy: models.ComputationPolicy):
+    def from_model(cls, policy: models.DatasourcePolicy):
         """
-        Initializes a policy object given a computation policy
+        Initializes a DataPolicy given its API model.
 
         Args:
-            policy (models.ComputationPolicy): the policy API model
+            policy (models.DatasourcePolicy): the policy API model
 
         Returns:
-            Policy: the policy object.
+            DataPolicy
         """
         p = cls()
         for attr_name, attr_value in policy.__dict__.items():
@@ -41,14 +40,13 @@ class Policy(models.ComputationPolicy):
 
     def __init__(self):
         super().__init__()
+        self.authorized_computation_types = []
         self.authorized_preprocessing_operations = []
         self.authorized_data_source_queries = []
-        self.fixed_parameters = []
-        self.flexible_parameters = []
         self.dp_policy = models.DPPolicy()
 
     def add_authorized_preprocessing(
-        self, operations: Union[List[Operation], "PreprocessingBuilder"]  # type: ignore
+        self, operations: Union[List[models.PreprocessingOperationType], "PreprocessingBuilder"]  # type: ignore
     ):
         """
         Authorizes a preprocessing operation.
@@ -238,51 +236,11 @@ class Policy(models.ComputationPolicy):
         Args:
             computation_type (Type): the type of computation / workflow to whitelist.
         """
-        if is_unset(self.authorized_computation_types):
-            self.authorized_computation_types = []
-        comp_types = set(self.authorized_computation_types)
+        comp_types = set()
+        if is_set(self.authorized_computation_types):
+            comp_types = set(self.authorized_computation_types)
         comp_types.add(models.ComputationType(computation_type.to_computation_type()))
         self.authorized_computation_types = list(comp_types)
-
-    def set_contract(
-        self,
-        computation_type=False,
-        computation_parameters=False,
-        preprocessing=False,
-        data_query=False,
-    ):
-        """
-        Sets the authorization contract of the project.
-
-        Once a project is authorized by at least one participant, the authorization contract
-        defines what parts of the project can still be modified by participants. Hence, all
-        runs of the project will have the exact same locked parts, but can potentially differ
-        in non-locked parts (as well as changes in the underlying data).
-
-        The parameters of this function are the different parts of a project that can opened
-        up under an authorization contract. Setting True to a parameters opens it up for
-        modification. The default is False (restrictive).
-
-        Parameters:
-            computation_type: whether the computation type of the project can change.
-            computation_parameters: whether computation parameters can change.
-            preprocessing: whether the preprocessing chain can change.
-            data_query: whether the query performed on the data can change.
-        """
-        if computation_type and not computation_parameters:
-            raise ValueError("Inconsistent contract")
-        self.authorization_contract = models.AuthorizationContract(
-            computation_type=computation_type,
-            computation_parameters=computation_parameters,
-            preprocessing=preprocessing,
-            data_query=data_query,
-        )
-
-    def get_contract(self) -> models.AuthorizationContract:
-        """Returns the authorization contract of the policy."""
-        if is_set(self.authorization_contract):
-            return self.authorization_contract
-        return models.AuthorizationContract(False, False, False, False)
 
     def set_min_dataset_size(self, local_size: int = None, collective_size: int = None):
         """
@@ -303,6 +261,146 @@ class Policy(models.ComputationPolicy):
             self.dp_policy.min_dataset_size = int(local_size)
         if collective_size is not None:
             self.dp_policy.min_global_dataset_size = int(collective_size)
+
+
+class Policy(models.ComputationPolicy):
+    """
+    Policies related to a computation.
+
+    A policy defines a set of constraints and disclosure prevention mechanisms
+    that are applied to a project in order to limit what users can do and the
+    amount of personal information leakage.
+
+    """
+
+    @classmethod
+    def from_model(cls, policy: models.ComputationPolicy):
+        """
+        Initializes a policy object given a computation policy
+
+        Args:
+            policy (models.ComputationPolicy): the policy API model
+
+        Returns:
+            Policy: the policy object.
+        """
+        p = cls()
+        for attr_name, attr_value in policy.__dict__.items():
+            if not isinstance(attr_value, Unset) and attr_value is not None:
+                setattr(p, attr_name, attr_value)
+        if is_set(p.data_policy):
+            p.data_policy = DataPolicy.from_model(p.data_policy)
+        return p
+
+    def __init__(self):
+        super().__init__()
+        self.fixed_parameters = []
+        self.flexible_parameters = []
+        self.data_policy = DataPolicy()
+
+    def set_contract(
+        self,
+        computation_type: bool = False,
+        computation_parameters: bool = False,
+        preprocessing: bool = False,
+        data_query: bool = False,
+        data_source: bool = False,
+    ):
+        """
+        Sets the authorization contract of the project.
+
+        Once a project is authorized by at least one participant, the authorization contract
+        defines what parts of the project can still be modified by participants. Hence, all
+        runs of the project will have the exact same locked parts, but can potentially differ
+        in non-locked parts (as well as changes in the underlying data).
+
+        The parameters of this function are the different parts of a project that can opened
+        up under an authorization contract. Setting True to a parameters opens it up for
+        modification. The default is False (restrictive).
+
+        Parameters:
+            computation_type (bool): whether the computation type of the project can change.
+            computation_parameters (bool): whether computation parameters can change.
+            preprocessing (bool): whether the preprocessing chain can change.
+            data_query (bool): whether the query performed on the data can change.
+            data_source (bool): whether the datasource can change.
+        """
+        if computation_type and not computation_parameters:
+            raise ValueError("Inconsistent contract")
+        self.authorization_contract = models.AuthorizationContract(
+            computation_type=computation_type,
+            computation_parameters=computation_parameters,
+            preprocessing=preprocessing,
+            data_query=data_query,
+            data_source=data_source,
+        )
+
+    def get_contract(self) -> models.AuthorizationContract:
+        """Returns the authorization contract of the policy."""
+        if is_set(self.authorization_contract):
+            return self.authorization_contract
+        return models.AuthorizationContract(False, False, False, False, False)
+
+    def add_authorized_preprocessing(
+        self, operations: Union[List[models.PreprocessingOperationType], "PreprocessingBuilder"]  # type: ignore
+    ):
+        """See `DataPolicy.add_authorized_preprocessing`."""
+        self.data_policy.add_authorized_preprocessing(operations)
+
+    def add_authorized_query(self, query: str, name: str = ""):
+        """See `DataPolicy.add_authorized_query`."""
+        self.data_policy.add_authorized_query(query, name)
+
+    def set_column_restrictions(self, restricted: bool = True):
+        """See `DataPolicy.set_column_restrictions`."""
+        self.data_policy.set_column_restrictions(restricted)
+
+    def add_authorized_column(
+        self,
+        column: str,
+        categorical: bool = False,
+        max_categories: Union[int, float] = 0,
+    ):
+        """See `DataPolicy.add_authorized_column`."""
+        self.data_policy.add_authorized_column(column, categorical, max_categories)
+
+    def enable_differential_privacy(self):
+        """See `DataPolicy.enable_differential_privacy`."""
+        self.data_policy.enable_differential_privacy()
+
+    def disable_differential_privacy(self):
+        """See `DataPolicy.disable_differential_privacy`."""
+        self.data_policy.disable_differential_privacy()
+
+    def set_max_columns(
+        self, relative: bool = False, fixed_value: int = 5, relative_factor: float = 0.2
+    ):
+        """See `DataPolicy.set_max_columns`."""
+        self.data_policy.set_max_columns(relative, fixed_value, relative_factor)
+
+    def set_quota(
+        self,
+        initial: int,
+        reallocation_amount: int = 0,
+        reallocation_interval_hours: int = 24,
+        max_quota: int = None,
+    ):
+        """See `DataPolicy.set_quota`."""
+        self.data_policy.set_quota(
+            initial, reallocation_amount, reallocation_interval_hours, max_quota
+        )
+
+    def add_authorized_computation_type(self, computation_type: Type):
+        """See `DataPolicy.add_authorized_computation_type`."""
+        self.data_policy.add_authorized_computation_type(computation_type)
+
+    def set_min_dataset_size(self, local_size: int = None, collective_size: int = None):
+        """See `DataPolicy.set_min_dataset_size`."""
+        self.data_policy.set_min_dataset_size(local_size, collective_size)
+
+    def display(self, detailed: bool = False, show_queries: bool = True):
+        """Displays this policy. See `DataPolicy.display`."""
+        display_policy(self, detailed, show_queries)
 
 
 displayed_labels = {
@@ -329,7 +427,7 @@ def display_policy(
     Displays a user-friendly summary of project policies in markdown format.
 
     Args:
-        p (models.ComputationPolicy): the policy do display.
+        p (models.ComputationPolicy): the policy to display.
         detailed (bool, optional): whether or not to display the detailed json version of the policy. Defaults to False.
         show_queries (bool, optional): whether to display the list of restricted data source queries. Defaults to True.
     """
@@ -339,49 +437,55 @@ def display_policy(
         "Once authorization is requested, the project is locked. The project's authorization contract requires that:"
     )
     display_authorization_contract(r, p.authorization_contract)
-    if (
-        p.restrict_data_source_queries
-        or p.restrict_preprocessing_operations
-        or is_set(p.authorized_computation_types)
-    ):
-        r.h3("Workflow Restrictions")
-        r(
-            "These restriction limit the data source queries, preprocessing operations and distributed workflows that can run in this project."
-        )
-    if p.restrict_preprocessing_operations:
-        if len(p.authorized_preprocessing_operations) > 0:
+
+    if is_set(p.data_policy):
+        data_policy = p.data_policy
+        if (
+            data_policy.restrict_data_source_queries
+            or data_policy.restrict_preprocessing_operations
+            or is_set(data_policy.authorized_computation_types)
+        ):
+            r.h3("Workflow Restrictions")
             r(
-                "The policy only allows the following preprocessing operations to be used:"
+                "These restriction limit the data source queries, preprocessing operations and distributed workflows that can run in this project."
             )
-            for op in p.authorized_preprocessing_operations:
-                r(f"- {op.value}")
+        if data_policy.restrict_preprocessing_operations:
+            if len(data_policy.authorized_preprocessing_operations) > 0:
+                r(
+                    "The policy only allows the following preprocessing operations to be used:"
+                )
+                for op in data_policy.authorized_preprocessing_operations:
+                    r(f"- {op.value}")
+            else:
+                r("The policy forbids the use of any preprocessing operation.")
+        if data_policy.restrict_data_source_queries:
+            if show_queries:
+                r("The policy restricts data source queries to the following set:")
+                for q in data_policy.authorized_data_source_queries:
+                    r(f"- `{q}`")
+            else:
+                r(
+                    "- The policy allows only specific data source queries (not shown here)."
+                )
+        if (
+            is_set(data_policy.authorized_computation_types)
+            and len(data_policy.authorized_computation_types) > 0
+        ):
+            r(
+                "The policy forbids running any computation type that is not one of the following:"
+            )
+            for comp in data_policy.authorized_computation_types:
+                comp_type = Type(comp)
+                displayed_type = comp.value
+                if comp_type in displayed_types:
+                    displayed_type = displayed_types[Type(comp)]
+                r(f"- {displayed_type}")
         else:
-            r("The policy forbids the use of any preprocessing operation.")
-    if p.restrict_data_source_queries:
-        if show_queries:
-            r("The policy restricts data source queries to the following set:")
-            for q in p.authorized_data_source_queries:
-                r(f"- `{q}`")
-        else:
-            r("- The policy allows only specific data source queries (not shown here).")
-    if (
-        is_set(p.authorized_computation_types)
-        and len(p.authorized_computation_types) > 0
-    ):
-        r(
-            "The policy forbids running any computation type that is not one of the following:"
-        )
-        for comp in p.authorized_computation_types:
-            comp_type = Type(comp)
-            displayed_type = comp.value
-            if comp_type in displayed_types:
-                displayed_type = displayed_types[Type(comp)]
-            r(f"- {displayed_type}")
-    else:
-        r("The policy allow running any computation type.")
-    if is_set(p.dp_policy):
-        dp = p.dp_policy
-        display_dp_policy(dp)
+            r("The policy allow running any computation type.")
+        if is_set(data_policy.dp_policy):
+            dp = data_policy.dp_policy
+            display_dp_policy(dp)
+
     if detailed:
         r.h3("Detailed Policy (JSON)")
         dict_values = p.to_dict()
@@ -407,10 +511,10 @@ def display_threshold(r: Renderer, text: str, t: models.Threshold):
 def display_authorization_contract(r: Renderer, t: models.AuthorizationContract):
     """Displays a user-friendly description of an authorization contract using IPython.display."""
     if is_unset(t):
-        t = models.AuthorizationContract(False, False, False, False)
+        t = models.AuthorizationContract(False, False, False, False, False)
 
     def render(name, value):
-        not_ = is_set(value) and value
+        not_ = "" if is_set(value) and value else "not"
         r(f"- The {name} can{not_} change.")
 
     render("computation type", t.computation_type)

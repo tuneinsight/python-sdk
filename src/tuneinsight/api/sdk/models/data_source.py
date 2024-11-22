@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from ..models.data_source_config import DataSourceConfig
     from ..models.data_source_definition_structure_template_json import DataSourceDefinitionStructureTemplateJSON
     from ..models.data_source_metadata import DataSourceMetadata
+    from ..models.datasource_policy import DatasourcePolicy
     from ..models.local_data_selection import LocalDataSelection
 
 
@@ -24,6 +25,10 @@ class DataSource:
     Attributes:
         access_scope (Union[Unset, AccessScope]): defines the scope of access given to a resource
         attributes (Union[Unset, List[str]]): optional list of attributes.
+        authorized_networks (Union[Unset, List[str]]): as with authorized users, this specifies the list of networks (by
+            network name) that can access this data source,
+            when the scope is set to network. If no network is provided, then the data source will be visible
+            to all nodes connected to this instance.
         authorized_users (Union[Unset, List[str]]):
         clear_if_exists (Union[Unset, bool]): If true and a data source with the same name already exists, delete it.
         configuration (Union[Unset, DataSourceConfig]): data source configuration
@@ -33,6 +38,7 @@ class DataSource:
         is_mock (Union[Unset, bool]): Whether this datasource contains mock/synthetic data and should not be used in
             production.
         name (Union[Unset, str]):
+        policy (Union[Unset, DatasourcePolicy]): policy required by a datasource for the data to be used in a project.
         structure_template_json (Union[Unset, DataSourceDefinitionStructureTemplateJSON]): data source's structure
             template (used to determine the query builder structure, if provided)
         type (Union[Unset, DataSourceType]):
@@ -47,6 +53,7 @@ class DataSource:
 
     access_scope: Union[Unset, AccessScope] = UNSET
     attributes: Union[Unset, List[str]] = UNSET
+    authorized_networks: Union[Unset, List[str]] = UNSET
     authorized_users: Union[Unset, List[str]] = UNSET
     clear_if_exists: Union[Unset, bool] = False
     configuration: Union[Unset, "DataSourceConfig"] = UNSET
@@ -55,6 +62,7 @@ class DataSource:
     id: Union[Unset, None, str] = UNSET
     is_mock: Union[Unset, bool] = UNSET
     name: Union[Unset, str] = UNSET
+    policy: Union[Unset, "DatasourcePolicy"] = UNSET
     structure_template_json: Union[Unset, "DataSourceDefinitionStructureTemplateJSON"] = UNSET
     type: Union[Unset, DataSourceType] = UNSET
     created_at: Union[Unset, str] = UNSET
@@ -73,6 +81,10 @@ class DataSource:
         attributes: Union[Unset, List[str]] = UNSET
         if not isinstance(self.attributes, Unset):
             attributes = self.attributes
+
+        authorized_networks: Union[Unset, List[str]] = UNSET
+        if not isinstance(self.authorized_networks, Unset):
+            authorized_networks = self.authorized_networks
 
         authorized_users: Union[Unset, List[str]] = UNSET
         if not isinstance(self.authorized_users, Unset):
@@ -94,6 +106,10 @@ class DataSource:
         id = self.id
         is_mock = self.is_mock
         name = self.name
+        policy: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.policy, Unset):
+            policy = self.policy.to_dict()
+
         structure_template_json: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.structure_template_json, Unset):
             structure_template_json = self.structure_template_json.to_dict()
@@ -129,6 +145,8 @@ class DataSource:
             field_dict["accessScope"] = access_scope
         if attributes is not UNSET:
             field_dict["attributes"] = attributes
+        if authorized_networks is not UNSET:
+            field_dict["authorizedNetworks"] = authorized_networks
         if authorized_users is not UNSET:
             field_dict["authorizedUsers"] = authorized_users
         if clear_if_exists is not UNSET:
@@ -145,6 +163,8 @@ class DataSource:
             field_dict["isMock"] = is_mock
         if name is not UNSET:
             field_dict["name"] = name
+        if policy is not UNSET:
+            field_dict["policy"] = policy
         if structure_template_json is not UNSET:
             field_dict["structureTemplateJSON"] = structure_template_json
         if type is not UNSET:
@@ -170,6 +190,7 @@ class DataSource:
         from ..models.data_source_config import DataSourceConfig
         from ..models.data_source_definition_structure_template_json import DataSourceDefinitionStructureTemplateJSON
         from ..models.data_source_metadata import DataSourceMetadata
+        from ..models.datasource_policy import DatasourcePolicy
         from ..models.local_data_selection import LocalDataSelection
 
         d = src_dict.copy()
@@ -181,6 +202,8 @@ class DataSource:
             access_scope = AccessScope(_access_scope)
 
         attributes = cast(List[str], d.pop("attributes", UNSET))
+
+        authorized_networks = cast(List[str], d.pop("authorizedNetworks", UNSET))
 
         authorized_users = cast(List[str], d.pop("authorizedUsers", UNSET))
 
@@ -212,6 +235,13 @@ class DataSource:
         is_mock = d.pop("isMock", UNSET)
 
         name = d.pop("name", UNSET)
+
+        _policy = d.pop("policy", UNSET)
+        policy: Union[Unset, DatasourcePolicy]
+        if isinstance(_policy, Unset):
+            policy = UNSET
+        else:
+            policy = DatasourcePolicy.from_dict(_policy)
 
         _structure_template_json = d.pop("structureTemplateJSON", UNSET)
         structure_template_json: Union[Unset, DataSourceDefinitionStructureTemplateJSON]
@@ -252,6 +282,7 @@ class DataSource:
         data_source = cls(
             access_scope=access_scope,
             attributes=attributes,
+            authorized_networks=authorized_networks,
             authorized_users=authorized_users,
             clear_if_exists=clear_if_exists,
             configuration=configuration,
@@ -260,6 +291,7 @@ class DataSource:
             id=id,
             is_mock=is_mock,
             name=name,
+            policy=policy,
             structure_template_json=structure_template_json,
             type=type,
             created_at=created_at,

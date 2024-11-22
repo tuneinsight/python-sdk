@@ -19,12 +19,15 @@ class ProjectSpecification:
 
     Attributes:
         computation_definition (Union[Unset, ComputationDefinition]): Generic computation.
+        match_only_computation_type (Union[Unset, bool]): If true, only the computation type (and not the parameters) is
+            checked when testing this specification.
         policy (Union[Unset, ComputationPolicy]): policy to validate a specific computation
         preprocessing (Union[Unset, ComputationPreprocessingParameters]): dataframe pre-processing parameters applied to
             the input retrieved from the datasource, if applicable
     """
 
     computation_definition: Union[Unset, "ComputationDefinition"] = UNSET
+    match_only_computation_type: Union[Unset, bool] = UNSET
     policy: Union[Unset, "ComputationPolicy"] = UNSET
     preprocessing: Union[Unset, "ComputationPreprocessingParameters"] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
@@ -34,6 +37,7 @@ class ProjectSpecification:
         if not isinstance(self.computation_definition, Unset):
             computation_definition = self.computation_definition.to_dict()
 
+        match_only_computation_type = self.match_only_computation_type
         policy: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.policy, Unset):
             policy = self.policy.to_dict()
@@ -47,6 +51,8 @@ class ProjectSpecification:
         field_dict.update({})
         if computation_definition is not UNSET:
             field_dict["computationDefinition"] = computation_definition
+        if match_only_computation_type is not UNSET:
+            field_dict["matchOnlyComputationType"] = match_only_computation_type
         if policy is not UNSET:
             field_dict["policy"] = policy
         if preprocessing is not UNSET:
@@ -68,6 +74,8 @@ class ProjectSpecification:
         else:
             computation_definition = ComputationDefinition.from_dict(_computation_definition)
 
+        match_only_computation_type = d.pop("matchOnlyComputationType", UNSET)
+
         _policy = d.pop("policy", UNSET)
         policy: Union[Unset, ComputationPolicy]
         if isinstance(_policy, Unset):
@@ -84,6 +92,7 @@ class ProjectSpecification:
 
         project_specification = cls(
             computation_definition=computation_definition,
+            match_only_computation_type=match_only_computation_type,
             policy=policy,
             preprocessing=preprocessing,
         )

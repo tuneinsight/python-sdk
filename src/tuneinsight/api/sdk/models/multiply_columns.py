@@ -1,40 +1,42 @@
-from typing import Any, Dict, List, Type, TypeVar, Union
+from typing import Any, Dict, List, Type, TypeVar, cast
 
 import attr
 
 from ..models.preprocessing_operation_type import PreprocessingOperationType
-from ..types import UNSET, Unset
 
-T = TypeVar("T", bound="Counts")
+T = TypeVar("T", bound="MultiplyColumns")
 
 
 @attr.s(auto_attribs=True)
-class Counts:
+class MultiplyColumns:
     """
     Attributes:
         type (PreprocessingOperationType): type of preprocessing operation
-        output_col (Union[Unset, str]): name of the column to store the counts. If not specified, the name 'count' will
-            be used. Default: 'count'.
+        input_columns (List[str]): the names of columns to multiply together
+        output_column (str): column to use as output
     """
 
     type: PreprocessingOperationType
-    output_col: Union[Unset, str] = "count"
+    input_columns: List[str]
+    output_column: str
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         type = self.type.value
 
-        output_col = self.output_col
+        input_columns = self.input_columns
+
+        output_column = self.output_column
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "type": type,
+                "inputColumns": input_columns,
+                "outputColumn": output_column,
             }
         )
-        if output_col is not UNSET:
-            field_dict["outputCol"] = output_col
 
         return field_dict
 
@@ -43,15 +45,18 @@ class Counts:
         d = src_dict.copy()
         type = PreprocessingOperationType(d.pop("type"))
 
-        output_col = d.pop("outputCol", UNSET)
+        input_columns = cast(List[str], d.pop("inputColumns"))
 
-        counts = cls(
+        output_column = d.pop("outputColumn")
+
+        multiply_columns = cls(
             type=type,
-            output_col=output_col,
+            input_columns=input_columns,
+            output_column=output_column,
         )
 
-        counts.additional_properties = d
-        return counts
+        multiply_columns.additional_properties = d
+        return multiply_columns
 
     @property
     def additional_keys(self) -> List[str]:

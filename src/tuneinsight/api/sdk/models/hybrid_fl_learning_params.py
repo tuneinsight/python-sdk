@@ -13,12 +13,10 @@ class HybridFLLearningParams:
     """Hyperparameters for the Hybrid Federated Learning
 
     Attributes:
-        add_noise (Union[Unset, bool]): Whether to add differential privacy or not to the HybridFL Default: True.
         batch_size (Union[Unset, int]): Batch size for the training in the python-server
         delta (Union[Unset, float]): Delta parameter of the differential privacy in HybridFL
         encrypt_aggregation (Union[Unset, bool]): Whether to to the aggregation encrypted or not in HybridFL Default:
             True.
-        epsilon (Union[Unset, float]): Epsilon parameter of the differential privacy in HybridFL
         fl_rounds (Union[Unset, int]): Number of federated rounds of the Hybrid FL
         gradient_clipping (Union[Unset, float]): Gradient clipping to apply for the training and the noise computation
         learning_rate (Union[Unset, float]): Learning rate of the optimizer in the python-server
@@ -31,11 +29,9 @@ class HybridFLLearningParams:
             layer Default: True.
     """
 
-    add_noise: Union[Unset, bool] = True
     batch_size: Union[Unset, int] = UNSET
     delta: Union[Unset, float] = UNSET
     encrypt_aggregation: Union[Unset, bool] = True
-    epsilon: Union[Unset, float] = UNSET
     fl_rounds: Union[Unset, int] = UNSET
     gradient_clipping: Union[Unset, float] = UNSET
     learning_rate: Union[Unset, float] = UNSET
@@ -47,11 +43,9 @@ class HybridFLLearningParams:
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        add_noise = self.add_noise
         batch_size = self.batch_size
         delta = self.delta
         encrypt_aggregation = self.encrypt_aggregation
-        epsilon = self.epsilon
         fl_rounds = self.fl_rounds
         gradient_clipping = self.gradient_clipping
         learning_rate = self.learning_rate
@@ -67,16 +61,12 @@ class HybridFLLearningParams:
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if add_noise is not UNSET:
-            field_dict["addNoise"] = add_noise
         if batch_size is not UNSET:
             field_dict["batchSize"] = batch_size
         if delta is not UNSET:
             field_dict["delta"] = delta
         if encrypt_aggregation is not UNSET:
             field_dict["encryptAggregation"] = encrypt_aggregation
-        if epsilon is not UNSET:
-            field_dict["epsilon"] = epsilon
         if fl_rounds is not UNSET:
             field_dict["flRounds"] = fl_rounds
         if gradient_clipping is not UNSET:
@@ -99,15 +89,11 @@ class HybridFLLearningParams:
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        add_noise = d.pop("addNoise", UNSET)
-
         batch_size = d.pop("batchSize", UNSET)
 
         delta = d.pop("delta", UNSET)
 
         encrypt_aggregation = d.pop("encryptAggregation", UNSET)
-
-        epsilon = d.pop("epsilon", UNSET)
 
         fl_rounds = d.pop("flRounds", UNSET)
 
@@ -131,11 +117,9 @@ class HybridFLLearningParams:
         use_clipping_factor = d.pop("useClippingFactor", UNSET)
 
         hybrid_fl_learning_params = cls(
-            add_noise=add_noise,
             batch_size=batch_size,
             delta=delta,
             encrypt_aggregation=encrypt_aggregation,
-            epsilon=epsilon,
             fl_rounds=fl_rounds,
             gradient_clipping=gradient_clipping,
             learning_rate=learning_rate,

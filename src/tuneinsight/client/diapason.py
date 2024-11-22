@@ -596,9 +596,9 @@ class Diapason:
         if name in [p.get_name() for p in self.get_projects()]:
             if clear_if_exists:
                 warnings.warn(
-                    """A project with the same name was removed on this node, but has not have been deleted on other nodes. \
-This can cause an error when attempting to share the project, because of conflicting names. \
-To avoid this, delete the project on other nodes, or create a differently-named project instead."""
+                    "A project with the same name was removed on this node, but has not have been deleted on other nodes."
+                    "This can cause an error when attempting to share the project, because of conflicting names."
+                    "To avoid this, delete the project on other nodes, or create a differently-named project instead."
                 )
                 self.clear_project(name=name)
             else:

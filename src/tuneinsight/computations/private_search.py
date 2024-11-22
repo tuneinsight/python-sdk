@@ -159,4 +159,4 @@ class PrivateSearch(ModelBasedComputation):
             pd.DataFrame: private search result
         """
         self.model.pir_search_object_id = self.session.encrypt_query(query)
-        return self.run(keyswitch=False, decrypt=False)
+        return self.run(release=False)

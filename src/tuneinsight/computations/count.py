@@ -40,7 +40,7 @@ class Count(ModelBasedComputation):
     def from_model(cls, project: "Project", model: models.AggregatedDatasetLength):
         """Creates a Count Computation from an API model."""
         with project.disable_patch():
-            comp = cls(project)
+            comp = cls(project, dp_epsilon=model.dp_epsilon)
         comp._adapt(model)
         return comp
 

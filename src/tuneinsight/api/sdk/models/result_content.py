@@ -20,11 +20,13 @@ class ResultContent:
     Attributes:
         computation (Union[Unset, Computation]): Metadata of a computation.
         content (Union[Unset, Content]): Content that can be retrieved and displayed for the user
+        local_content (Union[Unset, Content]): Content that can be retrieved and displayed for the user
         result (Union[Unset, Result]):
     """
 
     computation: Union[Unset, "Computation"] = UNSET
     content: Union[Unset, "Content"] = UNSET
+    local_content: Union[Unset, "Content"] = UNSET
     result: Union[Unset, "Result"] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -37,6 +39,10 @@ class ResultContent:
         if not isinstance(self.content, Unset):
             content = self.content.to_dict()
 
+        local_content: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.local_content, Unset):
+            local_content = self.local_content.to_dict()
+
         result: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.result, Unset):
             result = self.result.to_dict()
@@ -48,6 +54,8 @@ class ResultContent:
             field_dict["computation"] = computation
         if content is not UNSET:
             field_dict["content"] = content
+        if local_content is not UNSET:
+            field_dict["localContent"] = local_content
         if result is not UNSET:
             field_dict["result"] = result
 
@@ -74,6 +82,13 @@ class ResultContent:
         else:
             content = Content.from_dict(_content)
 
+        _local_content = d.pop("localContent", UNSET)
+        local_content: Union[Unset, Content]
+        if isinstance(_local_content, Unset):
+            local_content = UNSET
+        else:
+            local_content = Content.from_dict(_local_content)
+
         _result = d.pop("result", UNSET)
         result: Union[Unset, Result]
         if isinstance(_result, Unset):
@@ -84,6 +99,7 @@ class ResultContent:
         result_content = cls(
             computation=computation,
             content=content,
+            local_content=local_content,
             result=result,
         )
 

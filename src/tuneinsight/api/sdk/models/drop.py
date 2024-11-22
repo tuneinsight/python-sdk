@@ -12,24 +12,24 @@ class Drop:
     """
     Attributes:
         type (PreprocessingOperationType): type of preprocessing operation
-        cols (List[str]): list of columns to drop
+        columns (List[str]): list of columns to drop
     """
 
     type: PreprocessingOperationType
-    cols: List[str]
+    columns: List[str]
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         type = self.type.value
 
-        cols = self.cols
+        columns = self.columns
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "type": type,
-                "cols": cols,
+                "columns": columns,
             }
         )
 
@@ -40,11 +40,11 @@ class Drop:
         d = src_dict.copy()
         type = PreprocessingOperationType(d.pop("type"))
 
-        cols = cast(List[str], d.pop("cols"))
+        columns = cast(List[str], d.pop("columns"))
 
         drop = cls(
             type=type,
-            cols=cols,
+            columns=columns,
         )
 
         drop.additional_properties = d

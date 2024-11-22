@@ -7,7 +7,6 @@ class PreprocessingOperationType(str, Enum):
     SELECT = "select"
     DROP = "drop"
     FILTER = "filter"
-    COUNTS = "counts"
     SURVIVAL = "survival"
     TRANSPOSE = "transpose"
     SETINDEX = "setIndex"
@@ -24,6 +23,9 @@ class PreprocessingOperationType(str, Enum):
     DEVIATIONSQUARES = "deviationSquares"
     ADDCOLUMNS = "addColumns"
     DATASETVALIDATION = "datasetValidation"
+    SCALE = "scale"
+    MULTIPLYCOLUMNS = "multiplyColumns"
+    NEWCOLUMN = "newColumn"
     CUSTOM = "custom"
 
     def __str__(self) -> str:

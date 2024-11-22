@@ -4,6 +4,7 @@ import attr
 
 from ..models.authorization_status import AuthorizationStatus
 from ..models.client import Client
+from ..models.participants_access_scope import ParticipantsAccessScope
 from ..models.participation_status import ParticipationStatus
 from ..models.project_status import ProjectStatus
 from ..models.topology import Topology
@@ -19,6 +20,7 @@ if TYPE_CHECKING:
     from ..models.network import Network
     from ..models.participant import Participant
     from ..models.privacy_summary import PrivacySummary
+    from ..models.project_actions import ProjectActions
 
 
 T = TypeVar("T", bound="Project")
@@ -39,6 +41,7 @@ class Project:
         authorized_users (Union[Unset, List[str]]): list of users that are allowed to request computations in the
             project.
         computation_definition (Union[Unset, ComputationDefinition]): Generic computation.
+        computation_definition_base_64 (Union[Unset, str]): base64-version of the computation definition
         created_by_node (Union[Unset, str]): ID (alias) of node where the project was first created
         created_by_user (Union[Unset, str]): ID of user who created the project
         created_with_client (Union[Unset, Client]): Type of client that communicates with the agent API
@@ -70,9 +73,12 @@ class Project:
             project will run indefinitely
         recurring_interval (Union[Unset, None, int]): Interval between each repetition in minutes
         recurring_start_time (Union[Unset, None, str]): ISO 8601 datetime when the repetition should start
-        restrict_instances (Union[Unset, None, bool]): whether to restrict which instances are allowed request
-            computations in the project.
+        restrict_instances (Union[Unset, None, bool]): (DEPRECATED: replace by using `specified` as the
+            `runAccessScope`)
+            whether to restrict which instances are allowed request computations in the project.
             Can only be modified by project administrators from the instance that created this project.
+        run_access_scope (Union[Unset, ParticipantsAccessScope]): Generic access scope that enables configuring access
+            to a specific action w.r.t participants of a project.
         run_async (Union[Unset, bool]): flag indicating if computation should be run asynchronously
         share_token (Union[Unset, str]): the sharing token
         shared (Union[Unset, bool]): True if the project has once been shared across the participants
@@ -83,6 +89,8 @@ class Project:
             authorized to access the project (view / edit depends on the roles)
         workflow_json (Union[Unset, str]): JSON representation of the workflow UI in the frontend
         workflow_type (Union[Unset, WorkflowType]): type of the workflow UI in the frontend
+        actions (Union[Unset, ProjectActions]): regroups availability statuses of relevant user actions on a project and
+            remaining queries when running computations.
         authorization_status (Union[Unset, AuthorizationStatus]): Authorization status of the project
         computations (Union[Unset, List['Computation']]): List of computations of the project
         created_at (Union[Unset, str]):
@@ -107,6 +115,7 @@ class Project:
     authorized_instances: Union[Unset, List[str]] = UNSET
     authorized_users: Union[Unset, List[str]] = UNSET
     computation_definition: Union[Unset, "ComputationDefinition"] = UNSET
+    computation_definition_base_64: Union[Unset, str] = UNSET
     created_by_node: Union[Unset, str] = UNSET
     created_by_user: Union[Unset, str] = UNSET
     created_with_client: Union[Unset, Client] = UNSET
@@ -130,6 +139,7 @@ class Project:
     recurring_interval: Union[Unset, None, int] = UNSET
     recurring_start_time: Union[Unset, None, str] = UNSET
     restrict_instances: Union[Unset, None, bool] = UNSET
+    run_access_scope: Union[Unset, ParticipantsAccessScope] = UNSET
     run_async: Union[Unset, bool] = UNSET
     share_token: Union[Unset, str] = UNSET
     shared: Union[Unset, bool] = UNSET
@@ -138,6 +148,7 @@ class Project:
     unrestricted_access: Union[Unset, None, bool] = UNSET
     workflow_json: Union[Unset, str] = UNSET
     workflow_type: Union[Unset, WorkflowType] = UNSET
+    actions: Union[Unset, "ProjectActions"] = UNSET
     authorization_status: Union[Unset, AuthorizationStatus] = UNSET
     computations: Union[Unset, List["Computation"]] = UNSET
     created_at: Union[Unset, str] = UNSET
@@ -167,6 +178,7 @@ class Project:
         if not isinstance(self.computation_definition, Unset):
             computation_definition = self.computation_definition.to_dict()
 
+        computation_definition_base_64 = self.computation_definition_base_64
         created_by_node = self.created_by_node
         created_by_user = self.created_by_user
         created_with_client: Union[Unset, str] = UNSET
@@ -202,6 +214,10 @@ class Project:
         recurring_interval = self.recurring_interval
         recurring_start_time = self.recurring_start_time
         restrict_instances = self.restrict_instances
+        run_access_scope: Union[Unset, str] = UNSET
+        if not isinstance(self.run_access_scope, Unset):
+            run_access_scope = self.run_access_scope.value
+
         run_async = self.run_async
         share_token = self.share_token
         shared = self.shared
@@ -215,6 +231,10 @@ class Project:
         workflow_type: Union[Unset, str] = UNSET
         if not isinstance(self.workflow_type, Unset):
             workflow_type = self.workflow_type.value
+
+        actions: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.actions, Unset):
+            actions = self.actions.to_dict()
 
         authorization_status: Union[Unset, str] = UNSET
         if not isinstance(self.authorization_status, Unset):
@@ -278,6 +298,8 @@ class Project:
             field_dict["authorizedUsers"] = authorized_users
         if computation_definition is not UNSET:
             field_dict["computationDefinition"] = computation_definition
+        if computation_definition_base_64 is not UNSET:
+            field_dict["computationDefinitionBase64"] = computation_definition_base_64
         if created_by_node is not UNSET:
             field_dict["createdByNode"] = created_by_node
         if created_by_user is not UNSET:
@@ -324,6 +346,8 @@ class Project:
             field_dict["recurringStartTime"] = recurring_start_time
         if restrict_instances is not UNSET:
             field_dict["restrictInstances"] = restrict_instances
+        if run_access_scope is not UNSET:
+            field_dict["runAccessScope"] = run_access_scope
         if run_async is not UNSET:
             field_dict["runAsync"] = run_async
         if share_token is not UNSET:
@@ -340,6 +364,8 @@ class Project:
             field_dict["workflowJSON"] = workflow_json
         if workflow_type is not UNSET:
             field_dict["workflowType"] = workflow_type
+        if actions is not UNSET:
+            field_dict["actions"] = actions
         if authorization_status is not UNSET:
             field_dict["authorizationStatus"] = authorization_status
         if computations is not UNSET:
@@ -377,6 +403,7 @@ class Project:
         from ..models.network import Network
         from ..models.participant import Participant
         from ..models.privacy_summary import PrivacySummary
+        from ..models.project_actions import ProjectActions
 
         d = src_dict.copy()
         allow_clear_query = d.pop("allowClearQuery", UNSET)
@@ -393,6 +420,8 @@ class Project:
             computation_definition = UNSET
         else:
             computation_definition = ComputationDefinition.from_dict(_computation_definition)
+
+        computation_definition_base_64 = d.pop("computationDefinitionBase64", UNSET)
 
         created_by_node = d.pop("createdByNode", UNSET)
 
@@ -460,6 +489,13 @@ class Project:
 
         restrict_instances = d.pop("restrictInstances", UNSET)
 
+        _run_access_scope = d.pop("runAccessScope", UNSET)
+        run_access_scope: Union[Unset, ParticipantsAccessScope]
+        if isinstance(_run_access_scope, Unset):
+            run_access_scope = UNSET
+        else:
+            run_access_scope = ParticipantsAccessScope(_run_access_scope)
+
         run_async = d.pop("runAsync", UNSET)
 
         share_token = d.pop("shareToken", UNSET)
@@ -485,6 +521,13 @@ class Project:
             workflow_type = UNSET
         else:
             workflow_type = WorkflowType(_workflow_type)
+
+        _actions = d.pop("actions", UNSET)
+        actions: Union[Unset, ProjectActions]
+        if isinstance(_actions, Unset):
+            actions = UNSET
+        else:
+            actions = ProjectActions.from_dict(_actions)
 
         _authorization_status = d.pop("authorizationStatus", UNSET)
         authorization_status: Union[Unset, AuthorizationStatus]
@@ -556,6 +599,7 @@ class Project:
             authorized_instances=authorized_instances,
             authorized_users=authorized_users,
             computation_definition=computation_definition,
+            computation_definition_base_64=computation_definition_base_64,
             created_by_node=created_by_node,
             created_by_user=created_by_user,
             created_with_client=created_with_client,
@@ -579,6 +623,7 @@ class Project:
             recurring_interval=recurring_interval,
             recurring_start_time=recurring_start_time,
             restrict_instances=restrict_instances,
+            run_access_scope=run_access_scope,
             run_async=run_async,
             share_token=share_token,
             shared=shared,
@@ -587,6 +632,7 @@ class Project:
             unrestricted_access=unrestricted_access,
             workflow_json=workflow_json,
             workflow_type=workflow_type,
+            actions=actions,
             authorization_status=authorization_status,
             computations=computations,
             created_at=created_at,

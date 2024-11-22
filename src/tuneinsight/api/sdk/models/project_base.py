@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
 import attr
 
 from ..models.client import Client
+from ..models.participants_access_scope import ParticipantsAccessScope
 from ..models.topology import Topology
 from ..models.workflow_type import WorkflowType
 from ..types import UNSET, Unset
@@ -32,6 +33,7 @@ class ProjectBase:
         authorized_users (Union[Unset, List[str]]): list of users that are allowed to request computations in the
             project.
         computation_definition (Union[Unset, ComputationDefinition]): Generic computation.
+        computation_definition_base_64 (Union[Unset, str]): base64-version of the computation definition
         created_by_node (Union[Unset, str]): ID (alias) of node where the project was first created
         created_by_user (Union[Unset, str]): ID of user who created the project
         created_with_client (Union[Unset, Client]): Type of client that communicates with the agent API
@@ -63,9 +65,12 @@ class ProjectBase:
             project will run indefinitely
         recurring_interval (Union[Unset, None, int]): Interval between each repetition in minutes
         recurring_start_time (Union[Unset, None, str]): ISO 8601 datetime when the repetition should start
-        restrict_instances (Union[Unset, None, bool]): whether to restrict which instances are allowed request
-            computations in the project.
+        restrict_instances (Union[Unset, None, bool]): (DEPRECATED: replace by using `specified` as the
+            `runAccessScope`)
+            whether to restrict which instances are allowed request computations in the project.
             Can only be modified by project administrators from the instance that created this project.
+        run_access_scope (Union[Unset, ParticipantsAccessScope]): Generic access scope that enables configuring access
+            to a specific action w.r.t participants of a project.
         run_async (Union[Unset, bool]): flag indicating if computation should be run asynchronously
         share_token (Union[Unset, str]): the sharing token
         shared (Union[Unset, bool]): True if the project has once been shared across the participants
@@ -83,6 +88,7 @@ class ProjectBase:
     authorized_instances: Union[Unset, List[str]] = UNSET
     authorized_users: Union[Unset, List[str]] = UNSET
     computation_definition: Union[Unset, "ComputationDefinition"] = UNSET
+    computation_definition_base_64: Union[Unset, str] = UNSET
     created_by_node: Union[Unset, str] = UNSET
     created_by_user: Union[Unset, str] = UNSET
     created_with_client: Union[Unset, Client] = UNSET
@@ -106,6 +112,7 @@ class ProjectBase:
     recurring_interval: Union[Unset, None, int] = UNSET
     recurring_start_time: Union[Unset, None, str] = UNSET
     restrict_instances: Union[Unset, None, bool] = UNSET
+    run_access_scope: Union[Unset, ParticipantsAccessScope] = UNSET
     run_async: Union[Unset, bool] = UNSET
     share_token: Union[Unset, str] = UNSET
     shared: Union[Unset, bool] = UNSET
@@ -131,6 +138,7 @@ class ProjectBase:
         if not isinstance(self.computation_definition, Unset):
             computation_definition = self.computation_definition.to_dict()
 
+        computation_definition_base_64 = self.computation_definition_base_64
         created_by_node = self.created_by_node
         created_by_user = self.created_by_user
         created_with_client: Union[Unset, str] = UNSET
@@ -166,6 +174,10 @@ class ProjectBase:
         recurring_interval = self.recurring_interval
         recurring_start_time = self.recurring_start_time
         restrict_instances = self.restrict_instances
+        run_access_scope: Union[Unset, str] = UNSET
+        if not isinstance(self.run_access_scope, Unset):
+            run_access_scope = self.run_access_scope.value
+
         run_async = self.run_async
         share_token = self.share_token
         shared = self.shared
@@ -193,6 +205,8 @@ class ProjectBase:
             field_dict["authorizedUsers"] = authorized_users
         if computation_definition is not UNSET:
             field_dict["computationDefinition"] = computation_definition
+        if computation_definition_base_64 is not UNSET:
+            field_dict["computationDefinitionBase64"] = computation_definition_base_64
         if created_by_node is not UNSET:
             field_dict["createdByNode"] = created_by_node
         if created_by_user is not UNSET:
@@ -239,6 +253,8 @@ class ProjectBase:
             field_dict["recurringStartTime"] = recurring_start_time
         if restrict_instances is not UNSET:
             field_dict["restrictInstances"] = restrict_instances
+        if run_access_scope is not UNSET:
+            field_dict["runAccessScope"] = run_access_scope
         if run_async is not UNSET:
             field_dict["runAsync"] = run_async
         if share_token is not UNSET:
@@ -280,6 +296,8 @@ class ProjectBase:
             computation_definition = UNSET
         else:
             computation_definition = ComputationDefinition.from_dict(_computation_definition)
+
+        computation_definition_base_64 = d.pop("computationDefinitionBase64", UNSET)
 
         created_by_node = d.pop("createdByNode", UNSET)
 
@@ -347,6 +365,13 @@ class ProjectBase:
 
         restrict_instances = d.pop("restrictInstances", UNSET)
 
+        _run_access_scope = d.pop("runAccessScope", UNSET)
+        run_access_scope: Union[Unset, ParticipantsAccessScope]
+        if isinstance(_run_access_scope, Unset):
+            run_access_scope = UNSET
+        else:
+            run_access_scope = ParticipantsAccessScope(_run_access_scope)
+
         run_async = d.pop("runAsync", UNSET)
 
         share_token = d.pop("shareToken", UNSET)
@@ -379,6 +404,7 @@ class ProjectBase:
             authorized_instances=authorized_instances,
             authorized_users=authorized_users,
             computation_definition=computation_definition,
+            computation_definition_base_64=computation_definition_base_64,
             created_by_node=created_by_node,
             created_by_user=created_by_user,
             created_with_client=created_with_client,
@@ -402,6 +428,7 @@ class ProjectBase:
             recurring_interval=recurring_interval,
             recurring_start_time=recurring_start_time,
             restrict_instances=restrict_instances,
+            run_access_scope=run_access_scope,
             run_async=run_async,
             share_token=share_token,
             shared=shared,

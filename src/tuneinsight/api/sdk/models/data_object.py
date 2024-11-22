@@ -14,6 +14,8 @@ class DataObject:
     """A data object definition.
 
     Attributes:
+        byte_size (Union[Unset, int]): Total byteSize of the object uploaded through PUT method by chunks. This value is
+            updated at each data chunk upload.
         encrypted (Union[Unset, bool]):
         has_data (Union[Unset, bool]): whether the dataobject's data has been set
         session_id (Union[Unset, str]): Unique identifier of a session
@@ -24,6 +26,7 @@ class DataObject:
         visibility_status (Union[Unset, DataObjectVisibilityStatus]): type of visibility set to the dataobject
     """
 
+    byte_size: Union[Unset, int] = UNSET
     encrypted: Union[Unset, bool] = UNSET
     has_data: Union[Unset, bool] = UNSET
     session_id: Union[Unset, str] = UNSET
@@ -35,6 +38,7 @@ class DataObject:
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        byte_size = self.byte_size
         encrypted = self.encrypted
         has_data = self.has_data
         session_id = self.session_id
@@ -52,6 +56,8 @@ class DataObject:
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if byte_size is not UNSET:
+            field_dict["byteSize"] = byte_size
         if encrypted is not UNSET:
             field_dict["encrypted"] = encrypted
         if has_data is not UNSET:
@@ -74,6 +80,8 @@ class DataObject:
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
+        byte_size = d.pop("byteSize", UNSET)
+
         encrypted = d.pop("encrypted", UNSET)
 
         has_data = d.pop("hasData", UNSET)
@@ -101,6 +109,7 @@ class DataObject:
             visibility_status = DataObjectVisibilityStatus(_visibility_status)
 
         data_object = cls(
+            byte_size=byte_size,
             encrypted=encrypted,
             has_data=has_data,
             session_id=session_id,

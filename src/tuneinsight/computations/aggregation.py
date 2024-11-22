@@ -166,6 +166,8 @@ class Aggregation(ModelBasedComputation):
                 columns=none_if_unset(model.columns),
                 groups=none_if_unset(model.groups),
                 include_count=false_if_unset(model.include_count),
+                allow_missing_columns=false_if_unset(model.allow_missing_columns),
+                dp_epsilon=model.dp_epsilon,
             )
         comp._adapt(model)
         return comp

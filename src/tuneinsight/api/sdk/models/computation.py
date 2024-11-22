@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
 import attr
 
 from ..models.computation_status import ComputationStatus
+from ..models.run_mode import RunMode
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -32,7 +33,7 @@ class Computation:
         execution_cost (Union[Unset, float]): the cost of the computation when an execution quota has been setup.
         ingress (Union[Unset, int]): keeps track of the number of bytes received during a computation to serve as a
             bandwidth measure
-        local (Union[Unset, bool]):
+        local (Union[Unset, bool]): deprecated
         measurements (Union[Unset, List['Measurement']]): list of benchmarking measurements done on the computation
         owner (Union[Unset, str]): identifier of the end user that has requested the computation
         progress (Union[Unset, int]):
@@ -40,6 +41,7 @@ class Computation:
         result_id (Union[Unset, str]): Unique identifier of a result.
         results (Union[Unset, List[str]]): Identifier(s) of the resulting data object(s). Available only when the status
             is completed.
+        run_mode (Union[Unset, RunMode]): Defines the mode in which to run a computation (local, collective, or both)
         started_at (Union[Unset, str]):
         updated_at (Union[Unset, str]):
         visible (Union[Unset, bool]): False if the computation is internal and should not be displayed to the user by
@@ -65,6 +67,7 @@ class Computation:
     project_id: Union[Unset, str] = UNSET
     result_id: Union[Unset, str] = UNSET
     results: Union[Unset, List[str]] = UNSET
+    run_mode: Union[Unset, RunMode] = UNSET
     started_at: Union[Unset, str] = UNSET
     updated_at: Union[Unset, str] = UNSET
     visible: Union[Unset, bool] = UNSET
@@ -108,6 +111,10 @@ class Computation:
         results: Union[Unset, List[str]] = UNSET
         if not isinstance(self.results, Unset):
             results = self.results
+
+        run_mode: Union[Unset, str] = UNSET
+        if not isinstance(self.run_mode, Unset):
+            run_mode = self.run_mode.value
 
         started_at = self.started_at
         updated_at = self.updated_at
@@ -155,6 +162,8 @@ class Computation:
             field_dict["resultId"] = result_id
         if results is not UNSET:
             field_dict["results"] = results
+        if run_mode is not UNSET:
+            field_dict["runMode"] = run_mode
         if started_at is not UNSET:
             field_dict["startedAt"] = started_at
         if updated_at is not UNSET:
@@ -219,6 +228,13 @@ class Computation:
 
         results = cast(List[str], d.pop("results", UNSET))
 
+        _run_mode = d.pop("runMode", UNSET)
+        run_mode: Union[Unset, RunMode]
+        if isinstance(_run_mode, Unset):
+            run_mode = UNSET
+        else:
+            run_mode = RunMode(_run_mode)
+
         started_at = d.pop("startedAt", UNSET)
 
         updated_at = d.pop("updatedAt", UNSET)
@@ -246,6 +262,7 @@ class Computation:
             project_id=project_id,
             result_id=result_id,
             results=results,
+            run_mode=run_mode,
             started_at=started_at,
             updated_at=updated_at,
             visible=visible,
