@@ -14,16 +14,15 @@ from .as_type_type_map import AsTypeTypeMap
 from .authorization_contract import AuthorizationContract
 from .authorization_status import AuthorizationStatus
 from .authorized_column import AuthorizedColumn
+from .availability_status import AvailabilityStatus
 from .backup_definition import BackupDefinition
 from .backup_type import BackupType
 from .binning_parameters import BinningParameters
 from .binning_parameters_method import BinningParametersMethod
-from .bootstrap import Bootstrap
 from .capability import Capability
 from .categorical_column import CategoricalColumn
 from .ciphertable import Ciphertable
 from .client import Client
-from .collective_key_gen import CollectiveKeyGen
 from .collective_key_switch import CollectiveKeySwitch
 from .column_info import ColumnInfo
 from .column_info_scope import ColumnInfoScope
@@ -49,7 +48,6 @@ from .computation_status import ComputationStatus
 from .computation_type import ComputationType
 from .content import Content
 from .content_type import ContentType
-from .counts import Counts
 from .credentials import Credentials
 from .credentials_type import CredentialsType
 from .custom import Custom
@@ -70,7 +68,9 @@ from .data_source_definition import DataSourceDefinition
 from .data_source_definition_structure_template_json import DataSourceDefinitionStructureTemplateJSON
 from .data_source_metadata import DataSourceMetadata
 from .data_source_query import DataSourceQuery
+from .data_source_query_definition import DataSourceQueryDefinition
 from .data_source_query_preview import DataSourceQueryPreview
+from .data_source_query_result import DataSourceQueryResult
 from .data_source_table import DataSourceTable
 from .data_source_type import DataSourceType
 from .data_source_types_info import DataSourceTypesInfo
@@ -81,6 +81,7 @@ from .dataset_schema import DatasetSchema
 from .dataset_schema_columns import DatasetSchemaColumns
 from .dataset_statistics import DatasetStatistics
 from .dataset_validation import DatasetValidation
+from .datasource_policy import DatasourcePolicy
 from .deviation_squares import DeviationSquares
 from .displayed_capability import DisplayedCapability
 from .documentation_response_200 import DocumentationResponse200
@@ -120,12 +121,16 @@ from .get_model_list_sort_by import GetModelListSortBy
 from .get_network_metadata_response_200 import GetNetworkMetadataResponse200
 from .get_network_metadata_response_200_network_type import GetNetworkMetadataResponse200NetworkType
 from .get_params_response_200 import GetParamsResponse200
+from .get_preprocessing_dry_run_json_body import GetPreprocessingDryRunJsonBody
 from .get_private_search_databases_list_order import GetPrivateSearchDatabasesListOrder
 from .get_private_search_databases_list_sort_by import GetPrivateSearchDatabasesListSortBy
 from .get_project_list_order import GetProjectListOrder
 from .get_project_list_sort_by import GetProjectListSortBy
 from .get_project_network_status_response_200_item import GetProjectNetworkStatusResponse200Item
 from .get_project_status_response_200 import GetProjectStatusResponse200
+from .get_query_bookmarks_data_source_type import GetQueryBookmarksDataSourceType
+from .get_query_bookmarks_order import GetQueryBookmarksOrder
+from .get_query_bookmarks_sort_by import GetQueryBookmarksSortBy
 from .get_query_list_order import GetQueryListOrder
 from .get_query_list_sort_by import GetQueryListSortBy
 from .get_result_list_order import GetResultListOrder
@@ -138,7 +143,6 @@ from .hybrid_fl import HybridFL
 from .hybrid_fl_learning_params import HybridFLLearningParams
 from .instance_configuration import InstanceConfiguration
 from .key_info import KeyInfo
-from .key_switched_computation import KeySwitchedComputation
 from .local_data_selection import LocalDataSelection
 from .local_data_selection_definition import LocalDataSelectionDefinition
 from .local_data_source_type import LocalDataSourceType
@@ -156,9 +160,12 @@ from .model_definition import ModelDefinition
 from .model_metadata import ModelMetadata
 from .model_params import ModelParams
 from .model_type import ModelType
+from .multiply_columns import MultiplyColumns
 from .network import Network
 from .network_type import NetworkType
 from .network_visibility_type import NetworkVisibilityType
+from .new_column import NewColumn
+from .new_column_random import NewColumnRandom
 from .node import Node
 from .node_status import NodeStatus
 from .noise_distributions import NoiseDistributions
@@ -167,12 +174,14 @@ from .organization import Organization
 from .organization_coordinates import OrganizationCoordinates
 from .paginated_result import PaginatedResult
 from .participant import Participant
+from .participants_access_scope import ParticipantsAccessScope
 from .participation_status import ParticipationStatus
 from .phonetic_encoding import PhoneticEncoding
 from .post_data_object_json_body import PostDataObjectJsonBody
 from .post_data_source_data_multipart_data import PostDataSourceDataMultipartData
 from .post_llm_request_json_body import PostLlmRequestJsonBody
 from .post_llm_request_json_body_prompt_args import PostLlmRequestJsonBodyPromptArgs
+from .post_mock_dataset_access_scope import PostMockDatasetAccessScope
 from .post_mock_dataset_method import PostMockDatasetMethod
 from .post_project_data_json_body import PostProjectDataJsonBody
 from .post_protocol_message_multipart_data import PostProtocolMessageMultipartData
@@ -189,6 +198,7 @@ from .private_search_database import PrivateSearchDatabase
 from .private_search_query import PrivateSearchQuery
 from .private_search_setup import PrivateSearchSetup
 from .project import Project
+from .project_actions import ProjectActions
 from .project_base import ProjectBase
 from .project_computation import ProjectComputation
 from .project_definition import ProjectDefinition
@@ -201,15 +211,16 @@ from .put_data_object_data_multipart_data import PutDataObjectDataMultipartData
 from .put_data_source_data_multipart_data import PutDataSourceDataMultipartData
 from .quantiles import Quantiles
 from .query import Query
+from .query_bookmark_definition import QueryBookmarkDefinition
 from .query_results import QueryResults
 from .query_status import QueryStatus
 from .realm_role import RealmRole
 from .regression_type import RegressionType
-from .relin_key_gen import RelinKeyGen
 from .remote_info import RemoteInfo
 from .rename import Rename
 from .rename_axis import RenameAxis
 from .rename_mapper import RenameMapper
+from .reset_entities import ResetEntities
 from .reset_index import ResetIndex
 from .result import Result
 from .result_content import ResultContent
@@ -217,11 +228,10 @@ from .result_contextual_info import ResultContextualInfo
 from .result_definition import ResultDefinition
 from .result_metadata import ResultMetadata
 from .result_release import ResultRelease
-from .rot_key_gen import RotKeyGen
-from .rot_key_gen_rotations_item import RotKeyGenRotationsItem
 from .run_mode import RunMode
 from .run_project_parameters import RunProjectParameters
 from .s3_parameters import S3Parameters
+from .scale import Scale
 from .select import Select
 from .session import Session
 from .session_definition import SessionDefinition
@@ -284,16 +294,15 @@ __all__ = (
     "AuthorizationContract",
     "AuthorizationStatus",
     "AuthorizedColumn",
+    "AvailabilityStatus",
     "BackupDefinition",
     "BackupType",
     "BinningParameters",
     "BinningParametersMethod",
-    "Bootstrap",
     "Capability",
     "CategoricalColumn",
     "Ciphertable",
     "Client",
-    "CollectiveKeyGen",
     "CollectiveKeySwitch",
     "ColumnInfo",
     "ColumnInfoScope",
@@ -317,7 +326,6 @@ __all__ = (
     "ComputationType",
     "Content",
     "ContentType",
-    "Counts",
     "Credentials",
     "CredentialsType",
     "Custom",
@@ -342,8 +350,11 @@ __all__ = (
     "DataSourceDefinition",
     "DataSourceDefinitionStructureTemplateJSON",
     "DataSourceMetadata",
+    "DatasourcePolicy",
     "DataSourceQuery",
+    "DataSourceQueryDefinition",
     "DataSourceQueryPreview",
+    "DataSourceQueryResult",
     "DataSourceTable",
     "DataSourceType",
     "DataSourceTypesInfo",
@@ -388,12 +399,16 @@ __all__ = (
     "GetNetworkMetadataResponse200",
     "GetNetworkMetadataResponse200NetworkType",
     "GetParamsResponse200",
+    "GetPreprocessingDryRunJsonBody",
     "GetPrivateSearchDatabasesListOrder",
     "GetPrivateSearchDatabasesListSortBy",
     "GetProjectListOrder",
     "GetProjectListSortBy",
     "GetProjectNetworkStatusResponse200Item",
     "GetProjectStatusResponse200",
+    "GetQueryBookmarksDataSourceType",
+    "GetQueryBookmarksOrder",
+    "GetQueryBookmarksSortBy",
     "GetQueryListOrder",
     "GetQueryListSortBy",
     "GetResultListOrder",
@@ -406,7 +421,6 @@ __all__ = (
     "HybridFLLearningParams",
     "InstanceConfiguration",
     "KeyInfo",
-    "KeySwitchedComputation",
     "LocalDataSelection",
     "LocalDataSelectionDefinition",
     "LocalDataSourceType",
@@ -424,9 +438,12 @@ __all__ = (
     "ModelMetadata",
     "ModelParams",
     "ModelType",
+    "MultiplyColumns",
     "Network",
     "NetworkType",
     "NetworkVisibilityType",
+    "NewColumn",
+    "NewColumnRandom",
     "Node",
     "NodeStatus",
     "NoiseDistributions",
@@ -435,12 +452,14 @@ __all__ = (
     "OrganizationCoordinates",
     "PaginatedResult",
     "Participant",
+    "ParticipantsAccessScope",
     "ParticipationStatus",
     "PhoneticEncoding",
     "PostDataObjectJsonBody",
     "PostDataSourceDataMultipartData",
     "PostLlmRequestJsonBody",
     "PostLlmRequestJsonBodyPromptArgs",
+    "PostMockDatasetAccessScope",
     "PostMockDatasetMethod",
     "PostProjectDataJsonBody",
     "PostProtocolMessageMultipartData",
@@ -457,6 +476,7 @@ __all__ = (
     "PrivateSearchQuery",
     "PrivateSearchSetup",
     "Project",
+    "ProjectActions",
     "ProjectBase",
     "ProjectComputation",
     "ProjectDefinition",
@@ -469,15 +489,16 @@ __all__ = (
     "PutDataSourceDataMultipartData",
     "Quantiles",
     "Query",
+    "QueryBookmarkDefinition",
     "QueryResults",
     "QueryStatus",
     "RealmRole",
     "RegressionType",
-    "RelinKeyGen",
     "RemoteInfo",
     "Rename",
     "RenameAxis",
     "RenameMapper",
+    "ResetEntities",
     "ResetIndex",
     "Result",
     "ResultContent",
@@ -485,11 +506,10 @@ __all__ = (
     "ResultDefinition",
     "ResultMetadata",
     "ResultRelease",
-    "RotKeyGen",
-    "RotKeyGenRotationsItem",
     "RunMode",
     "RunProjectParameters",
     "S3Parameters",
+    "Scale",
     "Select",
     "Session",
     "SessionDefinition",

@@ -18,28 +18,29 @@ class ApplyMapping:
     Attributes:
         type (PreprocessingOperationType): type of preprocessing operation
         default (Union[Unset, str]): default value to assign to items not specified in the dictionary
-        input_ (Union[Unset, str]): column to use as input
+        input_column (Union[Unset, str]): column to use as input
         mapping (Union[Unset, StringMapping]): mapping from string -> string
-        output (Union[Unset, str]): column to use as output
+        output_column (Union[Unset, str]): column to use as output. If not specified, the input column is used (in
+            place).
     """
 
     type: PreprocessingOperationType
     default: Union[Unset, str] = UNSET
-    input_: Union[Unset, str] = UNSET
+    input_column: Union[Unset, str] = UNSET
     mapping: Union[Unset, "StringMapping"] = UNSET
-    output: Union[Unset, str] = UNSET
+    output_column: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         type = self.type.value
 
         default = self.default
-        input_ = self.input_
+        input_column = self.input_column
         mapping: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.mapping, Unset):
             mapping = self.mapping.to_dict()
 
-        output = self.output
+        output_column = self.output_column
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -50,12 +51,12 @@ class ApplyMapping:
         )
         if default is not UNSET:
             field_dict["default"] = default
-        if input_ is not UNSET:
-            field_dict["input"] = input_
+        if input_column is not UNSET:
+            field_dict["inputColumn"] = input_column
         if mapping is not UNSET:
             field_dict["mapping"] = mapping
-        if output is not UNSET:
-            field_dict["output"] = output
+        if output_column is not UNSET:
+            field_dict["outputColumn"] = output_column
 
         return field_dict
 
@@ -68,7 +69,7 @@ class ApplyMapping:
 
         default = d.pop("default", UNSET)
 
-        input_ = d.pop("input", UNSET)
+        input_column = d.pop("inputColumn", UNSET)
 
         _mapping = d.pop("mapping", UNSET)
         mapping: Union[Unset, StringMapping]
@@ -77,14 +78,14 @@ class ApplyMapping:
         else:
             mapping = StringMapping.from_dict(_mapping)
 
-        output = d.pop("output", UNSET)
+        output_column = d.pop("outputColumn", UNSET)
 
         apply_mapping = cls(
             type=type,
             default=default,
-            input_=input_,
+            input_column=input_column,
             mapping=mapping,
-            output=output,
+            output_column=output_column,
         )
 
         apply_mapping.additional_properties = d

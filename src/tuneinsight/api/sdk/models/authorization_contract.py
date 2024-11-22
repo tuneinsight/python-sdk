@@ -15,12 +15,14 @@ class AuthorizationContract:
         computation_parameters (Union[Unset, bool]): whether the computation parameters are allowed to change
         computation_type (Union[Unset, bool]): whether the computation type is allowed to change
         data_query (Union[Unset, bool]): whether the data query parameters are allowed to change
+        data_source (Union[Unset, bool]): whether the data source is allowed to change
         preprocessing (Union[Unset, bool]): whether the preprocessing parameters are allowed to change
     """
 
     computation_parameters: Union[Unset, bool] = False
     computation_type: Union[Unset, bool] = False
     data_query: Union[Unset, bool] = False
+    data_source: Union[Unset, bool] = False
     preprocessing: Union[Unset, bool] = False
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -28,6 +30,7 @@ class AuthorizationContract:
         computation_parameters = self.computation_parameters
         computation_type = self.computation_type
         data_query = self.data_query
+        data_source = self.data_source
         preprocessing = self.preprocessing
 
         field_dict: Dict[str, Any] = {}
@@ -39,6 +42,8 @@ class AuthorizationContract:
             field_dict["computationType"] = computation_type
         if data_query is not UNSET:
             field_dict["dataQuery"] = data_query
+        if data_source is not UNSET:
+            field_dict["dataSource"] = data_source
         if preprocessing is not UNSET:
             field_dict["preprocessing"] = preprocessing
 
@@ -53,12 +58,15 @@ class AuthorizationContract:
 
         data_query = d.pop("dataQuery", UNSET)
 
+        data_source = d.pop("dataSource", UNSET)
+
         preprocessing = d.pop("preprocessing", UNSET)
 
         authorization_contract = cls(
             computation_parameters=computation_parameters,
             computation_type=computation_type,
             data_query=data_query,
+            data_source=data_source,
             preprocessing=preprocessing,
         )
 

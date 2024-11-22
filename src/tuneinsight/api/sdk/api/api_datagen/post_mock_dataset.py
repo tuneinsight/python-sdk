@@ -7,6 +7,7 @@ from ... import errors
 from ...client import Client
 from ...models.data_source import DataSource
 from ...models.error import Error
+from ...models.post_mock_dataset_access_scope import PostMockDatasetAccessScope
 from ...models.post_mock_dataset_method import PostMockDatasetMethod
 from ...types import UNSET, Response, Unset
 
@@ -22,6 +23,7 @@ def _get_kwargs(
     create_datasource: Union[Unset, None, bool] = UNSET,
     clear_if_exists: Union[Unset, None, bool] = UNSET,
     tracking_id: Union[Unset, None, str] = UNSET,
+    access_scope: Union[Unset, None, PostMockDatasetAccessScope] = UNSET,
 ) -> Dict[str, Any]:
     url = "{}/mock/dataset".format(client.base_url)
 
@@ -44,6 +46,12 @@ def _get_kwargs(
     params["clearIfExists"] = clear_if_exists
 
     params["trackingId"] = tracking_id
+
+    json_access_scope: Union[Unset, None, str] = UNSET
+    if not isinstance(access_scope, Unset):
+        json_access_scope = access_scope.value if access_scope else None
+
+    params["accessScope"] = json_access_scope
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
@@ -118,6 +126,7 @@ def sync_detailed(
     create_datasource: Union[Unset, None, bool] = UNSET,
     clear_if_exists: Union[Unset, None, bool] = UNSET,
     tracking_id: Union[Unset, None, str] = UNSET,
+    access_scope: Union[Unset, None, PostMockDatasetAccessScope] = UNSET,
 ) -> Response[Union[Any, DataSource, Error]]:
     """Request the creation of a mock dataset.
 
@@ -129,6 +138,7 @@ def sync_detailed(
         create_datasource (Union[Unset, None, bool]):
         clear_if_exists (Union[Unset, None, bool]):
         tracking_id (Union[Unset, None, str]):
+        access_scope (Union[Unset, None, PostMockDatasetAccessScope]):
         json_body (str):
 
     Raises:
@@ -149,6 +159,7 @@ def sync_detailed(
         create_datasource=create_datasource,
         clear_if_exists=clear_if_exists,
         tracking_id=tracking_id,
+        access_scope=access_scope,
     )
 
     response = httpx.request(
@@ -170,6 +181,7 @@ def sync(
     create_datasource: Union[Unset, None, bool] = UNSET,
     clear_if_exists: Union[Unset, None, bool] = UNSET,
     tracking_id: Union[Unset, None, str] = UNSET,
+    access_scope: Union[Unset, None, PostMockDatasetAccessScope] = UNSET,
 ) -> Optional[Union[Any, DataSource, Error]]:
     """Request the creation of a mock dataset.
 
@@ -181,6 +193,7 @@ def sync(
         create_datasource (Union[Unset, None, bool]):
         clear_if_exists (Union[Unset, None, bool]):
         tracking_id (Union[Unset, None, str]):
+        access_scope (Union[Unset, None, PostMockDatasetAccessScope]):
         json_body (str):
 
     Raises:
@@ -201,6 +214,7 @@ def sync(
         create_datasource=create_datasource,
         clear_if_exists=clear_if_exists,
         tracking_id=tracking_id,
+        access_scope=access_scope,
     ).parsed
 
 
@@ -215,6 +229,7 @@ async def asyncio_detailed(
     create_datasource: Union[Unset, None, bool] = UNSET,
     clear_if_exists: Union[Unset, None, bool] = UNSET,
     tracking_id: Union[Unset, None, str] = UNSET,
+    access_scope: Union[Unset, None, PostMockDatasetAccessScope] = UNSET,
 ) -> Response[Union[Any, DataSource, Error]]:
     """Request the creation of a mock dataset.
 
@@ -226,6 +241,7 @@ async def asyncio_detailed(
         create_datasource (Union[Unset, None, bool]):
         clear_if_exists (Union[Unset, None, bool]):
         tracking_id (Union[Unset, None, str]):
+        access_scope (Union[Unset, None, PostMockDatasetAccessScope]):
         json_body (str):
 
     Raises:
@@ -246,6 +262,7 @@ async def asyncio_detailed(
         create_datasource=create_datasource,
         clear_if_exists=clear_if_exists,
         tracking_id=tracking_id,
+        access_scope=access_scope,
     )
 
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
@@ -265,6 +282,7 @@ async def asyncio(
     create_datasource: Union[Unset, None, bool] = UNSET,
     clear_if_exists: Union[Unset, None, bool] = UNSET,
     tracking_id: Union[Unset, None, str] = UNSET,
+    access_scope: Union[Unset, None, PostMockDatasetAccessScope] = UNSET,
 ) -> Optional[Union[Any, DataSource, Error]]:
     """Request the creation of a mock dataset.
 
@@ -276,6 +294,7 @@ async def asyncio(
         create_datasource (Union[Unset, None, bool]):
         clear_if_exists (Union[Unset, None, bool]):
         tracking_id (Union[Unset, None, str]):
+        access_scope (Union[Unset, None, PostMockDatasetAccessScope]):
         json_body (str):
 
     Raises:
@@ -297,5 +316,6 @@ async def asyncio(
             create_datasource=create_datasource,
             clear_if_exists=clear_if_exists,
             tracking_id=tracking_id,
+            access_scope=access_scope,
         )
     ).parsed

@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
 import attr
 
 from ..models.client import Client
-from ..models.data_source_type import DataSourceType
+from ..models.participants_access_scope import ParticipantsAccessScope
 from ..models.topology import Topology
 from ..models.workflow_type import WorkflowType
 from ..types import UNSET, Unset
@@ -11,6 +11,7 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.computation_definition import ComputationDefinition
     from ..models.computation_policy import ComputationPolicy
+    from ..models.data_source_definition import DataSourceDefinition
     from ..models.data_source_query import DataSourceQuery
     from ..models.local_data_selection_definition import LocalDataSelectionDefinition
 
@@ -32,6 +33,7 @@ class ProjectDefinition:
         authorized_users (Union[Unset, List[str]]): list of users that are allowed to request computations in the
             project.
         computation_definition (Union[Unset, ComputationDefinition]): Generic computation.
+        computation_definition_base_64 (Union[Unset, str]): base64-version of the computation definition
         created_by_node (Union[Unset, str]): ID (alias) of node where the project was first created
         created_by_user (Union[Unset, str]): ID of user who created the project
         created_with_client (Union[Unset, Client]): Type of client that communicates with the agent API
@@ -63,9 +65,12 @@ class ProjectDefinition:
             project will run indefinitely
         recurring_interval (Union[Unset, None, int]): Interval between each repetition in minutes
         recurring_start_time (Union[Unset, None, str]): ISO 8601 datetime when the repetition should start
-        restrict_instances (Union[Unset, None, bool]): whether to restrict which instances are allowed request
-            computations in the project.
+        restrict_instances (Union[Unset, None, bool]): (DEPRECATED: replace by using `specified` as the
+            `runAccessScope`)
+            whether to restrict which instances are allowed request computations in the project.
             Can only be modified by project administrators from the instance that created this project.
+        run_access_scope (Union[Unset, ParticipantsAccessScope]): Generic access scope that enables configuring access
+            to a specific action w.r.t participants of a project.
         run_async (Union[Unset, bool]): flag indicating if computation should be run asynchronously
         share_token (Union[Unset, str]): the sharing token
         shared (Union[Unset, bool]): True if the project has once been shared across the participants
@@ -76,8 +81,8 @@ class ProjectDefinition:
             authorized to access the project (view / edit depends on the roles)
         workflow_json (Union[Unset, str]): JSON representation of the workflow UI in the frontend
         workflow_type (Union[Unset, WorkflowType]): type of the workflow UI in the frontend
+        auto_match_criteria (Union[Unset, DataSourceDefinition]): parameters used to create and modify a data source
         broadcast (Union[Unset, bool]): Temporary field. Always set to false. Only used for server-server communication
-        data_source_type (Union[Unset, DataSourceType]):
         leaving (Union[Unset, bool]): When participants are updated, this flag is set to true to indicate that the
             requesting instance is leaving the project.
             Note that this flag is only used when patching project instance to instance.
@@ -89,6 +94,7 @@ class ProjectDefinition:
     authorized_instances: Union[Unset, List[str]] = UNSET
     authorized_users: Union[Unset, List[str]] = UNSET
     computation_definition: Union[Unset, "ComputationDefinition"] = UNSET
+    computation_definition_base_64: Union[Unset, str] = UNSET
     created_by_node: Union[Unset, str] = UNSET
     created_by_user: Union[Unset, str] = UNSET
     created_with_client: Union[Unset, Client] = UNSET
@@ -112,6 +118,7 @@ class ProjectDefinition:
     recurring_interval: Union[Unset, None, int] = UNSET
     recurring_start_time: Union[Unset, None, str] = UNSET
     restrict_instances: Union[Unset, None, bool] = UNSET
+    run_access_scope: Union[Unset, ParticipantsAccessScope] = UNSET
     run_async: Union[Unset, bool] = UNSET
     share_token: Union[Unset, str] = UNSET
     shared: Union[Unset, bool] = UNSET
@@ -120,8 +127,8 @@ class ProjectDefinition:
     unrestricted_access: Union[Unset, None, bool] = UNSET
     workflow_json: Union[Unset, str] = UNSET
     workflow_type: Union[Unset, WorkflowType] = UNSET
+    auto_match_criteria: Union[Unset, "DataSourceDefinition"] = UNSET
     broadcast: Union[Unset, bool] = UNSET
-    data_source_type: Union[Unset, DataSourceType] = UNSET
     leaving: Union[Unset, bool] = UNSET
     participants: Union[Unset, None, List[str]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
@@ -141,6 +148,7 @@ class ProjectDefinition:
         if not isinstance(self.computation_definition, Unset):
             computation_definition = self.computation_definition.to_dict()
 
+        computation_definition_base_64 = self.computation_definition_base_64
         created_by_node = self.created_by_node
         created_by_user = self.created_by_user
         created_with_client: Union[Unset, str] = UNSET
@@ -176,6 +184,10 @@ class ProjectDefinition:
         recurring_interval = self.recurring_interval
         recurring_start_time = self.recurring_start_time
         restrict_instances = self.restrict_instances
+        run_access_scope: Union[Unset, str] = UNSET
+        if not isinstance(self.run_access_scope, Unset):
+            run_access_scope = self.run_access_scope.value
+
         run_async = self.run_async
         share_token = self.share_token
         shared = self.shared
@@ -190,11 +202,11 @@ class ProjectDefinition:
         if not isinstance(self.workflow_type, Unset):
             workflow_type = self.workflow_type.value
 
-        broadcast = self.broadcast
-        data_source_type: Union[Unset, str] = UNSET
-        if not isinstance(self.data_source_type, Unset):
-            data_source_type = self.data_source_type.value
+        auto_match_criteria: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.auto_match_criteria, Unset):
+            auto_match_criteria = self.auto_match_criteria.to_dict()
 
+        broadcast = self.broadcast
         leaving = self.leaving
         participants: Union[Unset, None, List[str]] = UNSET
         if not isinstance(self.participants, Unset):
@@ -216,6 +228,8 @@ class ProjectDefinition:
             field_dict["authorizedUsers"] = authorized_users
         if computation_definition is not UNSET:
             field_dict["computationDefinition"] = computation_definition
+        if computation_definition_base_64 is not UNSET:
+            field_dict["computationDefinitionBase64"] = computation_definition_base_64
         if created_by_node is not UNSET:
             field_dict["createdByNode"] = created_by_node
         if created_by_user is not UNSET:
@@ -262,6 +276,8 @@ class ProjectDefinition:
             field_dict["recurringStartTime"] = recurring_start_time
         if restrict_instances is not UNSET:
             field_dict["restrictInstances"] = restrict_instances
+        if run_access_scope is not UNSET:
+            field_dict["runAccessScope"] = run_access_scope
         if run_async is not UNSET:
             field_dict["runAsync"] = run_async
         if share_token is not UNSET:
@@ -278,10 +294,10 @@ class ProjectDefinition:
             field_dict["workflowJSON"] = workflow_json
         if workflow_type is not UNSET:
             field_dict["workflowType"] = workflow_type
+        if auto_match_criteria is not UNSET:
+            field_dict["autoMatchCriteria"] = auto_match_criteria
         if broadcast is not UNSET:
             field_dict["broadcast"] = broadcast
-        if data_source_type is not UNSET:
-            field_dict["dataSourceType"] = data_source_type
         if leaving is not UNSET:
             field_dict["leaving"] = leaving
         if participants is not UNSET:
@@ -293,6 +309,7 @@ class ProjectDefinition:
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         from ..models.computation_definition import ComputationDefinition
         from ..models.computation_policy import ComputationPolicy
+        from ..models.data_source_definition import DataSourceDefinition
         from ..models.data_source_query import DataSourceQuery
         from ..models.local_data_selection_definition import LocalDataSelectionDefinition
 
@@ -311,6 +328,8 @@ class ProjectDefinition:
             computation_definition = UNSET
         else:
             computation_definition = ComputationDefinition.from_dict(_computation_definition)
+
+        computation_definition_base_64 = d.pop("computationDefinitionBase64", UNSET)
 
         created_by_node = d.pop("createdByNode", UNSET)
 
@@ -378,6 +397,13 @@ class ProjectDefinition:
 
         restrict_instances = d.pop("restrictInstances", UNSET)
 
+        _run_access_scope = d.pop("runAccessScope", UNSET)
+        run_access_scope: Union[Unset, ParticipantsAccessScope]
+        if isinstance(_run_access_scope, Unset):
+            run_access_scope = UNSET
+        else:
+            run_access_scope = ParticipantsAccessScope(_run_access_scope)
+
         run_async = d.pop("runAsync", UNSET)
 
         share_token = d.pop("shareToken", UNSET)
@@ -404,14 +430,14 @@ class ProjectDefinition:
         else:
             workflow_type = WorkflowType(_workflow_type)
 
-        broadcast = d.pop("broadcast", UNSET)
-
-        _data_source_type = d.pop("dataSourceType", UNSET)
-        data_source_type: Union[Unset, DataSourceType]
-        if isinstance(_data_source_type, Unset):
-            data_source_type = UNSET
+        _auto_match_criteria = d.pop("autoMatchCriteria", UNSET)
+        auto_match_criteria: Union[Unset, DataSourceDefinition]
+        if isinstance(_auto_match_criteria, Unset):
+            auto_match_criteria = UNSET
         else:
-            data_source_type = DataSourceType(_data_source_type)
+            auto_match_criteria = DataSourceDefinition.from_dict(_auto_match_criteria)
+
+        broadcast = d.pop("broadcast", UNSET)
 
         leaving = d.pop("leaving", UNSET)
 
@@ -423,6 +449,7 @@ class ProjectDefinition:
             authorized_instances=authorized_instances,
             authorized_users=authorized_users,
             computation_definition=computation_definition,
+            computation_definition_base_64=computation_definition_base_64,
             created_by_node=created_by_node,
             created_by_user=created_by_user,
             created_with_client=created_with_client,
@@ -446,6 +473,7 @@ class ProjectDefinition:
             recurring_interval=recurring_interval,
             recurring_start_time=recurring_start_time,
             restrict_instances=restrict_instances,
+            run_access_scope=run_access_scope,
             run_async=run_async,
             share_token=share_token,
             shared=shared,
@@ -454,8 +482,8 @@ class ProjectDefinition:
             unrestricted_access=unrestricted_access,
             workflow_json=workflow_json,
             workflow_type=workflow_type,
+            auto_match_criteria=auto_match_criteria,
             broadcast=broadcast,
-            data_source_type=data_source_type,
             leaving=leaving,
             participants=participants,
         )

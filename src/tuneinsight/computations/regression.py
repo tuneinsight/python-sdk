@@ -40,7 +40,7 @@ class TrainedRegression:
         if isinstance(result, Result):
             # Use the ID of the *dataobject* containing the parameters.
             # This is the input used by the prediction.
-            self.id = result.model.result.data_object_id
+            self.id = result.get_dataobject_id()
         else:
             self.id = result.get_id()
 

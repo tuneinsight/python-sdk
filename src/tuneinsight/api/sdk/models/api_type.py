@@ -6,6 +6,7 @@ class APIType(str, Enum):
     MISP = "misp"
     HUBSPOT = "hubspot"
     VIRTUOSO = "virtuoso"
+    EINSTEIN = "einstein"
     GENERIC = "generic"
 
     def __str__(self) -> str:

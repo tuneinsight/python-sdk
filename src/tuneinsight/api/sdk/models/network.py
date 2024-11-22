@@ -20,6 +20,8 @@ class Network:
     """Network that represents a set of nodes
 
     Attributes:
+        colors (Union[Unset, str]):
+        logo (Union[Unset, str]):
         name (Union[Unset, str]):
         network_type (Union[Unset, NetworkType]): Network Type. 'default' or 'sse'. In a NAT network, leaf node use SSE
             to connect to the root.
@@ -33,6 +35,8 @@ class Network:
             network
     """
 
+    colors: Union[Unset, str] = UNSET
+    logo: Union[Unset, str] = UNSET
     name: Union[Unset, str] = UNSET
     network_type: Union[Unset, NetworkType] = UNSET
     nodes: Union[Unset, List["Node"]] = UNSET
@@ -43,6 +47,8 @@ class Network:
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        colors = self.colors
+        logo = self.logo
         name = self.name
         network_type: Union[Unset, str] = UNSET
         if not isinstance(self.network_type, Unset):
@@ -76,6 +82,10 @@ class Network:
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if colors is not UNSET:
+            field_dict["colors"] = colors
+        if logo is not UNSET:
+            field_dict["logo"] = logo
         if name is not UNSET:
             field_dict["name"] = name
         if network_type is not UNSET:
@@ -99,6 +109,10 @@ class Network:
         from ..models.user import User
 
         d = src_dict.copy()
+        colors = d.pop("colors", UNSET)
+
+        logo = d.pop("logo", UNSET)
+
         name = d.pop("name", UNSET)
 
         _network_type = d.pop("networkType", UNSET)
@@ -139,6 +153,8 @@ class Network:
             visibility_type = NetworkVisibilityType(_visibility_type)
 
         network = cls(
+            colors=colors,
+            logo=logo,
             name=name,
             network_type=network_type,
             nodes=nodes,

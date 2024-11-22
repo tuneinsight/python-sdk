@@ -13,25 +13,23 @@ class SetIndex:
     """
     Attributes:
         type (PreprocessingOperationType): type of preprocessing operation
+        columns (List[str]): columns to use together as index
         append (Union[Unset, bool]): Whether to append columns to existing index
-        cols (Union[Unset, List[str]]): column(s) to use as index
         drop (Union[Unset, bool]): Delete columns to be used as the new index
     """
 
     type: PreprocessingOperationType
+    columns: List[str]
     append: Union[Unset, bool] = UNSET
-    cols: Union[Unset, List[str]] = UNSET
     drop: Union[Unset, bool] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         type = self.type.value
 
-        append = self.append
-        cols: Union[Unset, List[str]] = UNSET
-        if not isinstance(self.cols, Unset):
-            cols = self.cols
+        columns = self.columns
 
+        append = self.append
         drop = self.drop
 
         field_dict: Dict[str, Any] = {}
@@ -39,12 +37,11 @@ class SetIndex:
         field_dict.update(
             {
                 "type": type,
+                "columns": columns,
             }
         )
         if append is not UNSET:
             field_dict["append"] = append
-        if cols is not UNSET:
-            field_dict["cols"] = cols
         if drop is not UNSET:
             field_dict["drop"] = drop
 
@@ -55,16 +52,16 @@ class SetIndex:
         d = src_dict.copy()
         type = PreprocessingOperationType(d.pop("type"))
 
-        append = d.pop("append", UNSET)
+        columns = cast(List[str], d.pop("columns"))
 
-        cols = cast(List[str], d.pop("cols", UNSET))
+        append = d.pop("append", UNSET)
 
         drop = d.pop("drop", UNSET)
 
         set_index = cls(
             type=type,
+            columns=columns,
             append=append,
-            cols=cols,
             drop=drop,
         )
 

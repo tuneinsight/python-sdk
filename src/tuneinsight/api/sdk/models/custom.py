@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Type, TypeVar, Union
+from typing import Any, Dict, List, Type, TypeVar, Union, cast
 
 import attr
 
@@ -13,6 +13,11 @@ class Custom:
     """
     Attributes:
         type (PreprocessingOperationType): type of preprocessing operation
+        compatible_with_differential_privacy (Union[Unset, bool]): Whether this preprocessing operation is compatible
+            with differential privacy. For this to be the case,
+            it needs to be stable (each input record creates at most one output record) and have a statically
+            determined (data-indenpendent) set of columns. Contact the Tune Insight team for more details on DP
+            compatibility.
         description (Union[Unset, str]): description given to the operation, for documentation purposes.
         function (Union[Unset, str]): function definition which must respect the following format:
             `def <custom_function_name>(df: pd.DataFrame) -> pd.DataFrame
@@ -20,20 +25,28 @@ class Custom:
                  return df`
         name (Union[Unset, str]): name given to the operation. The name has no impact on the operation
             and the name given to the function
+        output_columns (Union[Unset, List[str]]): if well-defined, the set of columns of the output of the function
+            (optional, used for dry runs).
     """
 
     type: PreprocessingOperationType
+    compatible_with_differential_privacy: Union[Unset, bool] = UNSET
     description: Union[Unset, str] = UNSET
     function: Union[Unset, str] = UNSET
     name: Union[Unset, str] = UNSET
+    output_columns: Union[Unset, List[str]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         type = self.type.value
 
+        compatible_with_differential_privacy = self.compatible_with_differential_privacy
         description = self.description
         function = self.function
         name = self.name
+        output_columns: Union[Unset, List[str]] = UNSET
+        if not isinstance(self.output_columns, Unset):
+            output_columns = self.output_columns
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -42,12 +55,16 @@ class Custom:
                 "type": type,
             }
         )
+        if compatible_with_differential_privacy is not UNSET:
+            field_dict["compatibleWithDifferentialPrivacy"] = compatible_with_differential_privacy
         if description is not UNSET:
             field_dict["description"] = description
         if function is not UNSET:
             field_dict["function"] = function
         if name is not UNSET:
             field_dict["name"] = name
+        if output_columns is not UNSET:
+            field_dict["outputColumns"] = output_columns
 
         return field_dict
 
@@ -56,17 +73,23 @@ class Custom:
         d = src_dict.copy()
         type = PreprocessingOperationType(d.pop("type"))
 
+        compatible_with_differential_privacy = d.pop("compatibleWithDifferentialPrivacy", UNSET)
+
         description = d.pop("description", UNSET)
 
         function = d.pop("function", UNSET)
 
         name = d.pop("name", UNSET)
 
+        output_columns = cast(List[str], d.pop("outputColumns", UNSET))
+
         custom = cls(
             type=type,
+            compatible_with_differential_privacy=compatible_with_differential_privacy,
             description=description,
             function=function,
             name=name,
+            output_columns=output_columns,
         )
 
         custom.additional_properties = d

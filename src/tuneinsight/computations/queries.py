@@ -1,8 +1,8 @@
 """Class used to define the data source query for each participant in the project."""
 
-from typing import Dict, List
+from typing import Callable, Dict, List
 from tuneinsight.api.sdk import models
-from tuneinsight.api.sdk.types import is_unset, is_set
+from tuneinsight.api.sdk.types import is_unset
 from tuneinsight.api.sdk.models.computation_data_source_parameters import (
     ComputationDataSourceParameters,
 )
@@ -24,13 +24,18 @@ class QueryBuilder:
     global_query: DataSourceQuery
     compound_query: Dict[str, DataSourceQuery]
     query_set: bool
-    datasource_id: str
 
-    def __init__(self):
+    def __init__(self, update_function: Callable = None):
+        """
+        Args:
+            update_function (Callable, optional): if provided, this function is called whenever
+                this preprocessing chain is changed. This can be used to automatically update
+                the computation definition whenever the preprocessing is updated.
+        """
         self.global_query = DataSourceQuery()
         self.compound_query = {}
         self.query_set = False
-        self.datasource_id = ""
+        self.update_function = update_function
 
     def _set_query(self, query_type: str, query: str, nodes: List[str] = None):
         if nodes is None:
@@ -41,6 +46,8 @@ class QueryBuilder:
                     self.compound_query[node] = DataSourceQuery()
                 setattr(self.compound_query[node], query_type, query)
         self.query_set = True
+        if self.update_function is not None:
+            self.update_function()
 
     def _set_query_from_dict(self, query_type: str, query_dict: Dict[str, str]):
         for node in query_dict:
@@ -138,11 +145,10 @@ class QueryBuilder:
         self.query_set = False
         if is_unset(model):
             return
-        if is_set(model.data_source_id) and model.data_source_id:
-            self.datasource_id = model.data_source_id
         if isinstance(model.data_source_query, DataSourceQuery):
             self.global_query = model.data_source_query
             self.query_set = True
         if isinstance(model.compound_query, models.DataSourceCompoundQuery):
             self.compound_query = model.compound_query.additional_properties
             self.query_set = True
+        # Do not call update_function here (as this function is called when updating from the API).

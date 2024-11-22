@@ -12,6 +12,7 @@ from tuneinsight.computations import (
     Aggregation,
     DatasetLength,
     EncryptedMean,
+    HybridFL,
     Matching,
     GWAS,
     SurvivalAnalysis,
@@ -26,6 +27,7 @@ class Type(Enum):
 
     AGGREGATION = ct.ENCRYPTEDAGGREGATION
     DATASETLENGTH = ct.AGGREGATEDDATASETLENGTH
+    HYBRIDFL = ct.HYBRIDFL
     MEAN = ct.ENCRYPTEDMEAN
     REGRESSION = ct.ENCRYPTEDREGRESSION
     PREDICTION = ct.ENCRYPTEDPREDICTION
@@ -42,6 +44,7 @@ class Type(Enum):
 displayed_types = {
     Type.AGGREGATION: "Aggregation",
     Type.DATASETLENGTH: "Dataset Length",
+    Type.HYBRIDFL: "Hybrid Federated Learning",
     Type.MEAN: "Mean",
     Type.REGRESSION: "Regression",
     Type.PREDICTION: "Prediction",
@@ -56,6 +59,7 @@ displayed_types = {
 type_to_class = {
     Type.AGGREGATION: Aggregation,
     Type.DATASETLENGTH: DatasetLength,
+    Type.HYBRIDFL: HybridFL,
     Type.MEAN: EncryptedMean,
     Type.INTERSECTION: Matching,
     Type.GWAS: GWAS,

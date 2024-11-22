@@ -1,5 +1,6 @@
 """Classes to interact with datasources in a Tune Insight instance."""
 
+import contextlib
 from typing import Any
 from io import StringIO
 import pandas as pd
@@ -14,11 +15,13 @@ from tuneinsight.api.sdk.api.api_datasource import (
     patch_data_source_data,
     delete_data_source,
     get_data_source,
+    patch_data_source,
 )
 from tuneinsight.api.sdk.api.api_dataobject import post_data_object
 
 from tuneinsight.client.validation import validate_response
 from tuneinsight.client.dataobject import DataObject
+from tuneinsight.computations.policy import DataPolicy
 from tuneinsight.utils.tracking import ProgressTracker, new_task_id
 from tuneinsight.utils.io import generate_dataframe_chunks, generate_csv_records
 
@@ -53,6 +56,7 @@ class DataSource:
         self.client = client
         self.local_query_parameters = None
         self.upload_chunk_size = 2048  # uploads 2048 records at each request.
+        # Policy handling
 
     ## Methods to create a datasource.
 
@@ -463,6 +467,32 @@ class DataSource:
             query (str): the SQL query to use to fet the data from the datasource.
         """
         self.local_query_parameters = models.DataSourceQuery(database_query=query)
+
+    ## Methods to set the policies.
+
+    def get_policy(self) -> DataPolicy:
+        """Returns the data policy on this datasource."""
+        return DataPolicy.from_model(self.model.policy)
+
+    def set_policy(self, policy: DataPolicy):
+        """Sets the data policy of this datasource."""
+        self._patch(models.DataSourceDefinition(policy=policy))
+
+    def _patch(self, update: models.DataSourceDefinition):
+        """Patches this datasource with the provided definition."""
+        response = patch_data_source.sync_detailed(
+            data_source_id=self.get_id(),
+            client=self.client,
+            json_body=update,
+        )
+        validate_response(response)
+
+    @contextlib.contextmanager
+    def policy(self):
+        """Context manager to handle policies on a datasource."""
+        policy = self.get_policy()
+        yield policy
+        self.set_policy(policy)
 
 
 ## Internal functions to manipulate configurations.

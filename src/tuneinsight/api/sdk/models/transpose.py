@@ -1,9 +1,8 @@
-from typing import Any, Dict, List, Type, TypeVar, Union
+from typing import Any, Dict, List, Type, TypeVar
 
 import attr
 
 from ..models.preprocessing_operation_type import PreprocessingOperationType
-from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="Transpose")
 
@@ -13,17 +12,13 @@ class Transpose:
     """
     Attributes:
         type (PreprocessingOperationType): type of preprocessing operation
-        copy (Union[Unset, bool]): whether to copy the data after transposing
     """
 
     type: PreprocessingOperationType
-    copy: Union[Unset, bool] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         type = self.type.value
-
-        copy = self.copy
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -32,8 +27,6 @@ class Transpose:
                 "type": type,
             }
         )
-        if copy is not UNSET:
-            field_dict["copy"] = copy
 
         return field_dict
 
@@ -42,11 +35,8 @@ class Transpose:
         d = src_dict.copy()
         type = PreprocessingOperationType(d.pop("type"))
 
-        copy = d.pop("copy", UNSET)
-
         transpose = cls(
             type=type,
-            copy=copy,
         )
 
         transpose.additional_properties = d

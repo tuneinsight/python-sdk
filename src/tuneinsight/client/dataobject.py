@@ -12,7 +12,7 @@ from tuneinsight.api.sdk.types import Response
 from tuneinsight.api.sdk.types import File
 from tuneinsight.api.sdk import Client
 from tuneinsight.api.sdk import models
-from tuneinsight.api.sdk.types import Unset, false_if_unset
+from tuneinsight.api.sdk.types import UNSET, Unset, false_if_unset
 from tuneinsight.api.sdk.api.api_dataobject import (
     get_data_object_data,
     get_data_object,
@@ -332,15 +332,22 @@ class DataObject(DataContent):
         validate_response(do_resp)
         self.model = do_resp.parsed
 
-    def get_raw_data(self) -> bytes:
+    def get_raw_data(
+        self, object_key: str = UNSET, start_index: int = UNSET, end_index: int = UNSET
+    ) -> bytes:
         """
         Returns the raw content of this data object.
 
         Returns
             bytes: the raw content.
         """
+
         resp: Response[File] = get_data_object_raw_data.sync_detailed(
-            data_object_id=self.get_id(), client=self.client
+            data_object_id=self.get_id(),
+            client=self.client,
+            object_key=object_key,
+            start_index=start_index,
+            end_index=end_index,
         )
         validate_response(resp)
         return resp.content
@@ -368,9 +375,22 @@ class Result(DataContent):
         """Returns the unique ID of this result."""
         return self.model.result.id
 
+    def is_local(self) -> bool:
+        """Returns whether the result was produced by a local or collective computation."""
+        return self.model.computation.run_mode == models.RunMode.LOCAL
+
     def get_content(self) -> models.Content:
         """Returns the data content of this result."""
+        # since the SDK does not run combined mode for now, the local content is only returned when the run mode is local.
+        if self.is_local():
+            return self.model.local_content
         return self.model.content
+
+    def get_dataobject_id(self) -> str:
+        """Returns the appropriate data object id based on the locality of the result"""
+        if self.is_local():
+            return self.model.result.local_data_object_id
+        return self.model.result.data_object_id
 
     def get_dataobject(self) -> models.DataObject:
         """
@@ -379,9 +399,7 @@ class Result(DataContent):
         Returns:
             models.DataObject: the data object model
         """
-        return DataObject.fetch_from_id(
-            self.model.result.data_object_id, self.client
-        ).model
+        return DataObject.fetch_from_id(self.get_dataobject_id(), self.client).model
 
     def is_encrypted(self) -> bool:
         """
@@ -400,12 +418,11 @@ class Result(DataContent):
         need to manipulate data objects directly.
 
         """
-        return [DataObject.fetch_from_id(self.model.result.data_object_id, self.client)]
+        return [DataObject.fetch_from_id(self.get_dataobject_id(), self.client)]
 
     def get_raw_data(self) -> bytes:
-
         resp: Response[File] = get_data_object_raw_data.sync_detailed(
-            data_object_id=self.model.result.data_object_id, client=self.client
+            data_object_id=self.get_dataobject_id(), client=self.client
         )
         validate_response(resp)
         return resp.content

@@ -18,6 +18,8 @@ class RunProjectParameters:
 
     Attributes:
         computation_definition (Union[Unset, ComputationDefinition]): Generic computation.
+        computation_definition_base_64 (Union[Unset, str]): modified computation to run the project with.
+            (base64-encoded)
         requesting_instance_id (Union[Unset, str]): name of the instance that requested to run the project, when the
             project is being run from a leaf instance.
         run_mode (Union[Unset, RunMode]): Defines the mode in which to run a computation (local, collective, or both)
@@ -25,6 +27,7 @@ class RunProjectParameters:
     """
 
     computation_definition: Union[Unset, "ComputationDefinition"] = UNSET
+    computation_definition_base_64: Union[Unset, str] = UNSET
     requesting_instance_id: Union[Unset, str] = UNSET
     run_mode: Union[Unset, RunMode] = UNSET
     wait: Union[Unset, None, bool] = UNSET
@@ -35,6 +38,7 @@ class RunProjectParameters:
         if not isinstance(self.computation_definition, Unset):
             computation_definition = self.computation_definition.to_dict()
 
+        computation_definition_base_64 = self.computation_definition_base_64
         requesting_instance_id = self.requesting_instance_id
         run_mode: Union[Unset, str] = UNSET
         if not isinstance(self.run_mode, Unset):
@@ -47,6 +51,8 @@ class RunProjectParameters:
         field_dict.update({})
         if computation_definition is not UNSET:
             field_dict["computationDefinition"] = computation_definition
+        if computation_definition_base_64 is not UNSET:
+            field_dict["computationDefinitionBase64"] = computation_definition_base_64
         if requesting_instance_id is not UNSET:
             field_dict["requestingInstanceId"] = requesting_instance_id
         if run_mode is not UNSET:
@@ -68,6 +74,8 @@ class RunProjectParameters:
         else:
             computation_definition = ComputationDefinition.from_dict(_computation_definition)
 
+        computation_definition_base_64 = d.pop("computationDefinitionBase64", UNSET)
+
         requesting_instance_id = d.pop("requestingInstanceId", UNSET)
 
         _run_mode = d.pop("runMode", UNSET)
@@ -81,6 +89,7 @@ class RunProjectParameters:
 
         run_project_parameters = cls(
             computation_definition=computation_definition,
+            computation_definition_base_64=computation_definition_base_64,
             requesting_instance_id=requesting_instance_id,
             run_mode=run_mode,
             wait=wait,

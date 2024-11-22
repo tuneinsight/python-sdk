@@ -21,7 +21,6 @@ class ComputationDataSourceParameters:
             into account (enables keeping previously defined queries)
         compound_query (Union[Unset, DataSourceCompoundQuery]): definition of datasource queries for each node in the
             computation
-        data_source_id (Union[Unset, None, str]): Unique identifier of a data source.
         data_source_query (Union[Unset, DataSourceQuery]): schema used for the query
         only_root_query (Union[Unset, bool]): Whether or not the query should only be executed at the root node of the
             computation
@@ -29,7 +28,6 @@ class ComputationDataSourceParameters:
 
     compound_disabled: Union[Unset, bool] = UNSET
     compound_query: Union[Unset, "DataSourceCompoundQuery"] = UNSET
-    data_source_id: Union[Unset, None, str] = UNSET
     data_source_query: Union[Unset, "DataSourceQuery"] = UNSET
     only_root_query: Union[Unset, bool] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
@@ -40,7 +38,6 @@ class ComputationDataSourceParameters:
         if not isinstance(self.compound_query, Unset):
             compound_query = self.compound_query.to_dict()
 
-        data_source_id = self.data_source_id
         data_source_query: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.data_source_query, Unset):
             data_source_query = self.data_source_query.to_dict()
@@ -54,8 +51,6 @@ class ComputationDataSourceParameters:
             field_dict["compoundDisabled"] = compound_disabled
         if compound_query is not UNSET:
             field_dict["compoundQuery"] = compound_query
-        if data_source_id is not UNSET:
-            field_dict["dataSourceId"] = data_source_id
         if data_source_query is not UNSET:
             field_dict["dataSourceQuery"] = data_source_query
         if only_root_query is not UNSET:
@@ -78,8 +73,6 @@ class ComputationDataSourceParameters:
         else:
             compound_query = DataSourceCompoundQuery.from_dict(_compound_query)
 
-        data_source_id = d.pop("dataSourceId", UNSET)
-
         _data_source_query = d.pop("dataSourceQuery", UNSET)
         data_source_query: Union[Unset, DataSourceQuery]
         if isinstance(_data_source_query, Unset):
@@ -92,7 +85,6 @@ class ComputationDataSourceParameters:
         computation_data_source_parameters = cls(
             compound_disabled=compound_disabled,
             compound_query=compound_query,
-            data_source_id=data_source_id,
             data_source_query=data_source_query,
             only_root_query=only_root_query,
         )

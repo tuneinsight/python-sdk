@@ -22,6 +22,7 @@ class Measurement:
             in milliseconds
         peak_memory (Union[Unset, None, int]): highest amount of memory allocated during the measurement in bytes
         periodic_allocations (Union[Unset, List[int]]): periodic measures of bytes allocated during this part.
+        periodic_stats_interval (Union[Unset, int]): the interval used for the periodic measurements in milliseconds
         start (Union[Unset, str]): start time of the measurement. (RFC 3339 Nano format)
         time (Union[Unset, None, int]): total time of the measurement in milliseconds
     """
@@ -35,6 +36,7 @@ class Measurement:
     network_time: Union[Unset, None, int] = UNSET
     peak_memory: Union[Unset, None, int] = UNSET
     periodic_allocations: Union[Unset, List[int]] = UNSET
+    periodic_stats_interval: Union[Unset, int] = UNSET
     start: Union[Unset, str] = UNSET
     time: Union[Unset, None, int] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
@@ -52,6 +54,7 @@ class Measurement:
         if not isinstance(self.periodic_allocations, Unset):
             periodic_allocations = self.periodic_allocations
 
+        periodic_stats_interval = self.periodic_stats_interval
         start = self.start
         time = self.time
 
@@ -76,6 +79,8 @@ class Measurement:
             field_dict["peakMemory"] = peak_memory
         if periodic_allocations is not UNSET:
             field_dict["periodicAllocations"] = periodic_allocations
+        if periodic_stats_interval is not UNSET:
+            field_dict["periodicStatsInterval"] = periodic_stats_interval
         if start is not UNSET:
             field_dict["start"] = start
         if time is not UNSET:
@@ -104,6 +109,8 @@ class Measurement:
 
         periodic_allocations = cast(List[int], d.pop("periodicAllocations", UNSET))
 
+        periodic_stats_interval = d.pop("periodicStatsInterval", UNSET)
+
         start = d.pop("start", UNSET)
 
         time = d.pop("time", UNSET)
@@ -118,6 +125,7 @@ class Measurement:
             network_time=network_time,
             peak_memory=peak_memory,
             periodic_allocations=periodic_allocations,
+            periodic_stats_interval=periodic_stats_interval,
             start=start,
             time=time,
         )

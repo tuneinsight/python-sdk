@@ -14,31 +14,36 @@ class Filter:
     """
     Attributes:
         type (PreprocessingOperationType): type of preprocessing operation
-        col_name (str): name of column to filter on
+        column (str): name of column to filter on
         value (str): value with which to compare
         comparator (Union[Unset, ComparisonType]): type of comparison
-        numerical (Union[Unset, bool]): indicate whether the comparison is on numerical values
-        values (Union[Unset, List[str]]): list of values to pass in when comparison type is 'isin'.
+        numerical (Union[Unset, bool]): If true, data entries are converted to numerical values before doing the
+            comparison.
+        output_column (Union[Unset, str]): If provided, the data is not filtered, and instead a column is created with
+            the filter values (true or false).
+        values (Union[Unset, List[str]]): list of values to pass in when the comparator is 'isin' (ignored otherwise)
     """
 
     type: PreprocessingOperationType
-    col_name: str
+    column: str
     value: str
     comparator: Union[Unset, ComparisonType] = UNSET
     numerical: Union[Unset, bool] = UNSET
+    output_column: Union[Unset, str] = UNSET
     values: Union[Unset, List[str]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         type = self.type.value
 
-        col_name = self.col_name
+        column = self.column
         value = self.value
         comparator: Union[Unset, str] = UNSET
         if not isinstance(self.comparator, Unset):
             comparator = self.comparator.value
 
         numerical = self.numerical
+        output_column = self.output_column
         values: Union[Unset, List[str]] = UNSET
         if not isinstance(self.values, Unset):
             values = self.values
@@ -48,7 +53,7 @@ class Filter:
         field_dict.update(
             {
                 "type": type,
-                "colName": col_name,
+                "column": column,
                 "value": value,
             }
         )
@@ -56,6 +61,8 @@ class Filter:
             field_dict["comparator"] = comparator
         if numerical is not UNSET:
             field_dict["numerical"] = numerical
+        if output_column is not UNSET:
+            field_dict["outputColumn"] = output_column
         if values is not UNSET:
             field_dict["values"] = values
 
@@ -66,7 +73,7 @@ class Filter:
         d = src_dict.copy()
         type = PreprocessingOperationType(d.pop("type"))
 
-        col_name = d.pop("colName")
+        column = d.pop("column")
 
         value = d.pop("value")
 
@@ -79,14 +86,17 @@ class Filter:
 
         numerical = d.pop("numerical", UNSET)
 
+        output_column = d.pop("outputColumn", UNSET)
+
         values = cast(List[str], d.pop("values", UNSET))
 
         filter_ = cls(
             type=type,
-            col_name=col_name,
+            column=column,
             value=value,
             comparator=comparator,
             numerical=numerical,
+            output_column=output_column,
             values=values,
         )
 

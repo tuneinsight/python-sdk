@@ -17,14 +17,12 @@ class AsType:
     """
     Attributes:
         type (PreprocessingOperationType): type of preprocessing operation
-        type_map (AsTypeTypeMap): column(s) to use as index
-        copy (Union[Unset, bool]): whether to return a copy
-        errors (Union[Unset, bool]): Control raising of exceptions on invalid data for provided dtype
+        type_map (AsTypeTypeMap): map from column name to destination type
+        errors (Union[Unset, bool]): If true, an exception is raised on invalid data for provided dtype.
     """
 
     type: PreprocessingOperationType
     type_map: "AsTypeTypeMap"
-    copy: Union[Unset, bool] = UNSET
     errors: Union[Unset, bool] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -33,7 +31,6 @@ class AsType:
 
         type_map = self.type_map.to_dict()
 
-        copy = self.copy
         errors = self.errors
 
         field_dict: Dict[str, Any] = {}
@@ -44,8 +41,6 @@ class AsType:
                 "type_map": type_map,
             }
         )
-        if copy is not UNSET:
-            field_dict["copy"] = copy
         if errors is not UNSET:
             field_dict["errors"] = errors
 
@@ -60,14 +55,11 @@ class AsType:
 
         type_map = AsTypeTypeMap.from_dict(d.pop("type_map"))
 
-        copy = d.pop("copy", UNSET)
-
         errors = d.pop("errors", UNSET)
 
         as_type = cls(
             type=type,
             type_map=type_map,
-            copy=copy,
             errors=errors,
         )
 

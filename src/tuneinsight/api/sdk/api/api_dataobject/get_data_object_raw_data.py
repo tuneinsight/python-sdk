@@ -15,6 +15,9 @@ def _get_kwargs(
     *,
     client: Client,
     base64: Union[Unset, None, bool] = UNSET,
+    object_key: Union[Unset, None, str] = UNSET,
+    start_index: Union[Unset, None, int] = UNSET,
+    end_index: Union[Unset, None, int] = UNSET,
 ) -> Dict[str, Any]:
     url = "{}/dataobjects/{dataObjectId}/rawData".format(client.base_url, dataObjectId=data_object_id)
 
@@ -23,6 +26,12 @@ def _get_kwargs(
 
     params: Dict[str, Any] = {}
     params["base64"] = base64
+
+    params["objectKey"] = object_key
+
+    params["startIndex"] = start_index
+
+    params["endIndex"] = end_index
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
@@ -85,12 +94,18 @@ def sync_detailed(
     *,
     client: Client,
     base64: Union[Unset, None, bool] = UNSET,
+    object_key: Union[Unset, None, str] = UNSET,
+    start_index: Union[Unset, None, int] = UNSET,
+    end_index: Union[Unset, None, int] = UNSET,
 ) -> Response[Union[Error, File]]:
     """Get the raw content of a data object.
 
     Args:
         data_object_id (str):
         base64 (Union[Unset, None, bool]):
+        object_key (Union[Unset, None, str]):
+        start_index (Union[Unset, None, int]):
+        end_index (Union[Unset, None, int]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -104,6 +119,9 @@ def sync_detailed(
         data_object_id=data_object_id,
         client=client,
         base64=base64,
+        object_key=object_key,
+        start_index=start_index,
+        end_index=end_index,
     )
 
     response = httpx.request(
@@ -119,12 +137,18 @@ def sync(
     *,
     client: Client,
     base64: Union[Unset, None, bool] = UNSET,
+    object_key: Union[Unset, None, str] = UNSET,
+    start_index: Union[Unset, None, int] = UNSET,
+    end_index: Union[Unset, None, int] = UNSET,
 ) -> Optional[Union[Error, File]]:
     """Get the raw content of a data object.
 
     Args:
         data_object_id (str):
         base64 (Union[Unset, None, bool]):
+        object_key (Union[Unset, None, str]):
+        start_index (Union[Unset, None, int]):
+        end_index (Union[Unset, None, int]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -138,6 +162,9 @@ def sync(
         data_object_id=data_object_id,
         client=client,
         base64=base64,
+        object_key=object_key,
+        start_index=start_index,
+        end_index=end_index,
     ).parsed
 
 
@@ -146,12 +173,18 @@ async def asyncio_detailed(
     *,
     client: Client,
     base64: Union[Unset, None, bool] = UNSET,
+    object_key: Union[Unset, None, str] = UNSET,
+    start_index: Union[Unset, None, int] = UNSET,
+    end_index: Union[Unset, None, int] = UNSET,
 ) -> Response[Union[Error, File]]:
     """Get the raw content of a data object.
 
     Args:
         data_object_id (str):
         base64 (Union[Unset, None, bool]):
+        object_key (Union[Unset, None, str]):
+        start_index (Union[Unset, None, int]):
+        end_index (Union[Unset, None, int]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -165,6 +198,9 @@ async def asyncio_detailed(
         data_object_id=data_object_id,
         client=client,
         base64=base64,
+        object_key=object_key,
+        start_index=start_index,
+        end_index=end_index,
     )
 
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
@@ -178,12 +214,18 @@ async def asyncio(
     *,
     client: Client,
     base64: Union[Unset, None, bool] = UNSET,
+    object_key: Union[Unset, None, str] = UNSET,
+    start_index: Union[Unset, None, int] = UNSET,
+    end_index: Union[Unset, None, int] = UNSET,
 ) -> Optional[Union[Error, File]]:
     """Get the raw content of a data object.
 
     Args:
         data_object_id (str):
         base64 (Union[Unset, None, bool]):
+        object_key (Union[Unset, None, str]):
+        start_index (Union[Unset, None, int]):
+        end_index (Union[Unset, None, int]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -198,5 +240,8 @@ async def asyncio(
             data_object_id=data_object_id,
             client=client,
             base64=base64,
+            object_key=object_key,
+            start_index=start_index,
+            end_index=end_index,
         )
     ).parsed

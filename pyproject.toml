@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "tuneinsight"
-version = "0.12.1"
+version = "0.13.0"
 description = "Diapason is the official Python SDK for the Tune Insight API. The current version is compatible with the same version of the API."
 authors = ["Tune Insight SA"]
 license = "Apache-2.0"

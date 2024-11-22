@@ -4,49 +4,53 @@ import attr
 
 from ..types import UNSET, Unset
 
-T = TypeVar("T", bound="RotKeyGenRotationsItem")
+T = TypeVar("T", bound="AvailabilityStatus")
 
 
 @attr.s(auto_attribs=True)
-class RotKeyGenRotationsItem:
-    """
+class AvailabilityStatus:
+    """generic object that holds information about whether a resource or action is available to the user.
+
     Attributes:
-        side (Union[Unset, bool]):
-        value (Union[Unset, int]):
+        available (bool): indicates whether the action is available to the user.
+        reason (Union[Unset, str]): user-friendly text indicated why this action is available to the user or why it is
+            not.
     """
 
-    side: Union[Unset, bool] = UNSET
-    value: Union[Unset, int] = UNSET
+    available: bool
+    reason: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        side = self.side
-        value = self.value
+        available = self.available
+        reason = self.reason
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({})
-        if side is not UNSET:
-            field_dict["side"] = side
-        if value is not UNSET:
-            field_dict["value"] = value
+        field_dict.update(
+            {
+                "available": available,
+            }
+        )
+        if reason is not UNSET:
+            field_dict["reason"] = reason
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        side = d.pop("side", UNSET)
+        available = d.pop("available")
 
-        value = d.pop("value", UNSET)
+        reason = d.pop("reason", UNSET)
 
-        rot_key_gen_rotations_item = cls(
-            side=side,
-            value=value,
+        availability_status = cls(
+            available=available,
+            reason=reason,
         )
 
-        rot_key_gen_rotations_item.additional_properties = d
-        return rot_key_gen_rotations_item
+        availability_status.additional_properties = d
+        return availability_status
 
     @property
     def additional_keys(self) -> List[str]:

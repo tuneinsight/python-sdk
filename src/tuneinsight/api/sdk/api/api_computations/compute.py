@@ -6,8 +6,6 @@ import httpx
 from ... import errors
 from ...client import Client
 from ...models.aggregated_dataset_length import AggregatedDatasetLength
-from ...models.bootstrap import Bootstrap
-from ...models.collective_key_gen import CollectiveKeyGen
 from ...models.collective_key_switch import CollectiveKeySwitch
 from ...models.computation import Computation
 from ...models.dataset_statistics import DatasetStatistics
@@ -19,11 +17,8 @@ from ...models.encrypted_regression import EncryptedRegression
 from ...models.error import Error
 from ...models.gwas import GWAS
 from ...models.hybrid_fl import HybridFL
-from ...models.key_switched_computation import KeySwitchedComputation
 from ...models.private_search import PrivateSearch
 from ...models.private_search_setup import PrivateSearchSetup
-from ...models.relin_key_gen import RelinKeyGen
-from ...models.rot_key_gen import RotKeyGen
 from ...models.set_intersection import SetIntersection
 from ...models.setup_session import SetupSession
 from ...models.survival_aggregation import SurvivalAggregation
@@ -36,8 +31,6 @@ def _get_kwargs(
     client: Client,
     json_body: Union[
         "AggregatedDatasetLength",
-        "Bootstrap",
-        "CollectiveKeyGen",
         "CollectiveKeySwitch",
         "DatasetStatistics",
         "Dummy",
@@ -47,11 +40,8 @@ def _get_kwargs(
         "EncryptedRegression",
         "GWAS",
         "HybridFL",
-        "KeySwitchedComputation",
         "PrivateSearch",
         "PrivateSearchSetup",
-        "RelinKeyGen",
-        "RotKeyGen",
         "SetIntersection",
         "SetupSession",
         "SurvivalAggregation",
@@ -66,18 +56,6 @@ def _get_kwargs(
     json_json_body: Dict[str, Any]
 
     if isinstance(json_body, Dummy):
-        json_json_body = json_body.to_dict()
-
-    elif isinstance(json_body, CollectiveKeyGen):
-        json_json_body = json_body.to_dict()
-
-    elif isinstance(json_body, RelinKeyGen):
-        json_json_body = json_body.to_dict()
-
-    elif isinstance(json_body, RotKeyGen):
-        json_json_body = json_body.to_dict()
-
-    elif isinstance(json_body, Bootstrap):
         json_json_body = json_body.to_dict()
 
     elif isinstance(json_body, CollectiveKeySwitch):
@@ -96,9 +74,6 @@ def _get_kwargs(
         json_json_body = json_body.to_dict()
 
     elif isinstance(json_body, SetIntersection):
-        json_json_body = json_body.to_dict()
-
-    elif isinstance(json_body, KeySwitchedComputation):
         json_json_body = json_body.to_dict()
 
     elif isinstance(json_body, VBinnedAggregation):
@@ -191,8 +166,6 @@ def sync_detailed(
     client: Client,
     json_body: Union[
         "AggregatedDatasetLength",
-        "Bootstrap",
-        "CollectiveKeyGen",
         "CollectiveKeySwitch",
         "DatasetStatistics",
         "Dummy",
@@ -202,11 +175,8 @@ def sync_detailed(
         "EncryptedRegression",
         "GWAS",
         "HybridFL",
-        "KeySwitchedComputation",
         "PrivateSearch",
         "PrivateSearchSetup",
-        "RelinKeyGen",
-        "RotKeyGen",
         "SetIntersection",
         "SetupSession",
         "SurvivalAggregation",
@@ -216,12 +186,10 @@ def sync_detailed(
     """Request a computation.
 
     Args:
-        json_body (Union['AggregatedDatasetLength', 'Bootstrap', 'CollectiveKeyGen',
-            'CollectiveKeySwitch', 'DatasetStatistics', 'Dummy', 'EncryptedAggregation',
-            'EncryptedMean', 'EncryptedPrediction', 'EncryptedRegression', 'GWAS', 'HybridFL',
-            'KeySwitchedComputation', 'PrivateSearch', 'PrivateSearchSetup', 'RelinKeyGen',
-            'RotKeyGen', 'SetIntersection', 'SetupSession', 'SurvivalAggregation',
-            'VBinnedAggregation']):
+        json_body (Union['AggregatedDatasetLength', 'CollectiveKeySwitch', 'DatasetStatistics',
+            'Dummy', 'EncryptedAggregation', 'EncryptedMean', 'EncryptedPrediction',
+            'EncryptedRegression', 'GWAS', 'HybridFL', 'PrivateSearch', 'PrivateSearchSetup',
+            'SetIntersection', 'SetupSession', 'SurvivalAggregation', 'VBinnedAggregation']):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -249,8 +217,6 @@ def sync(
     client: Client,
     json_body: Union[
         "AggregatedDatasetLength",
-        "Bootstrap",
-        "CollectiveKeyGen",
         "CollectiveKeySwitch",
         "DatasetStatistics",
         "Dummy",
@@ -260,11 +226,8 @@ def sync(
         "EncryptedRegression",
         "GWAS",
         "HybridFL",
-        "KeySwitchedComputation",
         "PrivateSearch",
         "PrivateSearchSetup",
-        "RelinKeyGen",
-        "RotKeyGen",
         "SetIntersection",
         "SetupSession",
         "SurvivalAggregation",
@@ -274,12 +237,10 @@ def sync(
     """Request a computation.
 
     Args:
-        json_body (Union['AggregatedDatasetLength', 'Bootstrap', 'CollectiveKeyGen',
-            'CollectiveKeySwitch', 'DatasetStatistics', 'Dummy', 'EncryptedAggregation',
-            'EncryptedMean', 'EncryptedPrediction', 'EncryptedRegression', 'GWAS', 'HybridFL',
-            'KeySwitchedComputation', 'PrivateSearch', 'PrivateSearchSetup', 'RelinKeyGen',
-            'RotKeyGen', 'SetIntersection', 'SetupSession', 'SurvivalAggregation',
-            'VBinnedAggregation']):
+        json_body (Union['AggregatedDatasetLength', 'CollectiveKeySwitch', 'DatasetStatistics',
+            'Dummy', 'EncryptedAggregation', 'EncryptedMean', 'EncryptedPrediction',
+            'EncryptedRegression', 'GWAS', 'HybridFL', 'PrivateSearch', 'PrivateSearchSetup',
+            'SetIntersection', 'SetupSession', 'SurvivalAggregation', 'VBinnedAggregation']):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -300,8 +261,6 @@ async def asyncio_detailed(
     client: Client,
     json_body: Union[
         "AggregatedDatasetLength",
-        "Bootstrap",
-        "CollectiveKeyGen",
         "CollectiveKeySwitch",
         "DatasetStatistics",
         "Dummy",
@@ -311,11 +270,8 @@ async def asyncio_detailed(
         "EncryptedRegression",
         "GWAS",
         "HybridFL",
-        "KeySwitchedComputation",
         "PrivateSearch",
         "PrivateSearchSetup",
-        "RelinKeyGen",
-        "RotKeyGen",
         "SetIntersection",
         "SetupSession",
         "SurvivalAggregation",
@@ -325,12 +281,10 @@ async def asyncio_detailed(
     """Request a computation.
 
     Args:
-        json_body (Union['AggregatedDatasetLength', 'Bootstrap', 'CollectiveKeyGen',
-            'CollectiveKeySwitch', 'DatasetStatistics', 'Dummy', 'EncryptedAggregation',
-            'EncryptedMean', 'EncryptedPrediction', 'EncryptedRegression', 'GWAS', 'HybridFL',
-            'KeySwitchedComputation', 'PrivateSearch', 'PrivateSearchSetup', 'RelinKeyGen',
-            'RotKeyGen', 'SetIntersection', 'SetupSession', 'SurvivalAggregation',
-            'VBinnedAggregation']):
+        json_body (Union['AggregatedDatasetLength', 'CollectiveKeySwitch', 'DatasetStatistics',
+            'Dummy', 'EncryptedAggregation', 'EncryptedMean', 'EncryptedPrediction',
+            'EncryptedRegression', 'GWAS', 'HybridFL', 'PrivateSearch', 'PrivateSearchSetup',
+            'SetIntersection', 'SetupSession', 'SurvivalAggregation', 'VBinnedAggregation']):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -356,8 +310,6 @@ async def asyncio(
     client: Client,
     json_body: Union[
         "AggregatedDatasetLength",
-        "Bootstrap",
-        "CollectiveKeyGen",
         "CollectiveKeySwitch",
         "DatasetStatistics",
         "Dummy",
@@ -367,11 +319,8 @@ async def asyncio(
         "EncryptedRegression",
         "GWAS",
         "HybridFL",
-        "KeySwitchedComputation",
         "PrivateSearch",
         "PrivateSearchSetup",
-        "RelinKeyGen",
-        "RotKeyGen",
         "SetIntersection",
         "SetupSession",
         "SurvivalAggregation",
@@ -381,12 +330,10 @@ async def asyncio(
     """Request a computation.
 
     Args:
-        json_body (Union['AggregatedDatasetLength', 'Bootstrap', 'CollectiveKeyGen',
-            'CollectiveKeySwitch', 'DatasetStatistics', 'Dummy', 'EncryptedAggregation',
-            'EncryptedMean', 'EncryptedPrediction', 'EncryptedRegression', 'GWAS', 'HybridFL',
-            'KeySwitchedComputation', 'PrivateSearch', 'PrivateSearchSetup', 'RelinKeyGen',
-            'RotKeyGen', 'SetIntersection', 'SetupSession', 'SurvivalAggregation',
-            'VBinnedAggregation']):
+        json_body (Union['AggregatedDatasetLength', 'CollectiveKeySwitch', 'DatasetStatistics',
+            'Dummy', 'EncryptedAggregation', 'EncryptedMean', 'EncryptedPrediction',
+            'EncryptedRegression', 'GWAS', 'HybridFL', 'PrivateSearch', 'PrivateSearchSetup',
+            'SetIntersection', 'SetupSession', 'SurvivalAggregation', 'VBinnedAggregation']):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

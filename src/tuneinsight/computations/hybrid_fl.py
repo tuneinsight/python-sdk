@@ -12,13 +12,12 @@ from typing import Optional, Dict, Union, List
 from datetime import datetime
 import json
 from copy import deepcopy
+import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
-from tuneinsight.api.sdk.api.api_dataobject import get_data_object
+from tuneinsight.client.dataobject import DataContent
 from tuneinsight.api.sdk import models
-from tuneinsight.api.sdk.types import Response, UNSET
-from tuneinsight.client.validation import validate_response
-from tuneinsight.client.dataobject import DataObject
+from tuneinsight.api.sdk.types import UNSET
 from tuneinsight.computations.base import ModelBasedComputation
 from tuneinsight.utils import deprecation
 
@@ -44,15 +43,19 @@ class HybridFL(ModelBasedComputation):
         self,
         project,
         task_id: str,
-        learning_params: models.HybridFLLearningParams,
+        dp_epsilon: Optional[float] = UNSET,
+        learning_params: models.HybridFLLearningParams = UNSET,
         task_def: Optional[Dict[str, Union[str, int, float]]] = None,
     ):
         """
         Creates a HybridFL Computation.
 
         Args:
+            project (`Project`): The project to run the computation with.
             task_id (str): a unique identifier for this learning task.
-            learning_params (models.HybridDFLLEarningParams): parameters of the computation.
+            dp_epsilon (float, optional):
+                The privacy budget to use with this workflow. Defaults to UNSET, in which case differential privacy is not used.
+            learning_params (models.HybridFLLearningParams): Machine Learning specific parameters of the computation.
             task_def (dict): task definition dictionary. See documentation for more details.
 
         """
@@ -61,6 +64,7 @@ class HybridFL(ModelBasedComputation):
             models.HybridFL,
             type=models.ComputationType.HYBRIDFL,
             task_id=task_id,
+            dp_epsilon=dp_epsilon,
             learning_params=learning_params,
             task_def=json.dumps(task_def) if task_def is not None else UNSET,
         )
@@ -81,23 +85,23 @@ class HybridFL(ModelBasedComputation):
 
         model.project_id = self.project.get_id()
 
-        dataobjects = super().run(local=False, keyswitch=False, decrypt=False)
+        dataobjects = super().run(local=False, release=False)
 
         return dataobjects
 
-    def get_client_result(self) -> List[DataObject]:
-        """Fetches all results available for this computation."""
-        results = []
-        computation = self.project.model.computations[0]
-
-        for result in computation.results:
-            response: Response[models.DataObject] = get_data_object.sync_detailed(
-                client=self.client, data_object_id=result
+    @classmethod
+    def from_model(cls, project: "Project", model: models.HybridFL) -> "HybridFL":
+        model = models.HybridFL.from_dict(model.to_dict())
+        with project.disable_patch():
+            comp = cls(
+                project,
+                task_id=model.task_id,
+                learning_params=model.learning_params,
+                task_def=model.task_def,
+                dp_epsilon=model.dp_epsilon,
             )
-            validate_response(response)
-            results.append(DataObject(model=response.parsed, client=self.client))
-
-        return results
+        comp._adapt(model)
+        return comp
 
     @staticmethod
     def get_results(history, local_only=False):
@@ -134,6 +138,9 @@ class HybridFL(ModelBasedComputation):
         _plot_timeline(
             history, local_only=local_only, metrics_to_display=metrics_to_display
         )
+
+    def _process_results(self, results: List[DataContent]) -> pd.DataFrame:
+        return results[0].get_ml_result()
 
 
 def _plot_timeline(history, local_only, metrics_to_display=("acc",)):

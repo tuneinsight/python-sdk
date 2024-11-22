@@ -7,7 +7,7 @@ T = TypeVar("T", bound="AsTypeTypeMap")
 
 @attr.s(auto_attribs=True)
 class AsTypeTypeMap:
-    """column(s) to use as index"""
+    """map from column name to destination type"""
 
     additional_properties: Dict[str, str] = attr.ib(init=False, factory=dict)
 

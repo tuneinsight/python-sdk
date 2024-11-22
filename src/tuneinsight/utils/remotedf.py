@@ -17,6 +17,8 @@ This module defines the following classes and functions:
 
 from typing import Union, List
 
+import re
+import black
 import numpy as np
 import pandas as pd
 
@@ -37,6 +39,16 @@ class _SelectedColumn:
     def __add__(self, other_column):
         assert isinstance(other_column, _SelectedColumn)
         return _SumOfColumns(self, other_column)
+
+    def __mul__(self, value):
+        if isinstance(value, (int, float)):
+            return _ScaleOperation(self, value)
+        if isinstance(value, _SelectedColumn):
+            return _MultiplyColumnsOperations(self, value)
+        raise ValueError(f"multiplication with {type(value)} not supported")
+
+    def __rmul__(self, value):
+        return self.__mul__(value)
 
     # Some operations only apply to one column at a time.
     # The actual operation is not applied until the variable is set.
@@ -110,7 +122,7 @@ class _ApplyMappingOperation(_PendingOperation):
         self.default = default
 
     def commit(self, output_name: str):
-        df = self.column.remotedf
+        df: RemoteDataFrame = self.column.remotedf
         df.builder.apply_mapping(
             self.column.name, output_name, self.to_replace, self.default
         )
@@ -127,6 +139,31 @@ class _CutOperation(_PendingOperation):
     def commit(self, output_name: str):
         df = self.column.remotedf
         df.builder.cut(self.column.name, output_name, self.bins, self.labels)
+
+
+class _ScaleOperation(_PendingOperation):
+    """A pending scaling operation on a column."""
+
+    def __init__(self, column: _SelectedColumn, scale: float) -> None:
+        self.column = column
+        self.scale = scale
+
+    def commit(self, output_name: str):
+        df = self.column.remotedf
+        df.builder.scale([self.column.name], self.scale, [output_name])
+
+
+class _MultiplyColumnsOperations(_PendingOperation):
+    """A pending operation multiplying columns together."""
+
+    def __init__(self, column: _SelectedColumn, other: _SelectedColumn):
+        self.df = column.remotedf
+        if other.remotedf != self.df:
+            raise ValueError("all operations must apply to the same RemoteDataFrame")
+        self.columns = [column.name, other.name]
+
+    def commit(self, output_name: str):
+        self.df.builder.multiply_columns(self.columns, output_name)
 
 
 class _FilterOperation:
@@ -150,10 +187,14 @@ class _FilterOperation:
         self.value = value
         self.numerical = numerical
 
-    def apply(self):
+    def apply(self, output_column=None):
         df = self.column.remotedf
         df.builder.filter(
-            self.column.name, self.comparator, str(self.value), self.numerical
+            self.column.name,
+            self.comparator,
+            str(self.value),
+            self.numerical,
+            output_column=output_column,
         )
 
 
@@ -174,7 +215,7 @@ class RemoteDataFrame:
         - Selecting a subset of columns, `df = df[columns]`.
         - Adding columns together `df["new_column"] = df["a"] + df["b"]`.
         - Filtering `df = df[df["a"] <= 10]`.
-        - `dropna`, `rename`, `set_index`, `reset_index`, `astype` (all with `inplace=True`), `transpose`.
+        -  `drop`,`dropna`, `rename`, `set_index`, `reset_index`, `astype` (all with `inplace=True`), `transpose`.
 
     Some functions in this module mimic Pandas functions with the same name, that can
     be applied seamlessly on DataFrames and RemoteDataFrames:
@@ -191,7 +232,7 @@ class RemoteDataFrame:
 
     # Magic methods to mimic Pandas objects.
     def __getitem__(self, column):  # self[column]
-        # If the argument of the selection is a _FilterOperation, apply the filter and return self.
+        # If the argument of the selection is a _FilterOperation, apply the filter and return self --> this is df[df == 1].
         if isinstance(column, _FilterOperation):
             column.apply()
             return self
@@ -202,26 +243,33 @@ class RemoteDataFrame:
     def __setitem__(self, column, value):  # self[column] = value
         assert isinstance(column, str), "Can only set columns."
         # Setting a column = creating a column using a different operation depending on the operand.
-        # Special case: value 1 (create a column of counts).
-        if value == 1:
-            self.builder.counts(output_column_name=column)
+        # A fixed value: create a new column with that value.
+        if isinstance(value, (int, float, str, bool)):
+            self.builder.new_column(name=column, value=value)
         # Pending operations are operations that concern one or more columns, and whose output must
         # be stored in a newly-created column.
         elif isinstance(value, _PendingOperation):
             value.commit(column)
+        # Pending filter operation: df[column] = df[filter].
+        elif isinstance(value, _FilterOperation):
+            #  This will create a new column with the filtered values.
+            value.apply(output_column=column)
         else:
             raise ValueError(f"Invalid type for value {value} in assignment.")
 
     # Re-implementing Pandas methods.
-    def dropna(self, inplace=True):
+    def drop(self, columns: List[str], inplace: bool = True):
+        assert inplace is True, "drop must be done inplace"
+        self.builder.drop(columns)
+        return self
+
+    def dropna(self, inplace: bool = True):
         """This operation drops all rows that contain NaN values, using the standard pandas function."""
         assert inplace is True, "dropna must be done inplace."
         self.builder.dropna()
         return self
 
-    def rename(
-        self, mapper: dict, axis="columns", copy=True, errors="raise", inplace=True
-    ):
+    def rename(self, mapper: dict, axis="columns", errors="raise", inplace=True):
         """This operation alters the axis labels. By default, this operation renames the columns of a dataset."""
         assert inplace is True, "rename must be done inplace."
         # Convert Pandas inputs into inputs compatible with the API.
@@ -229,7 +277,7 @@ class RemoteDataFrame:
             axis
         ]
         errors = {"raise": True, "ignore": False}[errors]
-        self.builder.rename(mapper, axis=axis, copy=copy, errors=errors)
+        self.builder.rename(mapper, axis=axis, errors=errors)
         return self
 
     def set_index(
@@ -255,18 +303,18 @@ class RemoteDataFrame:
         self.builder.reset_index(drop=drop, level=level)
         return self
 
-    def transpose(self, copy=False):
+    def transpose(self):
         """Transposes the index and columns of the data (see `pandas.DataFrame.transpose`)."""
-        self.builder.transpose(copy)
+        self.builder.transpose()
         return self
 
-    def astype(self, dtype, copy=True, errors="raise"):
+    def astype(self, dtype, errors="raise"):
         "Casts column types, converting the data in one or more columns to specific type(s)."
         assert isinstance(dtype, dict), "Must provide types as a dictionary."
         converted = {str: "str", int: "int", float: "float"}
         dtype = {k: converted.get(v, v) for k, v in dtype.items()}
         errors = {"raise": True, "ignore": False}[errors]
-        self.builder.astype(dtype, copy, errors)
+        self.builder.astype(dtype, errors)
         return self
 
 
@@ -279,7 +327,7 @@ def get_dummies(
     target_column: str,
     prefix: str,
     specified_types: List[str],
-):
+) -> Union[pd.DataFrame, RemoteDataFrame]:
     """Create dummies (one-hot encoding) for a given column and collection of values."""
     if isinstance(df, RemoteDataFrame):
         df.builder.one_hot_encoding(target_column, prefix, specified_types)
@@ -301,7 +349,7 @@ def cut(
     bins=List[float],
     labels: List[str] = None,
     column: str = None,
-):
+) -> Union[pd.DataFrame, RemoteDataFrame]:
     """
     Discretizes a continuous column into bins. Similar to pd.cut.
 
@@ -343,7 +391,12 @@ def select(
     raise ValueError(f"Invalid type for select: {type(df)}")
 
 
-def custom(name: str = "", description: str = ""):
+def custom(
+    name: str = "",
+    description: str = "",
+    compatible_with_dp=False,
+    output_columns: List[str] = None,
+):
     """
     Decorator for custom operations with signature pd.DataFrame -> pd.DataFrame.
 
@@ -352,8 +405,12 @@ def custom(name: str = "", description: str = ""):
     preprocessing chain as a custom operation.
 
     Args:
-        - name: the name of the function, for documentation purposes.
-        - description: the description of the function, for documentation purposes.
+        name (str, optional): the name of the function, for documentation purposes.
+        description (str, optional): the description of the function, for documentation purposes.
+        compatible_with_dp (bool, optional): whether this operation is compatible with differential
+            privacy. Only set this to True if you know what you are doing.
+        output_columns (List[str], optional): the exact list of columns of the output data. This
+            is enforced if provided, and is only required for differential privacy and dry runs.
 
     """
 
@@ -362,10 +419,148 @@ def custom(name: str = "", description: str = ""):
             if isinstance(df, pd.DataFrame):
                 return func(df)
             if isinstance(df, RemoteDataFrame):
-                df.builder.custom(function=func, name=name, description=description)
+                df.builder.custom(
+                    function=func,
+                    name=name,
+                    description=description,
+                    output_columns=output_columns,
+                    compatible_with_dp=compatible_with_dp,
+                )
                 return df
             raise ValueError(f"Invalid type for custom function: {type(df)}.")
 
         return wrappedfunc
 
     return decorator
+
+
+def _render_arguments(operation, arguments: List[str], include_df=False):
+    """Small helper to render a function of the type df = f(df, optional, arguments)."""
+    op = operation.to_dict()
+    rendered_args = []
+    if include_df:
+        rendered_args.append("df")
+    for argument in arguments:
+        # Convert to camel case to access the model variables.
+        arg_words = argument.split("_")
+        cc_arg = "".join([arg_words[0]] + [word.capitalize() for word in arg_words[1:]])
+        if op.get(cc_arg) is not None:
+            rendered_args.append(f"{argument}={repr(op[cc_arg])}")
+    return ", ".join(rendered_args)
+
+
+# pylint: disable=too-many-branches,too-many-statements
+def chain_to_code(chain: models.PreprocessingChain) -> str:
+    """Returns the Python code equivalent to a given preprocessing chain using the RemoteDataFrame abstraction."""
+    blocks = []
+    imports_needed = set(["RemoteDataFrame"])
+    function_definitions = []
+    for op in chain.chain:
+        # switch-case is Py 3.10 syntax and the SDK needs to support 3.9.
+        if op.type == models.PreprocessingOperationType.ONEHOTENCODING:
+            imports_needed.add("get_dummies")
+            block = f"df = get_dummies({_render_arguments(op, ['input_column', 'prefix', 'specified_types'], include_df=True)})"
+            block = block.replace(
+                "input_column", "target_column"
+            )  # Post-process (mismatch between API and pandas names).
+            blocks.append(block)
+        elif op.type == models.PreprocessingOperationType.SELECT:
+            imports_needed.add("select")
+            blocks.append(
+                f"df = select({_render_arguments(op, ['columns', 'create_if_missing', 'dummy_value'], include_df=True)})"
+            )
+        elif op.type == models.PreprocessingOperationType.DROP:
+            blocks.append(f"df = df.drop(columns={op.columns})")
+        elif op.type == models.PreprocessingOperationType.FILTER:
+            comp = {
+                models.ComparisonType.EQUAL: "==",
+                models.ComparisonType.GREATER: ">",
+                models.ComparisonType.GREATEREQ: ">=",
+                models.ComparisonType.LESS: "<",
+                models.ComparisonType.LESSEQ: "==",
+                models.ComparisonType.NEQUAL: "!=",
+            }.get(op.comparator)
+            if comp is not None:
+                blocks.append(f'df = df[df["{op.column}"] {comp} {repr(op.value)}]')
+            else:
+                blocks.append(
+                    f"# Filter operation not available for RemoteDataFrame and comparator {op.comparator}"
+                )
+        elif op.type == models.PreprocessingOperationType.TRANSPOSE:
+            blocks.append("df = df.transpose()")
+        elif op.type == models.PreprocessingOperationType.SETINDEX:
+            blocks.append(
+                f"df = df.set_index({_render_arguments(op, ['keys', 'drop', 'append'])})"
+            )
+        elif op.type == models.PreprocessingOperationType.ASTYPE:
+            blocks.append(
+                f"df = df.astype({repr(op.type_map.to_dict())}, {_render_arguments(op, ['errors'])})"
+            )
+        elif op.type == models.PreprocessingOperationType.RESETINDEX:
+            blocks.append(
+                f"df = df.reset_index({_render_arguments(op, ['drop', 'level'])})"
+            )
+        elif op.type == models.PreprocessingOperationType.RENAME:
+            blocks.append(
+                f"df = df.rename({_render_arguments(op, ['mapper', 'axis', 'errors'])}, inplace=True)"
+            )
+        elif op.type == models.PreprocessingOperationType.DROPNA:
+            blocks.append("df = df.dropna(inplace=True)")
+        elif op.type == models.PreprocessingOperationType.APPLYMAPPING:
+            blocks.append(
+                f'df["{op.output_column}"] = df["{op.input_column}"].replace(to_replace={op.mapping.to_dict()}, default={repr(op.default)})'
+            )
+        elif op.type == models.PreprocessingOperationType.CUT:
+            imports_needed.add("cut")
+            blocks.append(
+                f"df['{op.output_column}'] = cut(df['{op.input_column}'], {_render_arguments(op, ['cuts', 'labels'])})".replace(
+                    "cuts=", "bins="
+                )
+            )
+        elif op.type == models.PreprocessingOperationType.ADDCOLUMNS:
+            blocks.append(
+                f"df['{op.output_column}'] = "
+                + " + ".join(f"df['{col}']" for col in op.input_columns)
+            )
+        elif op.type == models.PreprocessingOperationType.SCALE:
+            for ic, oc in zip(op.input_columns, op.output_columns):
+                blocks.append(f"df[{repr(oc)}] = {op.scale} * df[{repr(ic)}]")
+        elif op.type == models.PreprocessingOperationType.MULTIPLYCOLUMNS:
+            blocks.append(
+                f"df['{op.output_column}'] = "
+                + " * ".join(f"df['{col}']" for col in op.input_columns)
+            )
+        elif op.type == models.PreprocessingOperationType.NEWCOLUMN:
+            blocks.append(f"df['{op.name}'] = {repr(op.value)}")
+        elif op.type == models.PreprocessingOperationType.CUSTOM:
+            imports_needed.add("custom")
+            # First, add the function definition.
+            function_definitions.append(
+                f"@custom({_render_arguments(op, ['name', 'description'])})\n{op.function}".strip()
+            )
+            # Then, add the function call to code blocks.
+            function_name = re.findall("def ([\\w]+)\\(", op.function)[0]
+            blocks.append(f"df = {function_name}(df)")
+        else:
+            blocks.append(
+                f"# Operation of type {op.type} not available with RemoteDataFrame."
+            )
+    # Add the initial blocks.
+    preamble = (
+        [
+            f"from tuneinsight.utils.remotedf import {', '.join(sorted(list(imports_needed)))}",
+            "",
+        ]
+        + function_definitions
+        + [
+            "",
+            "df = RemoteDataFrame(...)  # TODO: fill in the gaps.",
+        ]
+    )
+    full_code = "\n".join(preamble + blocks)
+    # Various post-processing for common "mistakes".
+    full_code = full_code.replace("errors=True", "errors='raise'")
+    full_code = full_code.replace("errors=False", "errors='ignore'")
+    # Apply `black` to nicely format the code. Note: this is an unofficial use of the library.
+    full_code = black.format_file_contents(full_code, fast=False, mode=black.FileMode())
+    return full_code

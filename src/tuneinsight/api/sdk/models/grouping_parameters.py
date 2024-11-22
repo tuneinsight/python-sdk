@@ -21,6 +21,8 @@ class GroupingParameters:
             min and max bounds for the bins.
             For example: cuts = [-10,5,50] will create the following bins (,-10),[-10,5),[5,50),[50,).
         default_group (Union[Unset, str]): the default group to use for records that were not assigned a group.
+        integer_bin_bounds (Union[Unset, bool]): whether integer bounds should be used for the numerical bins (only
+            changes the bin labels, not binning procedure)
         numeric (Union[Unset, bool]): explicitly specifies the grouping to be done on numerical bins.
         possible_values (Union[Unset, List[str]]): list of accepted values for groups. if a record is not classified in
             this list, it is discarded unless a default group value is provided.
@@ -31,6 +33,7 @@ class GroupingParameters:
     column: Union[Unset, str] = UNSET
     cuts: Union[Unset, List[float]] = UNSET
     default_group: Union[Unset, str] = UNSET
+    integer_bin_bounds: Union[Unset, bool] = UNSET
     numeric: Union[Unset, bool] = UNSET
     possible_values: Union[Unset, List[str]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
@@ -44,6 +47,7 @@ class GroupingParameters:
             cuts = self.cuts
 
         default_group = self.default_group
+        integer_bin_bounds = self.integer_bin_bounds
         numeric = self.numeric
         possible_values: Union[Unset, List[str]] = UNSET
         if not isinstance(self.possible_values, Unset):
@@ -62,6 +66,8 @@ class GroupingParameters:
             field_dict["cuts"] = cuts
         if default_group is not UNSET:
             field_dict["defaultGroup"] = default_group
+        if integer_bin_bounds is not UNSET:
+            field_dict["integerBinBounds"] = integer_bin_bounds
         if numeric is not UNSET:
             field_dict["numeric"] = numeric
         if possible_values is not UNSET:
@@ -82,6 +88,8 @@ class GroupingParameters:
 
         default_group = d.pop("defaultGroup", UNSET)
 
+        integer_bin_bounds = d.pop("integerBinBounds", UNSET)
+
         numeric = d.pop("numeric", UNSET)
 
         possible_values = cast(List[str], d.pop("possibleValues", UNSET))
@@ -92,6 +100,7 @@ class GroupingParameters:
             column=column,
             cuts=cuts,
             default_group=default_group,
+            integer_bin_bounds=integer_bin_bounds,
             numeric=numeric,
             possible_values=possible_values,
         )

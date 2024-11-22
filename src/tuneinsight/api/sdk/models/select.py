@@ -13,13 +13,14 @@ class Select:
     """
     Attributes:
         type (PreprocessingOperationType): type of preprocessing operation
-        cols (List[str]): list of selected columns
-        create_if_missing (Union[Unset, bool]): if true then a dummy column is created if selected columns are missing
+        columns (List[str]): list of selected columns
+        create_if_missing (Union[Unset, bool]): if true, a dummy column is created for each selected columns that is
+            missing
         dummy_value (Union[Unset, str]): dummy value set to the missing columns if 'createIfMissing' is set to true
     """
 
     type: PreprocessingOperationType
-    cols: List[str]
+    columns: List[str]
     create_if_missing: Union[Unset, bool] = UNSET
     dummy_value: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
@@ -27,7 +28,7 @@ class Select:
     def to_dict(self) -> Dict[str, Any]:
         type = self.type.value
 
-        cols = self.cols
+        columns = self.columns
 
         create_if_missing = self.create_if_missing
         dummy_value = self.dummy_value
@@ -37,7 +38,7 @@ class Select:
         field_dict.update(
             {
                 "type": type,
-                "cols": cols,
+                "columns": columns,
             }
         )
         if create_if_missing is not UNSET:
@@ -52,7 +53,7 @@ class Select:
         d = src_dict.copy()
         type = PreprocessingOperationType(d.pop("type"))
 
-        cols = cast(List[str], d.pop("cols"))
+        columns = cast(List[str], d.pop("columns"))
 
         create_if_missing = d.pop("createIfMissing", UNSET)
 
@@ -60,7 +61,7 @@ class Select:
 
         select = cls(
             type=type,
-            cols=cols,
+            columns=columns,
             create_if_missing=create_if_missing,
             dummy_value=dummy_value,
         )

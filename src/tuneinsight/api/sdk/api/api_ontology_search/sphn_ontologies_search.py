@@ -15,6 +15,7 @@ def _get_kwargs(
     *,
     client: Client,
     limit: Union[Unset, None, int] = UNSET,
+    page: Union[Unset, None, int] = 1,
     query: str,
     ontologies: List[SphnOntologiesSearchOntologiesItem],
 ) -> Dict[str, Any]:
@@ -25,6 +26,8 @@ def _get_kwargs(
 
     params: Dict[str, Any] = {}
     params["limit"] = limit
+
+    params["page"] = page
 
     params["query"] = query
 
@@ -105,6 +108,7 @@ def sync_detailed(
     *,
     client: Client,
     limit: Union[Unset, None, int] = UNSET,
+    page: Union[Unset, None, int] = 1,
     query: str,
     ontologies: List[SphnOntologiesSearchOntologiesItem],
 ) -> Response[Union[Error, List["SphnOntologiesSearchResponse200Item"]]]:
@@ -112,6 +116,7 @@ def sync_detailed(
 
     Args:
         limit (Union[Unset, None, int]):
+        page (Union[Unset, None, int]):  Default: 1.
         query (str):
         ontologies (List[SphnOntologiesSearchOntologiesItem]):
 
@@ -126,6 +131,7 @@ def sync_detailed(
     kwargs = _get_kwargs(
         client=client,
         limit=limit,
+        page=page,
         query=query,
         ontologies=ontologies,
     )
@@ -142,6 +148,7 @@ def sync(
     *,
     client: Client,
     limit: Union[Unset, None, int] = UNSET,
+    page: Union[Unset, None, int] = 1,
     query: str,
     ontologies: List[SphnOntologiesSearchOntologiesItem],
 ) -> Optional[Union[Error, List["SphnOntologiesSearchResponse200Item"]]]:
@@ -149,6 +156,7 @@ def sync(
 
     Args:
         limit (Union[Unset, None, int]):
+        page (Union[Unset, None, int]):  Default: 1.
         query (str):
         ontologies (List[SphnOntologiesSearchOntologiesItem]):
 
@@ -163,6 +171,7 @@ def sync(
     return sync_detailed(
         client=client,
         limit=limit,
+        page=page,
         query=query,
         ontologies=ontologies,
     ).parsed
@@ -172,6 +181,7 @@ async def asyncio_detailed(
     *,
     client: Client,
     limit: Union[Unset, None, int] = UNSET,
+    page: Union[Unset, None, int] = 1,
     query: str,
     ontologies: List[SphnOntologiesSearchOntologiesItem],
 ) -> Response[Union[Error, List["SphnOntologiesSearchResponse200Item"]]]:
@@ -179,6 +189,7 @@ async def asyncio_detailed(
 
     Args:
         limit (Union[Unset, None, int]):
+        page (Union[Unset, None, int]):  Default: 1.
         query (str):
         ontologies (List[SphnOntologiesSearchOntologiesItem]):
 
@@ -193,6 +204,7 @@ async def asyncio_detailed(
     kwargs = _get_kwargs(
         client=client,
         limit=limit,
+        page=page,
         query=query,
         ontologies=ontologies,
     )
@@ -207,6 +219,7 @@ async def asyncio(
     *,
     client: Client,
     limit: Union[Unset, None, int] = UNSET,
+    page: Union[Unset, None, int] = 1,
     query: str,
     ontologies: List[SphnOntologiesSearchOntologiesItem],
 ) -> Optional[Union[Error, List["SphnOntologiesSearchResponse200Item"]]]:
@@ -214,6 +227,7 @@ async def asyncio(
 
     Args:
         limit (Union[Unset, None, int]):
+        page (Union[Unset, None, int]):  Default: 1.
         query (str):
         ontologies (List[SphnOntologiesSearchOntologiesItem]):
 
@@ -229,6 +243,7 @@ async def asyncio(
         await asyncio_detailed(
             client=client,
             limit=limit,
+            page=page,
             query=query,
             ontologies=ontologies,
         )
