@@ -1,8 +1,6 @@
-import datetime
 from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 
 import attr
-from dateutil.parser import isoparse
 
 from ..models.execution_quota_parameters_scope import ExecutionQuotaParametersScope
 from ..types import UNSET, Unset
@@ -29,7 +27,6 @@ class ExecutionQuotaParameters:
             local_computations_use_budget (Union[Unset, bool]): whether local computations consume the execution quota
             max_allocation (Union[Unset, float]): maximum value that can be taken by the execution quota
             scope (Union[Unset, ExecutionQuotaParametersScope]): scope of the quota
-            start (Union[Unset, datetime.datetime]): date time at which the quota is effective
     """
 
     allocation: Union[Unset, float] = UNSET
@@ -38,7 +35,6 @@ class ExecutionQuotaParameters:
     local_computations_use_budget: Union[Unset, bool] = False
     max_allocation: Union[Unset, float] = UNSET
     scope: Union[Unset, ExecutionQuotaParametersScope] = UNSET
-    start: Union[Unset, datetime.datetime] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -53,10 +49,6 @@ class ExecutionQuotaParameters:
         scope: Union[Unset, str] = UNSET
         if not isinstance(self.scope, Unset):
             scope = self.scope.value
-
-        start: Union[Unset, str] = UNSET
-        if not isinstance(self.start, Unset):
-            start = self.start.isoformat()
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -73,8 +65,6 @@ class ExecutionQuotaParameters:
             field_dict["maxAllocation"] = max_allocation
         if scope is not UNSET:
             field_dict["scope"] = scope
-        if start is not UNSET:
-            field_dict["start"] = start
 
         return field_dict
 
@@ -105,13 +95,6 @@ class ExecutionQuotaParameters:
         else:
             scope = ExecutionQuotaParametersScope(_scope)
 
-        _start = d.pop("start", UNSET)
-        start: Union[Unset, datetime.datetime]
-        if isinstance(_start, Unset):
-            start = UNSET
-        else:
-            start = isoparse(_start)
-
         execution_quota_parameters = cls(
             allocation=allocation,
             allocation_interval=allocation_interval,
@@ -119,7 +102,6 @@ class ExecutionQuotaParameters:
             local_computations_use_budget=local_computations_use_budget,
             max_allocation=max_allocation,
             scope=scope,
-            start=start,
         )
 
         execution_quota_parameters.additional_properties = d

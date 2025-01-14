@@ -360,6 +360,28 @@ def decrypt_csv(hefloat_operator_id: bytes, csv_ciphertext: bytes) -> bytes:
     return csv_plaintext
 
 
+def decrypt_stats(hefloat_operator_id: bytes, stat_ciphertext: bytes) -> bytes:
+    """
+    Decrypts an encrypted statistics results into a JSON string to create the API model.
+
+    Args:
+        hefloat_operator_id (bytes): The crypto system id
+        stat_ciphertext (bytes): The encrypted statistics
+
+    Returns:
+        bytes: a JSON string representing a List[models.StatisticalResult].
+    """
+    decrypt_encrypted_stats = so.DecryptStatistics
+    decrypt_encrypted_stats.restype = ctypes.c_char_p
+    ctxt_length = len(stat_ciphertext)
+    stats_plaintext = decrypt_encrypted_stats(
+        hefloat_operator_id, stat_ciphertext, ctxt_length
+    )
+    if stats_plaintext is None:
+        raise go_error()
+    return stats_plaintext
+
+
 def test_prediction_params() -> str:
     """Generates HEFloat parameters for a crypto system. (for testing purposes only)
 

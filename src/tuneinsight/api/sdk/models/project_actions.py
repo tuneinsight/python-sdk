@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
+from ..models.run_mode import RunMode
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -17,6 +18,7 @@ class ProjectActions:
     computations.
 
         Attributes:
+            available_run_modes (Union[Unset, List[RunMode]]): list of run modes that are currently supported.
             edit_data_source (Union[Unset, AvailabilityStatus]): generic object that holds information about whether a
                 resource or action is available to the user.
             edit_operation_params (Union[Unset, AvailabilityStatus]): generic object that holds information about whether a
@@ -45,6 +47,7 @@ class ProjectActions:
                 action is available to the user.
     """
 
+    available_run_modes: Union[Unset, List[RunMode]] = UNSET
     edit_data_source: Union[Unset, "AvailabilityStatus"] = UNSET
     edit_operation_params: Union[Unset, "AvailabilityStatus"] = UNSET
     edit_operation_type: Union[Unset, "AvailabilityStatus"] = UNSET
@@ -61,6 +64,14 @@ class ProjectActions:
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        available_run_modes: Union[Unset, List[str]] = UNSET
+        if not isinstance(self.available_run_modes, Unset):
+            available_run_modes = []
+            for available_run_modes_item_data in self.available_run_modes:
+                available_run_modes_item = available_run_modes_item_data.value
+
+                available_run_modes.append(available_run_modes_item)
+
         edit_data_source: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.edit_data_source, Unset):
             edit_data_source = self.edit_data_source.to_dict()
@@ -110,6 +121,8 @@ class ProjectActions:
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if available_run_modes is not UNSET:
+            field_dict["availableRunModes"] = available_run_modes
         if edit_data_source is not UNSET:
             field_dict["editDataSource"] = edit_data_source
         if edit_operation_params is not UNSET:
@@ -144,6 +157,13 @@ class ProjectActions:
         from ..models.availability_status import AvailabilityStatus
 
         d = src_dict.copy()
+        available_run_modes = []
+        _available_run_modes = d.pop("availableRunModes", UNSET)
+        for available_run_modes_item_data in _available_run_modes or []:
+            available_run_modes_item = RunMode(available_run_modes_item_data)
+
+            available_run_modes.append(available_run_modes_item)
+
         _edit_data_source = d.pop("editDataSource", UNSET)
         edit_data_source: Union[Unset, AvailabilityStatus]
         if isinstance(_edit_data_source, Unset):
@@ -226,6 +246,7 @@ class ProjectActions:
             share = AvailabilityStatus.from_dict(_share)
 
         project_actions = cls(
+            available_run_modes=available_run_modes,
             edit_data_source=edit_data_source,
             edit_operation_params=edit_operation_params,
             edit_operation_type=edit_operation_type,

@@ -42,43 +42,57 @@ class HybridFL(ModelBasedComputation):
     def __init__(
         self,
         project,
-        task_id: str,
-        dp_epsilon: Optional[float] = UNSET,
-        learning_params: models.HybridFLLearningParams = UNSET,
+        params: models.HybridFLGenericParams = UNSET,
+        spec_params: models.HybridFLSpecParams = UNSET,
+        dp_params: models.HybridFLDpParams = UNSET,
+        task_id: str = None,
         task_def: Optional[Dict[str, Union[str, int, float]]] = None,
+        dp_epsilon: Optional[float] = UNSET,
     ):
         """
         Creates a HybridFL Computation.
 
         Args:
             project (`Project`): The project to run the computation with.
+            params (models.HybridFLGenericParams): the base parameters for this computation.
+            spec_params (models.HybridFLSpecParams): the specific parameters for this computation depending on the hybrid FL type.
+            dp_params (models.HybridFLDpParams): the differential privacy parameters.
             task_id (str): a unique identifier for this learning task.
             dp_epsilon (float, optional):
                 The privacy budget to use with this workflow. Defaults to UNSET, in which case differential privacy is not used.
-            learning_params (models.HybridFLLearningParams): Machine Learning specific parameters of the computation.
             task_def (dict): task definition dictionary. See documentation for more details.
 
         """
+
+        spec_params = self._set_spec_params_type(spec_params)
         super().__init__(
             project,
             models.HybridFL,
             type=models.ComputationType.HYBRIDFL,
+            params=params,
+            dp_params=dp_params,
+            spec_params=spec_params,
             task_id=task_id,
-            dp_epsilon=dp_epsilon,
-            learning_params=learning_params,
             task_def=json.dumps(task_def) if task_def is not None else UNSET,
+            dp_epsilon=dp_epsilon,
         )
 
     def create_from_params(
         self,
-        task_id: str,
-        learning_params: models.HybridFLLearningParams,
+        params: models.HybridFLGenericParams = UNSET,
+        spec_params: models.HybridFLSpecParams = UNSET,
+        dp_params: models.HybridFLDpParams = UNSET,
+        task_id: str = None,
         task_def: Optional[Dict[str, Union[str, int, float]]] = None,
     ):
         deprecation.warn("create_from_params", "HybridFL.__init__")
+
         model = models.HybridFL(type=models.ComputationType.HYBRIDFL)
+        model.params = params
+
+        model.spec_params = spec_params
+        model.dp_params = dp_params
         model.task_id = task_id
-        model.learning_params = learning_params
 
         if task_def is not None:
             model.task_def = json.dumps(task_def)
@@ -95,13 +109,29 @@ class HybridFL(ModelBasedComputation):
         with project.disable_patch():
             comp = cls(
                 project,
+                params=model.params,
+                spec_params=model.spec_params,
+                dp_params=model.dp_params,
                 task_id=model.task_id,
-                learning_params=model.learning_params,
                 task_def=model.task_def,
                 dp_epsilon=model.dp_epsilon,
             )
         comp._adapt(model)
         return comp
+
+    def _set_spec_params_type(self, spec_params):
+        """Sets the spec_params type filed based on the used spec_params."""
+        if isinstance(spec_params, models.HybridFLCommunityDetectionParams):
+            spec_params.params_type = (
+                models.HybridFLParamsType.HYBRIDFLCOMMUNITYDETECTIONPARAMS
+            )
+        elif isinstance(spec_params, models.HybridFLMachineLearningParams):
+            spec_params.params_type = (
+                models.HybridFLParamsType.HYBRIDFLMACHINELEARNINGPARAMS
+            )
+        else:
+            spec_params.params_type = models.HybridFLParamsType.HYBRIDFLSPECBASEPARAMS
+        return spec_params
 
     @staticmethod
     def get_results(history, local_only=False):

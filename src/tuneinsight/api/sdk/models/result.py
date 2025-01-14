@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
 import attr
 
 from ..models.computation_type import ComputationType
+from ..models.visualization_type import VisualizationType
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -22,6 +23,8 @@ class Result:
         shared (Union[Unset, None, bool]): if set to true, the result is shared with users from the same project
         tags (Union[Unset, List[str]]):
         title (Union[Unset, str]): title given to the result
+        visualization_type (Union[Unset, VisualizationType]): represents the appropriate visualization type for a
+            result.
         collective_encrypted (Union[Unset, None, bool]):
         computation_id (Union[Unset, str]): Identifier of a computation, unique across all computing nodes.
         computation_type (Union[Unset, ComputationType]): Type of the computation.
@@ -32,6 +35,7 @@ class Result:
         local_data_object_id (Union[Unset, str]): Unique identifier of a data object.
         metadata (Union[Unset, ResultMetadata]): various metadata field along with the result to provide additional
             context
+        name (Union[Unset, str]): name to identify the result when there are multiple results in a single computation.
         original_ciphertext_id (Union[Unset, str]): Unique identifier of a data object.
         owner (Union[Unset, str]): the name of the user that launched the computation.
         switching_key_id (Union[Unset, str]): Unique identifier of a data object.
@@ -44,6 +48,7 @@ class Result:
     shared: Union[Unset, None, bool] = UNSET
     tags: Union[Unset, List[str]] = UNSET
     title: Union[Unset, str] = UNSET
+    visualization_type: Union[Unset, VisualizationType] = UNSET
     collective_encrypted: Union[Unset, None, bool] = UNSET
     computation_id: Union[Unset, str] = UNSET
     computation_type: Union[Unset, ComputationType] = UNSET
@@ -53,6 +58,7 @@ class Result:
     id: Union[Unset, str] = UNSET
     local_data_object_id: Union[Unset, str] = UNSET
     metadata: Union[Unset, "ResultMetadata"] = UNSET
+    name: Union[Unset, str] = UNSET
     original_ciphertext_id: Union[Unset, str] = UNSET
     owner: Union[Unset, str] = UNSET
     switching_key_id: Union[Unset, str] = UNSET
@@ -69,6 +75,10 @@ class Result:
             tags = self.tags
 
         title = self.title
+        visualization_type: Union[Unset, str] = UNSET
+        if not isinstance(self.visualization_type, Unset):
+            visualization_type = self.visualization_type.value
+
         collective_encrypted = self.collective_encrypted
         computation_id = self.computation_id
         computation_type: Union[Unset, str] = UNSET
@@ -84,6 +94,7 @@ class Result:
         if not isinstance(self.metadata, Unset):
             metadata = self.metadata.to_dict()
 
+        name = self.name
         original_ciphertext_id = self.original_ciphertext_id
         owner = self.owner
         switching_key_id = self.switching_key_id
@@ -103,6 +114,8 @@ class Result:
             field_dict["tags"] = tags
         if title is not UNSET:
             field_dict["title"] = title
+        if visualization_type is not UNSET:
+            field_dict["visualizationType"] = visualization_type
         if collective_encrypted is not UNSET:
             field_dict["collectiveEncrypted"] = collective_encrypted
         if computation_id is not UNSET:
@@ -121,6 +134,8 @@ class Result:
             field_dict["localDataObjectId"] = local_data_object_id
         if metadata is not UNSET:
             field_dict["metadata"] = metadata
+        if name is not UNSET:
+            field_dict["name"] = name
         if original_ciphertext_id is not UNSET:
             field_dict["originalCiphertextID"] = original_ciphertext_id
         if owner is not UNSET:
@@ -148,6 +163,13 @@ class Result:
         tags = cast(List[str], d.pop("tags", UNSET))
 
         title = d.pop("title", UNSET)
+
+        _visualization_type = d.pop("visualizationType", UNSET)
+        visualization_type: Union[Unset, VisualizationType]
+        if isinstance(_visualization_type, Unset):
+            visualization_type = UNSET
+        else:
+            visualization_type = VisualizationType(_visualization_type)
 
         collective_encrypted = d.pop("collectiveEncrypted", UNSET)
 
@@ -177,6 +199,8 @@ class Result:
         else:
             metadata = ResultMetadata.from_dict(_metadata)
 
+        name = d.pop("name", UNSET)
+
         original_ciphertext_id = d.pop("originalCiphertextID", UNSET)
 
         owner = d.pop("owner", UNSET)
@@ -193,6 +217,7 @@ class Result:
             shared=shared,
             tags=tags,
             title=title,
+            visualization_type=visualization_type,
             collective_encrypted=collective_encrypted,
             computation_id=computation_id,
             computation_type=computation_type,
@@ -202,6 +227,7 @@ class Result:
             id=id,
             local_data_object_id=local_data_object_id,
             metadata=metadata,
+            name=name,
             original_ciphertext_id=original_ciphertext_id,
             owner=owner,
             switching_key_id=switching_key_id,

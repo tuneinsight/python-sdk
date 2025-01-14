@@ -15,6 +15,7 @@ from ...models.encrypted_mean import EncryptedMean
 from ...models.encrypted_prediction import EncryptedPrediction
 from ...models.encrypted_regression import EncryptedRegression
 from ...models.error import Error
+from ...models.feasibility import Feasibility
 from ...models.gwas import GWAS
 from ...models.hybrid_fl import HybridFL
 from ...models.private_search import PrivateSearch
@@ -38,6 +39,7 @@ def _get_kwargs(
         "EncryptedMean",
         "EncryptedPrediction",
         "EncryptedRegression",
+        "Feasibility",
         "GWAS",
         "HybridFL",
         "PrivateSearch",
@@ -98,6 +100,9 @@ def _get_kwargs(
         json_json_body = json_body.to_dict()
 
     elif isinstance(json_body, PrivateSearchSetup):
+        json_json_body = json_body.to_dict()
+
+    elif isinstance(json_body, EncryptedMean):
         json_json_body = json_body.to_dict()
 
     else:
@@ -173,6 +178,7 @@ def sync_detailed(
         "EncryptedMean",
         "EncryptedPrediction",
         "EncryptedRegression",
+        "Feasibility",
         "GWAS",
         "HybridFL",
         "PrivateSearch",
@@ -188,8 +194,9 @@ def sync_detailed(
     Args:
         json_body (Union['AggregatedDatasetLength', 'CollectiveKeySwitch', 'DatasetStatistics',
             'Dummy', 'EncryptedAggregation', 'EncryptedMean', 'EncryptedPrediction',
-            'EncryptedRegression', 'GWAS', 'HybridFL', 'PrivateSearch', 'PrivateSearchSetup',
-            'SetIntersection', 'SetupSession', 'SurvivalAggregation', 'VBinnedAggregation']):
+            'EncryptedRegression', 'Feasibility', 'GWAS', 'HybridFL', 'PrivateSearch',
+            'PrivateSearchSetup', 'SetIntersection', 'SetupSession', 'SurvivalAggregation',
+            'VBinnedAggregation']):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -224,6 +231,7 @@ def sync(
         "EncryptedMean",
         "EncryptedPrediction",
         "EncryptedRegression",
+        "Feasibility",
         "GWAS",
         "HybridFL",
         "PrivateSearch",
@@ -239,8 +247,9 @@ def sync(
     Args:
         json_body (Union['AggregatedDatasetLength', 'CollectiveKeySwitch', 'DatasetStatistics',
             'Dummy', 'EncryptedAggregation', 'EncryptedMean', 'EncryptedPrediction',
-            'EncryptedRegression', 'GWAS', 'HybridFL', 'PrivateSearch', 'PrivateSearchSetup',
-            'SetIntersection', 'SetupSession', 'SurvivalAggregation', 'VBinnedAggregation']):
+            'EncryptedRegression', 'Feasibility', 'GWAS', 'HybridFL', 'PrivateSearch',
+            'PrivateSearchSetup', 'SetIntersection', 'SetupSession', 'SurvivalAggregation',
+            'VBinnedAggregation']):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -268,6 +277,7 @@ async def asyncio_detailed(
         "EncryptedMean",
         "EncryptedPrediction",
         "EncryptedRegression",
+        "Feasibility",
         "GWAS",
         "HybridFL",
         "PrivateSearch",
@@ -283,8 +293,9 @@ async def asyncio_detailed(
     Args:
         json_body (Union['AggregatedDatasetLength', 'CollectiveKeySwitch', 'DatasetStatistics',
             'Dummy', 'EncryptedAggregation', 'EncryptedMean', 'EncryptedPrediction',
-            'EncryptedRegression', 'GWAS', 'HybridFL', 'PrivateSearch', 'PrivateSearchSetup',
-            'SetIntersection', 'SetupSession', 'SurvivalAggregation', 'VBinnedAggregation']):
+            'EncryptedRegression', 'Feasibility', 'GWAS', 'HybridFL', 'PrivateSearch',
+            'PrivateSearchSetup', 'SetIntersection', 'SetupSession', 'SurvivalAggregation',
+            'VBinnedAggregation']):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -317,6 +328,7 @@ async def asyncio(
         "EncryptedMean",
         "EncryptedPrediction",
         "EncryptedRegression",
+        "Feasibility",
         "GWAS",
         "HybridFL",
         "PrivateSearch",
@@ -332,8 +344,9 @@ async def asyncio(
     Args:
         json_body (Union['AggregatedDatasetLength', 'CollectiveKeySwitch', 'DatasetStatistics',
             'Dummy', 'EncryptedAggregation', 'EncryptedMean', 'EncryptedPrediction',
-            'EncryptedRegression', 'GWAS', 'HybridFL', 'PrivateSearch', 'PrivateSearchSetup',
-            'SetIntersection', 'SetupSession', 'SurvivalAggregation', 'VBinnedAggregation']):
+            'EncryptedRegression', 'Feasibility', 'GWAS', 'HybridFL', 'PrivateSearch',
+            'PrivateSearchSetup', 'SetIntersection', 'SetupSession', 'SurvivalAggregation',
+            'VBinnedAggregation']):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

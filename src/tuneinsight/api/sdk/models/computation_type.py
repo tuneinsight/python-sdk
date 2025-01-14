@@ -18,6 +18,7 @@ class ComputationType(str, Enum):
     PRIVATESEARCH = "privateSearch"
     PRIVATESEARCHSETUP = "privateSearchSetup"
     ENCRYPTEDMEAN = "encryptedMean"
+    FEASIBILITY = "feasibility"
 
     def __str__(self) -> str:
         return str(self.value)
