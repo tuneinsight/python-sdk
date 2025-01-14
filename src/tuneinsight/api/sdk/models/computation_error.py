@@ -13,12 +13,14 @@ class ComputationError:
     """error that occurred when running a computation
 
     Attributes:
+        internal_error (Union[Unset, str]): full stack trace of the error, in the case of a non-user error.
         message (Union[Unset, str]): the error message
         origin (Union[Unset, str]): node instance id that caused the error
         timestamp (Union[Unset, str]): time at which the error ocurred
         type (Union[Unset, ComputationErrorType]): error type identifier
     """
 
+    internal_error: Union[Unset, str] = UNSET
     message: Union[Unset, str] = UNSET
     origin: Union[Unset, str] = UNSET
     timestamp: Union[Unset, str] = UNSET
@@ -26,6 +28,7 @@ class ComputationError:
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        internal_error = self.internal_error
         message = self.message
         origin = self.origin
         timestamp = self.timestamp
@@ -36,6 +39,8 @@ class ComputationError:
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if internal_error is not UNSET:
+            field_dict["internalError"] = internal_error
         if message is not UNSET:
             field_dict["message"] = message
         if origin is not UNSET:
@@ -50,6 +55,8 @@ class ComputationError:
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
+        internal_error = d.pop("internalError", UNSET)
+
         message = d.pop("message", UNSET)
 
         origin = d.pop("origin", UNSET)
@@ -64,6 +71,7 @@ class ComputationError:
             type = ComputationErrorType(_type)
 
         computation_error = cls(
+            internal_error=internal_error,
             message=message,
             origin=origin,
             timestamp=timestamp,

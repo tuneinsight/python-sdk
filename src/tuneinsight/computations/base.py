@@ -230,18 +230,16 @@ class Computation(ABC):
         """
         Updates the definition of the input computation from fields in the project model.
 
-        This applies the local data selection fields of the project, if defined. While this also
-        happens on the server side (so is redundant), this ensures that the computation definitions
-        are consistent between the server and the client.
+        If defined, this applies the client-side local data selection of the project, modifying
+        the datasource query and preprocessing parameters of the computation.
 
         """
-        lds = self.project.model.local_data_selection_definition
-
-        if is_set(lds):
+        lds = self.project.local_data_selection
+        if lds is not None:
             if is_set(lds.preprocessing) and is_empty(model.preprocessing_parameters):
-                model.preprocessing_parameters = lds.preprocessing
-            if is_set(lds.data_selection) and is_empty(model.data_source_parameters):
-                model.data_source_parameters = lds.data_selection
+                model.preprocessing_parameters = lds.preprocessing.get_model()
+            if is_set(lds.datasource) and is_empty(model.data_source_parameters):
+                model.data_source_parameters = lds.datasource.get_model()
 
     def get_full_model(self):
         """

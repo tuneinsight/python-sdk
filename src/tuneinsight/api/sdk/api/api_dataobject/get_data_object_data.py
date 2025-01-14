@@ -5,7 +5,7 @@ import httpx
 
 from ... import errors
 from ...client import Client
-from ...models.ciphertable import Ciphertable
+from ...models.encrypted_content import EncryptedContent
 from ...models.error import Error
 from ...models.external_ml_result import ExternalMlResult
 from ...models.float_matrix import FloatMatrix
@@ -49,13 +49,15 @@ def _get_kwargs(
 def _parse_response(
     *, client: Client, response: httpx.Response
 ) -> Optional[
-    Union[Error, Union["Ciphertable", "ExternalMlResult", "FloatMatrix", "Prediction", "Statistics", "StringMatrix"]]
+    Union[
+        Error, Union["EncryptedContent", "ExternalMlResult", "FloatMatrix", "Prediction", "Statistics", "StringMatrix"]
+    ]
 ]:
     if response.status_code == HTTPStatus.OK:
 
         def _parse_response_200(
             data: object,
-        ) -> Union["Ciphertable", "ExternalMlResult", "FloatMatrix", "Prediction", "Statistics", "StringMatrix"]:
+        ) -> Union["EncryptedContent", "ExternalMlResult", "FloatMatrix", "Prediction", "Statistics", "StringMatrix"]:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
@@ -75,7 +77,7 @@ def _parse_response(
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                response_200_type_2 = Ciphertable.from_dict(data)
+                response_200_type_2 = EncryptedContent.from_dict(data)
 
                 return response_200_type_2
             except:  # noqa: E722
@@ -130,7 +132,9 @@ def _parse_response(
 def _build_response(
     *, client: Client, response: httpx.Response
 ) -> Response[
-    Union[Error, Union["Ciphertable", "ExternalMlResult", "FloatMatrix", "Prediction", "Statistics", "StringMatrix"]]
+    Union[
+        Error, Union["EncryptedContent", "ExternalMlResult", "FloatMatrix", "Prediction", "Statistics", "StringMatrix"]
+    ]
 ]:
     return Response(
         status_code=HTTPStatus(response.status_code),
@@ -145,7 +149,9 @@ def sync_detailed(
     *,
     client: Client,
 ) -> Response[
-    Union[Error, Union["Ciphertable", "ExternalMlResult", "FloatMatrix", "Prediction", "Statistics", "StringMatrix"]]
+    Union[
+        Error, Union["EncryptedContent", "ExternalMlResult", "FloatMatrix", "Prediction", "Statistics", "StringMatrix"]
+    ]
 ]:
     """Get the content of a data object.
 
@@ -157,7 +163,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Error, Union['Ciphertable', 'ExternalMlResult', 'FloatMatrix', 'Prediction', 'Statistics', 'StringMatrix']]]
+        Response[Union[Error, Union['EncryptedContent', 'ExternalMlResult', 'FloatMatrix', 'Prediction', 'Statistics', 'StringMatrix']]]
     """
 
     kwargs = _get_kwargs(
@@ -178,7 +184,9 @@ def sync(
     *,
     client: Client,
 ) -> Optional[
-    Union[Error, Union["Ciphertable", "ExternalMlResult", "FloatMatrix", "Prediction", "Statistics", "StringMatrix"]]
+    Union[
+        Error, Union["EncryptedContent", "ExternalMlResult", "FloatMatrix", "Prediction", "Statistics", "StringMatrix"]
+    ]
 ]:
     """Get the content of a data object.
 
@@ -190,7 +198,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Error, Union['Ciphertable', 'ExternalMlResult', 'FloatMatrix', 'Prediction', 'Statistics', 'StringMatrix']]]
+        Response[Union[Error, Union['EncryptedContent', 'ExternalMlResult', 'FloatMatrix', 'Prediction', 'Statistics', 'StringMatrix']]]
     """
 
     return sync_detailed(
@@ -204,7 +212,9 @@ async def asyncio_detailed(
     *,
     client: Client,
 ) -> Response[
-    Union[Error, Union["Ciphertable", "ExternalMlResult", "FloatMatrix", "Prediction", "Statistics", "StringMatrix"]]
+    Union[
+        Error, Union["EncryptedContent", "ExternalMlResult", "FloatMatrix", "Prediction", "Statistics", "StringMatrix"]
+    ]
 ]:
     """Get the content of a data object.
 
@@ -216,7 +226,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Error, Union['Ciphertable', 'ExternalMlResult', 'FloatMatrix', 'Prediction', 'Statistics', 'StringMatrix']]]
+        Response[Union[Error, Union['EncryptedContent', 'ExternalMlResult', 'FloatMatrix', 'Prediction', 'Statistics', 'StringMatrix']]]
     """
 
     kwargs = _get_kwargs(
@@ -235,7 +245,9 @@ async def asyncio(
     *,
     client: Client,
 ) -> Optional[
-    Union[Error, Union["Ciphertable", "ExternalMlResult", "FloatMatrix", "Prediction", "Statistics", "StringMatrix"]]
+    Union[
+        Error, Union["EncryptedContent", "ExternalMlResult", "FloatMatrix", "Prediction", "Statistics", "StringMatrix"]
+    ]
 ]:
     """Get the content of a data object.
 
@@ -247,7 +259,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Error, Union['Ciphertable', 'ExternalMlResult', 'FloatMatrix', 'Prediction', 'Statistics', 'StringMatrix']]]
+        Response[Union[Error, Union['EncryptedContent', 'ExternalMlResult', 'FloatMatrix', 'Prediction', 'Statistics', 'StringMatrix']]]
     """
 
     return (

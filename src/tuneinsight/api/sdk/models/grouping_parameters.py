@@ -26,6 +26,10 @@ class GroupingParameters:
         numeric (Union[Unset, bool]): explicitly specifies the grouping to be done on numerical bins.
         possible_values (Union[Unset, List[str]]): list of accepted values for groups. if a record is not classified in
             this list, it is discarded unless a default group value is provided.
+        strict (Union[Unset, bool]): if true, and `cuts` or `possibleValues` is used to define the groups, the returned
+            values will only include
+            the groups define inside the cuts (no "< min" or "> max" groups) or the possible values (no default group
+            included).
     """
 
     bin_center: Union[Unset, float] = UNSET
@@ -36,6 +40,7 @@ class GroupingParameters:
     integer_bin_bounds: Union[Unset, bool] = UNSET
     numeric: Union[Unset, bool] = UNSET
     possible_values: Union[Unset, List[str]] = UNSET
+    strict: Union[Unset, bool] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -52,6 +57,8 @@ class GroupingParameters:
         possible_values: Union[Unset, List[str]] = UNSET
         if not isinstance(self.possible_values, Unset):
             possible_values = self.possible_values
+
+        strict = self.strict
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -72,6 +79,8 @@ class GroupingParameters:
             field_dict["numeric"] = numeric
         if possible_values is not UNSET:
             field_dict["possibleValues"] = possible_values
+        if strict is not UNSET:
+            field_dict["strict"] = strict
 
         return field_dict
 
@@ -94,6 +103,8 @@ class GroupingParameters:
 
         possible_values = cast(List[str], d.pop("possibleValues", UNSET))
 
+        strict = d.pop("strict", UNSET)
+
         grouping_parameters = cls(
             bin_center=bin_center,
             bin_size=bin_size,
@@ -103,6 +114,7 @@ class GroupingParameters:
             integer_bin_bounds=integer_bin_bounds,
             numeric=numeric,
             possible_values=possible_values,
+            strict=strict,
         )
 
         grouping_parameters.additional_properties = d

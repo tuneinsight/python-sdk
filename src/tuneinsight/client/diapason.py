@@ -545,6 +545,7 @@ class Diapason:
         authorized_users: list = None,
         participants: list = None,
         non_contributor: bool = UNSET,
+        min_contributors: int = UNSET,
         run_async: bool = True,
         description: str = None,
     ) -> Project:
@@ -571,6 +572,8 @@ class Diapason:
             participants (Union[Unset, List[str]]): The IDs of the users who participate in the project.
             non_contributor (bool, default UNSET): indicates that this participant participates in the
                 computations but does not contribute any data. If left unchanged, this uses instance settings.
+            min_contributors (int, default UNSET): if set, the minimum number of ready participants needed to run
+                this project. If not set, all contributors must be ready to run the project.
             run_async (bool, default True): whether to run computations asynchronously.
             description (str,default None): optional description of the project. Defaults to None.
 
@@ -613,6 +616,7 @@ class Diapason:
             authorized_users=authorized_users,
             participants=participants,
             non_contributor=non_contributor,
+            min_contributors=min_contributors,
             run_async=run_async,
             description=description,
         )

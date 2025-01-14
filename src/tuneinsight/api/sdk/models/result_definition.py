@@ -2,6 +2,7 @@ from typing import Any, Dict, List, Type, TypeVar, Union, cast
 
 import attr
 
+from ..models.visualization_type import VisualizationType
 from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="ResultDefinition")
@@ -18,6 +19,8 @@ class ResultDefinition:
         shared (Union[Unset, None, bool]): if set to true, the result is shared with users from the same project
         tags (Union[Unset, List[str]]):
         title (Union[Unset, str]): title given to the result
+        visualization_type (Union[Unset, VisualizationType]): represents the appropriate visualization type for a
+            result.
     """
 
     display_local: Union[Unset, None, bool] = UNSET
@@ -25,6 +28,7 @@ class ResultDefinition:
     shared: Union[Unset, None, bool] = UNSET
     tags: Union[Unset, List[str]] = UNSET
     title: Union[Unset, str] = UNSET
+    visualization_type: Union[Unset, VisualizationType] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -36,6 +40,9 @@ class ResultDefinition:
             tags = self.tags
 
         title = self.title
+        visualization_type: Union[Unset, str] = UNSET
+        if not isinstance(self.visualization_type, Unset):
+            visualization_type = self.visualization_type.value
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -50,6 +57,8 @@ class ResultDefinition:
             field_dict["tags"] = tags
         if title is not UNSET:
             field_dict["title"] = title
+        if visualization_type is not UNSET:
+            field_dict["visualizationType"] = visualization_type
 
         return field_dict
 
@@ -66,12 +75,20 @@ class ResultDefinition:
 
         title = d.pop("title", UNSET)
 
+        _visualization_type = d.pop("visualizationType", UNSET)
+        visualization_type: Union[Unset, VisualizationType]
+        if isinstance(_visualization_type, Unset):
+            visualization_type = UNSET
+        else:
+            visualization_type = VisualizationType(_visualization_type)
+
         result_definition = cls(
             display_local=display_local,
             is_large=is_large,
             shared=shared,
             tags=tags,
             title=title,
+            visualization_type=visualization_type,
         )
 
         result_definition.additional_properties = d

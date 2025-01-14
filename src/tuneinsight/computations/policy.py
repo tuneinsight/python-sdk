@@ -3,7 +3,6 @@
 from typing import List, Union
 
 import json
-import datetime
 
 from tuneinsight.computations.types import Type, displayed_types
 from tuneinsight.utils.display import Renderer
@@ -211,7 +210,6 @@ class DataPolicy(models.DatasourcePolicy):
         """
         if max_quota is None:
             max_quota = initial
-        start_time = datetime.datetime.now(datetime.timezone.utc)
         interval = models.Duration(
             unit=models.TimeUnit.HOURS, value=reallocation_interval_hours
         )
@@ -220,7 +218,6 @@ class DataPolicy(models.DatasourcePolicy):
             increment=reallocation_amount,
             max_allocation=max_quota,
             scope=models.ExecutionQuotaParametersScope.PROJECT,
-            start=start_time,
             allocation_interval=interval,
         )
 
@@ -573,7 +570,6 @@ def display_dp_policy(dp: models.DPPolicy, r: Renderer = None):
     if is_set(dp.execution_quota_parameters):
         bp = dp.execution_quota_parameters
         r.h4("Query Limiting parameters")
-        alloc_start = bp.start.strftime("%Y-%m-%d %H:%M:%S %Z%z")
         scope = bp.scope
         if scope == "":
             scope = "project"
@@ -593,9 +589,7 @@ def display_dp_policy(dp: models.DPPolicy, r: Renderer = None):
             r(
                 f"Quotas represent the maximum amount of distributed workflows that can be run for each {scope}.",
             )
-        r(
-            f"- A {quota} of {allocated} is initially allocated at the following date `{alloc_start}`."
-        )
+        r(f"- A {quota} of {allocated} is initially allocated.")
 
         if is_set(bp.increment) and bp.increment > 0 and is_set(bp.allocation_interval):
             r(

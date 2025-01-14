@@ -1,52 +1,58 @@
 """Classes to define local data selections, i.e., data elements independently from computations."""
 
-from typing import Callable
-from tuneinsight.api.sdk.models import LocalDataSelection as SelectionModel
-from tuneinsight.api.sdk.models import LocalDataSelectionDefinition as DefinitionModel
+from typing import Optional
+
+from tuneinsight.api.sdk import models
+from tuneinsight.api.sdk.types import is_set
+
 from tuneinsight.computations.queries import QueryBuilder
 from tuneinsight.computations.preprocessing import PreprocessingBuilder
+from tuneinsight.utils import deprecation
 
 
 class LocalDataSelection:
     """
-    Combines together the data processing elements of a computation.
+    Combines together the data processing elements of a computation: data query and preprocessing.
 
-    A local data selection contains the datasource (especially data query) and
-    preprocessing parameters.
+    From version 0.13.0 onwards, the local data selection abstraction only exists on the client
+    side (i.e., it is no longer part of the project definition hosted on the server). This
+    object maintains the same behavior as before: it is initialized based on the parameters of
+    the computation definition available in the project.
 
     """
 
-    update_func: Callable[[DefinitionModel], SelectionModel]
     preprocessing: PreprocessingBuilder = None
     datasource: QueryBuilder = None
-    description: str = ""
-    name: str = ""
 
     def __init__(
         self,
-        update: Callable[[DefinitionModel], SelectionModel],
-        name: str = "",
-        description: str = "",
+        compdef: Optional[models.ComputationDefinition] = None,
     ):
+        """Initializes this local data selection object.
+
+        Args:
+            compdef (Optional[models.ComputationDefinition], optional): an optional computation definition
+                from which to extract the preprocessing and datasource parameters. Defaults to None.
+        """
         self.preprocessing = PreprocessingBuilder()
         self.datasource = QueryBuilder()
-        self.update_func = update
-        self.name = name
-        self.description = description
+        if compdef is not None and is_set(compdef):
+            if is_set(compdef.preprocessing_parameters):
+                self.preprocessing.from_model(compdef.preprocessing_parameters)
+            if is_set(compdef.data_source_parameters):
+                self.datasource.set_model(compdef.data_source_parameters)
 
-    def _get_definition(self) -> DefinitionModel:
+    def to_model(self) -> models.LocalDataSelectionDefinition:
         """
         Returns the definition schema of the selection.
 
         Returns:
             DefinitionModel: the schema definition
         """
-        definition = DefinitionModel(
+        definition = models.LocalDataSelectionDefinition(
             data_selection=self.datasource.get_model(),
             preprocessing=self.preprocessing.get_model(),
         )
-        definition.name = self.name
-        definition.description = self.description
         return definition
 
     def save(self):
@@ -54,5 +60,6 @@ class LocalDataSelection:
         Saves the selection to the backend.
 
         """
-        definition = self._get_definition()
-        self.update_func(definition)
+        deprecation.warn(
+            "LocalDataSelection.save", "nothing (this is no longer necessary)"
+        )

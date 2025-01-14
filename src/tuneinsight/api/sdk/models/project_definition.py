@@ -12,8 +12,6 @@ if TYPE_CHECKING:
     from ..models.computation_definition import ComputationDefinition
     from ..models.computation_policy import ComputationPolicy
     from ..models.data_source_definition import DataSourceDefinition
-    from ..models.data_source_query import DataSourceQuery
-    from ..models.local_data_selection_definition import LocalDataSelectionDefinition
 
 
 T = TypeVar("T", bound="ProjectDefinition")
@@ -48,8 +46,6 @@ class ProjectDefinition:
             participants when the project is in a star topology.
         local (Union[Unset, None, bool]): True if the project's computation should run only with local data (not
             configured the network)
-        local_data_selection_definition (Union[Unset, LocalDataSelectionDefinition]): datasource selection definition. A
-            selection is a "query" or data selection definition to run on the datasource
         min_contributors (Union[Unset, None, int]): minimum number of participants that contribute with their data
             required to run computations within this project
         name (Union[Unset, str]):
@@ -59,7 +55,6 @@ class ProjectDefinition:
             distributed computations but does not have any input data.
             By default this field is set according to the instance's configuration.
         policy (Union[Unset, ComputationPolicy]): policy to validate a specific computation
-        query (Union[Unset, DataSourceQuery]): schema used for the query
         query_timeout (Union[Unset, int]): Timeout for the data source queries Default: 30.
         recurring_end_time (Union[Unset, None, str]): ISO 8601 datetime when the repetition should stop. If not set, the
             project will run indefinitely
@@ -87,6 +82,9 @@ class ProjectDefinition:
             requesting instance is leaving the project.
             Note that this flag is only used when patching project instance to instance.
         participants (Union[Unset, None, List[str]]): List of nodes involved in the project's collaboration
+        request_propagate_broadcast (Union[Unset, bool]): Used for server-server communication to propagate the sharing
+            of a project.
+             Is "false" unless the project is shared by a leaf node's user in star topo.
     """
 
     allow_clear_query: Union[Unset, bool] = UNSET
@@ -105,14 +103,12 @@ class ProjectDefinition:
     end_to_end_encrypted: Union[Unset, None, bool] = UNSET
     hide_leaf_participants: Union[Unset, None, bool] = UNSET
     local: Union[Unset, None, bool] = UNSET
-    local_data_selection_definition: Union[Unset, "LocalDataSelectionDefinition"] = UNSET
     min_contributors: Union[Unset, None, int] = UNSET
     name: Union[Unset, str] = UNSET
     network_id: Union[Unset, str] = UNSET
     network_name: Union[Unset, str] = UNSET
     non_contributor: Union[Unset, None, bool] = UNSET
     policy: Union[Unset, "ComputationPolicy"] = UNSET
-    query: Union[Unset, "DataSourceQuery"] = UNSET
     query_timeout: Union[Unset, int] = 30
     recurring_end_time: Union[Unset, None, str] = UNSET
     recurring_interval: Union[Unset, None, int] = UNSET
@@ -131,6 +127,7 @@ class ProjectDefinition:
     broadcast: Union[Unset, bool] = UNSET
     leaving: Union[Unset, bool] = UNSET
     participants: Union[Unset, None, List[str]] = UNSET
+    request_propagate_broadcast: Union[Unset, bool] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -162,10 +159,6 @@ class ProjectDefinition:
         end_to_end_encrypted = self.end_to_end_encrypted
         hide_leaf_participants = self.hide_leaf_participants
         local = self.local
-        local_data_selection_definition: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.local_data_selection_definition, Unset):
-            local_data_selection_definition = self.local_data_selection_definition.to_dict()
-
         min_contributors = self.min_contributors
         name = self.name
         network_id = self.network_id
@@ -174,10 +167,6 @@ class ProjectDefinition:
         policy: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.policy, Unset):
             policy = self.policy.to_dict()
-
-        query: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.query, Unset):
-            query = self.query.to_dict()
 
         query_timeout = self.query_timeout
         recurring_end_time = self.recurring_end_time
@@ -215,6 +204,8 @@ class ProjectDefinition:
             else:
                 participants = self.participants
 
+        request_propagate_broadcast = self.request_propagate_broadcast
+
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
@@ -250,8 +241,6 @@ class ProjectDefinition:
             field_dict["hideLeafParticipants"] = hide_leaf_participants
         if local is not UNSET:
             field_dict["local"] = local
-        if local_data_selection_definition is not UNSET:
-            field_dict["localDataSelectionDefinition"] = local_data_selection_definition
         if min_contributors is not UNSET:
             field_dict["minContributors"] = min_contributors
         if name is not UNSET:
@@ -264,8 +253,6 @@ class ProjectDefinition:
             field_dict["nonContributor"] = non_contributor
         if policy is not UNSET:
             field_dict["policy"] = policy
-        if query is not UNSET:
-            field_dict["query"] = query
         if query_timeout is not UNSET:
             field_dict["queryTimeout"] = query_timeout
         if recurring_end_time is not UNSET:
@@ -302,6 +289,8 @@ class ProjectDefinition:
             field_dict["leaving"] = leaving
         if participants is not UNSET:
             field_dict["participants"] = participants
+        if request_propagate_broadcast is not UNSET:
+            field_dict["requestPropagateBroadcast"] = request_propagate_broadcast
 
         return field_dict
 
@@ -310,8 +299,6 @@ class ProjectDefinition:
         from ..models.computation_definition import ComputationDefinition
         from ..models.computation_policy import ComputationPolicy
         from ..models.data_source_definition import DataSourceDefinition
-        from ..models.data_source_query import DataSourceQuery
-        from ..models.local_data_selection_definition import LocalDataSelectionDefinition
 
         d = src_dict.copy()
         allow_clear_query = d.pop("allowClearQuery", UNSET)
@@ -356,13 +343,6 @@ class ProjectDefinition:
 
         local = d.pop("local", UNSET)
 
-        _local_data_selection_definition = d.pop("localDataSelectionDefinition", UNSET)
-        local_data_selection_definition: Union[Unset, LocalDataSelectionDefinition]
-        if isinstance(_local_data_selection_definition, Unset):
-            local_data_selection_definition = UNSET
-        else:
-            local_data_selection_definition = LocalDataSelectionDefinition.from_dict(_local_data_selection_definition)
-
         min_contributors = d.pop("minContributors", UNSET)
 
         name = d.pop("name", UNSET)
@@ -379,13 +359,6 @@ class ProjectDefinition:
             policy = UNSET
         else:
             policy = ComputationPolicy.from_dict(_policy)
-
-        _query = d.pop("query", UNSET)
-        query: Union[Unset, DataSourceQuery]
-        if isinstance(_query, Unset):
-            query = UNSET
-        else:
-            query = DataSourceQuery.from_dict(_query)
 
         query_timeout = d.pop("queryTimeout", UNSET)
 
@@ -443,6 +416,8 @@ class ProjectDefinition:
 
         participants = cast(List[str], d.pop("participants", UNSET))
 
+        request_propagate_broadcast = d.pop("requestPropagateBroadcast", UNSET)
+
         project_definition = cls(
             allow_clear_query=allow_clear_query,
             allow_shared_edit=allow_shared_edit,
@@ -460,14 +435,12 @@ class ProjectDefinition:
             end_to_end_encrypted=end_to_end_encrypted,
             hide_leaf_participants=hide_leaf_participants,
             local=local,
-            local_data_selection_definition=local_data_selection_definition,
             min_contributors=min_contributors,
             name=name,
             network_id=network_id,
             network_name=network_name,
             non_contributor=non_contributor,
             policy=policy,
-            query=query,
             query_timeout=query_timeout,
             recurring_end_time=recurring_end_time,
             recurring_interval=recurring_interval,
@@ -486,6 +459,7 @@ class ProjectDefinition:
             broadcast=broadcast,
             leaving=leaving,
             participants=participants,
+            request_propagate_broadcast=request_propagate_broadcast,
         )
 
         project_definition.additional_properties = d

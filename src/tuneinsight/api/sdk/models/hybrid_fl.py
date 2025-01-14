@@ -10,7 +10,9 @@ if TYPE_CHECKING:
     from ..models.computation_data_source_parameters import ComputationDataSourceParameters
     from ..models.computation_preprocessing_parameters import ComputationPreprocessingParameters
     from ..models.dp_policy import DPPolicy
-    from ..models.hybrid_fl_learning_params import HybridFLLearningParams
+    from ..models.hybrid_fl_dp_params import HybridFLDpParams
+    from ..models.hybrid_fl_generic_params import HybridFLGenericParams
+    from ..models.hybrid_fl_spec_params import HybridFLSpecParams
     from ..models.local_input import LocalInput
 
 
@@ -22,6 +24,8 @@ class HybridFL:
     """
     Attributes:
         type (ComputationType): Type of the computation.
+        params (HybridFLGenericParams): Parameters for the Hybrid Federated Learning
+        spec_params (HybridFLSpecParams): Specific parameters for the Hybrid Federated Learning (discriminator pattern)
         dp_policy (Union[Unset, DPPolicy]): represents the disclosure prevention policy that enables toggling various
             disclosure prevention mechanisms
         cohort_id (Union[Unset, str]): Unique identifier of a data object.
@@ -67,12 +71,14 @@ class HybridFL:
         run_mode (Union[Unset, RunMode]): Defines the mode in which to run a computation (local, collective, or both)
         timeout (Union[Unset, int]): The maximum amount of time in seconds the computation is allowed to run.
         wait (Union[Unset, bool]): Whether to wait synchronously for the computation result.
-        learning_params (Union[Unset, HybridFLLearningParams]): Hyperparameters for the Hybrid Federated Learning
+        dp_params (Union[Unset, HybridFLDpParams]): Parameters for Differential Privacy in the Hybrid Federated Learning
         task_def (Union[Unset, str]):
         task_id (Union[Unset, str]):
     """
 
     type: ComputationType
+    params: "HybridFLGenericParams"
+    spec_params: "HybridFLSpecParams"
     dp_policy: Union[Unset, "DPPolicy"] = UNSET
     cohort_id: Union[Unset, str] = UNSET
     data_source_parameters: Union[Unset, "ComputationDataSourceParameters"] = UNSET
@@ -92,13 +98,17 @@ class HybridFL:
     run_mode: Union[Unset, RunMode] = UNSET
     timeout: Union[Unset, int] = UNSET
     wait: Union[Unset, bool] = UNSET
-    learning_params: Union[Unset, "HybridFLLearningParams"] = UNSET
+    dp_params: Union[Unset, "HybridFLDpParams"] = UNSET
     task_def: Union[Unset, str] = UNSET
     task_id: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         type = self.type.value
+
+        params = self.params.to_dict()
+
+        spec_params = self.spec_params.to_dict()
 
         dp_policy: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.dp_policy, Unset):
@@ -134,9 +144,9 @@ class HybridFL:
 
         timeout = self.timeout
         wait = self.wait
-        learning_params: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.learning_params, Unset):
-            learning_params = self.learning_params.to_dict()
+        dp_params: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.dp_params, Unset):
+            dp_params = self.dp_params.to_dict()
 
         task_def = self.task_def
         task_id = self.task_id
@@ -146,6 +156,8 @@ class HybridFL:
         field_dict.update(
             {
                 "type": type,
+                "params": params,
+                "specParams": spec_params,
             }
         )
         if dp_policy is not UNSET:
@@ -186,8 +198,8 @@ class HybridFL:
             field_dict["timeout"] = timeout
         if wait is not UNSET:
             field_dict["wait"] = wait
-        if learning_params is not UNSET:
-            field_dict["learningParams"] = learning_params
+        if dp_params is not UNSET:
+            field_dict["dpParams"] = dp_params
         if task_def is not UNSET:
             field_dict["taskDef"] = task_def
         if task_id is not UNSET:
@@ -200,11 +212,17 @@ class HybridFL:
         from ..models.computation_data_source_parameters import ComputationDataSourceParameters
         from ..models.computation_preprocessing_parameters import ComputationPreprocessingParameters
         from ..models.dp_policy import DPPolicy
-        from ..models.hybrid_fl_learning_params import HybridFLLearningParams
+        from ..models.hybrid_fl_dp_params import HybridFLDpParams
+        from ..models.hybrid_fl_generic_params import HybridFLGenericParams
+        from ..models.hybrid_fl_spec_params import HybridFLSpecParams
         from ..models.local_input import LocalInput
 
         d = src_dict.copy()
         type = ComputationType(d.pop("type"))
+
+        params = HybridFLGenericParams.from_dict(d.pop("params"))
+
+        spec_params = HybridFLSpecParams.from_dict(d.pop("specParams"))
 
         _dp_policy = d.pop("DPPolicy", UNSET)
         dp_policy: Union[Unset, DPPolicy]
@@ -269,12 +287,12 @@ class HybridFL:
 
         wait = d.pop("wait", UNSET)
 
-        _learning_params = d.pop("learningParams", UNSET)
-        learning_params: Union[Unset, HybridFLLearningParams]
-        if isinstance(_learning_params, Unset):
-            learning_params = UNSET
+        _dp_params = d.pop("dpParams", UNSET)
+        dp_params: Union[Unset, HybridFLDpParams]
+        if isinstance(_dp_params, Unset):
+            dp_params = UNSET
         else:
-            learning_params = HybridFLLearningParams.from_dict(_learning_params)
+            dp_params = HybridFLDpParams.from_dict(_dp_params)
 
         task_def = d.pop("taskDef", UNSET)
 
@@ -282,6 +300,8 @@ class HybridFL:
 
         hybrid_fl = cls(
             type=type,
+            params=params,
+            spec_params=spec_params,
             dp_policy=dp_policy,
             cohort_id=cohort_id,
             data_source_parameters=data_source_parameters,
@@ -301,7 +321,7 @@ class HybridFL:
             run_mode=run_mode,
             timeout=timeout,
             wait=wait,
-            learning_params=learning_params,
+            dp_params=dp_params,
             task_def=task_def,
             task_id=task_id,
         )

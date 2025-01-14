@@ -117,6 +117,10 @@ extern void* EncryptFloatMatrix(char* id, char* plaintext);
 //
 extern char* DecryptCipherTable(char* id, void* ciphertext, size_t textSize);
 
+// DecryptStatistics decrypts the content of an encrypted statistics (a list of ciphertexts)
+//
+extern char* DecryptStatistics(char* id, void* ciphertext, size_t textSize);
+
 // DecryptPredictionResult decrypts a prediction result using as first argument the id of the cryptosystem
 // and bytes of the marshaled encrypted prediction along with its byte size
 //

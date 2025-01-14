@@ -66,6 +66,8 @@ class EncryptedMean:
         run_mode (Union[Unset, RunMode]): Defines the mode in which to run a computation (local, collective, or both)
         timeout (Union[Unset, int]): The maximum amount of time in seconds the computation is allowed to run.
         wait (Union[Unset, bool]): Whether to wait synchronously for the computation result.
+        allow_negative_values (Union[Unset, bool]): sets whether negative values are accepted. By default negative
+            values are filtered at the start and a warning is issued.
         grouping_keys (Union[Unset, List[str]]): This parameter is used to specify the composite keys for grouping the
             aggregated values.
             For example, when the groupingKeys are set to [id, name], the aggregation will be performed separately
@@ -103,6 +105,7 @@ class EncryptedMean:
     run_mode: Union[Unset, RunMode] = UNSET
     timeout: Union[Unset, int] = UNSET
     wait: Union[Unset, bool] = UNSET
+    allow_negative_values: Union[Unset, bool] = UNSET
     grouping_keys: Union[Unset, List[str]] = UNSET
     min_participants: Union[Unset, int] = UNSET
     outlier_threshold: Union[Unset, float] = UNSET
@@ -146,6 +149,7 @@ class EncryptedMean:
 
         timeout = self.timeout
         wait = self.wait
+        allow_negative_values = self.allow_negative_values
         grouping_keys: Union[Unset, List[str]] = UNSET
         if not isinstance(self.grouping_keys, Unset):
             grouping_keys = self.grouping_keys
@@ -201,6 +205,8 @@ class EncryptedMean:
             field_dict["timeout"] = timeout
         if wait is not UNSET:
             field_dict["wait"] = wait
+        if allow_negative_values is not UNSET:
+            field_dict["allowNegativeValues"] = allow_negative_values
         if grouping_keys is not UNSET:
             field_dict["groupingKeys"] = grouping_keys
         if min_participants is not UNSET:
@@ -285,6 +291,8 @@ class EncryptedMean:
 
         wait = d.pop("wait", UNSET)
 
+        allow_negative_values = d.pop("allowNegativeValues", UNSET)
+
         grouping_keys = cast(List[str], d.pop("groupingKeys", UNSET))
 
         min_participants = d.pop("minParticipants", UNSET)
@@ -314,6 +322,7 @@ class EncryptedMean:
             run_mode=run_mode,
             timeout=timeout,
             wait=wait,
+            allow_negative_values=allow_negative_values,
             grouping_keys=grouping_keys,
             min_participants=min_participants,
             outlier_threshold=outlier_threshold,

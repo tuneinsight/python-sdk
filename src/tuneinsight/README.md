@@ -8,10 +8,10 @@ Please refer to the [official documentation](https://dev.tuneinsight.com/docs/Us
 
 ### Installing
 
-Download the latest version of the SDK at https://dev.tuneinsight.com/packages/tuneinsight-diapason-0.13.0.tar.gz, then install it using `pip`.
+Download the latest version of the SDK at https://dev.tuneinsight.com/packages/tuneinsight-diapason-0.11.1.tar.gz, then install it using `pip`.
 
 ```bash
-pip install tuneinsight-diapason-0.13.0.tar.gz
+pip install tuneinsight-diapason-11.1.0.tar.gz
 ```
 
 ## License
