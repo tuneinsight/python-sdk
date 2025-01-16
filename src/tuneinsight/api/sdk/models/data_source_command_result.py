@@ -5,7 +5,7 @@ import attr
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.data_source_command_result_result import DataSourceCommandResultResult
+    from ..models.data_source_command_result_result_item import DataSourceCommandResultResultItem
 
 
 T = TypeVar("T", bound="DataSourceCommandResult")
@@ -17,18 +17,22 @@ class DataSourceCommandResult:
 
     Attributes:
         query (Union[Unset, str]):
-        result (Union[Unset, DataSourceCommandResultResult]):
+        result (Union[Unset, List['DataSourceCommandResultResultItem']]):
     """
 
     query: Union[Unset, str] = UNSET
-    result: Union[Unset, "DataSourceCommandResultResult"] = UNSET
+    result: Union[Unset, List["DataSourceCommandResultResultItem"]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         query = self.query
-        result: Union[Unset, Dict[str, Any]] = UNSET
+        result: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.result, Unset):
-            result = self.result.to_dict()
+            result = []
+            for result_item_data in self.result:
+                result_item = result_item_data.to_dict()
+
+                result.append(result_item)
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -42,17 +46,17 @@ class DataSourceCommandResult:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.data_source_command_result_result import DataSourceCommandResultResult
+        from ..models.data_source_command_result_result_item import DataSourceCommandResultResultItem
 
         d = src_dict.copy()
         query = d.pop("query", UNSET)
 
+        result = []
         _result = d.pop("result", UNSET)
-        result: Union[Unset, DataSourceCommandResultResult]
-        if isinstance(_result, Unset):
-            result = UNSET
-        else:
-            result = DataSourceCommandResultResult.from_dict(_result)
+        for result_item_data in _result or []:
+            result_item = DataSourceCommandResultResultItem.from_dict(result_item_data)
+
+            result.append(result_item)
 
         data_source_command_result = cls(
             query=query,

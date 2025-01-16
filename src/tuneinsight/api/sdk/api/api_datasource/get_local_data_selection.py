@@ -14,7 +14,6 @@ def _get_kwargs(
     *,
     client: Client,
     selection_id: Union[Unset, None, str] = UNSET,
-    project_id: Union[Unset, None, str] = UNSET,
     num_rows: Union[Unset, None, int] = UNSET,
     preview: Union[Unset, None, bool] = UNSET,
 ) -> Dict[str, Any]:
@@ -25,8 +24,6 @@ def _get_kwargs(
 
     params: Dict[str, Any] = {}
     params["selectionId"] = selection_id
-
-    params["projectId"] = project_id
 
     params["numRows"] = num_rows
 
@@ -100,7 +97,6 @@ def sync_detailed(
     *,
     client: Client,
     selection_id: Union[Unset, None, str] = UNSET,
-    project_id: Union[Unset, None, str] = UNSET,
     num_rows: Union[Unset, None, int] = UNSET,
     preview: Union[Unset, None, bool] = UNSET,
 ) -> Response[Union[Error, LocalDataSelection]]:
@@ -108,7 +104,6 @@ def sync_detailed(
 
     Args:
         selection_id (Union[Unset, None, str]):
-        project_id (Union[Unset, None, str]):
         num_rows (Union[Unset, None, int]):
         preview (Union[Unset, None, bool]):
 
@@ -123,7 +118,6 @@ def sync_detailed(
     kwargs = _get_kwargs(
         client=client,
         selection_id=selection_id,
-        project_id=project_id,
         num_rows=num_rows,
         preview=preview,
     )
@@ -140,7 +134,6 @@ def sync(
     *,
     client: Client,
     selection_id: Union[Unset, None, str] = UNSET,
-    project_id: Union[Unset, None, str] = UNSET,
     num_rows: Union[Unset, None, int] = UNSET,
     preview: Union[Unset, None, bool] = UNSET,
 ) -> Optional[Union[Error, LocalDataSelection]]:
@@ -148,7 +141,6 @@ def sync(
 
     Args:
         selection_id (Union[Unset, None, str]):
-        project_id (Union[Unset, None, str]):
         num_rows (Union[Unset, None, int]):
         preview (Union[Unset, None, bool]):
 
@@ -163,7 +155,6 @@ def sync(
     return sync_detailed(
         client=client,
         selection_id=selection_id,
-        project_id=project_id,
         num_rows=num_rows,
         preview=preview,
     ).parsed
@@ -173,7 +164,6 @@ async def asyncio_detailed(
     *,
     client: Client,
     selection_id: Union[Unset, None, str] = UNSET,
-    project_id: Union[Unset, None, str] = UNSET,
     num_rows: Union[Unset, None, int] = UNSET,
     preview: Union[Unset, None, bool] = UNSET,
 ) -> Response[Union[Error, LocalDataSelection]]:
@@ -181,7 +171,6 @@ async def asyncio_detailed(
 
     Args:
         selection_id (Union[Unset, None, str]):
-        project_id (Union[Unset, None, str]):
         num_rows (Union[Unset, None, int]):
         preview (Union[Unset, None, bool]):
 
@@ -196,7 +185,6 @@ async def asyncio_detailed(
     kwargs = _get_kwargs(
         client=client,
         selection_id=selection_id,
-        project_id=project_id,
         num_rows=num_rows,
         preview=preview,
     )
@@ -211,7 +199,6 @@ async def asyncio(
     *,
     client: Client,
     selection_id: Union[Unset, None, str] = UNSET,
-    project_id: Union[Unset, None, str] = UNSET,
     num_rows: Union[Unset, None, int] = UNSET,
     preview: Union[Unset, None, bool] = UNSET,
 ) -> Optional[Union[Error, LocalDataSelection]]:
@@ -219,7 +206,6 @@ async def asyncio(
 
     Args:
         selection_id (Union[Unset, None, str]):
-        project_id (Union[Unset, None, str]):
         num_rows (Union[Unset, None, int]):
         preview (Union[Unset, None, bool]):
 
@@ -235,7 +221,6 @@ async def asyncio(
         await asyncio_detailed(
             client=client,
             selection_id=selection_id,
-            project_id=project_id,
             num_rows=num_rows,
             preview=preview,
         )

@@ -29,6 +29,7 @@ class DataSourceDefinition:
             when the scope is set to network. If no network is provided, then the data source will be visible
             to all nodes connected to this instance.
         authorized_users (Union[Unset, List[str]]):
+        cache_duration (Union[Unset, None, int]): duration in hours for which the query results are cached
         clear_if_exists (Union[Unset, bool]): If true and a data source with the same name already exists, delete it.
         configuration (Union[Unset, DataSourceConfig]): data source configuration
         consent_type (Union[Unset, DataSourceConsentType]): Consent type given to the data source.
@@ -47,6 +48,7 @@ class DataSourceDefinition:
     attributes: Union[Unset, List[str]] = UNSET
     authorized_networks: Union[Unset, List[str]] = UNSET
     authorized_users: Union[Unset, List[str]] = UNSET
+    cache_duration: Union[Unset, None, int] = UNSET
     clear_if_exists: Union[Unset, bool] = False
     configuration: Union[Unset, "DataSourceConfig"] = UNSET
     consent_type: Union[Unset, DataSourceConsentType] = UNSET
@@ -76,6 +78,7 @@ class DataSourceDefinition:
         if not isinstance(self.authorized_users, Unset):
             authorized_users = self.authorized_users
 
+        cache_duration = self.cache_duration
         clear_if_exists = self.clear_if_exists
         configuration: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.configuration, Unset):
@@ -115,6 +118,8 @@ class DataSourceDefinition:
             field_dict["authorizedNetworks"] = authorized_networks
         if authorized_users is not UNSET:
             field_dict["authorizedUsers"] = authorized_users
+        if cache_duration is not UNSET:
+            field_dict["cacheDuration"] = cache_duration
         if clear_if_exists is not UNSET:
             field_dict["clearIfExists"] = clear_if_exists
         if configuration is not UNSET:
@@ -158,6 +163,8 @@ class DataSourceDefinition:
         authorized_networks = cast(List[str], d.pop("authorizedNetworks", UNSET))
 
         authorized_users = cast(List[str], d.pop("authorizedUsers", UNSET))
+
+        cache_duration = d.pop("cacheDuration", UNSET)
 
         clear_if_exists = d.pop("clearIfExists", UNSET)
 
@@ -214,6 +221,7 @@ class DataSourceDefinition:
             attributes=attributes,
             authorized_networks=authorized_networks,
             authorized_users=authorized_users,
+            cache_duration=cache_duration,
             clear_if_exists=clear_if_exists,
             configuration=configuration,
             consent_type=consent_type,

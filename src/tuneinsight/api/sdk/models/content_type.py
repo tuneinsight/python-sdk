@@ -4,7 +4,7 @@ from enum import Enum
 class ContentType(str, Enum):
     FLOATMATRIX = "floatMatrix"
     STRINGMATRIX = "stringMatrix"
-    CIPHERTABLE = "ciphertable"
+    ENCRYPTEDCONTENT = "encryptedContent"
     PREDICTION = "prediction"
     EXTERNALMLRESULT = "externalMlResult"
     STATISTICS = "statistics"

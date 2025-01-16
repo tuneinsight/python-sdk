@@ -63,7 +63,9 @@ class Project:
     model: models.Project  # The underlying model
     client: api_client.Client = None  # the client used to access the api
 
+    # SDK-level abstractions (links to SDK objects).
     datasource: DataSource = None
+    local_data_selection: LocalDataSelection = None
 
     # Internal flag that disables PATCH operations. This is used to make breaking changes
     # to SDK objects without sending them to the instance. Do not set manually: use
@@ -274,7 +276,6 @@ class Project:
         """
         lds = self.get_local_data_selection()
         lds.preprocessing.schema = schema
-        lds.save()
 
     def set_computation(
         self, definition: Union[Computation, models.ComputationDefinition]
@@ -534,24 +535,15 @@ class Project:
         Returns:
             LocalDataSelection: the data selection settings that can be updated by the user
         """
-
-        def update_func(
-            definition: models.LocalDataSelectionDefinition,
-        ) -> models.LocalDataSelection:
-            proj_def = models.ProjectDefinition()
-            proj_def.local_data_selection_definition = definition
-            self._patch(proj_def)
-            self._refresh()
-            return self.model.local_data_selection_definition
-
-        lds = LocalDataSelection(update_func)
         self._refresh()
-        return lds
-
-    # List of all computations that can be created in this project.
+        if self.local_data_selection is None:
+            # Initialize a local data selection based on the current parameters.
+            self.local_data_selection = LocalDataSelection(
+                self.model.computation_definition
+            )
+        return self.local_data_selection
 
     # Retrieving computations run on this project.
-
     def get_computation(
         self, computation_definition: models.ComputationDefinition = None
     ) -> Computation:

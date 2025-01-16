@@ -21,7 +21,6 @@ from .binning_parameters import BinningParameters
 from .binning_parameters_method import BinningParametersMethod
 from .capability import Capability
 from .categorical_column import CategoricalColumn
-from .ciphertable import Ciphertable
 from .client import Client
 from .collective_key_switch import CollectiveKeySwitch
 from .column_info import ColumnInfo
@@ -60,7 +59,7 @@ from .data_selection_type import DataSelectionType
 from .data_source import DataSource
 from .data_source_column import DataSourceColumn
 from .data_source_command_result import DataSourceCommandResult
-from .data_source_command_result_result import DataSourceCommandResultResult
+from .data_source_command_result_result_item import DataSourceCommandResultResultItem
 from .data_source_compound_query import DataSourceCompoundQuery
 from .data_source_config import DataSourceConfig
 from .data_source_consent_type import DataSourceConsentType
@@ -93,6 +92,8 @@ from .duration import Duration
 from .enc_vector import EncVector
 from .enc_vector_type import EncVectorType
 from .encrypted_aggregation import EncryptedAggregation
+from .encrypted_content import EncryptedContent
+from .encrypted_content_type import EncryptedContentType
 from .encrypted_mean import EncryptedMean
 from .encrypted_prediction import EncryptedPrediction
 from .encrypted_regression import EncryptedRegression
@@ -106,6 +107,7 @@ from .execution_quota_parameters_scope import ExecutionQuotaParametersScope
 from .external_ml_history import ExternalMlHistory
 from .external_ml_result import ExternalMlResult
 from .extract_dict_field import ExtractDictField
+from .feasibility import Feasibility
 from .filter_ import Filter
 from .float_matrix import FloatMatrix
 from .fuzzy_matching_parameters import FuzzyMatchingParameters
@@ -140,7 +142,13 @@ from .group_info import GroupInfo
 from .grouping_parameters import GroupingParameters
 from .gwas import GWAS
 from .hybrid_fl import HybridFL
-from .hybrid_fl_learning_params import HybridFLLearningParams
+from .hybrid_fl_community_detection_params import HybridFLCommunityDetectionParams
+from .hybrid_fl_dp_params import HybridFLDpParams
+from .hybrid_fl_generic_params import HybridFLGenericParams
+from .hybrid_fl_machine_learning_params import HybridFLMachineLearningParams
+from .hybrid_fl_params_type import HybridFLParamsType
+from .hybrid_fl_spec_base_params import HybridFLSpecBaseParams
+from .hybrid_fl_spec_params import HybridFLSpecParams
 from .instance_configuration import InstanceConfiguration
 from .key_info import KeyInfo
 from .local_data_selection import LocalDataSelection
@@ -178,12 +186,16 @@ from .participants_access_scope import ParticipantsAccessScope
 from .participation_status import ParticipationStatus
 from .phonetic_encoding import PhoneticEncoding
 from .post_data_object_json_body import PostDataObjectJsonBody
+from .post_data_source_command_json_body import PostDataSourceCommandJsonBody
+from .post_data_source_command_json_body_parameters import PostDataSourceCommandJsonBodyParameters
 from .post_data_source_data_multipart_data import PostDataSourceDataMultipartData
 from .post_llm_request_json_body import PostLlmRequestJsonBody
 from .post_llm_request_json_body_prompt_args import PostLlmRequestJsonBodyPromptArgs
 from .post_mock_dataset_access_scope import PostMockDatasetAccessScope
 from .post_mock_dataset_method import PostMockDatasetMethod
 from .post_project_data_json_body import PostProjectDataJsonBody
+from .post_project_data_source_command_json_body import PostProjectDataSourceCommandJsonBody
+from .post_project_data_source_command_json_body_parameters import PostProjectDataSourceCommandJsonBodyParameters
 from .post_protocol_message_multipart_data import PostProtocolMessageMultipartData
 from .post_user_response_201 import PostUserResponse201
 from .prediction import Prediction
@@ -273,6 +285,7 @@ from .user_group import UserGroup
 from .user_info import UserInfo
 from .user_list_query import UserListQuery
 from .v_binned_aggregation import VBinnedAggregation
+from .visualization_type import VisualizationType
 from .whitelisted_query import WhitelistedQuery
 from .workflow_item import WorkflowItem
 from .workflow_item_data import WorkflowItemData
@@ -301,7 +314,6 @@ __all__ = (
     "BinningParametersMethod",
     "Capability",
     "CategoricalColumn",
-    "Ciphertable",
     "Client",
     "CollectiveKeySwitch",
     "ColumnInfo",
@@ -343,7 +355,7 @@ __all__ = (
     "DataSource",
     "DataSourceColumn",
     "DataSourceCommandResult",
-    "DataSourceCommandResultResult",
+    "DataSourceCommandResultResultItem",
     "DataSourceCompoundQuery",
     "DataSourceConfig",
     "DataSourceConsentType",
@@ -369,6 +381,8 @@ __all__ = (
     "Dummy",
     "Duration",
     "EncryptedAggregation",
+    "EncryptedContent",
+    "EncryptedContentType",
     "EncryptedMean",
     "EncryptedPrediction",
     "EncryptedRegression",
@@ -384,6 +398,7 @@ __all__ = (
     "ExternalMlHistory",
     "ExternalMlResult",
     "ExtractDictField",
+    "Feasibility",
     "Filter",
     "FloatMatrix",
     "FuzzyMatchingParameters",
@@ -418,7 +433,13 @@ __all__ = (
     "GroupingParameters",
     "GWAS",
     "HybridFL",
-    "HybridFLLearningParams",
+    "HybridFLCommunityDetectionParams",
+    "HybridFLDpParams",
+    "HybridFLGenericParams",
+    "HybridFLMachineLearningParams",
+    "HybridFLParamsType",
+    "HybridFLSpecBaseParams",
+    "HybridFLSpecParams",
     "InstanceConfiguration",
     "KeyInfo",
     "LocalDataSelection",
@@ -456,12 +477,16 @@ __all__ = (
     "ParticipationStatus",
     "PhoneticEncoding",
     "PostDataObjectJsonBody",
+    "PostDataSourceCommandJsonBody",
+    "PostDataSourceCommandJsonBodyParameters",
     "PostDataSourceDataMultipartData",
     "PostLlmRequestJsonBody",
     "PostLlmRequestJsonBodyPromptArgs",
     "PostMockDatasetAccessScope",
     "PostMockDatasetMethod",
     "PostProjectDataJsonBody",
+    "PostProjectDataSourceCommandJsonBody",
+    "PostProjectDataSourceCommandJsonBodyParameters",
     "PostProtocolMessageMultipartData",
     "PostUserResponse201",
     "Prediction",
@@ -551,6 +576,7 @@ __all__ = (
     "UserInfo",
     "UserListQuery",
     "VBinnedAggregation",
+    "VisualizationType",
     "WhitelistedQuery",
     "WorkflowItem",
     "WorkflowItemData",

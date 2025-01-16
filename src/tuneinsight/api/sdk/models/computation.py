@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from ..models.computation_definition import ComputationDefinition
     from ..models.computation_error import ComputationError
     from ..models.measurement import Measurement
+    from ..models.participant import Participant
 
 
 T = TypeVar("T", bound="Computation")
@@ -36,11 +37,14 @@ class Computation:
         local (Union[Unset, bool]): deprecated
         measurements (Union[Unset, List['Measurement']]): list of benchmarking measurements done on the computation
         owner (Union[Unset, str]): identifier of the end user that has requested the computation
+        participants (Union[Unset, List['Participant']]): list of participants that took part (interacted or
+            contributed) in this computation.
         progress (Union[Unset, int]):
         project_id (Union[Unset, str]): Unique identifier of a project.
         result_id (Union[Unset, str]): Unique identifier of a result.
-        results (Union[Unset, List[str]]): Identifier(s) of the resulting data object(s). Available only when the status
-            is completed.
+        result_ids (Union[Unset, List[str]]): List of results that have been associated with this computation.
+        results (Union[Unset, List[str]]): (DEPRECATED)Identifier(s) of the resulting data object(s). Available only
+            when the status is completed.
         run_mode (Union[Unset, RunMode]): Defines the mode in which to run a computation (local, collective, or both)
         started_at (Union[Unset, str]):
         updated_at (Union[Unset, str]):
@@ -63,9 +67,11 @@ class Computation:
     local: Union[Unset, bool] = UNSET
     measurements: Union[Unset, List["Measurement"]] = UNSET
     owner: Union[Unset, str] = UNSET
+    participants: Union[Unset, List["Participant"]] = UNSET
     progress: Union[Unset, int] = UNSET
     project_id: Union[Unset, str] = UNSET
     result_id: Union[Unset, str] = UNSET
+    result_ids: Union[Unset, List[str]] = UNSET
     results: Union[Unset, List[str]] = UNSET
     run_mode: Union[Unset, RunMode] = UNSET
     started_at: Union[Unset, str] = UNSET
@@ -105,9 +111,21 @@ class Computation:
                 measurements.append(measurements_item)
 
         owner = self.owner
+        participants: Union[Unset, List[Dict[str, Any]]] = UNSET
+        if not isinstance(self.participants, Unset):
+            participants = []
+            for participants_item_data in self.participants:
+                participants_item = participants_item_data.to_dict()
+
+                participants.append(participants_item)
+
         progress = self.progress
         project_id = self.project_id
         result_id = self.result_id
+        result_ids: Union[Unset, List[str]] = UNSET
+        if not isinstance(self.result_ids, Unset):
+            result_ids = self.result_ids
+
         results: Union[Unset, List[str]] = UNSET
         if not isinstance(self.results, Unset):
             results = self.results
@@ -154,12 +172,16 @@ class Computation:
             field_dict["measurements"] = measurements
         if owner is not UNSET:
             field_dict["owner"] = owner
+        if participants is not UNSET:
+            field_dict["participants"] = participants
         if progress is not UNSET:
             field_dict["progress"] = progress
         if project_id is not UNSET:
             field_dict["projectId"] = project_id
         if result_id is not UNSET:
             field_dict["resultId"] = result_id
+        if result_ids is not UNSET:
+            field_dict["resultIds"] = result_ids
         if results is not UNSET:
             field_dict["results"] = results
         if run_mode is not UNSET:
@@ -180,6 +202,7 @@ class Computation:
         from ..models.computation_definition import ComputationDefinition
         from ..models.computation_error import ComputationError
         from ..models.measurement import Measurement
+        from ..models.participant import Participant
 
         d = src_dict.copy()
         definition = ComputationDefinition.from_dict(d.pop("definition"))
@@ -220,11 +243,20 @@ class Computation:
 
         owner = d.pop("owner", UNSET)
 
+        participants = []
+        _participants = d.pop("participants", UNSET)
+        for participants_item_data in _participants or []:
+            participants_item = Participant.from_dict(participants_item_data)
+
+            participants.append(participants_item)
+
         progress = d.pop("progress", UNSET)
 
         project_id = d.pop("projectId", UNSET)
 
         result_id = d.pop("resultId", UNSET)
+
+        result_ids = cast(List[str], d.pop("resultIds", UNSET))
 
         results = cast(List[str], d.pop("results", UNSET))
 
@@ -258,9 +290,11 @@ class Computation:
             local=local,
             measurements=measurements,
             owner=owner,
+            participants=participants,
             progress=progress,
             project_id=project_id,
             result_id=result_id,
+            result_ids=result_ids,
             results=results,
             run_mode=run_mode,
             started_at=started_at,
