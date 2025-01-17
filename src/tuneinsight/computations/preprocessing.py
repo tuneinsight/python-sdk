@@ -1028,12 +1028,13 @@ class PreprocessingBuilder:
     @staticmethod
     def _check_chain(chain: models.PreprocessingChain) -> bool:
         """
-        Checks that a preprocessing chain contains a select after one hot encoding.
+        Checks that a preprocessing chain contains a select after one hot encoding without specified types.
         """
         one_hot_without_select = False
         for ppo in chain:
             if ppo.type == models.PreprocessingOperationType.ONEHOTENCODING:
-                one_hot_without_select = True
+                if is_unset(ppo.specified_types):
+                    one_hot_without_select = True
             if ppo.type == models.PreprocessingOperationType.SELECT:
                 one_hot_without_select = False
 
