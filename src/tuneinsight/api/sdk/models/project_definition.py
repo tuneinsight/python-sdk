@@ -42,6 +42,7 @@ class ProjectDefinition:
         dpia (Union[Unset, str]):
         end_to_end_encrypted (Union[Unset, None, bool]): whether results are always end to end encrypted and decrypted
             on the client side
+        hidden (Union[Unset, bool]): whether the project is hidden from the project list
         hide_leaf_participants (Union[Unset, None, bool]): whether leaf project participants are not shown to other leaf
             participants when the project is in a star topology.
         local (Union[Unset, None, bool]): True if the project's computation should run only with local data (not
@@ -101,6 +102,7 @@ class ProjectDefinition:
     description: Union[Unset, None, str] = UNSET
     dpia: Union[Unset, str] = UNSET
     end_to_end_encrypted: Union[Unset, None, bool] = UNSET
+    hidden: Union[Unset, bool] = UNSET
     hide_leaf_participants: Union[Unset, None, bool] = UNSET
     local: Union[Unset, None, bool] = UNSET
     min_contributors: Union[Unset, None, int] = UNSET
@@ -157,6 +159,7 @@ class ProjectDefinition:
         description = self.description
         dpia = self.dpia
         end_to_end_encrypted = self.end_to_end_encrypted
+        hidden = self.hidden
         hide_leaf_participants = self.hide_leaf_participants
         local = self.local
         min_contributors = self.min_contributors
@@ -237,6 +240,8 @@ class ProjectDefinition:
             field_dict["dpia"] = dpia
         if end_to_end_encrypted is not UNSET:
             field_dict["endToEndEncrypted"] = end_to_end_encrypted
+        if hidden is not UNSET:
+            field_dict["hidden"] = hidden
         if hide_leaf_participants is not UNSET:
             field_dict["hideLeafParticipants"] = hide_leaf_participants
         if local is not UNSET:
@@ -339,6 +344,8 @@ class ProjectDefinition:
 
         end_to_end_encrypted = d.pop("endToEndEncrypted", UNSET)
 
+        hidden = d.pop("hidden", UNSET)
+
         hide_leaf_participants = d.pop("hideLeafParticipants", UNSET)
 
         local = d.pop("local", UNSET)
@@ -433,6 +440,7 @@ class ProjectDefinition:
             description=description,
             dpia=dpia,
             end_to_end_encrypted=end_to_end_encrypted,
+            hidden=hidden,
             hide_leaf_participants=hide_leaf_participants,
             local=local,
             min_contributors=min_contributors,

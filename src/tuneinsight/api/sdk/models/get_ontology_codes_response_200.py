@@ -5,28 +5,25 @@ import attr
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.sphn_ontology_search_result import SphnOntologySearchResult
+    from ..models.ontology_search_result import OntologySearchResult
 
 
-T = TypeVar("T", bound="SphnOntologiesSearchResponse200Item")
+T = TypeVar("T", bound="GetOntologyCodesResponse200")
 
 
 @attr.s(auto_attribs=True)
-class SphnOntologiesSearchResponse200Item:
+class GetOntologyCodesResponse200:
     """
     Attributes:
-        ontology (Union[Unset, str]):
-        results (Union[Unset, List['SphnOntologySearchResult']]):
+        results (Union[Unset, List['OntologySearchResult']]):
         total (Union[Unset, int]):
     """
 
-    ontology: Union[Unset, str] = UNSET
-    results: Union[Unset, List["SphnOntologySearchResult"]] = UNSET
+    results: Union[Unset, List["OntologySearchResult"]] = UNSET
     total: Union[Unset, int] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        ontology = self.ontology
         results: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.results, Unset):
             results = []
@@ -40,8 +37,6 @@ class SphnOntologiesSearchResponse200Item:
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if ontology is not UNSET:
-            field_dict["ontology"] = ontology
         if results is not UNSET:
             field_dict["results"] = results
         if total is not UNSET:
@@ -51,28 +46,25 @@ class SphnOntologiesSearchResponse200Item:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.sphn_ontology_search_result import SphnOntologySearchResult
+        from ..models.ontology_search_result import OntologySearchResult
 
         d = src_dict.copy()
-        ontology = d.pop("ontology", UNSET)
-
         results = []
         _results = d.pop("results", UNSET)
         for results_item_data in _results or []:
-            results_item = SphnOntologySearchResult.from_dict(results_item_data)
+            results_item = OntologySearchResult.from_dict(results_item_data)
 
             results.append(results_item)
 
         total = d.pop("total", UNSET)
 
-        sphn_ontologies_search_response_200_item = cls(
-            ontology=ontology,
+        get_ontology_codes_response_200 = cls(
             results=results,
             total=total,
         )
 
-        sphn_ontologies_search_response_200_item.additional_properties = d
-        return sphn_ontologies_search_response_200_item
+        get_ontology_codes_response_200.additional_properties = d
+        return get_ontology_codes_response_200
 
     @property
     def additional_keys(self) -> List[str]:

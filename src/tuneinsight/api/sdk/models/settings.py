@@ -27,9 +27,11 @@ class Settings:
             project").
         auto_reject_specification (Union[Unset, ProjectSpecification]): Specifies parts of a project (called "checked
             project").
+        data_screening (Union[Unset, None, bool]): whether or not to enable the data screening UI.
         default_contract (Union[Unset, AuthorizationContract]): describes what parts of the computation are allowed to
             change when a project is authorized
         default_data_source (Union[Unset, None, str]): Unique identifier of a data source.
+        default_project (Union[Unset, str]): Unique identifier of a project.
         feasibility_layout (Union[Unset, None, bool]): whether or not to enable the feasibility mode layout.
         selectable_data_source (Union[Unset, None, bool]): whether or not the datasource of the project can be modified.
         set_project_policies (Union[Unset, None, bool]): whether policies can be set for projects.
@@ -41,8 +43,10 @@ class Settings:
     authorized_project_types: Union[Unset, List[WorkflowType]] = UNSET
     auto_approve_specification: Union[Unset, "ProjectSpecification"] = UNSET
     auto_reject_specification: Union[Unset, "ProjectSpecification"] = UNSET
+    data_screening: Union[Unset, None, bool] = UNSET
     default_contract: Union[Unset, "AuthorizationContract"] = UNSET
     default_data_source: Union[Unset, None, str] = UNSET
+    default_project: Union[Unset, str] = UNSET
     feasibility_layout: Union[Unset, None, bool] = UNSET
     selectable_data_source: Union[Unset, None, bool] = UNSET
     set_project_policies: Union[Unset, None, bool] = UNSET
@@ -68,11 +72,13 @@ class Settings:
         if not isinstance(self.auto_reject_specification, Unset):
             auto_reject_specification = self.auto_reject_specification.to_dict()
 
+        data_screening = self.data_screening
         default_contract: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.default_contract, Unset):
             default_contract = self.default_contract.to_dict()
 
         default_data_source = self.default_data_source
+        default_project = self.default_project
         feasibility_layout = self.feasibility_layout
         selectable_data_source = self.selectable_data_source
         set_project_policies = self.set_project_policies
@@ -91,10 +97,14 @@ class Settings:
             field_dict["autoApproveSpecification"] = auto_approve_specification
         if auto_reject_specification is not UNSET:
             field_dict["autoRejectSpecification"] = auto_reject_specification
+        if data_screening is not UNSET:
+            field_dict["dataScreening"] = data_screening
         if default_contract is not UNSET:
             field_dict["defaultContract"] = default_contract
         if default_data_source is not UNSET:
             field_dict["defaultDataSource"] = default_data_source
+        if default_project is not UNSET:
+            field_dict["defaultProject"] = default_project
         if feasibility_layout is not UNSET:
             field_dict["feasibilityLayout"] = feasibility_layout
         if selectable_data_source is not UNSET:
@@ -137,6 +147,8 @@ class Settings:
         else:
             auto_reject_specification = ProjectSpecification.from_dict(_auto_reject_specification)
 
+        data_screening = d.pop("dataScreening", UNSET)
+
         _default_contract = d.pop("defaultContract", UNSET)
         default_contract: Union[Unset, AuthorizationContract]
         if isinstance(_default_contract, Unset):
@@ -145,6 +157,8 @@ class Settings:
             default_contract = AuthorizationContract.from_dict(_default_contract)
 
         default_data_source = d.pop("defaultDataSource", UNSET)
+
+        default_project = d.pop("defaultProject", UNSET)
 
         feasibility_layout = d.pop("feasibilityLayout", UNSET)
 
@@ -160,8 +174,10 @@ class Settings:
             authorized_project_types=authorized_project_types,
             auto_approve_specification=auto_approve_specification,
             auto_reject_specification=auto_reject_specification,
+            data_screening=data_screening,
             default_contract=default_contract,
             default_data_source=default_data_source,
+            default_project=default_project,
             feasibility_layout=feasibility_layout,
             selectable_data_source=selectable_data_source,
             set_project_policies=set_project_policies,

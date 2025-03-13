@@ -210,6 +210,23 @@ extern __declspec(dllexport) void* Multiply(char* id, void* number1, void* numbe
 //
 extern __declspec(dllexport) void* PolynomialEvaluation(char* id, char* polynomialCoefficients, size_t polynomialCoefficientsSize, void* number, size_t numberSize);
 
+// PostProcessSurvivalDP post-processes noisy survival analysis results to ensure that they are integer-valued and give a nondecreasing curve.
+//
+extern __declspec(dllexport) char* PostProcessSurvivalDP(char* results);
+
+// KaplanMeierConfidenceInterval returns the 95% confidence interval for values of the Kaplan-Meier curve for each group (two rows per group).
+//
+extern __declspec(dllexport) char* KaplanMeierConfidenceInterval(char* results, char* epsilonEncoded);
+
+// PostProcessStatistics post-processes the results of a differentially private statistics operation.
+// This converts the content of a float matrix to a table of statistics.
+//
+extern __declspec(dllexport) char* PostProcessStatistics(char* results);
+
+// StatisticsConfidenceInterval estimates confidence intervals for the statistics computation from raw results.
+//
+extern __declspec(dllexport) char* StatisticsConfidenceInterval(char* results, char* laplaceParams);
+
 #ifdef __cplusplus
 }
 #endif

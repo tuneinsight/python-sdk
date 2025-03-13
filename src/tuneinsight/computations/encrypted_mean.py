@@ -61,7 +61,6 @@ class EncryptedMean(ModelBasedComputation):
             grouping_keys=grouping_columns,
             min_participants=min_participants,
             outlier_threshold=outlier_threshold,
-            release_results=True,
         )
 
     @classmethod

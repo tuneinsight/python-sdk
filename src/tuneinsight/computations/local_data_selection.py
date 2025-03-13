@@ -7,7 +7,6 @@ from tuneinsight.api.sdk.types import is_set
 
 from tuneinsight.computations.queries import QueryBuilder
 from tuneinsight.computations.preprocessing import PreprocessingBuilder
-from tuneinsight.utils import deprecation
 
 
 class LocalDataSelection:
@@ -54,12 +53,3 @@ class LocalDataSelection:
             preprocessing=self.preprocessing.get_model(),
         )
         return definition
-
-    def save(self):
-        """
-        Saves the selection to the backend.
-
-        """
-        deprecation.warn(
-            "LocalDataSelection.save", "nothing (this is no longer necessary)"
-        )

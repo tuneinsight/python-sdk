@@ -29,8 +29,9 @@ class _ErrorObject:
     An empty object that raises error whenever one of its attributes is accessed.
 
     This is used as the "shared library object" when the cryptolib is not found,
-    so that users can friendlier error messages when trying to use it (in case
+    so that users get friendlier error messages when trying to use it (in case
     they missed the initial warning).
+
     """
 
     def __getattr__(self, _):
@@ -46,6 +47,7 @@ cryptolib_path = cwd / "build" / f"cryptolib-{os}_{arch}.{ext}"
 
 # If not found, the shared library will be an object that raises errors whenever it is used.
 so = _ErrorObject()
+LOADED = False
 
 if not exists(cryptolib_path):
     warnings.warn(
@@ -54,6 +56,7 @@ if not exists(cryptolib_path):
 else:
     try:
         so = ctypes.cdll.LoadLibrary(str(cryptolib_path))
+        LOADED = True
     except OSError as err:
         warnings.warn(
             f"Failed to load cryptolib ({err}). Some functionality might be affected."
@@ -332,7 +335,7 @@ def decrypt_dataframe(
             headers = headers[:num_cols]
         plaintext_dataframe.columns = headers
     # Convert values back to numeric
-    plaintext_dataframe = plaintext_dataframe.applymap(float)
+    plaintext_dataframe = plaintext_dataframe.map(float)
     return plaintext_dataframe
 
 

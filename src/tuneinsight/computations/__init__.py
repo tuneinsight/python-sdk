@@ -47,7 +47,9 @@ from .base import Computation, ModelBasedComputation, KeySwitch, ComputationResu
 from .count import Count, DatasetLength
 from .stats import Statistics
 from .aggregation import Aggregation, Sum
+from .distribution import Distribution, Histogram
 from .encrypted_mean import EncryptedMean
+from .feasibility import Feasibility
 from .gwas import GWAS
 from .hybrid_fl import HybridFL
 from .intersection import Matching

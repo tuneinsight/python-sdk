@@ -19,6 +19,8 @@ class ComputationType(str, Enum):
     PRIVATESEARCHSETUP = "privateSearchSetup"
     ENCRYPTEDMEAN = "encryptedMean"
     FEASIBILITY = "feasibility"
+    FILTEREDAGGREGATION = "filteredAggregation"
+    VALUEDISTRIBUTION = "valueDistribution"
 
     def __str__(self) -> str:
         return str(self.value)

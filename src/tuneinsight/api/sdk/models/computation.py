@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from ..models.computation_error import ComputationError
     from ..models.measurement import Measurement
     from ..models.participant import Participant
+    from ..models.task_progress import TaskProgress
 
 
 T = TypeVar("T", bound="Computation")
@@ -39,7 +40,7 @@ class Computation:
         owner (Union[Unset, str]): identifier of the end user that has requested the computation
         participants (Union[Unset, List['Participant']]): list of participants that took part (interacted or
             contributed) in this computation.
-        progress (Union[Unset, int]):
+        progress (Union[Unset, TaskProgress]): the progress of a remote task, divided in stages and steps
         project_id (Union[Unset, str]): Unique identifier of a project.
         result_id (Union[Unset, str]): Unique identifier of a result.
         result_ids (Union[Unset, List[str]]): List of results that have been associated with this computation.
@@ -68,7 +69,7 @@ class Computation:
     measurements: Union[Unset, List["Measurement"]] = UNSET
     owner: Union[Unset, str] = UNSET
     participants: Union[Unset, List["Participant"]] = UNSET
-    progress: Union[Unset, int] = UNSET
+    progress: Union[Unset, "TaskProgress"] = UNSET
     project_id: Union[Unset, str] = UNSET
     result_id: Union[Unset, str] = UNSET
     result_ids: Union[Unset, List[str]] = UNSET
@@ -119,7 +120,10 @@ class Computation:
 
                 participants.append(participants_item)
 
-        progress = self.progress
+        progress: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.progress, Unset):
+            progress = self.progress.to_dict()
+
         project_id = self.project_id
         result_id = self.result_id
         result_ids: Union[Unset, List[str]] = UNSET
@@ -203,6 +207,7 @@ class Computation:
         from ..models.computation_error import ComputationError
         from ..models.measurement import Measurement
         from ..models.participant import Participant
+        from ..models.task_progress import TaskProgress
 
         d = src_dict.copy()
         definition = ComputationDefinition.from_dict(d.pop("definition"))
@@ -250,7 +255,12 @@ class Computation:
 
             participants.append(participants_item)
 
-        progress = d.pop("progress", UNSET)
+        _progress = d.pop("progress", UNSET)
+        progress: Union[Unset, TaskProgress]
+        if isinstance(_progress, Unset):
+            progress = UNSET
+        else:
+            progress = TaskProgress.from_dict(_progress)
 
         project_id = d.pop("projectId", UNSET)
 

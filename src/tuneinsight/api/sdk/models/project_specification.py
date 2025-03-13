@@ -21,6 +21,9 @@ class ProjectSpecification:
         computation_definition (Union[Unset, ComputationDefinition]): Generic computation.
         match_only_computation_type (Union[Unset, bool]): If true, only the computation type (and not the parameters) is
             checked when testing this specification.
+        min_contributors (Union[Unset, None, float]): If defined, the minimum number of contributors of the checked
+            project must be at least this value, or left
+            undefined (in which case all participants are required to contribute).
         policy (Union[Unset, ComputationPolicy]): policy to validate a specific computation
         preprocessing (Union[Unset, ComputationPreprocessingParameters]): dataframe pre-processing parameters applied to
             the input retrieved from the datasource, if applicable
@@ -28,6 +31,7 @@ class ProjectSpecification:
 
     computation_definition: Union[Unset, "ComputationDefinition"] = UNSET
     match_only_computation_type: Union[Unset, bool] = UNSET
+    min_contributors: Union[Unset, None, float] = UNSET
     policy: Union[Unset, "ComputationPolicy"] = UNSET
     preprocessing: Union[Unset, "ComputationPreprocessingParameters"] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
@@ -38,6 +42,7 @@ class ProjectSpecification:
             computation_definition = self.computation_definition.to_dict()
 
         match_only_computation_type = self.match_only_computation_type
+        min_contributors = self.min_contributors
         policy: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.policy, Unset):
             policy = self.policy.to_dict()
@@ -53,6 +58,8 @@ class ProjectSpecification:
             field_dict["computationDefinition"] = computation_definition
         if match_only_computation_type is not UNSET:
             field_dict["matchOnlyComputationType"] = match_only_computation_type
+        if min_contributors is not UNSET:
+            field_dict["minContributors"] = min_contributors
         if policy is not UNSET:
             field_dict["policy"] = policy
         if preprocessing is not UNSET:
@@ -76,6 +83,8 @@ class ProjectSpecification:
 
         match_only_computation_type = d.pop("matchOnlyComputationType", UNSET)
 
+        min_contributors = d.pop("minContributors", UNSET)
+
         _policy = d.pop("policy", UNSET)
         policy: Union[Unset, ComputationPolicy]
         if isinstance(_policy, Unset):
@@ -93,6 +102,7 @@ class ProjectSpecification:
         project_specification = cls(
             computation_definition=computation_definition,
             match_only_computation_type=match_only_computation_type,
+            min_contributors=min_contributors,
             policy=policy,
             preprocessing=preprocessing,
         )

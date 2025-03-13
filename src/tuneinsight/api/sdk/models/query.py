@@ -1,13 +1,9 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
+from typing import Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
 from ..models.query_status import QueryStatus
 from ..types import UNSET, Unset
-
-if TYPE_CHECKING:
-    from ..models.query_results import QueryResults
-
 
 T = TypeVar("T", bound="Query")
 
@@ -23,7 +19,7 @@ class Query:
         id (Union[Unset, str]):
         project_id (Union[Unset, str]): Unique identifier of a project.
         query_string (Union[Unset, str]): String of the query e.g. SQL or JSON
-        results (Union[Unset, QueryResults]): result dataobject IDs
+        results (Union[Unset, str]): result dataobject IDs
         status (Union[Unset, QueryStatus]):
         updated_at (Union[Unset, str]):
     """
@@ -34,7 +30,7 @@ class Query:
     id: Union[Unset, str] = UNSET
     project_id: Union[Unset, str] = UNSET
     query_string: Union[Unset, str] = UNSET
-    results: Union[Unset, "QueryResults"] = UNSET
+    results: Union[Unset, str] = UNSET
     status: Union[Unset, QueryStatus] = UNSET
     updated_at: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
@@ -46,10 +42,7 @@ class Query:
         id = self.id
         project_id = self.project_id
         query_string = self.query_string
-        results: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.results, Unset):
-            results = self.results.to_dict()
-
+        results = self.results
         status: Union[Unset, str] = UNSET
         if not isinstance(self.status, Unset):
             status = self.status.value
@@ -82,8 +75,6 @@ class Query:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.query_results import QueryResults
-
         d = src_dict.copy()
         created_at = d.pop("createdAt", UNSET)
 
@@ -97,12 +88,7 @@ class Query:
 
         query_string = d.pop("queryString", UNSET)
 
-        _results = d.pop("results", UNSET)
-        results: Union[Unset, QueryResults]
-        if isinstance(_results, Unset):
-            results = UNSET
-        else:
-            results = QueryResults.from_dict(_results)
+        results = d.pop("results", UNSET)
 
         _status = d.pop("status", UNSET)
         status: Union[Unset, QueryStatus]

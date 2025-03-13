@@ -900,7 +900,7 @@ class PreprocessingBuilder:
                 it must (1) be a stable transformation (at most one output record per input record) and (2) have a statically
                 determined set of output columns (i.e., not dependent on the input data). Contact Tune Insight if you
                 have questions about this. 🔥 Only set to true if you know what you are doing.
-            output_columns (List[str], optional): the exact expected list of columns of the output dataset. This is only
+            output_columns (List[str], optional): the  list of columns added to the output dataset. This is only
                 required for dry runs and differential privacy. If provided, conformity is checked and an error is
                 returned if the columns mismatch.
             nodes (List[str], optional): the nodes for which the preprocessing block will apply to. Defaults to None.

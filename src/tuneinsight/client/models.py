@@ -201,7 +201,7 @@ class Model:
         comp = _RegressionPredicting(project)
         comp["data"] = input_id
         comp["model"] = self.model.data_object.unique_id
-        return comp.run(local=True, release=False)
+        return comp.run(local=True)
 
     @staticmethod
     def _decrypt_prediction(cs_id: bytes, ct: bytes) -> np.ndarray:

@@ -65,7 +65,7 @@ If all goes well, this should complete in a few seconds (after you have entered 
 
 #### command not found: test-ti-install
 
-The installation of the package did not work, or a version before `0.14.0.1` was installed. To check the installed version, run the following line in the terminal:
+The installation of the package did not work, or a version before `0.14.0` was installed. To check the installed version, run the following line in the terminal:
 
 ```bash
 pip freeze | grep tuneinsight
@@ -74,7 +74,7 @@ pip freeze | grep tuneinsight
 The result should look like this:
 
 ```
-tuneinsight==0.14.0
+tuneinsight==1.0.0
 ```
 
 If you see a line that looks like this,
@@ -85,7 +85,7 @@ tuneinsight @ file:///path/to/file/tuneinsight-0.13.1-py3-none-any.whl#sha256=..
 
 the SDK was installed directly from a `.whl` file, suggesting you are using an older version. You might need to install a more recent version, using `pip`:
 
-`pip install tuneinsight==0.14.0`
+`pip install tuneinsight==1.0.0`
 
 #### Error: Could not load the cryptolib: contact your administrator.
 

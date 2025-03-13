@@ -26,7 +26,9 @@ class ExecutionQuotaParameters:
             increment (Union[Unset, float]): value incremented after each allocation interval
             local_computations_use_budget (Union[Unset, bool]): whether local computations consume the execution quota
             max_allocation (Union[Unset, float]): maximum value that can be taken by the execution quota
-            scope (Union[Unset, ExecutionQuotaParametersScope]): scope of the quota
+            scope (Union[Unset, ExecutionQuotaParametersScope]): scope of the quota (default is project)
+            users_share_quota (Union[Unset, bool]): if true, all users share the same budget within the scope. Otherwise,
+                each user is allocated the full budget independently of others (default).
     """
 
     allocation: Union[Unset, float] = UNSET
@@ -35,6 +37,7 @@ class ExecutionQuotaParameters:
     local_computations_use_budget: Union[Unset, bool] = False
     max_allocation: Union[Unset, float] = UNSET
     scope: Union[Unset, ExecutionQuotaParametersScope] = UNSET
+    users_share_quota: Union[Unset, bool] = False
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -49,6 +52,8 @@ class ExecutionQuotaParameters:
         scope: Union[Unset, str] = UNSET
         if not isinstance(self.scope, Unset):
             scope = self.scope.value
+
+        users_share_quota = self.users_share_quota
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -65,6 +70,8 @@ class ExecutionQuotaParameters:
             field_dict["maxAllocation"] = max_allocation
         if scope is not UNSET:
             field_dict["scope"] = scope
+        if users_share_quota is not UNSET:
+            field_dict["usersShareQuota"] = users_share_quota
 
         return field_dict
 
@@ -95,6 +102,8 @@ class ExecutionQuotaParameters:
         else:
             scope = ExecutionQuotaParametersScope(_scope)
 
+        users_share_quota = d.pop("usersShareQuota", UNSET)
+
         execution_quota_parameters = cls(
             allocation=allocation,
             allocation_interval=allocation_interval,
@@ -102,6 +111,7 @@ class ExecutionQuotaParameters:
             local_computations_use_budget=local_computations_use_budget,
             max_allocation=max_allocation,
             scope=scope,
+            users_share_quota=users_share_quota,
         )
 
         execution_quota_parameters.additional_properties = d

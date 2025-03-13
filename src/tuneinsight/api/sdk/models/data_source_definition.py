@@ -29,7 +29,8 @@ class DataSourceDefinition:
             when the scope is set to network. If no network is provided, then the data source will be visible
             to all nodes connected to this instance.
         authorized_users (Union[Unset, List[str]]):
-        cache_duration (Union[Unset, None, int]): duration in hours for which the query results are cached
+        cache_duration (Union[Unset, None, int]): Duration in hours for which the query results are cached (if unset, no
+            cache is used).
         clear_if_exists (Union[Unset, bool]): If true and a data source with the same name already exists, delete it.
         configuration (Union[Unset, DataSourceConfig]): data source configuration
         consent_type (Union[Unset, DataSourceConsentType]): Consent type given to the data source.
@@ -39,6 +40,9 @@ class DataSourceDefinition:
             production.
         name (Union[Unset, str]):
         policy (Union[Unset, DatasourcePolicy]): policy required by a datasource for the data to be used in a project.
+        query_enabled (Union[Unset, None, bool]): Whether this data source can be directly queried by authorized users
+            to retrieve the raw data.
+            Note that a data source can still be queried when used in a computation from a project.
         structure_template_json (Union[Unset, DataSourceDefinitionStructureTemplateJSON]): data source's structure
             template (used to determine the query builder structure, if provided)
         type (Union[Unset, DataSourceType]):
@@ -57,6 +61,7 @@ class DataSourceDefinition:
     is_mock: Union[Unset, bool] = UNSET
     name: Union[Unset, str] = UNSET
     policy: Union[Unset, "DatasourcePolicy"] = UNSET
+    query_enabled: Union[Unset, None, bool] = UNSET
     structure_template_json: Union[Unset, "DataSourceDefinitionStructureTemplateJSON"] = UNSET
     type: Union[Unset, DataSourceType] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
@@ -99,6 +104,7 @@ class DataSourceDefinition:
         if not isinstance(self.policy, Unset):
             policy = self.policy.to_dict()
 
+        query_enabled = self.query_enabled
         structure_template_json: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.structure_template_json, Unset):
             structure_template_json = self.structure_template_json.to_dict()
@@ -136,6 +142,8 @@ class DataSourceDefinition:
             field_dict["name"] = name
         if policy is not UNSET:
             field_dict["policy"] = policy
+        if query_enabled is not UNSET:
+            field_dict["queryEnabled"] = query_enabled
         if structure_template_json is not UNSET:
             field_dict["structureTemplateJSON"] = structure_template_json
         if type is not UNSET:
@@ -202,6 +210,8 @@ class DataSourceDefinition:
         else:
             policy = DatasourcePolicy.from_dict(_policy)
 
+        query_enabled = d.pop("queryEnabled", UNSET)
+
         _structure_template_json = d.pop("structureTemplateJSON", UNSET)
         structure_template_json: Union[Unset, DataSourceDefinitionStructureTemplateJSON]
         if isinstance(_structure_template_json, Unset):
@@ -230,6 +240,7 @@ class DataSourceDefinition:
             is_mock=is_mock,
             name=name,
             policy=policy,
+            query_enabled=query_enabled,
             structure_template_json=structure_template_json,
             type=type,
         )

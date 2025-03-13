@@ -224,9 +224,6 @@ class Matching(ModelBasedComputation):
         """Creates a MatchingResult from the output of the computation (encrypted)."""
         return self._process_results(results)
 
-    def _override_model(self, model: models.ComputationDefinition):
-        model.release_results = not self.encrypted_results
-
     @staticmethod
     def _parse_columns(
         columns: List[str] = None,

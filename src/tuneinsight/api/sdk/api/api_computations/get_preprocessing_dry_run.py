@@ -33,7 +33,7 @@ def _get_kwargs(
                 proxies = http_proxy
 
     return {
-        "method": "get",
+        "method": "post",
         "url": url,
         "headers": headers,
         "cookies": cookies,

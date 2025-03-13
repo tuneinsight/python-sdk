@@ -210,6 +210,23 @@ extern void* Multiply(char* id, void* number1, void* number2, size_t number1Size
 //
 extern void* PolynomialEvaluation(char* id, char* polynomialCoefficients, size_t polynomialCoefficientsSize, void* number, size_t numberSize);
 
+// PostProcessSurvivalDP post-processes noisy survival analysis results to ensure that they are integer-valued and give a nondecreasing curve.
+//
+extern char* PostProcessSurvivalDP(char* results);
+
+// KaplanMeierConfidenceInterval returns the 95% confidence interval for values of the Kaplan-Meier curve for each group (two rows per group).
+//
+extern char* KaplanMeierConfidenceInterval(char* results, char* epsilonEncoded);
+
+// PostProcessStatistics post-processes the results of a differentially private statistics operation.
+// This converts the content of a float matrix to a table of statistics.
+//
+extern char* PostProcessStatistics(char* results);
+
+// StatisticsConfidenceInterval estimates confidence intervals for the statistics computation from raw results.
+//
+extern char* StatisticsConfidenceInterval(char* results, char* laplaceParams);
+
 #ifdef __cplusplus
 }
 #endif

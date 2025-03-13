@@ -195,7 +195,7 @@ class Aggregation(ModelBasedComputation):
     ) -> pd.DataFrame:
 
         df_data = {}
-        cols = Aggregation._parse_group_columns(encoded_columns)
+        cols = Aggregation.parse_group_columns(encoded_columns)
         for col, data_entry in zip(cols, data):
             record = {}
             group_key = ":".join([group["value"] for group in col["groups"]])
@@ -224,7 +224,7 @@ class Aggregation(ModelBasedComputation):
         return pd.DataFrame(data=list(df_data.values()))
 
     @staticmethod
-    def _parse_group_columns(encoded_columns: List[str]) -> List[dict]:
+    def parse_group_columns(encoded_columns: List[str]) -> List[dict]:
         cols: List[dict] = []
         # Parse json encoded columns.
         for col in encoded_columns:
@@ -278,7 +278,7 @@ class Aggregation(ModelBasedComputation):
         """
         # Run an Aggregation, where the input is preprocessed to be quantiles.
         self.preprocessing.quantiles(column, min_v, max_v)
-        df = self.run(local=local, release=True)
+        df = self.run(local=local)
         # Post-process the results of the computation.
         quantiles = list(df.Total)[1:]  # pylint: disable=no-member
         n = list(df.Total)[0]  # pylint: disable=no-member

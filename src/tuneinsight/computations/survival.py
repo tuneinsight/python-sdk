@@ -9,6 +9,10 @@ from tuneinsight.computations.base import (
     ModelBasedComputation,
     ComputationResult,
 )
+from tuneinsight.cryptolib.postprocessing import (
+    post_process_survival,
+    kaplan_meier_confidence_interval,
+)
 from tuneinsight.utils.plots import style_plot
 
 from tuneinsight.api.sdk import models
@@ -162,15 +166,44 @@ class SurvivalResults(ComputationResult):
     """Result from a survival analysis."""
 
     def __init__(
-        self, survival_parameters: SurvivalParameters, results: Dict[str, pd.DataFrame]
+        self,
+        survival_parameters: SurvivalParameters,
+        raw_results: pd.DataFrame,
+        group_parameters: List[models.SurvivalAggregationSubgroupsItem],
+        dp_epsilon: float = None,
     ):
         """
         Args
             survival_parameters: the parameters of the survival analysis.
-            results: a dictionary mapping subgroup name to dataframe of results.
+            raw_results: a pandas DataFrame with the full survival data for each group (one row per group).
+            group_parameters: the grouping parameters used in the survival analysis.
+            dp_noise: if differentially private, epsilon parameter of the DP noise added (Defaults None). Used for confidence intervals.
         """
         self.survival_parameters = survival_parameters
-        self.results = results
+        self.raw_results = raw_results
+        self.group_parameters = group_parameters
+        self.dp_noise = dp_epsilon
+        self.results = self._process_raw(raw_results)
+
+    def _process_raw(self, raw_results: pd.DataFrame) -> Dict[str, pd.DataFrame]:
+        """Processes raw results to a dictionary of user-friendly dataframes (per group).
+
+        Args:
+            raw_results (pd.DataFrame): raw results from the floatmatrix result.
+
+        Returns:
+            Dict[str, pd.DataFrame]: dictionary mapping each group name to its result.
+        """
+        result_mapping = {}
+        for i, row in raw_results.iterrows():
+            subgroup_name = "all"
+            if i > 0:
+                subgroup_name = self.group_parameters[i - 1].name
+            df = pd.DataFrame({"Column": raw_results.columns, "Total": row})
+            result_mapping[subgroup_name] = (
+                self.survival_parameters.post_process_survival(df)
+            )
+        return result_mapping
 
     def as_table(self) -> pd.DataFrame:
         return self.results["all"]
@@ -180,9 +213,10 @@ class SurvivalResults(ComputationResult):
 
     def plot_survivals(
         self,
-        size: tuple = (8, 4),
+        size: tuple = (6, 4),
         duration_col: str = None,
-        title="Survival curve",
+        title: str = "Survival curve",
+        ci: bool = False,
     ):
         """
         Plots the survival curve of each subgroup.
@@ -191,25 +225,39 @@ class SurvivalResults(ComputationResult):
             size (tuple): the size of the figure, defaults to (8, 4).
             duration_col (str, optional): the column giving the duration.
             title (str): title of the plot (defaults to "Survival curve").
+            ci (bool): whether to plot a confidence interval.
         """
         if duration_col is None:
             duration_col = self.survival_parameters.get_duration_column()
+        if ci:
+            confidence_intervals = self.confidence_interval()
         plt.style.use("bmh")
         fig, ax = plt.subplots()
         for label, df in self.results.items():
             x = df[duration_col]
             y = df["survival_probability"]
             ax.step(x, y, linewidth=2.5, label=label)
+            if ci:
+                this_ci = confidence_intervals[label]
+                ax.fill_between(
+                    x,
+                    this_ci["lower"],
+                    this_ci["upper"],
+                    alpha=0.2,
+                )
         ax.legend()
+        ax.set_ylim([0, 1.01])
         style_plot(ax, fig, title, duration_col, "Survival Probability", size=size)
         plt.show()
 
     def plot_survival(
         self,
         subgroup="all",
-        size: tuple = (8, 4),
+        size: tuple = (6, 4),
         duration_col: str = None,
         title="Survival curve",
+        ci: bool = False,
+        color: str = "#DE5F5A",
     ):
         """
         Plots the survival of a subgroup.
@@ -219,18 +267,67 @@ class SurvivalResults(ComputationResult):
             size (tuple): the size of the figure, defaults to (8, 4).
             duration_col (str, optional): the column giving the duration.
             title (str): title of the plot (defaults to "Survival curve").
+            ci (bool): whether to plot a confidence interval.
+            color (str): the color of the curve and confidence interval.
         """
         if duration_col is None:
-            duration_col = self.survival_parameters.duration_col
+            duration_col = self.survival_parameters.get_duration_column()
 
         plt.style.use("bmh")
         fig, ax = plt.subplots()
         df = self.results[subgroup]
         x = df[duration_col]
         y = df["survival_probability"]
-        ax.step(x, y, linewidth=2.5, color="#DE5F5A")
+        ax.set_ylim([0, 1.01])
+        ax.step(x, y, linewidth=2.5, color=color)
+        if ci:
+            cis = self.confidence_interval()
+            ax.fill_between(
+                x, cis[subgroup]["lower"], cis[subgroup]["upper"], fc=color, alpha=0.2
+            )
         style_plot(ax, fig, title, duration_col, "Survival Probability", size=size)
         plt.show()
+
+    def confidence_interval(self) -> Dict[str, pd.DataFrame]:
+        """Estimates 95% confidence intervals for the Kaplan-Meier survival curve."""
+        all_cis = kaplan_meier_confidence_interval(self.raw_results, self.dp_noise)
+        grouped_cis = {}
+        for i in range(len(self.raw_results)):
+            subgroup_name = "all"
+            if i > 0:
+                subgroup_name = self.group_parameters[i - 1].name
+            grouped_cis[subgroup_name] = {
+                "lower": all_cis.iloc[2 * i],
+                "upper": all_cis.iloc[2 * i + 1],
+            }
+        return grouped_cis
+
+    def post_process(self) -> "SurvivalResults":
+        """
+        Post-processes a survival curve obtained with differential privacy.
+
+        When differential privacy is used, noise is added to the survival results,
+        which means that the counts obtained are not integer-valued and the survival
+        curve is not guaranteed to be non-increasing. This function processes the
+        noisy results and returns a new SurvivalResults object with integer values
+        and a non-increasing survival curve.
+
+        A caveat: while the post-processed curve looks more "correct", it is _less_
+        accurate than the noisy result. Post-processing may introduce biases and lead
+        to imprecise conclusions. These issues can be mitigated by changing the survival
+        parameters and the privacy budget -- always validate results on toy use cases
+        before running a mission-critical analysis.
+
+        Returns:
+            SurvivalResults: post-processed results.
+        """
+        # Post-process the *raw* results (as expected by the method).
+        post_processed_results = post_process_survival(self.raw_results)
+        return SurvivalResults(
+            self.survival_parameters,
+            post_processed_results,
+            self.group_parameters,
+        )
 
 
 class SurvivalAnalysis(ModelBasedComputation):
@@ -315,21 +412,19 @@ class SurvivalAnalysis(ModelBasedComputation):
 
     def _process_results(self, results: List[DataContent]) -> Dict[str, pd.DataFrame]:
         """Converts raw results to a dictionary mapping subgroup name to a dataframe."""
-        fm = results[0].get_float_matrix()
+        result = results[0]
+        fm = result.get_float_matrix()
         if len(fm.data) != len(self.model.subgroups) + 1:
             raise ValueError(
                 f"Survival result dimensions mismatch (expected {len(self.model.subgroups) + 1} rows, got {len(fm.data)})."
             )
-        result_mapping = {}
-        for i, row in enumerate(fm.data):
-            subgroup_name = "all"
-            if i > 0:
-                subgroup_name = self.model.subgroups[i - 1].name
-            df = pd.DataFrame({"Column": fm.columns, "Total": row})
-            result_mapping[subgroup_name] = (
-                self.survival_parameters.post_process_survival(df)
-            )
-        return SurvivalResults(self.survival_parameters, result_mapping)
+        raw_results = pd.DataFrame(fm.data, columns=fm.columns)
+        return SurvivalResults(
+            self.survival_parameters,
+            raw_results,
+            self.model.subgroups,
+            dp_epsilon=self.model.dp_epsilon,
+        )
 
     def add_categories(self, column: str, values: List[str]):
         """

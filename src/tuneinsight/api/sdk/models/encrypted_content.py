@@ -23,6 +23,8 @@ class EncryptedContent:
         columns (Union[Unset, List[str]]): optional metadata giving the name of the columns of the encrypted matrix
         encrypted_type (Union[Unset, EncryptedContentType]): Type of the plaintext content stored in an
             encryptedContent.
+        required_post_processing (Union[Unset, str]): if specified, a post-processing operation that needs to be applied
+            once the content of this object is decrypted.
     """
 
     type: ContentType
@@ -30,6 +32,7 @@ class EncryptedContent:
     contextual_info: Union[Unset, "ResultContextualInfo"] = UNSET
     columns: Union[Unset, List[str]] = UNSET
     encrypted_type: Union[Unset, EncryptedContentType] = UNSET
+    required_post_processing: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -48,6 +51,8 @@ class EncryptedContent:
         if not isinstance(self.encrypted_type, Unset):
             encrypted_type = self.encrypted_type.value
 
+        required_post_processing = self.required_post_processing
+
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -62,6 +67,8 @@ class EncryptedContent:
             field_dict["columns"] = columns
         if encrypted_type is not UNSET:
             field_dict["encryptedType"] = encrypted_type
+        if required_post_processing is not UNSET:
+            field_dict["requiredPostProcessing"] = required_post_processing
 
         return field_dict
 
@@ -90,12 +97,15 @@ class EncryptedContent:
         else:
             encrypted_type = EncryptedContentType(_encrypted_type)
 
+        required_post_processing = d.pop("requiredPostProcessing", UNSET)
+
         encrypted_content = cls(
             type=type,
             value=value,
             contextual_info=contextual_info,
             columns=columns,
             encrypted_type=encrypted_type,
+            required_post_processing=required_post_processing,
         )
 
         encrypted_content.additional_properties = d

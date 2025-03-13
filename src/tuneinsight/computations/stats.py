@@ -5,12 +5,13 @@ import warnings
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from tuneinsight.client.dataobject import DataContent
+from tuneinsight.client.dataobject import DataContent, Result
 from tuneinsight.computations.base import (
     ModelBasedComputation,
     ComputationResult,
 )
 from tuneinsight.computations.preprocessing import Comparator
+from tuneinsight.cryptolib.postprocessing import statistics_confidence_interval
 from tuneinsight.utils.plots import style_plot, style_title
 
 from tuneinsight.api.sdk import models
@@ -22,16 +23,25 @@ from tuneinsight.api.sdk.types import UNSET, is_set, value_if_unset
 class StatisticsResults(ComputationResult):
     """Results of a `Statistics` computation."""
 
-    results: List[models.StatisticResult]
+    result_list: List[models.StatisticResult]
 
-    def __init__(self, results: List[models.StatisticResult]):
-        self.results = results
+    def __init__(
+        self,
+        comp_def: models.DatasetStatistics,
+        result: DataContent,
+    ):
+        # Extract the contents of the result as a statistics object.
+        self._result = result
+        stats = result.get_stats()
+        self.result_list = stats.results
+        self.raw_results = stats.raw_dp_results
+        self.comp_def = comp_def
 
     def as_table(self) -> pd.DataFrame:
         """Returns a pandas DataFrame containing the statistics."""
         cols = ["name", "mean", "variance", "stddev", "min", "median", "max", "IQR"]
         data = []
-        for res in self.results:
+        for res in self.result_list:
             data.append(
                 [
                     res.name,
@@ -55,7 +65,7 @@ class StatisticsResults(ComputationResult):
         means = []
         deviations = []
         c = "#DE5F5A"
-        for res in self.results:
+        for res in self.result_list:
             tmp = res.name.split()
             var_name = tmp[len(tmp) - 1]
             boxes.append(
@@ -63,7 +73,7 @@ class StatisticsResults(ComputationResult):
                     "label": var_name,
                     "whislo": res.min_,  # Bottom whisker position
                     "q1": res.quantiles[1],  # First quartile (25th percentile)
-                    "med": res.median,  # Median         (50th percentile)
+                    "med": res.median,  # Median (50th percentile)
                     "q3": res.quantiles[3],  # Third quartile (75th percentile)
                     "whishi": res.max_,  # Top whisker position
                     "fliers": [],  # Outliers
@@ -83,11 +93,38 @@ class StatisticsResults(ComputationResult):
             "Mean & Standard Deviation",
             None,
             y_label=metric,
-            size=(3.5 + 3 * len(self.results), 5),
+            size=(3.5 + 3 * len(self.result_list), 5),
             local=local,
         )
         style_title(ax[1], title="Quantiles")
         plt.show()
+
+    def confidence_intervals(self) -> pd.DataFrame:
+        """
+        Estimates 95% confidence intervals for all statistics computed, if computed with differential privacy.
+
+        When statistics are computed with differential privacy, random noise is added at several points during
+        the computation. The results obtained are thus randomized, and can vary significantly from the true
+        value. Confidence intervals give an estimate of the range of plausible "true" values, given the observed
+        noisy values. These intervals are estimated using Monte-Carlo estimation.
+
+        Note: this presents a 95% confidence interval for each statistic independently (and not a multi-dimensional
+        confidence interval for all statistics together).
+
+        Raises:
+            ValueError: If the result of the computation was a DataObject (should never happen).
+
+        Returns:
+            pd.DataFrame: A dataframe containing, in each row, the confidence interval for a statistic.
+        """
+        if not isinstance(self._result, Result):
+            return ValueError("Got DataObject instead of Result.")
+        dp_metadata = self._result.dp_metadata
+        if dp_metadata is None:
+            raise ValueError("No DP metadata available.")
+        return statistics_confidence_interval(
+            self.comp_def, [self.raw_results], dp_metadata
+        )
 
 
 class Statistics(ModelBasedComputation):
@@ -114,6 +151,7 @@ class Statistics(ModelBasedComputation):
         project,
         variables: List[Union[str, dict]] = None,
         quantities: List[models.StatisticalQuantity] = UNSET,
+        dp_epsilon: float = UNSET,
     ):
         """
         Create a Statistics Computation.
@@ -132,6 +170,7 @@ class Statistics(ModelBasedComputation):
             project,
             models.DatasetStatistics,
             type=models.ComputationType.DATASETSTATISTICS,
+            dp_epsilon=dp_epsilon,
         )
         self.quantities = quantities
         # The computation expects a dict mapping strings to models.StatisticDefinition
@@ -286,4 +325,4 @@ class Statistics(ModelBasedComputation):
 
     def _process_results(self, results: List[DataContent]) -> StatisticsResults:
         """Post-processes results by converting them to StatisticsResults."""
-        return StatisticsResults(results[0].get_stats().results)
+        return StatisticsResults(self.model, results[0])

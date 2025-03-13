@@ -9,7 +9,13 @@ from dateutil.parser import isoparse
 import attr
 import pandas as pd
 
-from tuneinsight.api.sdk.types import UNSET, is_set, is_unset
+from tuneinsight.api.sdk.types import (
+    UNSET,
+    is_set,
+    is_unset,
+    value_if_unset,
+    false_if_unset,
+)
 from tuneinsight.api.sdk.types import Response
 from tuneinsight.api.sdk import models
 from tuneinsight.api.sdk.api.api_project import (
@@ -28,7 +34,7 @@ from tuneinsight.computations.policy import Policy
 from tuneinsight.computations.dataset_schema import DatasetSchema
 from tuneinsight.computations.types import model_type_to_class
 from tuneinsight.client.validation import validate_response
-from tuneinsight.client.datasource import DataSource
+from tuneinsight.client.datasource import DataSource, RemoteDataSource
 from tuneinsight.computations.local_data_selection import LocalDataSelection
 from tuneinsight.utils.display import Renderer
 
@@ -252,6 +258,16 @@ class Project:
 
     # Setters for model values.
 
+    def set_min_contributors(self, min_contributors: int):
+        """Sets the minimum number of contributors required to run the project.
+
+        By default, all participants are required to contribute data.
+
+        Args:
+            min_contributors (int): The minimum number of contributors needed.
+        """
+        self._patch(models.ProjectDefinition(min_contributors=min_contributors))
+
     def set_contribution_status(self, contributes: bool):
         """
         Sets the local contributing status of the instance.
@@ -261,6 +277,10 @@ class Project:
         Args:
             contributes (bool): whether the instance contributes data.
         """
+        if is_unset(self.model.min_contributors):
+            raise ValueError(
+                "A minimum number of contributors must first be set (use project.set_min_contributors)."
+            )
         proj_def = models.ProjectDefinition()
         proj_def.non_contributor = not contributes
         self._patch(proj_def=proj_def)
@@ -298,13 +318,19 @@ class Project:
             )
         )
 
-    def set_datasource(self, ds: Union[DataSource, str]):
-        """
-        Sets this project's input datasource.
+    def set_datasource(self, ds: Union[DataSource, str, RemoteDataSource]):
+        """Sets the project's input datasource.
+
+        If a Datasource is provided, this sets the datasource to use by this instance on the project.
+        Equivalently, the unique identifier of that string can be provided (as a string).
+        If this instance does not contribute data, a remote datasource can be connected instead.
 
         Args:
-            ds (DataSource | str): the datasource to link to the project, or its ID.
+            ds (DataSource | str | RemoteDataSource): the datasource to link to the project, or its ID.
         """
+        if isinstance(ds, RemoteDataSource):
+            self._set_remote_datasource(ds)
+            return
         ds_id = ds
         if isinstance(ds, DataSource):
             ds_id = ds.get_id()
@@ -864,6 +890,36 @@ class Project:
             warnings.warn("Project not shared yet: sharing token will not work.")
         return self.model.share_token
 
+    def get_remote_datasources(self) -> List[RemoteDataSource]:
+        """Returns a list of remote datasources that can be used on this project."""
+        self._refresh()
+        datasources = []
+        for part in self.model.participants:
+            if is_set(part.node) and not false_if_unset(part.node.current):
+                datasources += value_if_unset(part.data_sources, [])
+        return [RemoteDataSource(ds) for ds in datasources]
+
+    def _set_remote_datasource(self, ds: RemoteDataSource):
+        """Sets the remote datasource to be used in the project.
+
+        If this instance does not contribute data to the project, it is allowed to define
+        a datasource to be used at other, remote, nodes (subject to authorization).
+
+        Args:
+            ds (RemoteDataSource): the remote datasource to use, one of the results returned
+                by project.get_remote_datasources().
+
+        Raises:
+            PermissionError: if this node is contributor. Set the contribution status to False first.
+        """
+        if not value_if_unset(self.model.non_contributor, True):
+            raise PermissionError("Only non-contributors can set remote datasources.")
+        self._patch(
+            models.ProjectDefinition(
+                data_source_auto_match=True, auto_match_criteria=ds.auto_match
+            )
+        )
+
     def display_overview(self):
         """
         Displays a human-readable overview of the project in Markdown.
@@ -925,3 +981,54 @@ class Project:
             r("Project Status:", r.code(part.status))
             r("Authorization Status:\n", r.code(part.authorization_status))
             r.end_paragraph()
+
+    def display_actions(self):
+        """
+        Displays a human-readable summary of what actions are allowed on this project, along
+        with explanations on why some actions are not allowed.
+        """
+        self._refresh()
+        r = Renderer()
+        if is_unset(self.model.actions):
+            r.text("No actions available on the project.")
+            return
+        actions: models.ProjectActions = self.model.actions
+        r.h1("Project Actions")
+        r.h2("Editing a project")
+        _render_action(r, "Edit Data Source", actions.edit_data_source)
+        _render_action(r, "Edit Operation Type", actions.edit_operation_type)
+        _render_action(r, "Edit Operation Parameters", actions.edit_operation_params)
+        _render_action(r, "Edit Preprocessing", actions.edit_preprocessing)
+        _render_action(r, "Edit Query", actions.edit_query)
+        _render_action(r, "Edit Policy", actions.edit_policy)
+
+        r.h2("Managing a project")
+        _render_action(r, "Request Authorization", actions.request_auth)
+        _render_action(r, "Revoke Authorization Request", actions.revoke_auth_request)
+        _render_action(r, "Share Project", actions.share)
+        _render_action(r, "Run Locally", actions.run_local)
+        _render_action(r, "Run Collectively", actions.run_collective)
+
+        r.h2("Number of remaining runs")
+        local_runs = value_if_unset(actions.remaining_local_runs, "unlimited")
+        coll_runs = value_if_unset(actions.remaining_collective_runs, "unlimited")
+        r.item("Local runs:", local_runs)
+        r.item("Collective runs:", coll_runs)
+
+        if is_set(actions.available_run_modes):
+            r.h2("Available run modes")
+            if not actions.available_run_modes:
+                r.item("Project cannot be run")
+            for mode in actions.available_run_modes:
+                r.item(mode)
+
+
+def _render_action(r: Renderer, name: str, status: models.AvailabilityStatus):
+    if is_unset(status):
+        return
+    r.item(
+        r.bf(name),
+        "\t",
+        "✅" if status.available else "❌",
+        value_if_unset(status.reason, ""),
+    )

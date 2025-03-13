@@ -1,14 +1,14 @@
 """Classes to interact with datasources in a Tune Insight instance."""
 
 import contextlib
-from typing import Any
+from typing import Any, List
 from io import StringIO
 import pandas as pd
 
 from tuneinsight.api.sdk.types import Response
 from tuneinsight.api.sdk import Client
 from tuneinsight.api.sdk import models
-from tuneinsight.api.sdk.types import Unset, UNSET
+from tuneinsight.api.sdk.types import Unset, UNSET, value_if_unset
 from tuneinsight.api.sdk.api.api_datagen import post_synthetic_dataset
 from tuneinsight.api.sdk.api.api_datasource import (
     post_data_source,
@@ -56,7 +56,6 @@ class DataSource:
         self.client = client
         self.local_query_parameters = None
         self.upload_chunk_size = 2048  # uploads 2048 records at each request.
-        # Policy handling
 
     ## Methods to create a datasource.
 
@@ -91,7 +90,14 @@ class DataSource:
         return cls(model=response.parsed, client=client)
 
     @classmethod
-    def local(cls, client: Client, name: str, clear_if_exists: bool = False):
+    def local(
+        cls,
+        client: Client,
+        name: str,
+        clear_if_exists: bool = False,
+        query_enabled: bool = False,
+        access_scope: models.AccessScope = models.AccessScope.ORGANIZATION,
+    ):
         """
         Creates a new local datasource without any data.
 
@@ -99,11 +105,15 @@ class DataSource:
             client (Client): the client to use to interact with the datasource
             name (str): the name to give to the datasource.
             clear_if_exists (bool, optional): whether to replace an existing datasource with the same name.
+            query_enabled (bool, optional): whether to enable direct querying outside of computations on the datasource.
+            access_scope (models.AccessScope, optional): scope of the datasource, limiting who can access it (organization by default).
         """
         definition = _default_datasource_definition()
         definition.name = name
         definition.clear_if_exists = clear_if_exists
         definition.type = models.DataSourceType.LOCAL
+        definition.query_enabled = query_enabled
+        definition.access_scope = access_scope
         return cls._from_definition(client, definition=definition)
 
     @classmethod
@@ -114,6 +124,7 @@ class DataSource:
         credentials: models.Credentials,
         name: str,
         clear_if_exists: bool = False,
+        access_scope: models.AccessScope = models.AccessScope.ORGANIZATION,
     ):
         """
         Creates a new database datasource.
@@ -125,9 +136,10 @@ class DataSource:
             client (Client): the client to use to interact with the datasource
             config (models.DataSourceConfig): the database configuration. Use the `new_postgres_config`
                 and `new_mariadb_config` functions in this module to create the configuration.
+            credentials (models.Credentials): the credentials needed to access this datasource from the server.
             name (str, optional): the name to give to the datasource. Defaults to "".
             clear_if_exists (bool, optional): whether to try to clear any existing data source with the same name.
-            credentials_id (str, optional): secret id that stores the database credentials on the KMS connected to the instance.
+            access_scope (models.AccessScope, optional): scope of the datasource, limiting who can access it (organization by default).
         """
         definition = _default_datasource_definition()
         definition.name = name
@@ -135,6 +147,7 @@ class DataSource:
         definition.type = models.DataSourceType.DATABASE
         definition.configuration = config
         definition.credentials = credentials
+        definition.access_scope = access_scope
 
         return cls._from_definition(client, definition=definition)
 
@@ -149,6 +162,7 @@ class DataSource:
         clear_if_exists: bool = False,
         cert: str = "",
         insecure_skip_verify_tls: bool = False,
+        access_scope: models.AccessScope = models.AccessScope.ORGANIZATION,
     ):
         """
         Creates a new API datasource.
@@ -158,11 +172,15 @@ class DataSource:
 
         Args:
             client (Client): the client to use to interact with the datasource
-            config (models.PostgresDatabaseConfig): the postgres configuration
+            api_type (models.APIType): The type of the API.
+            api_url (str): the URL to access the API.
+            api_token (str): the token needed to authenticate to the API.
             name (str): the name to give to the datasource.
             clear_if_exists (bool, optional): whether to replace an existing datasource with the same name.
             cert (str, optional): name of the certificate to use for this datasource
                 (must be accessible in note at "/usr/local/share/datasource-certificates/{cert}.pem,.key").
+            insecure_skip_verify_tls (bool, optional): Whether to skip TLS verification (⚠️ insecure). Defaults to False.
+            access_scope (models.AccessScope, optional): scope of the datasource, limiting who can access it (organization by default).
         """
         definition = _default_datasource_definition()
         definition.name = name
@@ -175,6 +193,7 @@ class DataSource:
             insecure_skip_verify_tls=insecure_skip_verify_tls,
         )
         definition.credentials = models.Credentials(api_token=api_token)
+        definition.access_scope = access_scope
         return cls._from_definition(client, definition=definition)
 
     @classmethod
@@ -184,6 +203,8 @@ class DataSource:
         dataframe: pd.DataFrame,
         name: str,
         clear_if_exists: bool = False,
+        query_enabled: bool = False,
+        access_scope: models.AccessScope = models.AccessScope.ORGANIZATION,
     ):
         """
         Creates a new datasource from a `pandas.DataFrame`.
@@ -195,8 +216,12 @@ class DataSource:
             dataframe (pd.DataFrame): the data to upload in the newly created datasource.
             name (str): the name to give to the datasource.
             clear_if_exists (bool, optional): whether to replace an existing datasource with the same name.
+            query_enabled (bool, optional): whether to enable direct querying outside of computations on the datasource.
+            access_scope (models.AccessScope, optional): scope of the datasource, limiting who can access it (organization by default).
         """
-        ds = cls.local(client, name, clear_if_exists)
+        ds = cls.local(
+            client, name, clear_if_exists, query_enabled, access_scope=access_scope
+        )
         ds.upload_data(df=dataframe)
         return ds
 
@@ -287,8 +312,10 @@ class DataSource:
 
         if df is not None:
             generator = generate_dataframe_chunks(df, self.upload_chunk_size)
-        if csv_path is not None:
+        elif csv_path is not None:
             generator = generate_csv_records(csv_path, self.upload_chunk_size)
+        else:
+            raise ValueError("missing a datasource: specify either df or csv_path")
 
         first_chunk = True
         uploaded_records = 0
@@ -468,6 +495,27 @@ class DataSource:
         """
         self.local_query_parameters = models.DataSourceQuery(database_query=query)
 
+    ## Schema handling
+
+    def get_schemas(self, name: str = None) -> List[models.DatasetSchema]:
+        """Returns all dataset schemas that have been infered on this datasource.
+
+        Args:
+            name (str, optional): if provided, only return schemas with this name.
+
+        Returns:
+            List[models.DatasetSchema]: all schemas inferred from this datasource, or, if filtered
+                by name, only the schemas with this name.
+        """
+        schemas = value_if_unset(self.model.inferred_schemas, [])
+        if name is not None:
+
+            def filter_by_name(schema: models.DatasetSchema):
+                return schema.name == name
+
+            return filter(filter_by_name, schemas)
+        return schemas
+
     ## Methods to set the policies.
 
     def get_policy(self) -> DataPolicy:
@@ -478,6 +526,29 @@ class DataSource:
         """Sets the data policy of this datasource."""
         self._patch(models.DataSourceDefinition(policy=policy))
 
+    @contextlib.contextmanager
+    def policy(self):
+        """Context manager to handle policies on a datasource."""
+        policy = self.get_policy()
+        yield policy
+        self.set_policy(policy)
+
+    ## Methods to modify other parts of a datasource.
+
+    def enable_cache(self, duration: int = 1):
+        """Enables query results to be cached to speed up repeatedly querying the datasource.
+
+        Args:
+            duration (int, optional): duration in hours for which the cache is kept. Defaults to 1.
+        """
+        if duration <= 0:
+            raise ValueError("duration must be a positive integer")
+        self._patch(models.DataSourceDefinition(cache_duration=duration))
+
+    def disable_cache(self):
+        """Disables the caching of query results."""
+        self._patch(models.DataSourceDefinition(cache_duration=0))
+
     def _patch(self, update: models.DataSourceDefinition):
         """Patches this datasource with the provided definition."""
         response = patch_data_source.sync_detailed(
@@ -486,13 +557,6 @@ class DataSource:
             json_body=update,
         )
         validate_response(response)
-
-    @contextlib.contextmanager
-    def policy(self):
-        """Context manager to handle policies on a datasource."""
-        policy = self.get_policy()
-        yield policy
-        self.set_policy(policy)
 
 
 ## Internal functions to manipulate configurations.
@@ -554,3 +618,35 @@ def new_mariadb_config(
         port=port,
         database=name,
     )
+
+
+class RemoteDataSource:
+    """
+    Represents a DataSource hosted on another instance that is visible on the network.
+
+    Some datasources can be marked as network visible, in which case other participants
+    are able to learn of their existence. In cases where a participant is not a contributor,
+    they can specify that this datasource should be used by the remote participant in a
+    project.
+
+    Note that only some metadata is available about remote data sources, and it is not
+    possible to edit them in any way.
+    """
+
+    def __init__(self, model: models.DataSource):
+        self.model = model
+
+    def __repr__(self):
+        return f"Remote Datasource {self.model.name} (type {self.model.type})."
+
+    @property
+    def auto_match(self) -> models.DataSourceDefinition:
+        """
+        Returns this data source as an auto-match criterion for use in a project.
+
+        This is the mechanism used to specify that this datasource should be used in
+        the project by the remote client. If auto-matched is enabled on the client side,
+        the Tune Insight instance will automatically set the datasource of the project
+        to match the type, and if possible the name of the auto-match criterion.
+        """
+        return models.DataSourceDefinition(name=self.model.name, type=self.model.type)

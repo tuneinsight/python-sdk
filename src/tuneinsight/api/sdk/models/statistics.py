@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
 
 import attr
 
@@ -20,11 +20,15 @@ class Statistics:
         type (ContentType): Type of the content
         results (List['StatisticResult']):
         contextual_info (Union[Unset, ResultContextualInfo]): contextual information about the content retrieved
+        raw_dp_results (Union[Unset, List[float]]): When using differential privacy, the output of the aggregation from
+            which statistics are computed.
+            This can be used to estimate confidence intervals for the values computed.
     """
 
     type: ContentType
     results: List["StatisticResult"]
     contextual_info: Union[Unset, "ResultContextualInfo"] = UNSET
+    raw_dp_results: Union[Unset, List[float]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -40,6 +44,10 @@ class Statistics:
         if not isinstance(self.contextual_info, Unset):
             contextual_info = self.contextual_info.to_dict()
 
+        raw_dp_results: Union[Unset, List[float]] = UNSET
+        if not isinstance(self.raw_dp_results, Unset):
+            raw_dp_results = self.raw_dp_results
+
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -50,6 +58,8 @@ class Statistics:
         )
         if contextual_info is not UNSET:
             field_dict["contextualInfo"] = contextual_info
+        if raw_dp_results is not UNSET:
+            field_dict["rawDPResults"] = raw_dp_results
 
         return field_dict
 
@@ -75,10 +85,13 @@ class Statistics:
         else:
             contextual_info = ResultContextualInfo.from_dict(_contextual_info)
 
+        raw_dp_results = cast(List[float], d.pop("rawDPResults", UNSET))
+
         statistics = cls(
             type=type,
             results=results,
             contextual_info=contextual_info,
+            raw_dp_results=raw_dp_results,
         )
 
         statistics.additional_properties = d

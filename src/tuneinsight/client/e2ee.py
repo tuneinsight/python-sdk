@@ -13,6 +13,8 @@ from tuneinsight.cryptolib import (
     decrypt_stats,
 )
 
+from tuneinsight.cryptolib.postprocessing import post_process_statistics
+
 from tuneinsight.api.sdk import models
 from tuneinsight.api.sdk import client as api_client
 from tuneinsight.api.sdk.types import Unset
@@ -30,6 +32,9 @@ def decrypt(client: api_client, result: Result) -> Result:
     Args:
         client: the client to connect to the instance.
         result: the result to be decrypted.
+
+    Returns:
+        result: the input result with its content decrypted in-place.
     """
     # Some computations don't support E2EE, as identified by their switching params (in that case the result is in plaintext).
     switching_params = result.model.result.switching_params
@@ -52,22 +57,58 @@ def decrypt(client: api_client, result: Result) -> Result:
     key_switched_result: models.ResultContent = response.parsed
 
     ## Decrypt the key-switched result using the private key (in the cryptosystem).
+    # First, cast the generic result to the EncryptedContent type.
+    if key_switched_result.content.type != models.ContentType.ENCRYPTEDCONTENT:
+        raise TypeError(
+            f"Cannot decrypt result: result is not encrypted (type {key_switched_result.content.type})"
+        )
     encrypted_content = models.EncryptedContent.from_dict(
         key_switched_result.content.to_dict()
     )
 
+    # Different encrypted data types (specified by encrypted_type) must be processed differently.
     decryptor = DECRYPTION_METHODS.get(encrypted_content.encrypted_type)
     if decryptor is None:
         raise ValueError(
             f"Cannot decrypt encrypted content of type {encrypted_content.encrypted_type}"
         )
-
-    # Overwrite the content of the results with the decrypted result.
     decrypted_content = decryptor(encrypted_content, hefloat_operator_id)
-    decrypted_content.contextual_info = result.model.content.contextual_info
-    result.model.content = decrypted_content
+
+    ## Apply required postprocessing operations on the decrypted result.
+    content = post_process(
+        result.model.computation.definition,
+        decrypted_content,
+        result.model.result.required_post_processing,
+    )
+
+    # Decorate the decrypted and post-processed content with additional metadata.
+    content.contextual_info = result.model.content.contextual_info
+    if hasattr(content, "columns"):
+        content.columns = decrypted_content.columns
+
+    ## Overwrite the content of the results with the decrypted dataframe (as a float matrix).
+    result.model.content = content
 
     return result
+
+
+def post_process(
+    comp: models.ComputationDefinition, content: models.Content, postprocessing: str
+) -> models.Content:
+    """post_process applies the specified post-processing operation to a decrypted result.
+
+    Args:
+        comp (models.ComputationDefinition): the computation for which the result was obtained.
+        content (models.Content): the decrypted/plaintext result of the computation.
+        postprocessing (str): a description of the post-processing operation.
+    """
+    if postprocessing == "dp-statistics":
+        stat_def = models.DatasetStatistics.from_dict(comp.to_dict())
+        assert isinstance(
+            content, models.FloatMatrix
+        ), "cannot post-process statistics (expected float matrix)"
+        return post_process_statistics(stat_def, content.data)
+    return content
 
 
 def _decrypt_dataframe(

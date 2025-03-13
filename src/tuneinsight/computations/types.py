@@ -17,6 +17,7 @@ from tuneinsight.computations import (
     GWAS,
     SurvivalAnalysis,
     Statistics,
+    Feasibility,
 )
 
 
@@ -35,6 +36,7 @@ class Type(Enum):
     GWAS = ct.GWAS
     SURVIVAL_ANALYSIS = ct.SURVIVALAGGREGATION
     DATASET_STATISTICS = ct.DATASETSTATISTICS
+    FEASIBILITY = ct.FEASIBILITY
 
     def to_computation_type(self) -> ct:
         # The warning is here, because putting it at top-level causes the diapason import to print a warning.
@@ -52,6 +54,7 @@ displayed_types = {
     Type.GWAS: "GWAS",
     Type.SURVIVAL_ANALYSIS: "Survival Analysis",
     Type.DATASET_STATISTICS: "Secure Quantiles Computation",
+    Type.FEASIBILITY: "Feasibility",
 }
 """Mapping from computation type to human-readable name."""
 
@@ -65,6 +68,7 @@ type_to_class = {
     Type.GWAS: GWAS,
     Type.SURVIVAL_ANALYSIS: SurvivalAnalysis,
     Type.DATASET_STATISTICS: Statistics,
+    Type.FEASIBILITY: Feasibility,
 }
 """Mapping from computation type to SDK class."""
 

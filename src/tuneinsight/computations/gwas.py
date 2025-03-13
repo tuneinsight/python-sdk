@@ -32,7 +32,7 @@ class GWASResults(ComputationResult):
         """Displays the GWAS result as a TI-branded manhattan plot."""
         # Transform data for plot
         p_values = self.result[["locus", "p_value"]]
-        p_values["chromosome"] = p_values[["locus"]].applymap(lambda x: x.split(":")[0])
+        p_values["chromosome"] = p_values[["locus"]].map(lambda x: x.split(":")[0])
         p_values["minuslog10pvalue"] = -np.log10(p_values.p_value)
         p_values.chromosome = p_values.chromosome.astype("category")
         p_values["ind"] = range(len(p_values))

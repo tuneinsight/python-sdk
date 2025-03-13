@@ -183,6 +183,8 @@ class DataPolicy(models.DatasourcePolicy):
         reallocation_amount: int = 0,
         reallocation_interval_hours: int = 24,
         max_quota: int = None,
+        scope: str = "project",
+        users_share_budget: bool = False,
     ):
         """
         Defines a quota for limiting the workflow executions in the project.
@@ -207,6 +209,10 @@ class DataPolicy(models.DatasourcePolicy):
                 at which the quota is reallocated. Defaults to 24.
             max_quota (int, optional): the absolute limit to the quota. If not specified
                 it will be set to the initial allocated amount. Defaults to None.
+            scope (str, optional): the scope of the budget. This can either be "project" (all users share a budget on the
+                project, default), or "datasource" (each user has their own budget on all projects with this datasource).
+            users_share_budget (bool, optional): whether the quota is shared across all users. If false (default), each
+                user has access to the full budget, independently of other users.
         """
         if max_quota is None:
             max_quota = initial
@@ -217,7 +223,8 @@ class DataPolicy(models.DatasourcePolicy):
             allocation=initial,
             increment=reallocation_amount,
             max_allocation=max_quota,
-            scope=models.ExecutionQuotaParametersScope.PROJECT,
+            scope=models.ExecutionQuotaParametersScope(scope),
+            users_share_quota=users_share_budget,
             allocation_interval=interval,
         )
 
@@ -381,10 +388,17 @@ class Policy(models.ComputationPolicy):
         reallocation_amount: int = 0,
         reallocation_interval_hours: int = 24,
         max_quota: int = None,
+        scope: str = "project",
+        users_share_budget: bool = False,
     ):
         """See `DataPolicy.set_quota`."""
         self.data_policy.set_quota(
-            initial, reallocation_amount, reallocation_interval_hours, max_quota
+            initial,
+            reallocation_amount,
+            reallocation_interval_hours,
+            max_quota,
+            scope,
+            users_share_budget,
         )
 
     def add_authorized_computation_type(self, computation_type: Type):

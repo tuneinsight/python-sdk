@@ -20,10 +20,12 @@ class DatasetSchema:
             that the values present in the column should comply to.
         drop_invalid_rows (Union[Unset, bool]): whether invalid rows are automatically dropped instead of raising an
             error
+        name (Union[Unset, str]): a name that describes this data schema.
     """
 
     columns: Union[Unset, "DatasetSchemaColumns"] = UNSET
     drop_invalid_rows: Union[Unset, bool] = UNSET
+    name: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -32,6 +34,7 @@ class DatasetSchema:
             columns = self.columns.to_dict()
 
         drop_invalid_rows = self.drop_invalid_rows
+        name = self.name
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -40,6 +43,8 @@ class DatasetSchema:
             field_dict["columns"] = columns
         if drop_invalid_rows is not UNSET:
             field_dict["drop_invalid_rows"] = drop_invalid_rows
+        if name is not UNSET:
+            field_dict["name"] = name
 
         return field_dict
 
@@ -57,9 +62,12 @@ class DatasetSchema:
 
         drop_invalid_rows = d.pop("drop_invalid_rows", UNSET)
 
+        name = d.pop("name", UNSET)
+
         dataset_schema = cls(
             columns=columns,
             drop_invalid_rows=drop_invalid_rows,
+            name=name,
         )
 
         dataset_schema.additional_properties = d

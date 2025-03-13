@@ -25,8 +25,12 @@ class Custom:
                  return df`
         name (Union[Unset, str]): name given to the operation. The name has no impact on the operation
             and the name given to the function
-        output_columns (Union[Unset, List[str]]): if well-defined, the set of columns of the output of the function
-            (optional, used for dry runs).
+        output_columns (Union[Unset, List[str]]): If defined, the list of all columns that could be  _added_ by this
+            function to the dataframe. If provided, the output
+            columns are checked against this value.  This is required under differential privacy, and is recommended even
+            when
+            not using DP, as it enables column selections in the frontend (from dry-runs). If the custom operation modifies
+            other columns in the datasets, it is recommended to follow this operation with a select.
     """
 
     type: PreprocessingOperationType

@@ -286,7 +286,14 @@ class Diapason:
         if open_page:
             webbrowser.open(login_url)
         if blocking:
-            self.wait_ready(sleep_seconds=1)
+            try:
+                self.wait_ready(repeat=30, sleep_seconds=1)
+            except TimeoutError:
+                warnings.warn(
+                    "The login attempt was likely successful, but the Tune Insight instance could "
+                    "not be reached. Check that you have entered the correct URL and client ID, "
+                    "and used appropriate proxy settings (if needed)."
+                )
         return login_url
 
     def wait_ready(self, repeat: int = 50, sleep_seconds: int = 5):
@@ -345,7 +352,12 @@ class Diapason:
     # Datasource handlers.
 
     def new_datasource(
-        self, dataframe: pd.DataFrame, name: str, clear_if_exists: bool = False
+        self,
+        dataframe: pd.DataFrame,
+        name: str,
+        clear_if_exists: bool = False,
+        query_enabled: bool = False,
+        access_scope: models.AccessScope = models.AccessScope.ORGANIZATION,
     ) -> DataSource:
         """
         Creates a new datasource from a dataframe.
@@ -357,12 +369,19 @@ class Diapason:
             dataframe (pd.DataFrame): dataframe to upload.
             name (str): name of the datasource to be created.
             clear_if_exists (str, optional): overwrite datasource if it already exists.
+            query_enabled (bool, optional): whether to enable direct querying outside of computations on this datasource.
+            access_scope (models.AccessScope, optional): scope of the datasource, limiting who can access it (organization by default).
 
         Returns:
             DataSource: the newly created datasource.
         """
         return DataSource.from_dataframe(
-            self._get_client(), dataframe, name, clear_if_exists
+            self._get_client(),
+            dataframe,
+            name,
+            clear_if_exists,
+            query_enabled,
+            access_scope,
         )
 
     def new_api_datasource(
@@ -374,6 +393,7 @@ class Diapason:
         clear_if_exists: bool = False,
         cert: str = "",
         insecure_skip_verify_tls: bool = False,
+        access_scope: models.AccessScope = models.AccessScope.ORGANIZATION,
     ) -> DataSource:
         """
         Creates a new API datasource.
@@ -386,6 +406,7 @@ class Diapason:
             clear_if_exists (str, optional): overwrite datasource if it already exists.
             cert (str, optional): name of the certificate to use for this datasource (must be accessible in note at "/usr/local/share/datasource-certificates/{cert}.pem,.key").
             insecure_skip_verify_tls (bool, False): whether to skip the TLS verification. WARNING: This is insecure, use only for tests.
+            access_scope (models.AccessScope, optional): scope of the datasource, limiting who can access it (organization by default).
 
         Returns:
             DataSource: the newly created datasource
@@ -399,10 +420,15 @@ class Diapason:
             clear_if_exists,
             cert,
             insecure_skip_verify_tls,
+            access_scope,
         )
 
     def new_csv_datasource(
-        self, csv: str, name: str, clear_if_exists: bool = False
+        self,
+        csv: str,
+        name: str,
+        clear_if_exists: bool = False,
+        access_scope: models.AccessScope = models.AccessScope.ORGANIZATION,
     ) -> DataSource:
         """
         Creates a new datasource and upload the given CSV file to it.
@@ -412,12 +438,16 @@ class Diapason:
             name (str, required): name of the datasource to be created.
             clear_if_exists (str, optional): overwrite datasource if it already exists.
             cert (str, optional): name of the certificate to use for this datasource (must be accessible in note at "/usr/local/share/datasource-certificates/{cert}.pem,.key").
+            access_scope (models.AccessScope, optional): scope of the datasource, limiting who can access it (organization by default).
 
         Returns:
             DataSource: the newly created datasource
         """
         ds = DataSource.local(
-            client=self._get_client(), name=name, clear_if_exists=clear_if_exists
+            client=self._get_client(),
+            name=name,
+            clear_if_exists=clear_if_exists,
+            access_scope=access_scope,
         )
         ds.upload_data(csv_path=csv)
         return ds
@@ -428,6 +458,7 @@ class Diapason:
         name: str,
         clear_if_exists: bool = False,
         credentials: models.Credentials = models.Credentials(),
+        access_scope: models.AccessScope = models.AccessScope.ORGANIZATION,
     ) -> DataSource:
         """
         Creates a new database datasource, connecting to a Postgres database.
@@ -437,6 +468,7 @@ class Diapason:
             name (str, required): name of the datasource to be created.
             clear_if_exists (str, optional): overwrite datasource if it already exists.
             credentials_id (models.Credential, optional): credentials / secret id that stores the database credentials on the KMS connected to the instance.
+            access_scope (models.AccessScope, optional): scope of the datasource, limiting who can access it (organization by default).
 
         Returns:
             DataSource: the newly created datasource
@@ -447,6 +479,7 @@ class Diapason:
             name=name,
             clear_if_exists=clear_if_exists,
             credentials=credentials,
+            access_scope=access_scope,
         )
 
     def get_datasources(self, name: str = "") -> List[DataSource]:
@@ -601,7 +634,7 @@ class Diapason:
                 warnings.warn(
                     "A project with the same name was removed on this node, but has not have been deleted on other nodes."
                     "This can cause an error when attempting to share the project, because of conflicting names."
-                    "To avoid this, delete the project on other nodes, or create a differently-named project instead."
+                    "To avoid this, delete the project on other nodes, or create a project with a different name instead."
                 )
                 self.clear_project(name=name)
             else:

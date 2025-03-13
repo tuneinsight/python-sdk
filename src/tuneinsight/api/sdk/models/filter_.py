@@ -21,6 +21,7 @@ class Filter:
             comparison.
         output_column (Union[Unset, str]): If provided, the data is not filtered, and instead a column is created with
             the filter values (true or false).
+        value_metadata (Union[Unset, str]): metadata of the value (e.g. JSON for autocomplete)
         values (Union[Unset, List[str]]): list of values to pass in when the comparator is 'isin' (ignored otherwise)
     """
 
@@ -30,6 +31,7 @@ class Filter:
     comparator: Union[Unset, ComparisonType] = UNSET
     numerical: Union[Unset, bool] = UNSET
     output_column: Union[Unset, str] = UNSET
+    value_metadata: Union[Unset, str] = UNSET
     values: Union[Unset, List[str]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -44,6 +46,7 @@ class Filter:
 
         numerical = self.numerical
         output_column = self.output_column
+        value_metadata = self.value_metadata
         values: Union[Unset, List[str]] = UNSET
         if not isinstance(self.values, Unset):
             values = self.values
@@ -63,6 +66,8 @@ class Filter:
             field_dict["numerical"] = numerical
         if output_column is not UNSET:
             field_dict["outputColumn"] = output_column
+        if value_metadata is not UNSET:
+            field_dict["valueMetadata"] = value_metadata
         if values is not UNSET:
             field_dict["values"] = values
 
@@ -88,6 +93,8 @@ class Filter:
 
         output_column = d.pop("outputColumn", UNSET)
 
+        value_metadata = d.pop("valueMetadata", UNSET)
+
         values = cast(List[str], d.pop("values", UNSET))
 
         filter_ = cls(
@@ -97,6 +104,7 @@ class Filter:
             comparator=comparator,
             numerical=numerical,
             output_column=output_column,
+            value_metadata=value_metadata,
             values=values,
         )
 

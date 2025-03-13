@@ -30,6 +30,8 @@ class Participant:
         input_metadata (Union[Unset, DataSourceMetadata]): metadata about a datasource
         is_contributor (Union[Unset, None, bool]):
         node (Union[Unset, Node]): Node or agent of the network
+        non_contributing_reason (Union[Unset, str]): Reason why the participant is not contributing to the project.
+            Only shown when the participant is not a contributor in the computation.
         participation_status (Union[Unset, ParticipationStatus]): participation state of a project's participant
         selected_data_source (Union[Unset, None, str]): Unique identifier of a data source.
         status (Union[Unset, ProjectStatus]): Stages of a project workflow
@@ -42,6 +44,7 @@ class Participant:
     input_metadata: Union[Unset, "DataSourceMetadata"] = UNSET
     is_contributor: Union[Unset, None, bool] = UNSET
     node: Union[Unset, "Node"] = UNSET
+    non_contributing_reason: Union[Unset, str] = UNSET
     participation_status: Union[Unset, ParticipationStatus] = UNSET
     selected_data_source: Union[Unset, None, str] = UNSET
     status: Union[Unset, ProjectStatus] = UNSET
@@ -77,6 +80,7 @@ class Participant:
         if not isinstance(self.node, Unset):
             node = self.node.to_dict()
 
+        non_contributing_reason = self.non_contributing_reason
         participation_status: Union[Unset, str] = UNSET
         if not isinstance(self.participation_status, Unset):
             participation_status = self.participation_status.value
@@ -103,6 +107,8 @@ class Participant:
             field_dict["isContributor"] = is_contributor
         if node is not UNSET:
             field_dict["node"] = node
+        if non_contributing_reason is not UNSET:
+            field_dict["nonContributingReason"] = non_contributing_reason
         if participation_status is not UNSET:
             field_dict["participationStatus"] = participation_status
         if selected_data_source is not UNSET:
@@ -164,6 +170,8 @@ class Participant:
         else:
             node = Node.from_dict(_node)
 
+        non_contributing_reason = d.pop("nonContributingReason", UNSET)
+
         _participation_status = d.pop("participationStatus", UNSET)
         participation_status: Union[Unset, ParticipationStatus]
         if isinstance(_participation_status, Unset):
@@ -188,6 +196,7 @@ class Participant:
             input_metadata=input_metadata,
             is_contributor=is_contributor,
             node=node,
+            non_contributing_reason=non_contributing_reason,
             participation_status=participation_status,
             selected_data_source=selected_data_source,
             status=status,

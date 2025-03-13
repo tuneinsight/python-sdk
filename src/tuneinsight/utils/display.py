@@ -31,6 +31,8 @@ class Renderer:
         self.use_ipython = use_ipython
         if use_ipython is None:
             self.use_ipython = self._detect_ipython()
+        # The renderer also has internal state to adapt renders.
+        self._itemize = False  # Whether currently in an enumeration.
 
     def _detect_ipython(self):
         """Infers whether an IPython display is available."""
@@ -42,18 +44,26 @@ class Renderer:
 
     # Basic interface: rendering types of data.
 
-    def text(self, *text: str, end=""):
+    def text(self, *text: str, end: str = "", item: bool = False):
         """
         Renders Markdown text.
 
         Args:
             *text (str): the text to display, joined by a single whitespace.
-            end (optional): a character to add at the end of the text.
+            end (str, optional): a character to add at the end of the text.
+            item (bool, optional): if True, this text is rendered as part of an enumeration.
         """
         text = " ".join([str(t) for t in text]) + end
         # Correct a common mistake: " ." --> "."
         if text.endswith(" ."):
             text = text[:-2] + "."
+        # Add an enumeration symbol
+        if item:
+            text = " - " + text
+        # Add a newline if starting or ending an enumeration.
+        if item != self._itemize:
+            self._itemize = item
+            text = "\n" + text
         if self.use_ipython:
             display(Markdown(text))
         else:
@@ -100,6 +110,10 @@ class Renderer:
     def __call__(self, *text, end=""):
         """Renders text with a line return (like self.ln)."""
         self.ln(*text, end=end)
+
+    def item(self, *text):
+        """Renders an item in an enumeration."""
+        self.text(*text, item=True)
 
     def end_paragraph(self):
         """Ends the current paragraph with a line break."""

@@ -133,7 +133,7 @@ def add_ti_branding(axis: plt.Axes, local=False):
     if not local:
         plt.text(
             0.5,
-            0,
+            -0.05,
             text,
             horizontalalignment="center",
             verticalalignment="top",
@@ -152,6 +152,38 @@ def add_ti_branding(axis: plt.Axes, local=False):
         alpha=0.9,
         zorder=1,
         origin="upper",
+    )
+
+
+def add_branded_text(
+    axis: plt.Axes,
+    text: str,
+    x: float,
+    y: float,
+    fontsize: int = 9,
+    horizontalalignment="center",
+    verticalalignment="top",
+    rotation=0,
+):
+    """
+    Adds branded text to the plot.
+
+    Args:
+        axis (plt.Axes): axis on which to add text
+        text (str): text to add
+        x (float): x coordinate of text
+        y (float): y coordinate of text
+        fontsize (int, optional): fontsize of text. Defaults to 9.
+    """
+    axis.text(
+        x,
+        y,
+        text,
+        horizontalalignment=horizontalalignment,
+        verticalalignment=verticalalignment,
+        font=FONT_LIGHT,
+        fontsize=fontsize,
+        rotation=rotation,
     )
 
 
