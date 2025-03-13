@@ -7,6 +7,7 @@ class ComputationErrorType(str, Enum):
     DISCLOSUREPREVENTION = "disclosurePrevention"
     VALIDATION = "validation"
     INTERNAL = "internal"
+    CANCELLED = "cancelled"
 
     def __str__(self) -> str:
         return str(self.value)

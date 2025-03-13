@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: tuneinsight
-Version: 0.14.0
+Version: 1.0.0
 Summary: Official Python SDK for the Tune Insight API. The current version is compatible with the same version of the API.
 License: Apache-2.0
 Author: Tune Insight SA
@@ -14,9 +14,10 @@ Classifier: Programming Language :: Python :: 3.12
 Requires-Dist: PyYAML (>=6.0,<7.0)
 Requires-Dist: attrs (>=21.3.0)
 Requires-Dist: black (==24.2.0)
-Requires-Dist: certifi (>=2023.7.22,<2024.0.0)
-Requires-Dist: httpx (>=0.15.4,<0.24.0)
+Requires-Dist: certifi (>=2024.07.04,<2025.0.0)
+Requires-Dist: httpx (>=0.15.4,<0.28.0)
 Requires-Dist: jupyter (>=1.1.1,<2.0.0)
+Requires-Dist: jupyterlab (==4.2.5)
 Requires-Dist: matplotlib (>=3.5.0,<4.0.0)
 Requires-Dist: notebook (>=6.4.11,<7.0.0)
 Requires-Dist: pandas (>=2.2.3,<3.0.0)
@@ -90,11 +91,22 @@ client.healthcheck(error=True)
 
 If all goes well, this should complete in a few seconds (after you have entered your login details). You now have everything you need to start using the SDK! The recommended next step is to run the [Quickstart notebook](https://github.com/tuneinsight/python-sdk/tree/main/examples/Quickstart.ipynb) to learn more about existing features.
 
+If the instance you are trying to reach is in a secure environment, you might need to access it through a proxy. Enter the URL of your proxy as `http_proxy` and `https_proxy` parameters of `Diapason.from_config`. Most of the time, these will be the same value.
+
+```python
+client = Diapason.from_config(
+    api_url="<api_url>/api", # The url of the Tune Insight API to which the client will connect.
+    oidc_client_id="<frontend_client_id>", # This is the front client id given by Tune Insight in the Portal.
+    http_proxy="http://url/of/proxy:port", # URL of the proxy to use for HTTP requests (often http://localhost:port).
+    https_proxy="http://url/of/proxy:port", # URL of the proxy to use for HTTPS requests (usually the same as http_proxy).
+)
+```
+
 ## Troubleshooting
 
 #### command not found: test-ti-install
 
-The installation of the package did not work, or a version before `0.14.0.1` was installed. To check the installed version, run the following line in the terminal:
+The installation of the package did not work, or a version before `0.14.0` was installed. To check the installed version, run the following line in the terminal:
 
 ```bash
 pip freeze | grep tuneinsight
@@ -103,7 +115,7 @@ pip freeze | grep tuneinsight
 The result should look like this:
 
 ```
-tuneinsight==0.14.0
+tuneinsight==1.0.0
 ```
 
 If you see a line that looks like this,
@@ -114,7 +126,7 @@ tuneinsight @ file:///path/to/file/tuneinsight-0.13.1-py3-none-any.whl#sha256=..
 
 the SDK was installed directly from a `.whl` file, suggesting you are using an older version. You might need to install a more recent version, using `pip`:
 
-`pip install tuneinsight==0.14.0`
+`pip install tuneinsight==1.0.0`
 
 #### Error: Could not load the cryptolib: contact your administrator.
 
@@ -124,6 +136,7 @@ This issue should also trigger a warning to help identify the cause.
 
 - `Could not find the cryptolib library. Your platform might not be supported.`: this means that the precompiled binary of the cryptolib is not available, most likely because it was not compiled for your operating system and architecture. The SDK is available for all common OSes and architectures, but we can compile for additional architectures if necessary.
 - `cannot open shared object file: ...`: the precompiled binary was found, but it could not be loaded by your system. This issue could be caused by a number of issues, so we suggest [reaching out to us](contact@tuneinsight.com).
+- `/lib/.../libc.so: version 'GLIBC_2.32' not found`: you need to install [`libc`](https://www.gnu.org/software/libc/) at the appropriate version (`2.32` in this case) on the machine that runs the SDK (potentially, a Docker container).
 
 #### Client is not allowed to initiate OAuth 2.0 Device Authorization Grant.
 
@@ -136,13 +149,13 @@ This error (which occurs when running `client.login`) suggests that the client o
 
 #### `client.login` hangs for some time after entering credentials.
 
-This means that the login was succesful, but the client is not able to connect to the Tune Insight instance. An error message will typically appear after a minute or so. If you get the following error, it might just be that the `api_url` you entered was not correct:
+This means that the login was successful, but the client is not able to connect to the Tune Insight instance. An error message will typically appear after a minute or so. If you get the following error, it might just be that the `api_url` you entered was not correct:
 
 ```
 httpx.ConnectError: [Errno -3] Temporary failure in name resolution
 ```
 
-For other errors, contact your administrator: this might suggest that the instance is down or otherwise unavailable, or that there was an issue with the configuration.
+For other errors, contact your administrator: this might suggest that the instance is down or otherwise unavailable, or that there was an issue with the configuration (wrong URL, client ID, or proxy configuration).
 
 #### API version mismatch: the server and client use different versions of the API.
 

@@ -1,9 +1,12 @@
-from typing import Any, Dict, List, Type, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
-from ..models.noise_distributions import NoiseDistributions
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.dp_noise_metadata import DpNoiseMetadata
+
 
 T = TypeVar("T", bound="ResultMetadata")
 
@@ -13,48 +16,44 @@ class ResultMetadata:
     """various metadata field along with the result to provide additional context
 
     Attributes:
-        noise_scale (Union[Unset, List[float]]): standard deviation of the noise added on each entry in the results
-        noise_type (Union[Unset, NoiseDistributions]): the distribution of the noise added on each entry in the results
+        dp_noise (Union[Unset, List['DpNoiseMetadata']]): when using differential privacy, the metadata on the noise
+            added to results.
     """
 
-    noise_scale: Union[Unset, List[float]] = UNSET
-    noise_type: Union[Unset, NoiseDistributions] = UNSET
+    dp_noise: Union[Unset, List["DpNoiseMetadata"]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        noise_scale: Union[Unset, List[float]] = UNSET
-        if not isinstance(self.noise_scale, Unset):
-            noise_scale = self.noise_scale
+        dp_noise: Union[Unset, List[Dict[str, Any]]] = UNSET
+        if not isinstance(self.dp_noise, Unset):
+            dp_noise = []
+            for dp_noise_item_data in self.dp_noise:
+                dp_noise_item = dp_noise_item_data.to_dict()
 
-        noise_type: Union[Unset, str] = UNSET
-        if not isinstance(self.noise_type, Unset):
-            noise_type = self.noise_type.value
+                dp_noise.append(dp_noise_item)
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if noise_scale is not UNSET:
-            field_dict["noiseScale"] = noise_scale
-        if noise_type is not UNSET:
-            field_dict["noiseType"] = noise_type
+        if dp_noise is not UNSET:
+            field_dict["dpNoise"] = dp_noise
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        d = src_dict.copy()
-        noise_scale = cast(List[float], d.pop("noiseScale", UNSET))
+        from ..models.dp_noise_metadata import DpNoiseMetadata
 
-        _noise_type = d.pop("noiseType", UNSET)
-        noise_type: Union[Unset, NoiseDistributions]
-        if isinstance(_noise_type, Unset):
-            noise_type = UNSET
-        else:
-            noise_type = NoiseDistributions(_noise_type)
+        d = src_dict.copy()
+        dp_noise = []
+        _dp_noise = d.pop("dpNoise", UNSET)
+        for dp_noise_item_data in _dp_noise or []:
+            dp_noise_item = DpNoiseMetadata.from_dict(dp_noise_item_data)
+
+            dp_noise.append(dp_noise_item)
 
         result_metadata = cls(
-            noise_scale=noise_scale,
-            noise_type=noise_type,
+            dp_noise=dp_noise,
         )
 
         result_metadata.additional_properties = d

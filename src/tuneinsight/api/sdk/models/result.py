@@ -17,12 +17,17 @@ T = TypeVar("T", bound="Result")
 class Result:
     """
     Attributes:
+        display_confidence_intervals (Union[Unset, None, bool]): frontend flag used to toggle the display of the
+            confidence intervals in differentially private results.
         display_local (Union[Unset, None, bool]): frontend flag used to toggle the display of the local result when the
             result has both a collective and local output.
-        is_large (Union[Unset, None, bool]): format to display the result
-        shared (Union[Unset, None, bool]): if set to true, the result is shared with users from the same project
-        tags (Union[Unset, List[str]]):
-        title (Union[Unset, str]): title given to the result
+        display_raw_results (Union[Unset, None, bool]): frontend flag used to choose whether to display raw or post-
+            processed results in the case of inconsistencies created by noise.
+        is_large (Union[Unset, None, bool]): frontend flag describing whether this result should be displayed large.
+        shared (Union[Unset, None, bool]): if set to true, the result is shared with users from the same project in the
+            same organization.
+        tags (Union[Unset, List[str]]): user-defined values describing tags attached to this result.
+        title (Union[Unset, str]): title given to the result (mostly for the frontend)
         visualization_type (Union[Unset, VisualizationType]): represents the appropriate visualization type for a
             result.
         collective_encrypted (Union[Unset, None, bool]):
@@ -38,12 +43,16 @@ class Result:
         name (Union[Unset, str]): name to identify the result when there are multiple results in a single computation.
         original_ciphertext_id (Union[Unset, str]): Unique identifier of a data object.
         owner (Union[Unset, str]): the name of the user that launched the computation.
+        required_post_processing (Union[Unset, str]): if specified, a post-processing operation that needs to be applied
+            once the content is decrypted.
         switching_key_id (Union[Unset, str]): Unique identifier of a data object.
         switching_params (Union[Unset, str]):
         updated_at (Union[Unset, str]):
     """
 
+    display_confidence_intervals: Union[Unset, None, bool] = UNSET
     display_local: Union[Unset, None, bool] = UNSET
+    display_raw_results: Union[Unset, None, bool] = UNSET
     is_large: Union[Unset, None, bool] = UNSET
     shared: Union[Unset, None, bool] = UNSET
     tags: Union[Unset, List[str]] = UNSET
@@ -61,13 +70,16 @@ class Result:
     name: Union[Unset, str] = UNSET
     original_ciphertext_id: Union[Unset, str] = UNSET
     owner: Union[Unset, str] = UNSET
+    required_post_processing: Union[Unset, str] = UNSET
     switching_key_id: Union[Unset, str] = UNSET
     switching_params: Union[Unset, str] = UNSET
     updated_at: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        display_confidence_intervals = self.display_confidence_intervals
         display_local = self.display_local
+        display_raw_results = self.display_raw_results
         is_large = self.is_large
         shared = self.shared
         tags: Union[Unset, List[str]] = UNSET
@@ -97,6 +109,7 @@ class Result:
         name = self.name
         original_ciphertext_id = self.original_ciphertext_id
         owner = self.owner
+        required_post_processing = self.required_post_processing
         switching_key_id = self.switching_key_id
         switching_params = self.switching_params
         updated_at = self.updated_at
@@ -104,8 +117,12 @@ class Result:
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if display_confidence_intervals is not UNSET:
+            field_dict["displayConfidenceIntervals"] = display_confidence_intervals
         if display_local is not UNSET:
             field_dict["displayLocal"] = display_local
+        if display_raw_results is not UNSET:
+            field_dict["displayRawResults"] = display_raw_results
         if is_large is not UNSET:
             field_dict["isLarge"] = is_large
         if shared is not UNSET:
@@ -140,6 +157,8 @@ class Result:
             field_dict["originalCiphertextID"] = original_ciphertext_id
         if owner is not UNSET:
             field_dict["owner"] = owner
+        if required_post_processing is not UNSET:
+            field_dict["requiredPostProcessing"] = required_post_processing
         if switching_key_id is not UNSET:
             field_dict["switchingKeyId"] = switching_key_id
         if switching_params is not UNSET:
@@ -154,7 +173,11 @@ class Result:
         from ..models.result_metadata import ResultMetadata
 
         d = src_dict.copy()
+        display_confidence_intervals = d.pop("displayConfidenceIntervals", UNSET)
+
         display_local = d.pop("displayLocal", UNSET)
+
+        display_raw_results = d.pop("displayRawResults", UNSET)
 
         is_large = d.pop("isLarge", UNSET)
 
@@ -205,6 +228,8 @@ class Result:
 
         owner = d.pop("owner", UNSET)
 
+        required_post_processing = d.pop("requiredPostProcessing", UNSET)
+
         switching_key_id = d.pop("switchingKeyId", UNSET)
 
         switching_params = d.pop("switchingParams", UNSET)
@@ -212,7 +237,9 @@ class Result:
         updated_at = d.pop("updatedAt", UNSET)
 
         result = cls(
+            display_confidence_intervals=display_confidence_intervals,
             display_local=display_local,
+            display_raw_results=display_raw_results,
             is_large=is_large,
             shared=shared,
             tags=tags,
@@ -230,6 +257,7 @@ class Result:
             name=name,
             original_ciphertext_id=original_ciphertext_id,
             owner=owner,
+            required_post_processing=required_post_processing,
             switching_key_id=switching_key_id,
             switching_params=switching_params,
             updated_at=updated_at,

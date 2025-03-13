@@ -1,7 +1,14 @@
 """Classes defining dataset schemas to constrain acceptable data formats."""
 
 from typing import Dict, List, Any
+
+# from tuneinsight.client import DataSource
+from tuneinsight.client.validation import validate_response
+from tuneinsight.utils.display import Renderer
+
 from tuneinsight.api.sdk import models
+from tuneinsight.api.sdk.types import is_set, UNSET, value_if_unset
+from tuneinsight.api.sdk.api.api_datasource import post_data_source_infer_schema
 
 
 class DatasetSchema:
@@ -26,10 +33,55 @@ class DatasetSchema:
     Dictionary from column names to column schema
     """
 
-    def __init__(self):
-        self.cols = {}
-        self.model = models.DatasetSchema(columns=models.DatasetSchemaColumns())
-        self.model.columns.additional_properties = self.cols
+    def __init__(self, model: models.DatasetSchema = None):
+        """
+        Creates a dataset schema.
+
+        Args:
+            model (models.DatasetSchema, optional): an API model representing a dataset schema to
+                initialize this object. Defaults to None.
+        """
+        self.model = model
+        if model is None:
+            self.model = models.DatasetSchema(columns=models.DatasetSchemaColumns())
+            self.model.columns.additional_properties = {}
+        self.cols = self.model.columns.additional_properties
+
+    @classmethod
+    def infer_from_datasource(
+        cls,
+        ds: "DataSource",
+        dp_epsilon: float = None,
+        query: models.DataSourceQuery = None,
+    ):
+        """
+        Infers the dataset schema of a datasource.
+
+        The inference occurs in the Tune Insight instance: no data is transferred outside of the
+        security perimeter. If the data is highly sensitive, this inference process can be required
+        to use differential privacy. The resulting schema will be less accurate (i.e., minimum and
+        maximum bounds will be loose) but will not reveal information about any single record.
+
+        Note that this schema can contain mistakes: it is recommended to carefully vet the resulting
+        object before it is used for data-critical tasks.
+
+        Args:
+            ds (DataSource): the input datasource
+            dp_epsilon (float, optional): if specified, this inference process uses differential privacy.
+                Defaults to None.
+            query (models.DataSourceQuery, optional): a query to extract data from the datasource.
+
+        """
+        if query is None:
+            query = ds.local_query_parameters
+        res = post_data_source_infer_schema.sync_detailed(
+            ds.get_id(),
+            client=ds.client,
+            dp_epsilon=dp_epsilon,
+            json_body=query,
+        )
+        validate_response(res)
+        return cls(res.parsed)
 
     def set_drop_invalid(self, drop: bool = True):
         """Sets whether rows that do not match the schema should be dropped."""
@@ -273,3 +325,66 @@ class DatasetSchema:
         col = self.get_column(name)
         col.coerce = coerce
         return self
+
+    def display(self):
+        """Renders this dataset schema in a human-readable format."""
+        display_dataset_schema(self)
+
+    @property
+    def name(self) -> str:
+        """Name of this schema, if any."""
+        return self.model.name
+
+
+_dtype_names = {
+    "str": "Categorical or freeform data (including identifiers)",
+    "int": "Integer-valued data",
+    "float": "Continuous-valued data",
+    "datetime": "Dates and/or times",
+    UNSET: "Unknown",
+}
+
+
+def display_dataset_schema(schema: DatasetSchema):
+    r = Renderer()
+    if is_set(schema.name):
+        r.h1(schema.name)
+    alphabetical_columns = sorted(schema.cols.keys())
+    for column_name in alphabetical_columns:
+        column_schema = schema.get_column(column_name)
+        r.h2(column_schema.title)
+        if is_set(column_schema.description):
+            r.text(column_schema.description)
+        r.text(r.bf("type:"), _dtype_names[column_schema.dtype], ".")
+        required = value_if_unset(column_schema.required, False)
+        r.text(f"This field is {'not ' if not required else ''}required.")
+
+        if is_set(column_schema.checks):
+            r.h3("Constraints")
+            checks = column_schema.checks
+            for value, op_text in [
+                (checks.eq, "=="),
+                (checks.ge, ">="),
+                (checks.gt, ">"),
+                (checks.isin, "is in"),
+                (checks.le, "<="),
+                (checks.lt, "<"),
+                (checks.notin, "is not in"),
+            ]:
+                if is_set(value):
+                    r.item(column_name, op_text, value)
+            if is_set(checks.in_range):
+                min_ = value_if_unset(checks.in_range.min_value, 0)
+                max_ = value_if_unset(checks.in_range.max_value, 0)
+                if column_schema.dtype == "int":
+                    min_, max_ = int(min_), int(max_)
+                    if max_ - min_ < 8:
+                        r.item(
+                            f"{column_name} is in {{{', '.join(str(x) for x in range(min_, max_ + 1))}}}",
+                        )
+                    else:
+                        r.item(
+                            f"{column_name} is in {{{min_}, {min_+1}, ..., {max_-1}, {max_}}}"
+                        )
+                else:
+                    r.item(f"{column_name} is in the range [{min_}, {max_}]")

@@ -2,8 +2,8 @@ from enum import Enum
 
 
 class ExecutionQuotaParametersScope(str, Enum):
-    USER = "user"
     PROJECT = "project"
+    DATASOURCE = "datasource"
 
     def __str__(self) -> str:
         return str(self.value)

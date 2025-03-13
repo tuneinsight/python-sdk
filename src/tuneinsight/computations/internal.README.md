@@ -33,7 +33,9 @@ class ShiftedSum(ModelBasedComputation):
 
 Passing `kwargs` is not necessary, but is a good idea to enable users to impose custom settings if they want.
 
-In some cases, API models require some parameters to take values of specific API classes that are not very user-friendly. In this case, you should allow users to provide user-friendly inputs, then pre-process those inputs by instantiating the API classes from the user inputs. A natural place to do this is either in user input methods that set these values (e.g., `set_complex_input()`), or in the `._get_model` method (that is called before any use of the model, and by default just returns `self.model`).
+In some cases, API models require some parameters to take values of specific API classes that are not very user-friendly. In this case, you should allow users to provide user-friendly inputs, then pre-process those inputs by instantiating the API classes from the user inputs. A natural place to do this is either in user input methods that set these values (e.g., `set_complex_input()`), in the constructor, or as a last resort in the `._get_model` method (that is called before any use of the model, and by default just returns `self.model`).
+
+Also, if your class implements differential privacy, don't forget to include `dp_epsilon: float = None` as an argument! This parameter is part of all computation definitions, but is the only one that users are expected to change.
 
 ### Pre-/post-processing
 
@@ -51,7 +53,11 @@ The input of this function is a list (typically of length 1) of objects inheriti
 
 You may also override `_pre_run_check` (which is called at the beginning of `.run`) to check that the configuration is acceptable for a run. This allows you to display user-friendly failure messages (or implement failsafe default values). This can also be a place to change specific settings prior to a run (such as the timeout, for long computations).
 
-For more complex operations, it can make sense to override the `.run` method directly. Note that `Computation.run(shifted_sum)` will always work, so it is not necessary to "keep" a low-level interface on a high-level object. Just use `Computation.run` instead, and override `.run` to have a user-friendly interface.
+For more complex operations, it can make sense to override the `.run` method directly. Note that `Computation.run(shifted_sum)` will always work (and use the default `run` interface), so it is not necessary to "keep" a low-level interface on a high-level object. Just override `.run` to have a user-friendly interface, and instruct users to use `Computation.run` if they really need to re-use the same interface as other computations.
+
+### Enable computation fetching
+
+The `Project` class has a `get_computation` method that retrieves the API model for the computation currently set on the project and returns a `tuneinsight.Computation` object. In order to enable this with your new computation, you should first add it in `computations/types.py` in three places: the `Type` enum, the `displayed_types` dictionary mapping to a human-readable name, and the `type_to_class` dictionary mapping the type to your new class. Then, you must implement a `from_model` class that instantiates your new class based on an API model. This method doesn't need to do anything fancy: it should just set internal variables of the class to be consistent with the model, so that it is consistent with the computation in the backend. The easiest way to do this is through the constructor of your class (`__init__`), passing the values in the model as input parameters.
 
 ### Additional tools
 

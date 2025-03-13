@@ -1,43 +1,31 @@
 from http import HTTPStatus
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Optional, Union
 
 import httpx
 
 from ... import errors
 from ...client import Client
 from ...models.error import Error
-from ...models.sphn_ontologies_search_ontologies_item import SphnOntologiesSearchOntologiesItem
-from ...models.sphn_ontologies_search_response_200_item import SphnOntologiesSearchResponse200Item
+from ...models.screening_session import ScreeningSession
 from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
+    session_id: str,
     *,
     client: Client,
-    limit: Union[Unset, None, int] = UNSET,
     page: Union[Unset, None, int] = 1,
-    query: str,
-    ontologies: List[SphnOntologiesSearchOntologiesItem],
+    per_page: Union[Unset, None, int] = 50,
 ) -> Dict[str, Any]:
-    url = "{}/sphn-ontologies-search".format(client.base_url)
+    url = "{}/screening-sessions/{sessionId}/load".format(client.base_url, sessionId=session_id)
 
     headers: Dict[str, str] = client.get_headers()
     cookies: Dict[str, Any] = client.get_cookies()
 
     params: Dict[str, Any] = {}
-    params["limit"] = limit
-
     params["page"] = page
 
-    params["query"] = query
-
-    json_ontologies = []
-    for ontologies_item_data in ontologies:
-        ontologies_item = ontologies_item_data.value
-
-        json_ontologies.append(ontologies_item)
-
-    params["ontologies[]"] = json_ontologies
+    params["perPage"] = per_page
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
@@ -53,7 +41,7 @@ def _get_kwargs(
                 proxies = http_proxy
 
     return {
-        "method": "get",
+        "method": "post",
         "url": url,
         "headers": headers,
         "cookies": cookies,
@@ -63,18 +51,15 @@ def _get_kwargs(
     }
 
 
-def _parse_response(
-    *, client: Client, response: httpx.Response
-) -> Optional[Union[Error, List["SphnOntologiesSearchResponse200Item"]]]:
+def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[Error, ScreeningSession]]:
     if response.status_code == HTTPStatus.OK:
-        response_200 = []
-        _response_200 = response.json()
-        for response_200_item_data in _response_200:
-            response_200_item = SphnOntologiesSearchResponse200Item.from_dict(response_200_item_data)
-
-            response_200.append(response_200_item)
+        response_200 = ScreeningSession.from_dict(response.json())
 
         return response_200
+    if response.status_code == HTTPStatus.BAD_REQUEST:
+        response_400 = Error.from_dict(response.json())
+
+        return response_400
     if response.status_code == HTTPStatus.FORBIDDEN:
         response_403 = Error.from_dict(response.json())
 
@@ -87,15 +72,17 @@ def _parse_response(
         response_500 = Error.from_dict(response.json())
 
         return response_500
+    if response.status_code == HTTPStatus.NOT_IMPLEMENTED:
+        response_501 = Error.from_dict(response.json())
+
+        return response_501
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(f"Unexpected status code: {response.status_code} ({response})")
     else:
         return None
 
 
-def _build_response(
-    *, client: Client, response: httpx.Response
-) -> Response[Union[Error, List["SphnOntologiesSearchResponse200Item"]]]:
+def _build_response(*, client: Client, response: httpx.Response) -> Response[Union[Error, ScreeningSession]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -105,35 +92,32 @@ def _build_response(
 
 
 def sync_detailed(
+    session_id: str,
     *,
     client: Client,
-    limit: Union[Unset, None, int] = UNSET,
     page: Union[Unset, None, int] = 1,
-    query: str,
-    ontologies: List[SphnOntologiesSearchOntologiesItem],
-) -> Response[Union[Error, List["SphnOntologiesSearchResponse200Item"]]]:
-    """Search the SPHN ontologies
+    per_page: Union[Unset, None, int] = 50,
+) -> Response[Union[Error, ScreeningSession]]:
+    """queries, loads and saves the retrieved dataset for a screening session.
 
     Args:
-        limit (Union[Unset, None, int]):
+        session_id (str):
         page (Union[Unset, None, int]):  Default: 1.
-        query (str):
-        ontologies (List[SphnOntologiesSearchOntologiesItem]):
+        per_page (Union[Unset, None, int]):  Default: 50.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Error, List['SphnOntologiesSearchResponse200Item']]]
+        Response[Union[Error, ScreeningSession]]
     """
 
     kwargs = _get_kwargs(
+        session_id=session_id,
         client=client,
-        limit=limit,
         page=page,
-        query=query,
-        ontologies=ontologies,
+        per_page=per_page,
     )
 
     response = httpx.request(
@@ -145,68 +129,62 @@ def sync_detailed(
 
 
 def sync(
+    session_id: str,
     *,
     client: Client,
-    limit: Union[Unset, None, int] = UNSET,
     page: Union[Unset, None, int] = 1,
-    query: str,
-    ontologies: List[SphnOntologiesSearchOntologiesItem],
-) -> Optional[Union[Error, List["SphnOntologiesSearchResponse200Item"]]]:
-    """Search the SPHN ontologies
+    per_page: Union[Unset, None, int] = 50,
+) -> Optional[Union[Error, ScreeningSession]]:
+    """queries, loads and saves the retrieved dataset for a screening session.
 
     Args:
-        limit (Union[Unset, None, int]):
+        session_id (str):
         page (Union[Unset, None, int]):  Default: 1.
-        query (str):
-        ontologies (List[SphnOntologiesSearchOntologiesItem]):
+        per_page (Union[Unset, None, int]):  Default: 50.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Error, List['SphnOntologiesSearchResponse200Item']]]
+        Response[Union[Error, ScreeningSession]]
     """
 
     return sync_detailed(
+        session_id=session_id,
         client=client,
-        limit=limit,
         page=page,
-        query=query,
-        ontologies=ontologies,
+        per_page=per_page,
     ).parsed
 
 
 async def asyncio_detailed(
+    session_id: str,
     *,
     client: Client,
-    limit: Union[Unset, None, int] = UNSET,
     page: Union[Unset, None, int] = 1,
-    query: str,
-    ontologies: List[SphnOntologiesSearchOntologiesItem],
-) -> Response[Union[Error, List["SphnOntologiesSearchResponse200Item"]]]:
-    """Search the SPHN ontologies
+    per_page: Union[Unset, None, int] = 50,
+) -> Response[Union[Error, ScreeningSession]]:
+    """queries, loads and saves the retrieved dataset for a screening session.
 
     Args:
-        limit (Union[Unset, None, int]):
+        session_id (str):
         page (Union[Unset, None, int]):  Default: 1.
-        query (str):
-        ontologies (List[SphnOntologiesSearchOntologiesItem]):
+        per_page (Union[Unset, None, int]):  Default: 50.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Error, List['SphnOntologiesSearchResponse200Item']]]
+        Response[Union[Error, ScreeningSession]]
     """
 
     kwargs = _get_kwargs(
+        session_id=session_id,
         client=client,
-        limit=limit,
         page=page,
-        query=query,
-        ontologies=ontologies,
+        per_page=per_page,
     )
 
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
@@ -216,35 +194,32 @@ async def asyncio_detailed(
 
 
 async def asyncio(
+    session_id: str,
     *,
     client: Client,
-    limit: Union[Unset, None, int] = UNSET,
     page: Union[Unset, None, int] = 1,
-    query: str,
-    ontologies: List[SphnOntologiesSearchOntologiesItem],
-) -> Optional[Union[Error, List["SphnOntologiesSearchResponse200Item"]]]:
-    """Search the SPHN ontologies
+    per_page: Union[Unset, None, int] = 50,
+) -> Optional[Union[Error, ScreeningSession]]:
+    """queries, loads and saves the retrieved dataset for a screening session.
 
     Args:
-        limit (Union[Unset, None, int]):
+        session_id (str):
         page (Union[Unset, None, int]):  Default: 1.
-        query (str):
-        ontologies (List[SphnOntologiesSearchOntologiesItem]):
+        per_page (Union[Unset, None, int]):  Default: 50.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Error, List['SphnOntologiesSearchResponse200Item']]]
+        Response[Union[Error, ScreeningSession]]
     """
 
     return (
         await asyncio_detailed(
+            session_id=session_id,
             client=client,
-            limit=limit,
             page=page,
-            query=query,
-            ontologies=ontologies,
+            per_page=per_page,
         )
     ).parsed

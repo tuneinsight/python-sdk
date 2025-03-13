@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from ..models.computation_data_source_parameters import ComputationDataSourceParameters
     from ..models.computation_preprocessing_parameters import ComputationPreprocessingParameters
     from ..models.dp_policy import DPPolicy
+    from ..models.dummy_simulated_stages_item import DummySimulatedStagesItem
     from ..models.local_input import LocalInput
 
 
@@ -70,6 +71,8 @@ class Dummy:
         error_in_start (Union[Unset, bool]):
         panic_in_constructor (Union[Unset, bool]):
         panic_in_start (Union[Unset, bool]):
+        simulated_stages (Union[Unset, List['DummySimulatedStagesItem']]):
+        simulated_time_milliseconds (Union[Unset, int]): simulated sleep time in milliseconds
     """
 
     type: ComputationType
@@ -96,6 +99,8 @@ class Dummy:
     error_in_start: Union[Unset, bool] = UNSET
     panic_in_constructor: Union[Unset, bool] = UNSET
     panic_in_start: Union[Unset, bool] = UNSET
+    simulated_stages: Union[Unset, List["DummySimulatedStagesItem"]] = UNSET
+    simulated_time_milliseconds: Union[Unset, int] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -139,6 +144,15 @@ class Dummy:
         error_in_start = self.error_in_start
         panic_in_constructor = self.panic_in_constructor
         panic_in_start = self.panic_in_start
+        simulated_stages: Union[Unset, List[Dict[str, Any]]] = UNSET
+        if not isinstance(self.simulated_stages, Unset):
+            simulated_stages = []
+            for simulated_stages_item_data in self.simulated_stages:
+                simulated_stages_item = simulated_stages_item_data.to_dict()
+
+                simulated_stages.append(simulated_stages_item)
+
+        simulated_time_milliseconds = self.simulated_time_milliseconds
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -193,6 +207,10 @@ class Dummy:
             field_dict["panicInConstructor"] = panic_in_constructor
         if panic_in_start is not UNSET:
             field_dict["panicInStart"] = panic_in_start
+        if simulated_stages is not UNSET:
+            field_dict["simulatedStages"] = simulated_stages
+        if simulated_time_milliseconds is not UNSET:
+            field_dict["simulatedTimeMilliseconds"] = simulated_time_milliseconds
 
         return field_dict
 
@@ -201,6 +219,7 @@ class Dummy:
         from ..models.computation_data_source_parameters import ComputationDataSourceParameters
         from ..models.computation_preprocessing_parameters import ComputationPreprocessingParameters
         from ..models.dp_policy import DPPolicy
+        from ..models.dummy_simulated_stages_item import DummySimulatedStagesItem
         from ..models.local_input import LocalInput
 
         d = src_dict.copy()
@@ -277,6 +296,15 @@ class Dummy:
 
         panic_in_start = d.pop("panicInStart", UNSET)
 
+        simulated_stages = []
+        _simulated_stages = d.pop("simulatedStages", UNSET)
+        for simulated_stages_item_data in _simulated_stages or []:
+            simulated_stages_item = DummySimulatedStagesItem.from_dict(simulated_stages_item_data)
+
+            simulated_stages.append(simulated_stages_item)
+
+        simulated_time_milliseconds = d.pop("simulatedTimeMilliseconds", UNSET)
+
         dummy = cls(
             type=type,
             dp_policy=dp_policy,
@@ -302,6 +330,8 @@ class Dummy:
             error_in_start=error_in_start,
             panic_in_constructor=panic_in_constructor,
             panic_in_start=panic_in_start,
+            simulated_stages=simulated_stages,
+            simulated_time_milliseconds=simulated_time_milliseconds,
         )
 
         dummy.additional_properties = d

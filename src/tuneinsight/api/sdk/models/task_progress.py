@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Type, TypeVar, Union
+from typing import Any, Dict, List, Type, TypeVar, Union, cast
 
 import attr
 
@@ -17,6 +17,7 @@ class TaskProgress:
         running (Union[Unset, bool]): whether the task is still running
         stage_name (Union[Unset, str]): a user-readable description of the current stage of the task
         stage_number (Union[Unset, float]): the number of the current stage
+        stages (Union[Unset, List[str]]): a list of the names of the registered stages of the task
         step_number (Union[Unset, float]): the number of the current step of the current stage
     """
 
@@ -25,6 +26,7 @@ class TaskProgress:
     running: Union[Unset, bool] = UNSET
     stage_name: Union[Unset, str] = UNSET
     stage_number: Union[Unset, float] = UNSET
+    stages: Union[Unset, List[str]] = UNSET
     step_number: Union[Unset, float] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -34,6 +36,10 @@ class TaskProgress:
         running = self.running
         stage_name = self.stage_name
         stage_number = self.stage_number
+        stages: Union[Unset, List[str]] = UNSET
+        if not isinstance(self.stages, Unset):
+            stages = self.stages
+
         step_number = self.step_number
 
         field_dict: Dict[str, Any] = {}
@@ -49,6 +55,8 @@ class TaskProgress:
             field_dict["stageName"] = stage_name
         if stage_number is not UNSET:
             field_dict["stageNumber"] = stage_number
+        if stages is not UNSET:
+            field_dict["stages"] = stages
         if step_number is not UNSET:
             field_dict["stepNumber"] = step_number
 
@@ -67,6 +75,8 @@ class TaskProgress:
 
         stage_number = d.pop("stageNumber", UNSET)
 
+        stages = cast(List[str], d.pop("stages", UNSET))
+
         step_number = d.pop("stepNumber", UNSET)
 
         task_progress = cls(
@@ -75,6 +85,7 @@ class TaskProgress:
             running=running,
             stage_name=stage_name,
             stage_number=stage_number,
+            stages=stages,
             step_number=step_number,
         )
 

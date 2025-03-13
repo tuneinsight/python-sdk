@@ -104,8 +104,14 @@ class KeycloakClient(client.AuthenticatedClient):
         if time() > self.token_timeout:
             if time() > self.refresh_token_timeout:
                 self.get_token()
-            else:
+            elif "refresh_token" in self.tokens:
                 self.refresh_token()
+        if (
+            "refresh_token" in self.tokens
+            and self.refresh_token_timeout - time() < 10 * self.refresh_delay_seconds
+        ):
+            # Refresh token if we are approaching refresh_token_timeout
+            self.refresh_token()
         return {
             "Authorization": f"Bearer {self.tokens['access_token']}",
             **self.headers,

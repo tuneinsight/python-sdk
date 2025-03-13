@@ -114,7 +114,9 @@ class DataContent:
             return m
         # Otherwise, check that the .type attribute is compatible.
         if m.type != model_type:
-            raise TypeError(f"Content is not of type {model_class}.")
+            raise TypeError(
+                f"Content is not of type {model_class}, but of type: {m.type}."
+            )
         # Convert the content to the target class.
         return model_class.from_dict(m.to_dict())
 
@@ -406,7 +408,9 @@ class Result(DataContent):
         Returns whether the content of this object is encrypted.
 
         """
-        return False  # TOFIX: we assume that results are never encrypted (outside of E2EE).
+        if isinstance(self.model.content, Unset):
+            return self.get_dataobject().encrypted
+        return self.model.content.type == models.ContentType.ENCRYPTEDCONTENT
 
     # get_dataframe etc. is inherited from _Content.
 
@@ -452,3 +456,8 @@ class Result(DataContent):
         if isinstance(tags, Unset):
             return []
         return tags
+
+    @property
+    def dp_metadata(self) -> models.ResultMetadata:
+        """Returns the metadata of differentially private noise added to this result."""
+        return self.model.result.metadata

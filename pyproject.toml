@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "tuneinsight"
-version = "0.14.0"
+version = "1.0.0"
 description = "Official Python SDK for the Tune Insight API. The current version is compatible with the same version of the API."
 authors = ["Tune Insight SA"]
 license = "Apache-2.0"
@@ -30,14 +30,16 @@ matplotlib = "^3.5.0"
 typing-extensions = "^4.6.3"
 
 # Required by ge_co_rest_api
-httpx = ">=0.15.4,<0.24.0"
+httpx = ">=0.15.4,<0.28.0"
 attrs = ">=21.3.0"
-certifi = "^2023.7.22"
+certifi = "^2024.07.04"
 black = "24.2.0"
 tqdm = "^4.66.4"
 
 jupyter = "^1.1.1"
 pandas = "^2.2.3"
+jupyterlab = "4.2.5"
+
 [tool.poetry.group.dev.dependencies]
 selenium = "^4.9.1"
 wheel = "^0.38.1"

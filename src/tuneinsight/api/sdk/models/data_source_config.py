@@ -3,6 +3,7 @@ from typing import Any, Dict, List, Type, TypeVar, Union
 import attr
 
 from ..models.api_type import APIType
+from ..models.data_standard import DataStandard
 from ..models.database_type import DatabaseType
 from ..models.local_data_source_type import LocalDataSourceType
 from ..models.mock_method import MockMethod
@@ -21,6 +22,7 @@ class DataSourceConfig:
         api_url (Union[Unset, str]): URL of the API
         cert (Union[Unset, str]): If applicable, name of the certificate to access the datasource. Certificate should be
             in '/usr/local/share/datasource-certificates/<cert>.{crt/key}'
+        data_standard (Union[Unset, DataStandard]):
         database (Union[Unset, str]): Name of the database
         database_type (Union[Unset, DatabaseType]): Type of the database
         generator_config (Union[Unset, str]): The configuration of the generator, encoded as a JSON string.
@@ -30,6 +32,10 @@ class DataSourceConfig:
             the remote API data source. WARNING: this should not be used in production
         local_type (Union[Unset, LocalDataSourceType]):
         port (Union[Unset, str]): Port number of the database
+        s_3_bucket (Union[Unset, str]): Name of the S3 bucket
+        s_3_default_object_key (Union[Unset, str]): Default object key to use when querying the S3 bucket
+        s_3_region (Union[Unset, str]): Region of the S3 bucket
+        s_3url (Union[Unset, str]): URL of the S3
         suricata_path (Union[Unset, str]): the path to the suricata JSON file.
         with_auth (Union[Unset, bool]): Whether the API requires authentication
     """
@@ -38,6 +44,7 @@ class DataSourceConfig:
     csv_path: Union[Unset, str] = UNSET
     api_url: Union[Unset, str] = UNSET
     cert: Union[Unset, str] = UNSET
+    data_standard: Union[Unset, DataStandard] = UNSET
     database: Union[Unset, str] = UNSET
     database_type: Union[Unset, DatabaseType] = UNSET
     generator_config: Union[Unset, str] = UNSET
@@ -46,6 +53,10 @@ class DataSourceConfig:
     insecure_skip_verify_tls: Union[Unset, bool] = UNSET
     local_type: Union[Unset, LocalDataSourceType] = UNSET
     port: Union[Unset, str] = UNSET
+    s_3_bucket: Union[Unset, str] = UNSET
+    s_3_default_object_key: Union[Unset, str] = UNSET
+    s_3_region: Union[Unset, str] = UNSET
+    s_3url: Union[Unset, str] = UNSET
     suricata_path: Union[Unset, str] = UNSET
     with_auth: Union[Unset, bool] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
@@ -58,6 +69,10 @@ class DataSourceConfig:
         csv_path = self.csv_path
         api_url = self.api_url
         cert = self.cert
+        data_standard: Union[Unset, str] = UNSET
+        if not isinstance(self.data_standard, Unset):
+            data_standard = self.data_standard.value
+
         database = self.database
         database_type: Union[Unset, str] = UNSET
         if not isinstance(self.database_type, Unset):
@@ -75,6 +90,10 @@ class DataSourceConfig:
             local_type = self.local_type.value
 
         port = self.port
+        s_3_bucket = self.s_3_bucket
+        s_3_default_object_key = self.s_3_default_object_key
+        s_3_region = self.s_3_region
+        s_3url = self.s_3url
         suricata_path = self.suricata_path
         with_auth = self.with_auth
 
@@ -89,6 +108,8 @@ class DataSourceConfig:
             field_dict["api-url"] = api_url
         if cert is not UNSET:
             field_dict["cert"] = cert
+        if data_standard is not UNSET:
+            field_dict["dataStandard"] = data_standard
         if database is not UNSET:
             field_dict["database"] = database
         if database_type is not UNSET:
@@ -105,6 +126,14 @@ class DataSourceConfig:
             field_dict["localType"] = local_type
         if port is not UNSET:
             field_dict["port"] = port
+        if s_3_bucket is not UNSET:
+            field_dict["s3Bucket"] = s_3_bucket
+        if s_3_default_object_key is not UNSET:
+            field_dict["s3DefaultObjectKey"] = s_3_default_object_key
+        if s_3_region is not UNSET:
+            field_dict["s3Region"] = s_3_region
+        if s_3url is not UNSET:
+            field_dict["s3URL"] = s_3url
         if suricata_path is not UNSET:
             field_dict["suricataPath"] = suricata_path
         if with_auth is not UNSET:
@@ -127,6 +156,13 @@ class DataSourceConfig:
         api_url = d.pop("api-url", UNSET)
 
         cert = d.pop("cert", UNSET)
+
+        _data_standard = d.pop("dataStandard", UNSET)
+        data_standard: Union[Unset, DataStandard]
+        if isinstance(_data_standard, Unset):
+            data_standard = UNSET
+        else:
+            data_standard = DataStandard(_data_standard)
 
         database = d.pop("database", UNSET)
 
@@ -159,6 +195,14 @@ class DataSourceConfig:
 
         port = d.pop("port", UNSET)
 
+        s_3_bucket = d.pop("s3Bucket", UNSET)
+
+        s_3_default_object_key = d.pop("s3DefaultObjectKey", UNSET)
+
+        s_3_region = d.pop("s3Region", UNSET)
+
+        s_3url = d.pop("s3URL", UNSET)
+
         suricata_path = d.pop("suricataPath", UNSET)
 
         with_auth = d.pop("withAuth", UNSET)
@@ -168,6 +212,7 @@ class DataSourceConfig:
             csv_path=csv_path,
             api_url=api_url,
             cert=cert,
+            data_standard=data_standard,
             database=database,
             database_type=database_type,
             generator_config=generator_config,
@@ -176,6 +221,10 @@ class DataSourceConfig:
             insecure_skip_verify_tls=insecure_skip_verify_tls,
             local_type=local_type,
             port=port,
+            s_3_bucket=s_3_bucket,
+            s_3_default_object_key=s_3_default_object_key,
+            s_3_region=s_3_region,
+            s_3url=s_3url,
             suricata_path=suricata_path,
             with_auth=with_auth,
         )

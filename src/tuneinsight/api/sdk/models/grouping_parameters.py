@@ -15,6 +15,9 @@ class GroupingParameters:
         bin_center (Union[Unset, float]): center around which the numerical bins are created. For example, if binSize=10
             and center=5,
             the bins will correspond to ..., [-15,-5), [-5,5), [5,15), ...
+            This is ignored if either binMin or binMax is provided.
+        bin_max (Union[Unset, None, float]): Upper bound on the data, and right bound of the last bin.
+        bin_min (Union[Unset, None, float]): Lower bound on the data, and left bound of the first bin.
         bin_size (Union[Unset, float]): size of the bins.
         column (Union[Unset, str]): column from which the groups are created.
         cuts (Union[Unset, List[float]]): array of cuts to define variable-sized numerical bins. Each value defines the
@@ -33,6 +36,8 @@ class GroupingParameters:
     """
 
     bin_center: Union[Unset, float] = UNSET
+    bin_max: Union[Unset, None, float] = UNSET
+    bin_min: Union[Unset, None, float] = UNSET
     bin_size: Union[Unset, float] = UNSET
     column: Union[Unset, str] = UNSET
     cuts: Union[Unset, List[float]] = UNSET
@@ -45,6 +50,8 @@ class GroupingParameters:
 
     def to_dict(self) -> Dict[str, Any]:
         bin_center = self.bin_center
+        bin_max = self.bin_max
+        bin_min = self.bin_min
         bin_size = self.bin_size
         column = self.column
         cuts: Union[Unset, List[float]] = UNSET
@@ -65,6 +72,10 @@ class GroupingParameters:
         field_dict.update({})
         if bin_center is not UNSET:
             field_dict["binCenter"] = bin_center
+        if bin_max is not UNSET:
+            field_dict["binMax"] = bin_max
+        if bin_min is not UNSET:
+            field_dict["binMin"] = bin_min
         if bin_size is not UNSET:
             field_dict["binSize"] = bin_size
         if column is not UNSET:
@@ -89,6 +100,10 @@ class GroupingParameters:
         d = src_dict.copy()
         bin_center = d.pop("binCenter", UNSET)
 
+        bin_max = d.pop("binMax", UNSET)
+
+        bin_min = d.pop("binMin", UNSET)
+
         bin_size = d.pop("binSize", UNSET)
 
         column = d.pop("column", UNSET)
@@ -107,6 +122,8 @@ class GroupingParameters:
 
         grouping_parameters = cls(
             bin_center=bin_center,
+            bin_max=bin_max,
+            bin_min=bin_min,
             bin_size=bin_size,
             column=column,
             cuts=cuts,

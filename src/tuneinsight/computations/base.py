@@ -17,7 +17,7 @@ import pandas as pd
 
 from tuneinsight.api.sdk import client as api_client
 from tuneinsight.api.sdk import models
-from tuneinsight.api.sdk.types import is_set, is_unset, is_empty, UNSET
+from tuneinsight.api.sdk.types import is_set, is_unset, is_empty, UNSET, value_if_unset
 from tuneinsight.api.sdk.types import Response
 from tuneinsight.api.sdk.models import DataObjectType as InputType
 from tuneinsight.api.sdk.api.api_computations import (
@@ -314,7 +314,7 @@ class Computation(ABC):
         comp: models.Computation,
         interval=100 * time_tools.MILLISECOND,
         max_sleep_time=30 * time_tools.SECOND,
-    ) -> Union[Result, List[DataObject]]:
+    ) -> Union[List[Result], List[DataObject]]:
         """
         Waits until a [models.]computation is finished and returns its result(s).
 
@@ -331,7 +331,7 @@ class Computation(ABC):
             max_sleep_time (int, optional): maximum total time in nanoseconds to wait between polls.
 
         Returns:
-            Result or List[DataObject]: the result of the computation, parsed as a
+            List[Result] or List[DataObject]: the result of the computation, parsed as a
                Result object. If no result is provided (which can happen in some corner cases),
                the list of dataobjects containing data results is returned instead.
         """
@@ -371,15 +371,29 @@ class Computation(ABC):
         # Update recorded computation.
         self.recorded_computations.append(current_comp)
 
-        # In some cases, the result ID can be unset even though the computation has results.
-        # When that happens, we fetch the dataobjects of the computation directly.
-        result_id = current_comp.result_id
-        if is_unset(result_id) or not result_id:
+        # Get the result(s) of the computation. Most computations only have one result, but some can have several,
+        # so all results post-processing operates over lists of DataContents.
+        result_ids: List[str] = value_if_unset(current_comp.result_ids, [])
+        if not result_ids:
+            # Note: result_id will be deprecated soon, but is still supported at the moment.
+            result_id = value_if_unset(current_comp.result_id, "")
+            if result_id:
+                result_ids.append(result_id)
+
+        # In some cases, the result IDs can be unset even though the computation has results.
+        # When that happens, we fetch the dataobjects of the computation directly. This means that E2EE will not work.
+        if not result_ids:
+            if self.project.end_to_end_encrypted:
+                warnings.warn(
+                    "The computation is end-to-end encrypted but completed without a result. "
+                    "This is unexpected and will result in an error. "
+                    "Contact your administrator if this occurs consistently."
+                )
             return [
                 DataObject.fetch_from_id(id, self.client) for id in current_comp.results
             ]
 
-        return Result.fetch_from_id(result_id, self.client)
+        return [Result.fetch_from_id(r_id, self.client) for r_id in result_ids]
 
     def _launch(self, model: models.ComputationDefinition) -> models.Computation:
         """
@@ -443,7 +457,6 @@ class Computation(ABC):
     def run(
         self,
         local: bool = False,
-        release: bool = True,
         interval=100 * time_tools.MILLISECOND,
         max_sleep_time=30 * time_tools.SECOND,
         on_previous_result: models.DataObject = None,
@@ -457,10 +470,6 @@ class Computation(ABC):
 
         Args:
             local (bool, optional): Whether to run the computation locally or remotely. Defaults to False.
-
-            release (bool, optional): Whether to release the results (overrides decrypt/keyswitch).
-                If set, encrypted results are automatically key switched and decrypted and a Result
-                entity is saved. Defaults to True.
 
             interval (int, optional): time in nanoseconds to wait between polls.
 
@@ -482,7 +491,7 @@ class Computation(ABC):
 
         # Update the model to reflect high-level parameters (preprocessing etc.).
         model: models.ComputationDefinition = self._get_model_before_launch(
-            local, release, on_previous_result
+            local, on_previous_result
         )
 
         # Start the computation and wait until it finishes.
@@ -515,36 +524,35 @@ class Computation(ABC):
             interval (int, optional): time in nanoseconds to wait between polls.
             max_sleep_time (int, optional): maximum total time in nanoseconds to wait.
         """
-        result: Union[Result, List[DataObject]] = self._poll_computation(
+        results: Union[List[Result], List[DataObject]] = self._poll_computation(
             comp=computation, interval=interval, max_sleep_time=max_sleep_time
         )
 
-        # If using end-to-end encryption, decrypt each result.
-        if isinstance(result, Result):
-            if result.end_to_end_encrypted:
-                result = e2ee.decrypt(self.client, result)
-            # Convert the result to a list for compatibility with dataobjects.
-            if isinstance(result, Result):
-                result = [result]
+        # If using end-to-end encryption, decrypt each encrypted result.
+        results = [
+            (
+                e2ee.decrypt(self.client, r)
+                if isinstance(r, Result) and r.end_to_end_encrypted
+                else r
+            )
+            for r in results
+        ]
+
+        # The last unprocessed results are stored for debug purposes.
+        self._last_raw_results = results
 
         # Perform (optional) post-processing of the results if in plaintext.
-        self._last_raw_results = result
-        if result[0].is_encrypted():
-            return self._process_encrypted_results(result)
-        return self._process_results(result)
+        if results[0].is_encrypted():
+            return self._process_encrypted_results(results)
+        return self._process_results(results)
 
     def _get_model_before_launch(
         self,
         local: bool = False,
-        release: bool = True,
         on_previous_result: models.DataObject = None,
     ) -> models.ComputationDefinition:
         # Update the model to reflect high-level parameters (preprocessing etc.).
         model: models.ComputationDefinition = self.get_full_model()
-        if self.project.end_to_end_encrypted:
-            # If using end-to-end encryption, override other flags.
-            release = True
-        model.release_results = release
         model.local = local
         model.run_mode = models.RunMode.LOCAL if local else models.RunMode.COLLECTIVE
 
@@ -567,7 +575,7 @@ class Computation(ABC):
             data_object: the object on which to perform the collective key switch.
         """
         key_switch = KeySwitch(self.project, cipher_vector=data_object.get_id())
-        return key_switch.run(local=False, release=False)
+        return key_switch.run(local=False)
 
     @classmethod
     def from_model(

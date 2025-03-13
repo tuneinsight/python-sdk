@@ -51,7 +51,7 @@ class Count(ModelBasedComputation):
     def run_query(self, query, local: bool = False) -> float:
         """Performs a counting query on the dataset. This assumes that the input is a database."""
         self.datasource.set_database_query(query)
-        return self.run(local, release=True)
+        return self.run(local)
 
 
 # For "compatibility" with the frontend, also name this DatasetLength.

@@ -6,6 +6,7 @@ class ComputationStatus(str, Enum):
     RUNNING = "running"
     SUCCESS = "success"
     ERROR = "error"
+    CANCELLED = "cancelled"
     UNMONITORED = "unmonitored"
 
     def __str__(self) -> str:

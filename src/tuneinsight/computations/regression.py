@@ -16,6 +16,7 @@ import pandas as pd
 
 from tuneinsight.client.dataobject import DataContent, DataObject, Result
 from tuneinsight.computations.base import ModelBasedComputation
+from tuneinsight.utils import deprecation
 from tuneinsight.utils.model_performance_eval import r2_score, rmse
 
 from tuneinsight.api.sdk import models
@@ -155,6 +156,8 @@ class Regression:
         Returns:
             self: this object.
         """
+        if encrypted:
+            deprecation.warn("encrypted=True", "yet to be determined")
         self.fit_model.model.feature_columns = X
         self.fit_model.model.label_columns = y
         self.fit_model.params.learning_rate = learning_rate
@@ -165,7 +168,7 @@ class Regression:
         self.fit_model.params.local_batch_size = 100
         self.fit_model.params.local_iteration_count = local_iteration_count
         # Run this model, which returns the ID of the result.
-        self.fit_result = self.fit_model.run(local=local, release=not encrypted)
+        self.fit_result = self.fit_model.run(local=local)
         if isinstance(self.fit_result, TrainedRegression):
             self.encrypted_model_dataobject_id = self.fit_result.id
         else:
@@ -177,7 +180,6 @@ class Regression:
         self,
         X: pd.DataFrame,
         local=False,
-        release=True,
     ) -> np.array:
         """
         Predicts the target class for attributes X using the model.
@@ -185,7 +187,6 @@ class Regression:
         Args:
             X (pd.DataFrame): Test data. This dataset must have include all feature columns.
             local (bool, default False): whether the model is local.
-            release (bool, default True): whether to release results (for plaintext computations).
 
         Returns:
             np.array: Predicted labels
@@ -209,7 +210,7 @@ class Regression:
 
         # run predict comp
         # self.fit_model = self.predict_model
-        return self.predict_model.run(local=local, release=release)
+        return self.predict_model.run(local=local)
 
     def grid_search(
         self,
