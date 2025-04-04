@@ -225,7 +225,7 @@ extern __declspec(dllexport) char* PostProcessStatistics(char* results);
 
 // StatisticsConfidenceInterval estimates confidence intervals for the statistics computation from raw results.
 //
-extern __declspec(dllexport) char* StatisticsConfidenceInterval(char* results, char* laplaceParams);
+extern __declspec(dllexport) char* StatisticsConfidenceInterval(char* results, char* scaleParams);
 
 #ifdef __cplusplus
 }

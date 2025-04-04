@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "tuneinsight"
-version = "1.0.0"
+version = "1.0.1"
 description = "Official Python SDK for the Tune Insight API. The current version is compatible with the same version of the API."
 authors = ["Tune Insight SA"]
 license = "Apache-2.0"

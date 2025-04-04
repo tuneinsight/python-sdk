@@ -59,6 +59,8 @@ class EncryptedMean:
         preprocessing_parameters (Union[Unset, ComputationPreprocessingParameters]): dataframe pre-processing parameters
             applied to the input retrieved from the datasource, if applicable
         project_id (Union[Unset, str]): Unique identifier of a project.
+        query_timeout (Union[Unset, int]): The maximum amount of time in seconds the data source query is allowed to
+            run.
         release_results (Union[Unset, bool]): flag to set to true if the computation should directly release the output
             results.
             If set, then encrypted results are automatically key switched and decrypted
@@ -82,6 +84,8 @@ class EncryptedMean:
             participant locally.
         outlier_threshold (Union[Unset, float]): the threshold T to use to filter out outlier values.
             A value x will be considered an outlier if abs(x - mean) > T * STD.
+        template (Union[Unset, List[List[str]]]): a csv template of the expected input data format. Empty values are
+            expected to be input by each participant.
         variables (Union[Unset, List[str]]): list of variables to compute the mean on.
     """
 
@@ -101,6 +105,7 @@ class EncryptedMean:
     precision: Union[Unset, None, int] = UNSET
     preprocessing_parameters: Union[Unset, "ComputationPreprocessingParameters"] = UNSET
     project_id: Union[Unset, str] = UNSET
+    query_timeout: Union[Unset, int] = UNSET
     release_results: Union[Unset, bool] = UNSET
     run_mode: Union[Unset, RunMode] = UNSET
     timeout: Union[Unset, int] = UNSET
@@ -109,6 +114,7 @@ class EncryptedMean:
     grouping_keys: Union[Unset, List[str]] = UNSET
     min_participants: Union[Unset, int] = UNSET
     outlier_threshold: Union[Unset, float] = UNSET
+    template: Union[Unset, List[List[str]]] = UNSET
     variables: Union[Unset, List[str]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -142,6 +148,7 @@ class EncryptedMean:
             preprocessing_parameters = self.preprocessing_parameters.to_dict()
 
         project_id = self.project_id
+        query_timeout = self.query_timeout
         release_results = self.release_results
         run_mode: Union[Unset, str] = UNSET
         if not isinstance(self.run_mode, Unset):
@@ -156,6 +163,14 @@ class EncryptedMean:
 
         min_participants = self.min_participants
         outlier_threshold = self.outlier_threshold
+        template: Union[Unset, List[List[str]]] = UNSET
+        if not isinstance(self.template, Unset):
+            template = []
+            for template_item_data in self.template:
+                template_item = template_item_data
+
+                template.append(template_item)
+
         variables: Union[Unset, List[str]] = UNSET
         if not isinstance(self.variables, Unset):
             variables = self.variables
@@ -197,6 +212,8 @@ class EncryptedMean:
             field_dict["preprocessingParameters"] = preprocessing_parameters
         if project_id is not UNSET:
             field_dict["projectId"] = project_id
+        if query_timeout is not UNSET:
+            field_dict["queryTimeout"] = query_timeout
         if release_results is not UNSET:
             field_dict["releaseResults"] = release_results
         if run_mode is not UNSET:
@@ -213,6 +230,8 @@ class EncryptedMean:
             field_dict["minParticipants"] = min_participants
         if outlier_threshold is not UNSET:
             field_dict["outlierThreshold"] = outlier_threshold
+        if template is not UNSET:
+            field_dict["template"] = template
         if variables is not UNSET:
             field_dict["variables"] = variables
 
@@ -278,6 +297,8 @@ class EncryptedMean:
 
         project_id = d.pop("projectId", UNSET)
 
+        query_timeout = d.pop("queryTimeout", UNSET)
+
         release_results = d.pop("releaseResults", UNSET)
 
         _run_mode = d.pop("runMode", UNSET)
@@ -299,6 +320,13 @@ class EncryptedMean:
 
         outlier_threshold = d.pop("outlierThreshold", UNSET)
 
+        template = []
+        _template = d.pop("template", UNSET)
+        for template_item_data in _template or []:
+            template_item = cast(List[str], template_item_data)
+
+            template.append(template_item)
+
         variables = cast(List[str], d.pop("variables", UNSET))
 
         encrypted_mean = cls(
@@ -318,6 +346,7 @@ class EncryptedMean:
             precision=precision,
             preprocessing_parameters=preprocessing_parameters,
             project_id=project_id,
+            query_timeout=query_timeout,
             release_results=release_results,
             run_mode=run_mode,
             timeout=timeout,
@@ -326,6 +355,7 @@ class EncryptedMean:
             grouping_keys=grouping_keys,
             min_participants=min_participants,
             outlier_threshold=outlier_threshold,
+            template=template,
             variables=variables,
         )
 

@@ -102,13 +102,13 @@ def statistics_confidence_interval(
     # Flatten the noise parameters to a single matrix.
     if is_unset(noise_parameters.dp_noise):
         raise ValueError("No DP noise metadata available.")
-    dp_metadata: List[float] = []
-    # Flatten the noise metadata to one array.
+    dp_metadata: List[List[float]] = []
+    # Concatenate the scaling matrices for the noise added to the different variables.
     for metadata in noise_parameters.dp_noise:
-        if is_unset(metadata.noise_scale):
+        if is_unset(metadata.sum_parameters):
             continue
         # Noise on [count, sum, sum_squares]
-        dp_metadata += metadata.noise_scale
+        dp_metadata += metadata.sum_parameters
     csv_metadata = ",".join([str(x) for x in dp_metadata])
     estimate = so.StatisticsConfidenceInterval
     estimate.restype = ctypes.c_char_p

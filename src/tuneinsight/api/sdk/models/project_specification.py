@@ -8,6 +8,7 @@ if TYPE_CHECKING:
     from ..models.computation_definition import ComputationDefinition
     from ..models.computation_policy import ComputationPolicy
     from ..models.computation_preprocessing_parameters import ComputationPreprocessingParameters
+    from ..models.parameters_specification import ParametersSpecification
 
 
 T = TypeVar("T", bound="ProjectSpecification")
@@ -19,6 +20,7 @@ class ProjectSpecification:
 
     Attributes:
         computation_definition (Union[Unset, ComputationDefinition]): Generic computation.
+        computation_parameters (Union[Unset, ParametersSpecification]): advanced specifications for operation parameters
         match_only_computation_type (Union[Unset, bool]): If true, only the computation type (and not the parameters) is
             checked when testing this specification.
         min_contributors (Union[Unset, None, float]): If defined, the minimum number of contributors of the checked
@@ -30,6 +32,7 @@ class ProjectSpecification:
     """
 
     computation_definition: Union[Unset, "ComputationDefinition"] = UNSET
+    computation_parameters: Union[Unset, "ParametersSpecification"] = UNSET
     match_only_computation_type: Union[Unset, bool] = UNSET
     min_contributors: Union[Unset, None, float] = UNSET
     policy: Union[Unset, "ComputationPolicy"] = UNSET
@@ -40,6 +43,10 @@ class ProjectSpecification:
         computation_definition: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.computation_definition, Unset):
             computation_definition = self.computation_definition.to_dict()
+
+        computation_parameters: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.computation_parameters, Unset):
+            computation_parameters = self.computation_parameters.to_dict()
 
         match_only_computation_type = self.match_only_computation_type
         min_contributors = self.min_contributors
@@ -56,6 +63,8 @@ class ProjectSpecification:
         field_dict.update({})
         if computation_definition is not UNSET:
             field_dict["computationDefinition"] = computation_definition
+        if computation_parameters is not UNSET:
+            field_dict["computationParameters"] = computation_parameters
         if match_only_computation_type is not UNSET:
             field_dict["matchOnlyComputationType"] = match_only_computation_type
         if min_contributors is not UNSET:
@@ -72,6 +81,7 @@ class ProjectSpecification:
         from ..models.computation_definition import ComputationDefinition
         from ..models.computation_policy import ComputationPolicy
         from ..models.computation_preprocessing_parameters import ComputationPreprocessingParameters
+        from ..models.parameters_specification import ParametersSpecification
 
         d = src_dict.copy()
         _computation_definition = d.pop("computationDefinition", UNSET)
@@ -80,6 +90,13 @@ class ProjectSpecification:
             computation_definition = UNSET
         else:
             computation_definition = ComputationDefinition.from_dict(_computation_definition)
+
+        _computation_parameters = d.pop("computationParameters", UNSET)
+        computation_parameters: Union[Unset, ParametersSpecification]
+        if isinstance(_computation_parameters, Unset):
+            computation_parameters = UNSET
+        else:
+            computation_parameters = ParametersSpecification.from_dict(_computation_parameters)
 
         match_only_computation_type = d.pop("matchOnlyComputationType", UNSET)
 
@@ -101,6 +118,7 @@ class ProjectSpecification:
 
         project_specification = cls(
             computation_definition=computation_definition,
+            computation_parameters=computation_parameters,
             match_only_computation_type=match_only_computation_type,
             min_contributors=min_contributors,
             policy=policy,

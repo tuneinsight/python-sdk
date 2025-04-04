@@ -19,6 +19,7 @@ from .backup_definition import BackupDefinition
 from .backup_type import BackupType
 from .binning_parameters import BinningParameters
 from .binning_parameters_method import BinningParametersMethod
+from .build_catalog_action import BuildCatalogAction
 from .capability import Capability
 from .categorical_column import CategoricalColumn
 from .client import Client
@@ -47,6 +48,8 @@ from .computation_status import ComputationStatus
 from .computation_type import ComputationType
 from .content import Content
 from .content_type import ContentType
+from .contribution_error import ContributionError
+from .contribution_error_type import ContributionErrorType
 from .credentials import Credentials
 from .credentials_type import CredentialsType
 from .custom import Custom
@@ -99,6 +102,7 @@ from .encrypted_aggregation import EncryptedAggregation
 from .encrypted_content import EncryptedContent
 from .encrypted_content_type import EncryptedContentType
 from .encrypted_mean import EncryptedMean
+from .encrypted_mean_specification import EncryptedMeanSpecification
 from .encrypted_prediction import EncryptedPrediction
 from .encrypted_regression import EncryptedRegression
 from .encrypted_regression_params import EncryptedRegressionParams
@@ -117,6 +121,7 @@ from .filtered_aggregation import FilteredAggregation
 from .float_matrix import FloatMatrix
 from .fuzzy_matching_parameters import FuzzyMatchingParameters
 from .get_availability_status_resource_type import GetAvailabilityStatusResourceType
+from .get_build_catalog_progress_response_200 import GetBuildCatalogProgressResponse200
 from .get_comp_bookmark_list_order import GetCompBookmarkListOrder
 from .get_comp_bookmark_list_sort_by import GetCompBookmarkListSortBy
 from .get_computation_list_order import GetComputationListOrder
@@ -194,6 +199,7 @@ from .ontology_type import OntologyType
 from .organization import Organization
 from .organization_coordinates import OrganizationCoordinates
 from .paginated_result import PaginatedResult
+from .parameters_specification import ParametersSpecification
 from .participant import Participant
 from .participants_access_scope import ParticipantsAccessScope
 from .participation_status import ParticipationStatus
@@ -328,6 +334,7 @@ __all__ = (
     "BackupType",
     "BinningParameters",
     "BinningParametersMethod",
+    "BuildCatalogAction",
     "Capability",
     "CategoricalColumn",
     "Client",
@@ -354,6 +361,8 @@ __all__ = (
     "ComputationType",
     "Content",
     "ContentType",
+    "ContributionError",
+    "ContributionErrorType",
     "Credentials",
     "CredentialsType",
     "Custom",
@@ -404,6 +413,7 @@ __all__ = (
     "EncryptedContent",
     "EncryptedContentType",
     "EncryptedMean",
+    "EncryptedMeanSpecification",
     "EncryptedPrediction",
     "EncryptedRegression",
     "EncryptedRegressionParams",
@@ -424,6 +434,7 @@ __all__ = (
     "FloatMatrix",
     "FuzzyMatchingParameters",
     "GetAvailabilityStatusResourceType",
+    "GetBuildCatalogProgressResponse200",
     "GetCompBookmarkListOrder",
     "GetCompBookmarkListSortBy",
     "GetComputationListOrder",
@@ -501,6 +512,7 @@ __all__ = (
     "Organization",
     "OrganizationCoordinates",
     "PaginatedResult",
+    "ParametersSpecification",
     "Participant",
     "ParticipantsAccessScope",
     "ParticipationStatus",
