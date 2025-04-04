@@ -74,7 +74,7 @@ pip freeze | grep tuneinsight
 The result should look like this:
 
 ```
-tuneinsight==1.0.0
+tuneinsight==1.0.1
 ```
 
 If you see a line that looks like this,
@@ -85,7 +85,7 @@ tuneinsight @ file:///path/to/file/tuneinsight-0.13.1-py3-none-any.whl#sha256=..
 
 the SDK was installed directly from a `.whl` file, suggesting you are using an older version. You might need to install a more recent version, using `pip`:
 
-`pip install tuneinsight==1.0.0`
+`pip install tuneinsight==1.0.1`
 
 #### Error: Could not load the cryptolib: contact your administrator.
 

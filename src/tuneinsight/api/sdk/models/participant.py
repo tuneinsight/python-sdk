@@ -9,6 +9,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.availability_status import AvailabilityStatus
+    from ..models.contribution_error import ContributionError
     from ..models.data_source import DataSource
     from ..models.data_source_metadata import DataSourceMetadata
     from ..models.node import Node
@@ -26,6 +27,8 @@ class Participant:
         can_run_project (Union[Unset, AvailabilityStatus]): generic object that holds information about whether a
             resource or action is available to the user.
         connected_data_source (Union[Unset, DataSource]):
+        contribution_error (Union[Unset, ContributionError]): represents a non-fatal error that is flagged whenever a
+            participant fails to contribute data to a computation.
         data_sources (Union[Unset, List['DataSource']]): list of data sources exposed by this node
         input_metadata (Union[Unset, DataSourceMetadata]): metadata about a datasource
         is_contributor (Union[Unset, None, bool]):
@@ -40,6 +43,7 @@ class Participant:
     authorization_status: Union[Unset, AuthorizationStatus] = UNSET
     can_run_project: Union[Unset, "AvailabilityStatus"] = UNSET
     connected_data_source: Union[Unset, "DataSource"] = UNSET
+    contribution_error: Union[Unset, "ContributionError"] = UNSET
     data_sources: Union[Unset, List["DataSource"]] = UNSET
     input_metadata: Union[Unset, "DataSourceMetadata"] = UNSET
     is_contributor: Union[Unset, None, bool] = UNSET
@@ -62,6 +66,10 @@ class Participant:
         connected_data_source: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.connected_data_source, Unset):
             connected_data_source = self.connected_data_source.to_dict()
+
+        contribution_error: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.contribution_error, Unset):
+            contribution_error = self.contribution_error.to_dict()
 
         data_sources: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.data_sources, Unset):
@@ -99,6 +107,8 @@ class Participant:
             field_dict["canRunProject"] = can_run_project
         if connected_data_source is not UNSET:
             field_dict["connectedDataSource"] = connected_data_source
+        if contribution_error is not UNSET:
+            field_dict["contributionError"] = contribution_error
         if data_sources is not UNSET:
             field_dict["dataSources"] = data_sources
         if input_metadata is not UNSET:
@@ -121,6 +131,7 @@ class Participant:
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         from ..models.availability_status import AvailabilityStatus
+        from ..models.contribution_error import ContributionError
         from ..models.data_source import DataSource
         from ..models.data_source_metadata import DataSourceMetadata
         from ..models.node import Node
@@ -146,6 +157,13 @@ class Participant:
             connected_data_source = UNSET
         else:
             connected_data_source = DataSource.from_dict(_connected_data_source)
+
+        _contribution_error = d.pop("contributionError", UNSET)
+        contribution_error: Union[Unset, ContributionError]
+        if isinstance(_contribution_error, Unset):
+            contribution_error = UNSET
+        else:
+            contribution_error = ContributionError.from_dict(_contribution_error)
 
         data_sources = []
         _data_sources = d.pop("dataSources", UNSET)
@@ -192,6 +210,7 @@ class Participant:
             authorization_status=authorization_status,
             can_run_project=can_run_project,
             connected_data_source=connected_data_source,
+            contribution_error=contribution_error,
             data_sources=data_sources,
             input_metadata=input_metadata,
             is_contributor=is_contributor,

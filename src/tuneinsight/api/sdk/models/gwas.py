@@ -61,6 +61,8 @@ class GWAS:
         preprocessing_parameters (Union[Unset, ComputationPreprocessingParameters]): dataframe pre-processing parameters
             applied to the input retrieved from the datasource, if applicable
         project_id (Union[Unset, str]): Unique identifier of a project.
+        query_timeout (Union[Unset, int]): The maximum amount of time in seconds the data source query is allowed to
+            run.
         release_results (Union[Unset, bool]): flag to set to true if the computation should directly release the output
             results.
             If set, then encrypted results are automatically key switched and decrypted
@@ -91,6 +93,7 @@ class GWAS:
     precision: Union[Unset, None, int] = UNSET
     preprocessing_parameters: Union[Unset, "ComputationPreprocessingParameters"] = UNSET
     project_id: Union[Unset, str] = UNSET
+    query_timeout: Union[Unset, int] = UNSET
     release_results: Union[Unset, bool] = UNSET
     run_mode: Union[Unset, RunMode] = UNSET
     timeout: Union[Unset, int] = UNSET
@@ -132,6 +135,7 @@ class GWAS:
             preprocessing_parameters = self.preprocessing_parameters.to_dict()
 
         project_id = self.project_id
+        query_timeout = self.query_timeout
         release_results = self.release_results
         run_mode: Union[Unset, str] = UNSET
         if not isinstance(self.run_mode, Unset):
@@ -191,6 +195,8 @@ class GWAS:
             field_dict["preprocessingParameters"] = preprocessing_parameters
         if project_id is not UNSET:
             field_dict["projectId"] = project_id
+        if query_timeout is not UNSET:
+            field_dict["queryTimeout"] = query_timeout
         if release_results is not UNSET:
             field_dict["releaseResults"] = release_results
         if run_mode is not UNSET:
@@ -274,6 +280,8 @@ class GWAS:
 
         project_id = d.pop("projectId", UNSET)
 
+        query_timeout = d.pop("queryTimeout", UNSET)
+
         release_results = d.pop("releaseResults", UNSET)
 
         _run_mode = d.pop("runMode", UNSET)
@@ -324,6 +332,7 @@ class GWAS:
             precision=precision,
             preprocessing_parameters=preprocessing_parameters,
             project_id=project_id,
+            query_timeout=query_timeout,
             release_results=release_results,
             run_mode=run_mode,
             timeout=timeout,

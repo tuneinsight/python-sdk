@@ -16,11 +16,14 @@ class DpNoiseMetadata:
         name (Union[Unset, str]): name that describes which part of the result the noise applies to.
         noise_scale (Union[Unset, List[float]]): standard deviation of the noise added on each entry in the results
         noise_type (Union[Unset, NoiseDistributions]): the distribution of the noise added on each entry in the results
+        sum_parameters (Union[Unset, List[List[float]]]): if noiseType=laplaceSum, this gives the matrix A by which to
+            multiply Lap(1) to obtain the noise distribution.
     """
 
     name: Union[Unset, str] = UNSET
     noise_scale: Union[Unset, List[float]] = UNSET
     noise_type: Union[Unset, NoiseDistributions] = UNSET
+    sum_parameters: Union[Unset, List[List[float]]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -33,6 +36,14 @@ class DpNoiseMetadata:
         if not isinstance(self.noise_type, Unset):
             noise_type = self.noise_type.value
 
+        sum_parameters: Union[Unset, List[List[float]]] = UNSET
+        if not isinstance(self.sum_parameters, Unset):
+            sum_parameters = []
+            for sum_parameters_item_data in self.sum_parameters:
+                sum_parameters_item = sum_parameters_item_data
+
+                sum_parameters.append(sum_parameters_item)
+
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
@@ -42,6 +53,8 @@ class DpNoiseMetadata:
             field_dict["noiseScale"] = noise_scale
         if noise_type is not UNSET:
             field_dict["noiseType"] = noise_type
+        if sum_parameters is not UNSET:
+            field_dict["sumParameters"] = sum_parameters
 
         return field_dict
 
@@ -59,10 +72,18 @@ class DpNoiseMetadata:
         else:
             noise_type = NoiseDistributions(_noise_type)
 
+        sum_parameters = []
+        _sum_parameters = d.pop("sumParameters", UNSET)
+        for sum_parameters_item_data in _sum_parameters or []:
+            sum_parameters_item = cast(List[float], sum_parameters_item_data)
+
+            sum_parameters.append(sum_parameters_item)
+
         dp_noise_metadata = cls(
             name=name,
             noise_scale=noise_scale,
             noise_type=noise_type,
+            sum_parameters=sum_parameters,
         )
 
         dp_noise_metadata.additional_properties = d

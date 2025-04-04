@@ -18,6 +18,7 @@ class GetInfosResponse200:
         portal_status (Union[Unset, str]): Portal connectivity status
         service_account (Union[Unset, str]): name of the service account used by this instance when sending requests to
             other instances.
+        startup_status (Union[Unset, str]): Reports the startup process status.
         version (Union[Unset, str]): Tune Insight instance version
     """
 
@@ -26,6 +27,7 @@ class GetInfosResponse200:
     auth_status: Union[Unset, str] = UNSET
     portal_status: Union[Unset, str] = UNSET
     service_account: Union[Unset, str] = UNSET
+    startup_status: Union[Unset, str] = UNSET
     version: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -38,6 +40,7 @@ class GetInfosResponse200:
         auth_status = self.auth_status
         portal_status = self.portal_status
         service_account = self.service_account
+        startup_status = self.startup_status
         version = self.version
 
         field_dict: Dict[str, Any] = {}
@@ -53,6 +56,8 @@ class GetInfosResponse200:
             field_dict["portalStatus"] = portal_status
         if service_account is not UNSET:
             field_dict["serviceAccount"] = service_account
+        if startup_status is not UNSET:
+            field_dict["startupStatus"] = startup_status
         if version is not UNSET:
             field_dict["version"] = version
 
@@ -71,6 +76,8 @@ class GetInfosResponse200:
 
         service_account = d.pop("serviceAccount", UNSET)
 
+        startup_status = d.pop("startupStatus", UNSET)
+
         version = d.pop("version", UNSET)
 
         get_infos_response_200 = cls(
@@ -79,6 +86,7 @@ class GetInfosResponse200:
             auth_status=auth_status,
             portal_status=portal_status,
             service_account=service_account,
+            startup_status=startup_status,
             version=version,
         )
 

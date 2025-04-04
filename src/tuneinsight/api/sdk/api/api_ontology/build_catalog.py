@@ -5,18 +5,29 @@ import httpx
 
 from ... import errors
 from ...client import Client
+from ...models.build_catalog_action import BuildCatalogAction
 from ...models.error import Error
-from ...types import Response
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
     client: Client,
+    action: Union[Unset, None, BuildCatalogAction] = UNSET,
 ) -> Dict[str, Any]:
     url = "{}/build-catalog".format(client.base_url)
 
     headers: Dict[str, str] = client.get_headers()
     cookies: Dict[str, Any] = client.get_cookies()
+
+    params: Dict[str, Any] = {}
+    json_action: Union[Unset, None, str] = UNSET
+    if not isinstance(action, Unset):
+        json_action = action.value if action else None
+
+    params["action"] = json_action
+
+    params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
     # Set the proxies if the client has proxies set.
     proxies = None
@@ -36,6 +47,7 @@ def _get_kwargs(
         "cookies": cookies,
         "timeout": client.get_timeout(),
         "proxies": proxies,
+        "params": params,
     }
 
 
@@ -73,8 +85,12 @@ def _build_response(*, client: Client, response: httpx.Response) -> Response[Uni
 def sync_detailed(
     *,
     client: Client,
+    action: Union[Unset, None, BuildCatalogAction] = UNSET,
 ) -> Response[Union[Any, Error]]:
     """Build a catalog from the SPHN ontologies
+
+    Args:
+        action (Union[Unset, None, BuildCatalogAction]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -86,6 +102,7 @@ def sync_detailed(
 
     kwargs = _get_kwargs(
         client=client,
+        action=action,
     )
 
     response = httpx.request(
@@ -99,8 +116,12 @@ def sync_detailed(
 def sync(
     *,
     client: Client,
+    action: Union[Unset, None, BuildCatalogAction] = UNSET,
 ) -> Optional[Union[Any, Error]]:
     """Build a catalog from the SPHN ontologies
+
+    Args:
+        action (Union[Unset, None, BuildCatalogAction]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -112,14 +133,19 @@ def sync(
 
     return sync_detailed(
         client=client,
+        action=action,
     ).parsed
 
 
 async def asyncio_detailed(
     *,
     client: Client,
+    action: Union[Unset, None, BuildCatalogAction] = UNSET,
 ) -> Response[Union[Any, Error]]:
     """Build a catalog from the SPHN ontologies
+
+    Args:
+        action (Union[Unset, None, BuildCatalogAction]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -131,6 +157,7 @@ async def asyncio_detailed(
 
     kwargs = _get_kwargs(
         client=client,
+        action=action,
     )
 
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
@@ -142,8 +169,12 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: Client,
+    action: Union[Unset, None, BuildCatalogAction] = UNSET,
 ) -> Optional[Union[Any, Error]]:
     """Build a catalog from the SPHN ontologies
+
+    Args:
+        action (Union[Unset, None, BuildCatalogAction]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -156,5 +187,6 @@ async def asyncio(
     return (
         await asyncio_detailed(
             client=client,
+            action=action,
         )
     ).parsed

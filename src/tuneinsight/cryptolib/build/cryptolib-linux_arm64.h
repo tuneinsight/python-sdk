@@ -225,7 +225,7 @@ extern char* PostProcessStatistics(char* results);
 
 // StatisticsConfidenceInterval estimates confidence intervals for the statistics computation from raw results.
 //
-extern char* StatisticsConfidenceInterval(char* results, char* laplaceParams);
+extern char* StatisticsConfidenceInterval(char* results, char* scaleParams);
 
 #ifdef __cplusplus
 }
