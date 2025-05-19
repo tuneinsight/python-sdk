@@ -37,6 +37,7 @@ class Computation:
             bandwidth measure
         local (Union[Unset, bool]): deprecated
         measurements (Union[Unset, List['Measurement']]): list of benchmarking measurements done on the computation
+        output_data_source_id (Union[Unset, None, str]): Unique identifier of a data source.
         owner (Union[Unset, str]): identifier of the end user that has requested the computation
         participants (Union[Unset, List['Participant']]): list of participants that took part (interacted or
             contributed) in this computation.
@@ -67,6 +68,7 @@ class Computation:
     ingress: Union[Unset, int] = UNSET
     local: Union[Unset, bool] = UNSET
     measurements: Union[Unset, List["Measurement"]] = UNSET
+    output_data_source_id: Union[Unset, None, str] = UNSET
     owner: Union[Unset, str] = UNSET
     participants: Union[Unset, List["Participant"]] = UNSET
     progress: Union[Unset, "TaskProgress"] = UNSET
@@ -111,6 +113,7 @@ class Computation:
 
                 measurements.append(measurements_item)
 
+        output_data_source_id = self.output_data_source_id
         owner = self.owner
         participants: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.participants, Unset):
@@ -174,6 +177,8 @@ class Computation:
             field_dict["local"] = local
         if measurements is not UNSET:
             field_dict["measurements"] = measurements
+        if output_data_source_id is not UNSET:
+            field_dict["outputDataSourceId"] = output_data_source_id
         if owner is not UNSET:
             field_dict["owner"] = owner
         if participants is not UNSET:
@@ -246,6 +251,8 @@ class Computation:
 
             measurements.append(measurements_item)
 
+        output_data_source_id = d.pop("outputDataSourceId", UNSET)
+
         owner = d.pop("owner", UNSET)
 
         participants = []
@@ -299,6 +306,7 @@ class Computation:
             ingress=ingress,
             local=local,
             measurements=measurements,
+            output_data_source_id=output_data_source_id,
             owner=owner,
             participants=participants,
             progress=progress,

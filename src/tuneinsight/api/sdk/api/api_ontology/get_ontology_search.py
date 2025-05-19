@@ -17,6 +17,8 @@ def _get_kwargs(
     per_page: Union[Unset, None, int] = 30,
     page: Union[Unset, None, int] = 1,
     query: str,
+    with_occurrence: Union[Unset, None, bool] = UNSET,
+    with_network_occurrence: Union[Unset, None, bool] = UNSET,
     ontologies: List[GetOntologySearchOntologiesItem],
 ) -> Dict[str, Any]:
     url = "{}/ontology-search".format(client.base_url)
@@ -30,6 +32,10 @@ def _get_kwargs(
     params["page"] = page
 
     params["query"] = query
+
+    params["withOccurrence"] = with_occurrence
+
+    params["withNetworkOccurrence"] = with_network_occurrence
 
     json_ontologies = []
     for ontologies_item_data in ontologies:
@@ -110,6 +116,8 @@ def sync_detailed(
     per_page: Union[Unset, None, int] = 30,
     page: Union[Unset, None, int] = 1,
     query: str,
+    with_occurrence: Union[Unset, None, bool] = UNSET,
+    with_network_occurrence: Union[Unset, None, bool] = UNSET,
     ontologies: List[GetOntologySearchOntologiesItem],
 ) -> Response[Union[Error, List["GetOntologySearchResponse200Item"]]]:
     """Search ontologies with a search term
@@ -118,6 +126,8 @@ def sync_detailed(
         per_page (Union[Unset, None, int]):  Default: 30.
         page (Union[Unset, None, int]):  Default: 1.
         query (str):
+        with_occurrence (Union[Unset, None, bool]):
+        with_network_occurrence (Union[Unset, None, bool]):
         ontologies (List[GetOntologySearchOntologiesItem]):
 
     Raises:
@@ -133,6 +143,8 @@ def sync_detailed(
         per_page=per_page,
         page=page,
         query=query,
+        with_occurrence=with_occurrence,
+        with_network_occurrence=with_network_occurrence,
         ontologies=ontologies,
     )
 
@@ -150,6 +162,8 @@ def sync(
     per_page: Union[Unset, None, int] = 30,
     page: Union[Unset, None, int] = 1,
     query: str,
+    with_occurrence: Union[Unset, None, bool] = UNSET,
+    with_network_occurrence: Union[Unset, None, bool] = UNSET,
     ontologies: List[GetOntologySearchOntologiesItem],
 ) -> Optional[Union[Error, List["GetOntologySearchResponse200Item"]]]:
     """Search ontologies with a search term
@@ -158,6 +172,8 @@ def sync(
         per_page (Union[Unset, None, int]):  Default: 30.
         page (Union[Unset, None, int]):  Default: 1.
         query (str):
+        with_occurrence (Union[Unset, None, bool]):
+        with_network_occurrence (Union[Unset, None, bool]):
         ontologies (List[GetOntologySearchOntologiesItem]):
 
     Raises:
@@ -173,6 +189,8 @@ def sync(
         per_page=per_page,
         page=page,
         query=query,
+        with_occurrence=with_occurrence,
+        with_network_occurrence=with_network_occurrence,
         ontologies=ontologies,
     ).parsed
 
@@ -183,6 +201,8 @@ async def asyncio_detailed(
     per_page: Union[Unset, None, int] = 30,
     page: Union[Unset, None, int] = 1,
     query: str,
+    with_occurrence: Union[Unset, None, bool] = UNSET,
+    with_network_occurrence: Union[Unset, None, bool] = UNSET,
     ontologies: List[GetOntologySearchOntologiesItem],
 ) -> Response[Union[Error, List["GetOntologySearchResponse200Item"]]]:
     """Search ontologies with a search term
@@ -191,6 +211,8 @@ async def asyncio_detailed(
         per_page (Union[Unset, None, int]):  Default: 30.
         page (Union[Unset, None, int]):  Default: 1.
         query (str):
+        with_occurrence (Union[Unset, None, bool]):
+        with_network_occurrence (Union[Unset, None, bool]):
         ontologies (List[GetOntologySearchOntologiesItem]):
 
     Raises:
@@ -206,6 +228,8 @@ async def asyncio_detailed(
         per_page=per_page,
         page=page,
         query=query,
+        with_occurrence=with_occurrence,
+        with_network_occurrence=with_network_occurrence,
         ontologies=ontologies,
     )
 
@@ -221,6 +245,8 @@ async def asyncio(
     per_page: Union[Unset, None, int] = 30,
     page: Union[Unset, None, int] = 1,
     query: str,
+    with_occurrence: Union[Unset, None, bool] = UNSET,
+    with_network_occurrence: Union[Unset, None, bool] = UNSET,
     ontologies: List[GetOntologySearchOntologiesItem],
 ) -> Optional[Union[Error, List["GetOntologySearchResponse200Item"]]]:
     """Search ontologies with a search term
@@ -229,6 +255,8 @@ async def asyncio(
         per_page (Union[Unset, None, int]):  Default: 30.
         page (Union[Unset, None, int]):  Default: 1.
         query (str):
+        with_occurrence (Union[Unset, None, bool]):
+        with_network_occurrence (Union[Unset, None, bool]):
         ontologies (List[GetOntologySearchOntologiesItem]):
 
     Raises:
@@ -245,6 +273,8 @@ async def asyncio(
             per_page=per_page,
             page=page,
             query=query,
+            with_occurrence=with_occurrence,
+            with_network_occurrence=with_network_occurrence,
             ontologies=ontologies,
         )
     ).parsed

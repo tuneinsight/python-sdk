@@ -16,7 +16,7 @@ import attr
 import pandas as pd
 
 from tuneinsight.api.sdk import models
-from tuneinsight.api.sdk.types import UNSET, Response
+from tuneinsight.api.sdk.types import UNSET, Response, is_unset
 from tuneinsight.api.sdk import client as api_client
 from tuneinsight.api.sdk.api.api_project import (
     post_project,
@@ -28,6 +28,7 @@ from tuneinsight.api.sdk.api.api_datasource import get_data_source_list
 from tuneinsight.api.sdk.api.api_dataobject import get_data_object
 from tuneinsight.api.sdk.api.api_infos import get_infos
 from tuneinsight.api.sdk.api.health import get_health
+from tuneinsight.api.sdk.api.api_users import get_user_info
 
 from tuneinsight.client.dataobject import DataObject
 from tuneinsight.client.datasource import DataSource
@@ -68,6 +69,8 @@ class Diapason:
     # Whether the API versions of the SDK and server are compatible.
     # This is None until the test is performed (either manually or in new/get_project).
     _api_compatible: Union[bool, None] = None
+    # The information about the user (capabilities etc.), stored to avoid re-requesting them.
+    _user_info: models.UserInfo = None
 
     def __attrs_post_init__(self):
         if self.conf.security.static_token != "":
@@ -657,7 +660,7 @@ class Diapason:
             client=self._get_client(), json_body=proj_def
         )
         validate_response(proj_response)
-        p = Project(model=proj_response.parsed, client=self._get_client())
+        p = Project(model=proj_response.parsed, diapason=self)
         return p
 
     def join_project_with_token(self, token: str) -> Project:
@@ -710,7 +713,7 @@ class Diapason:
             raise ValueError("At least one of of project_id or name must be specified.")
 
         # Instantiate a project object from this model.
-        return Project(model=model, client=self._get_client())
+        return Project(model=model, diapason=self)
 
     def get_projects(self) -> List[Project]:
         """
@@ -726,7 +729,7 @@ class Diapason:
         validate_response(response)
         projects = []
         for project in response.parsed:
-            projects.append(Project(model=project, client=self._get_client()))
+            projects.append(Project(model=project, diapason=self))
         return projects
 
     def clear_project(self, project_id: str = None, name: str = None):
@@ -819,3 +822,19 @@ class Diapason:
             if warn:
                 warnings.warn(f"Healthcheck error: {err} ({type(err)})")
             return False
+
+    @property
+    def user_infos(self) -> models.UserInfo:
+        """Fetches information about this user from the connected instance."""
+        if self._user_info is None:
+            resp = get_user_info.sync_detailed(client=self.client)
+            validate_response(resp)
+            self._user_info = resp.parsed
+        return self._user_info
+
+    def can(self, capability: models.Capability):
+        """Returns whether this user has the given capability (represented by its unique name)."""
+        infos = self.user_infos
+        if is_unset(infos.capabilities):
+            return True
+        return any(cap.name == capability for cap in infos.capabilities)

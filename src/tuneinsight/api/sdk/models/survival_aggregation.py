@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from ..models.matching_column import MatchingColumn
     from ..models.survival import Survival
     from ..models.survival_aggregation_subgroups_item import SurvivalAggregationSubgroupsItem
+    from ..models.unit_filter import UnitFilter
 
 
 T = TypeVar("T", bound="SurvivalAggregation")
@@ -25,7 +26,7 @@ class SurvivalAggregation:
     Attributes:
         type (ComputationType): Type of the computation.
         dp_policy (Union[Unset, DPPolicy]): represents the disclosure prevention policy that enables toggling various
-            disclosure prevention mechanisms
+            mechanisms that are executed whenever the workflow runs.
         cohort_id (Union[Unset, str]): Unique identifier of a data object.
         data_source_parameters (Union[Unset, ComputationDataSourceParameters]): Parameters used to query the datasource
             from each node before the computation
@@ -70,6 +71,8 @@ class SurvivalAggregation:
             and a Result entity is saved
         run_mode (Union[Unset, RunMode]): Defines the mode in which to run a computation (local, collective, or both)
         timeout (Union[Unset, int]): The maximum amount of time in seconds the computation is allowed to run.
+        units (Union[Unset, List['UnitFilter']]): unit requirements for the numerical values in the computation. Used to
+            filter input records with mismatching units.
         wait (Union[Unset, bool]): Whether to wait synchronously for the computation result.
         encrypted_matching (Union[Unset, bool]): if true, then the resulting matches are kept encrypted before
             aggregating the survival data (slower)
@@ -102,6 +105,7 @@ class SurvivalAggregation:
     release_results: Union[Unset, bool] = UNSET
     run_mode: Union[Unset, RunMode] = UNSET
     timeout: Union[Unset, int] = UNSET
+    units: Union[Unset, List["UnitFilter"]] = UNSET
     wait: Union[Unset, bool] = UNSET
     encrypted_matching: Union[Unset, bool] = UNSET
     matching_columns: Union[Unset, List["MatchingColumn"]] = UNSET
@@ -148,6 +152,14 @@ class SurvivalAggregation:
             run_mode = self.run_mode.value
 
         timeout = self.timeout
+        units: Union[Unset, List[Dict[str, Any]]] = UNSET
+        if not isinstance(self.units, Unset):
+            units = []
+            for units_item_data in self.units:
+                units_item = units_item_data.to_dict()
+
+                units.append(units_item)
+
         wait = self.wait
         encrypted_matching = self.encrypted_matching
         matching_columns: Union[Unset, List[Dict[str, Any]]] = UNSET
@@ -217,6 +229,8 @@ class SurvivalAggregation:
             field_dict["runMode"] = run_mode
         if timeout is not UNSET:
             field_dict["timeout"] = timeout
+        if units is not UNSET:
+            field_dict["units"] = units
         if wait is not UNSET:
             field_dict["wait"] = wait
         if encrypted_matching is not UNSET:
@@ -243,6 +257,7 @@ class SurvivalAggregation:
         from ..models.matching_column import MatchingColumn
         from ..models.survival import Survival
         from ..models.survival_aggregation_subgroups_item import SurvivalAggregationSubgroupsItem
+        from ..models.unit_filter import UnitFilter
 
         d = src_dict.copy()
         type = ComputationType(d.pop("type"))
@@ -310,6 +325,13 @@ class SurvivalAggregation:
 
         timeout = d.pop("timeout", UNSET)
 
+        units = []
+        _units = d.pop("units", UNSET)
+        for units_item_data in _units or []:
+            units_item = UnitFilter.from_dict(units_item_data)
+
+            units.append(units_item)
+
         wait = d.pop("wait", UNSET)
 
         encrypted_matching = d.pop("encryptedMatching", UNSET)
@@ -360,6 +382,7 @@ class SurvivalAggregation:
             release_results=release_results,
             run_mode=run_mode,
             timeout=timeout,
+            units=units,
             wait=wait,
             encrypted_matching=encrypted_matching,
             matching_columns=matching_columns,

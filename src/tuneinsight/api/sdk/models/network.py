@@ -26,6 +26,7 @@ class Network:
         network_type (Union[Unset, NetworkType]): Network Type. 'default' or 'sse'. In a NAT network, leaf node use SSE
             to connect to the root.
         nodes (Union[Unset, List['Node']]):
+        notice (Union[Unset, str]):
         restricted (Union[Unset, None, bool]): if set, then the network can only be viewed by the users in the network.
             (does not apply to projects)
         topology (Union[Unset, Topology]): Network Topologies. 'star' or 'tree'. In star topology all nodes are
@@ -40,6 +41,7 @@ class Network:
     name: Union[Unset, str] = UNSET
     network_type: Union[Unset, NetworkType] = UNSET
     nodes: Union[Unset, List["Node"]] = UNSET
+    notice: Union[Unset, str] = UNSET
     restricted: Union[Unset, None, bool] = UNSET
     topology: Union[Unset, Topology] = UNSET
     users: Union[Unset, List["User"]] = UNSET
@@ -62,6 +64,7 @@ class Network:
 
                 nodes.append(nodes_item)
 
+        notice = self.notice
         restricted = self.restricted
         topology: Union[Unset, str] = UNSET
         if not isinstance(self.topology, Unset):
@@ -92,6 +95,8 @@ class Network:
             field_dict["networkType"] = network_type
         if nodes is not UNSET:
             field_dict["nodes"] = nodes
+        if notice is not UNSET:
+            field_dict["notice"] = notice
         if restricted is not UNSET:
             field_dict["restricted"] = restricted
         if topology is not UNSET:
@@ -129,6 +134,8 @@ class Network:
 
             nodes.append(nodes_item)
 
+        notice = d.pop("notice", UNSET)
+
         restricted = d.pop("restricted", UNSET)
 
         _topology = d.pop("topology", UNSET)
@@ -158,6 +165,7 @@ class Network:
             name=name,
             network_type=network_type,
             nodes=nodes,
+            notice=notice,
             restricted=restricted,
             topology=topology,
             users=users,

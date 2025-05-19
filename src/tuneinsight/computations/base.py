@@ -67,6 +67,7 @@ class Computation(ABC):
     # Note that these are not direct attributes of the computation definition.
     preprocessing: PreprocessingBuilder
     datasource: QueryBuilder
+    units: List[models.UnitFilter]
     local_input: models.LocalInput
     max_timeout: int
     polling_initial_interval: int
@@ -99,6 +100,7 @@ class Computation(ABC):
         # Set the "high-level" interfaces.
         self.preprocessing = PreprocessingBuilder(self._patch_project)
         self.datasource = QueryBuilder(self._patch_project)
+        self.units = []
         self.local_input = None
         self.recorded_computations = []
         self.max_timeout = 600 * time_tools.SECOND
@@ -216,6 +218,8 @@ class Computation(ABC):
             if self.precision < 1 or self.precision > 32:
                 raise ValueError("precision must be set to a value in [1,32]")
             model.precision = int(round(self.precision))
+        if self.units:
+            model.units = self.units
 
     def _update_computation_preprocessing(self, model: models.ComputationDefinition):
         """
@@ -436,16 +440,17 @@ class Computation(ABC):
         project_id = self.project.get_id()
         if project_id is None or project_id == "":
             raise ValueError("This computation is not linked to a project.")
-        # Refresh the computation model in the project to this computation.
-        # This is required, otherwise calling comp.run() could run another computation.
-        # Note that this will not work if the client does not have the appropriate authorization.
-        self.project.set_computation(comp)
         run_mode = models.RunMode.COLLECTIVE
         if comp.local or not self.project.model.shared:
             run_mode = models.RunMode.LOCAL
         params = models.RunProjectParameters(
-            computation_definition=comp, run_mode=run_mode
+            run_mode=run_mode,
         )
+        # If the user can edit the computation definition, we pass the (modified)
+        # compDef as run parameters. This means that the project will run with this
+        # compDef without requiring a PATCH beforehand.
+        if self.project.client_can(models.Capability.EDITPROJECTCOMPDEF):
+            params.computation_definition = comp
         response: Response[models.ProjectComputation] = (
             post_project_computation.sync_detailed(
                 project_id=project_id, client=self.client, json_body=params
@@ -470,14 +475,10 @@ class Computation(ABC):
 
         Args:
             local (bool, optional): Whether to run the computation locally or remotely. Defaults to False.
-
             interval (int, optional): time in nanoseconds to wait between polls.
-
             max_sleep_time (int, optional): maximum total time in nanoseconds to wait.
-
-            on_previous_result (models.DataObject,optional): remote object (usually output from another computation) to use as an input.
-                This overrides the datasource of the project.
-
+            on_previous_result (models.DataObject,optional): remote object (usually output from another computation) to
+                use as an input. This overrides the datasource of the project.
             resume_timedout (bool, False by default): whether to resume a computation that previously timed
                 out. This will raise an error if the last computation did not time out. When resuming a
                 timed out computation, all current changes to this computation are ignored, but not overwritten.
@@ -524,6 +525,12 @@ class Computation(ABC):
             interval (int, optional): time in nanoseconds to wait between polls.
             max_sleep_time (int, optional): maximum total time in nanoseconds to wait.
         """
+        # Handle the edge case where the types of the computation that was run and this computation
+        # mismatch (e.g. if a user without the proper permissions tries to edit the project).
+        if computation.definition.type != self._get_model().type:
+            comp = self.project.get_computation(computation.definition)
+            return comp.fetch_results(computation, interval, max_sleep_time)
+
         results: Union[List[Result], List[DataObject]] = self._poll_computation(
             comp=computation, interval=interval, max_sleep_time=max_sleep_time
         )
@@ -576,6 +583,35 @@ class Computation(ABC):
         """
         key_switch = KeySwitch(self.project, cipher_vector=data_object.get_id())
         return key_switch.run(local=False)
+
+    def add_unit(
+        self,
+        unit_column: str,
+        unit: str,
+        value_column: str = UNSET,
+        allow_missing: bool = False,
+    ):
+        """Adds a unit specification to this computation.
+
+        Units are checked before running a computation, by filtering out all records that do not
+        have the correct units for the specified columns. Effectively, this checks that the value
+        of the unit (given in the `unit_column`) matches `unit`. The numerical column associated
+        with that unit can also be specified, although it is not currently used.
+
+        Args:
+            unit_column (str): The column in the data that gives the unit.
+            unit (str): The value of the unit to select for.
+            value_column (str): The column in the data containing numerical values (optional).
+            allow_missing (bool): Whether to include records that don't have a unit.
+        """
+        self.units.append(
+            models.UnitFilter(
+                allow_empty_units=allow_missing,
+                unit=unit,
+                unit_column=unit_column,
+                value_column=value_column,
+            )
+        )
 
     @classmethod
     def from_model(

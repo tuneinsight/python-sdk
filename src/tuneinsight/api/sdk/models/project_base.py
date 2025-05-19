@@ -55,8 +55,10 @@ class ProjectBase:
         non_contributor (Union[Unset, None, bool]): indicates that the current project participant takes part in the
             distributed computations but does not have any input data.
             By default this field is set according to the instance's configuration.
+        output_data_source_id (Union[Unset, None, str]): Unique identifier of a data source.
         policy (Union[Unset, ComputationPolicy]): policy to validate a specific computation
         query_timeout (Union[Unset, int]): Timeout for the data source queries Default: 30.
+        query_timeout_enabled (Union[Unset, None, bool]): whether to enable the query timeout or not
         recurring_end_time (Union[Unset, None, str]): ISO 8601 datetime when the repetition should stop. If not set, the
             project will run indefinitely
         recurring_interval (Union[Unset, None, int]): Interval between each repetition in minutes
@@ -101,8 +103,10 @@ class ProjectBase:
     network_id: Union[Unset, str] = UNSET
     network_name: Union[Unset, str] = UNSET
     non_contributor: Union[Unset, None, bool] = UNSET
+    output_data_source_id: Union[Unset, None, str] = UNSET
     policy: Union[Unset, "ComputationPolicy"] = UNSET
     query_timeout: Union[Unset, int] = 30
+    query_timeout_enabled: Union[Unset, None, bool] = UNSET
     recurring_end_time: Union[Unset, None, str] = UNSET
     recurring_interval: Union[Unset, None, int] = UNSET
     recurring_start_time: Union[Unset, None, str] = UNSET
@@ -153,11 +157,13 @@ class ProjectBase:
         network_id = self.network_id
         network_name = self.network_name
         non_contributor = self.non_contributor
+        output_data_source_id = self.output_data_source_id
         policy: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.policy, Unset):
             policy = self.policy.to_dict()
 
         query_timeout = self.query_timeout
+        query_timeout_enabled = self.query_timeout_enabled
         recurring_end_time = self.recurring_end_time
         recurring_interval = self.recurring_interval
         recurring_start_time = self.recurring_start_time
@@ -227,10 +233,14 @@ class ProjectBase:
             field_dict["networkName"] = network_name
         if non_contributor is not UNSET:
             field_dict["nonContributor"] = non_contributor
+        if output_data_source_id is not UNSET:
+            field_dict["outputDataSourceId"] = output_data_source_id
         if policy is not UNSET:
             field_dict["policy"] = policy
         if query_timeout is not UNSET:
             field_dict["queryTimeout"] = query_timeout
+        if query_timeout_enabled is not UNSET:
+            field_dict["queryTimeoutEnabled"] = query_timeout_enabled
         if recurring_end_time is not UNSET:
             field_dict["recurringEndTime"] = recurring_end_time
         if recurring_interval is not UNSET:
@@ -320,6 +330,8 @@ class ProjectBase:
 
         non_contributor = d.pop("nonContributor", UNSET)
 
+        output_data_source_id = d.pop("outputDataSourceId", UNSET)
+
         _policy = d.pop("policy", UNSET)
         policy: Union[Unset, ComputationPolicy]
         if isinstance(_policy, Unset):
@@ -328,6 +340,8 @@ class ProjectBase:
             policy = ComputationPolicy.from_dict(_policy)
 
         query_timeout = d.pop("queryTimeout", UNSET)
+
+        query_timeout_enabled = d.pop("queryTimeoutEnabled", UNSET)
 
         recurring_end_time = d.pop("recurringEndTime", UNSET)
 
@@ -393,8 +407,10 @@ class ProjectBase:
             network_id=network_id,
             network_name=network_name,
             non_contributor=non_contributor,
+            output_data_source_id=output_data_source_id,
             policy=policy,
             query_timeout=query_timeout,
+            query_timeout_enabled=query_timeout_enabled,
             recurring_end_time=recurring_end_time,
             recurring_interval=recurring_interval,
             recurring_start_time=recurring_start_time,

@@ -102,7 +102,6 @@ from .encrypted_aggregation import EncryptedAggregation
 from .encrypted_content import EncryptedContent
 from .encrypted_content_type import EncryptedContentType
 from .encrypted_mean import EncryptedMean
-from .encrypted_mean_specification import EncryptedMeanSpecification
 from .encrypted_prediction import EncryptedPrediction
 from .encrypted_regression import EncryptedRegression
 from .encrypted_regression_params import EncryptedRegressionParams
@@ -153,6 +152,7 @@ from .get_result_list_order import GetResultListOrder
 from .get_result_list_sort_by import GetResultListSortBy
 from .get_screening_sessions_order import GetScreeningSessionsOrder
 from .get_screening_sessions_sort_by import GetScreeningSessionsSortBy
+from .get_user_preference_key import GetUserPreferenceKey
 from .group_by_type import GroupByType
 from .group_info import GroupInfo
 from .grouping_parameters import GroupingParameters
@@ -199,7 +199,6 @@ from .ontology_type import OntologyType
 from .organization import Organization
 from .organization_coordinates import OrganizationCoordinates
 from .paginated_result import PaginatedResult
-from .parameters_specification import ParametersSpecification
 from .participant import Participant
 from .participants_access_scope import ParticipantsAccessScope
 from .participation_status import ParticipationStatus
@@ -241,6 +240,8 @@ from .project_step_item import ProjectStepItem
 from .protocol_definition import ProtocolDefinition
 from .put_data_object_data_multipart_data import PutDataObjectDataMultipartData
 from .put_data_source_data_multipart_data import PutDataSourceDataMultipartData
+from .put_user_preference_json_body import PutUserPreferenceJsonBody
+from .put_user_preference_key import PutUserPreferenceKey
 from .quantiles import Quantiles
 from .query import Query
 from .query_bookmark_definition import QueryBookmarkDefinition
@@ -296,6 +297,8 @@ from .time_unit import TimeUnit
 from .topology import Topology
 from .training_algorithm import TrainingAlgorithm
 from .transpose import Transpose
+from .unit_filter import UnitFilter
+from .use_policy_status import UsePolicyStatus
 from .user import User
 from .user_definition import UserDefinition
 from .user_definition_access import UserDefinitionAccess
@@ -305,6 +308,7 @@ from .user_definition_disableable_credential_types_item import UserDefinitionDis
 from .user_group import UserGroup
 from .user_info import UserInfo
 from .user_list_query import UserListQuery
+from .user_preference_key import UserPreferenceKey
 from .v_binned_aggregation import VBinnedAggregation
 from .value_distribution import ValueDistribution
 from .visualization_type import VisualizationType
@@ -413,7 +417,6 @@ __all__ = (
     "EncryptedContent",
     "EncryptedContentType",
     "EncryptedMean",
-    "EncryptedMeanSpecification",
     "EncryptedPrediction",
     "EncryptedRegression",
     "EncryptedRegressionParams",
@@ -466,6 +469,7 @@ __all__ = (
     "GetResultListSortBy",
     "GetScreeningSessionsOrder",
     "GetScreeningSessionsSortBy",
+    "GetUserPreferenceKey",
     "GroupByType",
     "GroupInfo",
     "GroupingParameters",
@@ -512,7 +516,6 @@ __all__ = (
     "Organization",
     "OrganizationCoordinates",
     "PaginatedResult",
-    "ParametersSpecification",
     "Participant",
     "ParticipantsAccessScope",
     "ParticipationStatus",
@@ -554,6 +557,8 @@ __all__ = (
     "ProtocolDefinition",
     "PutDataObjectDataMultipartData",
     "PutDataSourceDataMultipartData",
+    "PutUserPreferenceJsonBody",
+    "PutUserPreferenceKey",
     "Quantiles",
     "Query",
     "QueryBookmarkDefinition",
@@ -609,6 +614,8 @@ __all__ = (
     "Topology",
     "TrainingAlgorithm",
     "Transpose",
+    "UnitFilter",
+    "UsePolicyStatus",
     "User",
     "UserDefinition",
     "UserDefinitionAccess",
@@ -618,6 +625,7 @@ __all__ = (
     "UserGroup",
     "UserInfo",
     "UserListQuery",
+    "UserPreferenceKey",
     "ValueDistribution",
     "VBinnedAggregation",
     "VisualizationType",

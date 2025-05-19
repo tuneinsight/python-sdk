@@ -20,7 +20,7 @@ class DatasourcePolicy:
 
     Attributes:
         dp_policy (Union[Unset, DPPolicy]): represents the disclosure prevention policy that enables toggling various
-            disclosure prevention mechanisms
+            mechanisms that are executed whenever the workflow runs.
         authorized_computation_types (Union[Unset, List[ComputationType]]): list of authorized computation types
         authorized_data_source_queries (Union[Unset, List['WhitelistedQuery']]): list of authorized datasource queries
             when restrictDataSourceQueries is set to true

@@ -55,8 +55,10 @@ class ProjectDefinition:
         non_contributor (Union[Unset, None, bool]): indicates that the current project participant takes part in the
             distributed computations but does not have any input data.
             By default this field is set according to the instance's configuration.
+        output_data_source_id (Union[Unset, None, str]): Unique identifier of a data source.
         policy (Union[Unset, ComputationPolicy]): policy to validate a specific computation
         query_timeout (Union[Unset, int]): Timeout for the data source queries Default: 30.
+        query_timeout_enabled (Union[Unset, None, bool]): whether to enable the query timeout or not
         recurring_end_time (Union[Unset, None, str]): ISO 8601 datetime when the repetition should stop. If not set, the
             project will run indefinitely
         recurring_interval (Union[Unset, None, int]): Interval between each repetition in minutes
@@ -77,12 +79,20 @@ class ProjectDefinition:
             authorized to access the project (view / edit depends on the roles)
         workflow_json (Union[Unset, str]): JSON representation of the workflow UI in the frontend
         workflow_type (Union[Unset, WorkflowType]): type of the workflow UI in the frontend
+        archived (Union[Unset, None, bool]): Whether this project should be (un-)archived. An archived project can still
+            be accessed (including all results from previous runs) but can no longer
+            be run or edited. This field is ignored when creating a new project.
         auto_match_criteria (Union[Unset, DataSourceDefinition]): parameters used to create and modify a data source
         broadcast (Union[Unset, bool]): Temporary field. Always set to false. Only used for server-server communication
         leaving (Union[Unset, bool]): When participants are updated, this flag is set to true to indicate that the
             requesting instance is leaving the project.
             Note that this flag is only used when patching project instance to instance.
+        notify_share (Union[Unset, bool]): whether to send an email notification to the organization's users whenever
+            the project is shared.
         participants (Union[Unset, None, List[str]]): List of nodes involved in the project's collaboration
+        project_definition_base_64 (Union[Unset, str]): If provided, this string can be used to send a base64
+            representation of a the projectDefinition's JSON instead of the definition itself.
+            No other field should be set, as this will be overwritten by the content decoded from this.
         request_propagate_broadcast (Union[Unset, bool]): Used for server-server communication to propagate the sharing
             of a project.
              Is "false" unless the project is shared by a leaf node's user in star topo.
@@ -110,8 +120,10 @@ class ProjectDefinition:
     network_id: Union[Unset, str] = UNSET
     network_name: Union[Unset, str] = UNSET
     non_contributor: Union[Unset, None, bool] = UNSET
+    output_data_source_id: Union[Unset, None, str] = UNSET
     policy: Union[Unset, "ComputationPolicy"] = UNSET
     query_timeout: Union[Unset, int] = 30
+    query_timeout_enabled: Union[Unset, None, bool] = UNSET
     recurring_end_time: Union[Unset, None, str] = UNSET
     recurring_interval: Union[Unset, None, int] = UNSET
     recurring_start_time: Union[Unset, None, str] = UNSET
@@ -125,10 +137,13 @@ class ProjectDefinition:
     unrestricted_access: Union[Unset, None, bool] = UNSET
     workflow_json: Union[Unset, str] = UNSET
     workflow_type: Union[Unset, WorkflowType] = UNSET
+    archived: Union[Unset, None, bool] = UNSET
     auto_match_criteria: Union[Unset, "DataSourceDefinition"] = UNSET
     broadcast: Union[Unset, bool] = UNSET
     leaving: Union[Unset, bool] = UNSET
+    notify_share: Union[Unset, bool] = UNSET
     participants: Union[Unset, None, List[str]] = UNSET
+    project_definition_base_64: Union[Unset, str] = UNSET
     request_propagate_broadcast: Union[Unset, bool] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -167,11 +182,13 @@ class ProjectDefinition:
         network_id = self.network_id
         network_name = self.network_name
         non_contributor = self.non_contributor
+        output_data_source_id = self.output_data_source_id
         policy: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.policy, Unset):
             policy = self.policy.to_dict()
 
         query_timeout = self.query_timeout
+        query_timeout_enabled = self.query_timeout_enabled
         recurring_end_time = self.recurring_end_time
         recurring_interval = self.recurring_interval
         recurring_start_time = self.recurring_start_time
@@ -194,12 +211,14 @@ class ProjectDefinition:
         if not isinstance(self.workflow_type, Unset):
             workflow_type = self.workflow_type.value
 
+        archived = self.archived
         auto_match_criteria: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.auto_match_criteria, Unset):
             auto_match_criteria = self.auto_match_criteria.to_dict()
 
         broadcast = self.broadcast
         leaving = self.leaving
+        notify_share = self.notify_share
         participants: Union[Unset, None, List[str]] = UNSET
         if not isinstance(self.participants, Unset):
             if self.participants is None:
@@ -207,6 +226,7 @@ class ProjectDefinition:
             else:
                 participants = self.participants
 
+        project_definition_base_64 = self.project_definition_base_64
         request_propagate_broadcast = self.request_propagate_broadcast
 
         field_dict: Dict[str, Any] = {}
@@ -256,10 +276,14 @@ class ProjectDefinition:
             field_dict["networkName"] = network_name
         if non_contributor is not UNSET:
             field_dict["nonContributor"] = non_contributor
+        if output_data_source_id is not UNSET:
+            field_dict["outputDataSourceId"] = output_data_source_id
         if policy is not UNSET:
             field_dict["policy"] = policy
         if query_timeout is not UNSET:
             field_dict["queryTimeout"] = query_timeout
+        if query_timeout_enabled is not UNSET:
+            field_dict["queryTimeoutEnabled"] = query_timeout_enabled
         if recurring_end_time is not UNSET:
             field_dict["recurringEndTime"] = recurring_end_time
         if recurring_interval is not UNSET:
@@ -286,14 +310,20 @@ class ProjectDefinition:
             field_dict["workflowJSON"] = workflow_json
         if workflow_type is not UNSET:
             field_dict["workflowType"] = workflow_type
+        if archived is not UNSET:
+            field_dict["archived"] = archived
         if auto_match_criteria is not UNSET:
             field_dict["autoMatchCriteria"] = auto_match_criteria
         if broadcast is not UNSET:
             field_dict["broadcast"] = broadcast
         if leaving is not UNSET:
             field_dict["leaving"] = leaving
+        if notify_share is not UNSET:
+            field_dict["notifyShare"] = notify_share
         if participants is not UNSET:
             field_dict["participants"] = participants
+        if project_definition_base_64 is not UNSET:
+            field_dict["projectDefinitionBase64"] = project_definition_base_64
         if request_propagate_broadcast is not UNSET:
             field_dict["requestPropagateBroadcast"] = request_propagate_broadcast
 
@@ -360,6 +390,8 @@ class ProjectDefinition:
 
         non_contributor = d.pop("nonContributor", UNSET)
 
+        output_data_source_id = d.pop("outputDataSourceId", UNSET)
+
         _policy = d.pop("policy", UNSET)
         policy: Union[Unset, ComputationPolicy]
         if isinstance(_policy, Unset):
@@ -368,6 +400,8 @@ class ProjectDefinition:
             policy = ComputationPolicy.from_dict(_policy)
 
         query_timeout = d.pop("queryTimeout", UNSET)
+
+        query_timeout_enabled = d.pop("queryTimeoutEnabled", UNSET)
 
         recurring_end_time = d.pop("recurringEndTime", UNSET)
 
@@ -410,6 +444,8 @@ class ProjectDefinition:
         else:
             workflow_type = WorkflowType(_workflow_type)
 
+        archived = d.pop("archived", UNSET)
+
         _auto_match_criteria = d.pop("autoMatchCriteria", UNSET)
         auto_match_criteria: Union[Unset, DataSourceDefinition]
         if isinstance(_auto_match_criteria, Unset):
@@ -421,7 +457,11 @@ class ProjectDefinition:
 
         leaving = d.pop("leaving", UNSET)
 
+        notify_share = d.pop("notifyShare", UNSET)
+
         participants = cast(List[str], d.pop("participants", UNSET))
+
+        project_definition_base_64 = d.pop("projectDefinitionBase64", UNSET)
 
         request_propagate_broadcast = d.pop("requestPropagateBroadcast", UNSET)
 
@@ -448,8 +488,10 @@ class ProjectDefinition:
             network_id=network_id,
             network_name=network_name,
             non_contributor=non_contributor,
+            output_data_source_id=output_data_source_id,
             policy=policy,
             query_timeout=query_timeout,
+            query_timeout_enabled=query_timeout_enabled,
             recurring_end_time=recurring_end_time,
             recurring_interval=recurring_interval,
             recurring_start_time=recurring_start_time,
@@ -463,10 +505,13 @@ class ProjectDefinition:
             unrestricted_access=unrestricted_access,
             workflow_json=workflow_json,
             workflow_type=workflow_type,
+            archived=archived,
             auto_match_criteria=auto_match_criteria,
             broadcast=broadcast,
             leaving=leaving,
+            notify_share=notify_share,
             participants=participants,
+            project_definition_base_64=project_definition_base_64,
             request_propagate_broadcast=request_propagate_broadcast,
         )
 
