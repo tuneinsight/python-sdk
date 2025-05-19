@@ -33,8 +33,9 @@ class DataSourceConfig:
         local_type (Union[Unset, LocalDataSourceType]):
         port (Union[Unset, str]): Port number of the database
         s_3_bucket (Union[Unset, str]): Name of the S3 bucket
+        s_3_data_bucket (Union[Unset, str]): Name of the S3 data bucket, reserved to store ML data and models
         s_3_default_object_key (Union[Unset, str]): Default object key to use when querying the S3 bucket
-        s_3_region (Union[Unset, str]): Region of the S3 bucket
+        s_3_region (Union[Unset, str]): Region of the S3 buckets
         s_3url (Union[Unset, str]): URL of the S3
         suricata_path (Union[Unset, str]): the path to the suricata JSON file.
         with_auth (Union[Unset, bool]): Whether the API requires authentication
@@ -54,6 +55,7 @@ class DataSourceConfig:
     local_type: Union[Unset, LocalDataSourceType] = UNSET
     port: Union[Unset, str] = UNSET
     s_3_bucket: Union[Unset, str] = UNSET
+    s_3_data_bucket: Union[Unset, str] = UNSET
     s_3_default_object_key: Union[Unset, str] = UNSET
     s_3_region: Union[Unset, str] = UNSET
     s_3url: Union[Unset, str] = UNSET
@@ -91,6 +93,7 @@ class DataSourceConfig:
 
         port = self.port
         s_3_bucket = self.s_3_bucket
+        s_3_data_bucket = self.s_3_data_bucket
         s_3_default_object_key = self.s_3_default_object_key
         s_3_region = self.s_3_region
         s_3url = self.s_3url
@@ -128,6 +131,8 @@ class DataSourceConfig:
             field_dict["port"] = port
         if s_3_bucket is not UNSET:
             field_dict["s3Bucket"] = s_3_bucket
+        if s_3_data_bucket is not UNSET:
+            field_dict["s3DataBucket"] = s_3_data_bucket
         if s_3_default_object_key is not UNSET:
             field_dict["s3DefaultObjectKey"] = s_3_default_object_key
         if s_3_region is not UNSET:
@@ -197,6 +202,8 @@ class DataSourceConfig:
 
         s_3_bucket = d.pop("s3Bucket", UNSET)
 
+        s_3_data_bucket = d.pop("s3DataBucket", UNSET)
+
         s_3_default_object_key = d.pop("s3DefaultObjectKey", UNSET)
 
         s_3_region = d.pop("s3Region", UNSET)
@@ -222,6 +229,7 @@ class DataSourceConfig:
             local_type=local_type,
             port=port,
             s_3_bucket=s_3_bucket,
+            s_3_data_bucket=s_3_data_bucket,
             s_3_default_object_key=s_3_default_object_key,
             s_3_region=s_3_region,
             s_3url=s_3url,

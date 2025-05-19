@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from ..models.hybrid_fl_generic_params import HybridFLGenericParams
     from ..models.hybrid_fl_spec_params import HybridFLSpecParams
     from ..models.local_input import LocalInput
+    from ..models.unit_filter import UnitFilter
 
 
 T = TypeVar("T", bound="HybridFL")
@@ -27,7 +28,7 @@ class HybridFL:
         params (HybridFLGenericParams): Parameters for the Hybrid Federated Learning
         spec_params (HybridFLSpecParams): Specific parameters for the Hybrid Federated Learning (discriminator pattern)
         dp_policy (Union[Unset, DPPolicy]): represents the disclosure prevention policy that enables toggling various
-            disclosure prevention mechanisms
+            mechanisms that are executed whenever the workflow runs.
         cohort_id (Union[Unset, str]): Unique identifier of a data object.
         data_source_parameters (Union[Unset, ComputationDataSourceParameters]): Parameters used to query the datasource
             from each node before the computation
@@ -72,6 +73,8 @@ class HybridFL:
             and a Result entity is saved
         run_mode (Union[Unset, RunMode]): Defines the mode in which to run a computation (local, collective, or both)
         timeout (Union[Unset, int]): The maximum amount of time in seconds the computation is allowed to run.
+        units (Union[Unset, List['UnitFilter']]): unit requirements for the numerical values in the computation. Used to
+            filter input records with mismatching units.
         wait (Union[Unset, bool]): Whether to wait synchronously for the computation result.
         dp_params (Union[Unset, HybridFLDpParams]): Parameters for Differential Privacy in the Hybrid Federated Learning
         task_def (Union[Unset, str]):
@@ -100,6 +103,7 @@ class HybridFL:
     release_results: Union[Unset, bool] = UNSET
     run_mode: Union[Unset, RunMode] = UNSET
     timeout: Union[Unset, int] = UNSET
+    units: Union[Unset, List["UnitFilter"]] = UNSET
     wait: Union[Unset, bool] = UNSET
     dp_params: Union[Unset, "HybridFLDpParams"] = UNSET
     task_def: Union[Unset, str] = UNSET
@@ -147,6 +151,14 @@ class HybridFL:
             run_mode = self.run_mode.value
 
         timeout = self.timeout
+        units: Union[Unset, List[Dict[str, Any]]] = UNSET
+        if not isinstance(self.units, Unset):
+            units = []
+            for units_item_data in self.units:
+                units_item = units_item_data.to_dict()
+
+                units.append(units_item)
+
         wait = self.wait
         dp_params: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.dp_params, Unset):
@@ -202,6 +214,8 @@ class HybridFL:
             field_dict["runMode"] = run_mode
         if timeout is not UNSET:
             field_dict["timeout"] = timeout
+        if units is not UNSET:
+            field_dict["units"] = units
         if wait is not UNSET:
             field_dict["wait"] = wait
         if dp_params is not UNSET:
@@ -222,6 +236,7 @@ class HybridFL:
         from ..models.hybrid_fl_generic_params import HybridFLGenericParams
         from ..models.hybrid_fl_spec_params import HybridFLSpecParams
         from ..models.local_input import LocalInput
+        from ..models.unit_filter import UnitFilter
 
         d = src_dict.copy()
         type = ComputationType(d.pop("type"))
@@ -293,6 +308,13 @@ class HybridFL:
 
         timeout = d.pop("timeout", UNSET)
 
+        units = []
+        _units = d.pop("units", UNSET)
+        for units_item_data in _units or []:
+            units_item = UnitFilter.from_dict(units_item_data)
+
+            units.append(units_item)
+
         wait = d.pop("wait", UNSET)
 
         _dp_params = d.pop("dpParams", UNSET)
@@ -329,6 +351,7 @@ class HybridFL:
             release_results=release_results,
             run_mode=run_mode,
             timeout=timeout,
+            units=units,
             wait=wait,
             dp_params=dp_params,
             task_def=task_def,

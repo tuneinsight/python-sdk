@@ -23,10 +23,14 @@ class Settings:
             Workflows.
         authorized_project_types (Union[Unset, List[WorkflowType]]): array of project types that are available for
             selection when creating a new project.
-        auto_approve_specification (Union[Unset, ProjectSpecification]): Specifies parts of a project (called "checked
-            project").
-        auto_reject_specification (Union[Unset, ProjectSpecification]): Specifies parts of a project (called "checked
-            project").
+        auto_approve_specifications (Union[Unset, List['ProjectSpecification']]): A list of project templates such that
+            satisfying at least one automatically authorizes the project.
+        auto_reject_specifications (Union[Unset, List['ProjectSpecification']]): A list of project templates that must
+            all be satisfied for a project to be authorized.
+        client_max_timeout (Union[Unset, int]): custom timeout (seconds) to use for computations
+        client_max_timeout_enabled (Union[Unset, None, bool]): whether to enable the computation timeout
+        computation_timeout (Union[Unset, int]): custom timeout (seconds) to use for computations
+        computation_timeout_enabled (Union[Unset, None, bool]): whether to enable the computation timeout
         data_screening (Union[Unset, None, bool]): whether or not to enable the data screening UI.
         default_contract (Union[Unset, AuthorizationContract]): describes what parts of the computation are allowed to
             change when a project is authorized
@@ -41,8 +45,12 @@ class Settings:
     color_theme: Union[Unset, None, str] = UNSET
     access_with_python: Union[Unset, None, bool] = UNSET
     authorized_project_types: Union[Unset, List[WorkflowType]] = UNSET
-    auto_approve_specification: Union[Unset, "ProjectSpecification"] = UNSET
-    auto_reject_specification: Union[Unset, "ProjectSpecification"] = UNSET
+    auto_approve_specifications: Union[Unset, List["ProjectSpecification"]] = UNSET
+    auto_reject_specifications: Union[Unset, List["ProjectSpecification"]] = UNSET
+    client_max_timeout: Union[Unset, int] = UNSET
+    client_max_timeout_enabled: Union[Unset, None, bool] = UNSET
+    computation_timeout: Union[Unset, int] = UNSET
+    computation_timeout_enabled: Union[Unset, None, bool] = UNSET
     data_screening: Union[Unset, None, bool] = UNSET
     default_contract: Union[Unset, "AuthorizationContract"] = UNSET
     default_data_source: Union[Unset, None, str] = UNSET
@@ -64,14 +72,26 @@ class Settings:
 
                 authorized_project_types.append(authorized_project_types_item)
 
-        auto_approve_specification: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.auto_approve_specification, Unset):
-            auto_approve_specification = self.auto_approve_specification.to_dict()
+        auto_approve_specifications: Union[Unset, List[Dict[str, Any]]] = UNSET
+        if not isinstance(self.auto_approve_specifications, Unset):
+            auto_approve_specifications = []
+            for auto_approve_specifications_item_data in self.auto_approve_specifications:
+                auto_approve_specifications_item = auto_approve_specifications_item_data.to_dict()
 
-        auto_reject_specification: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.auto_reject_specification, Unset):
-            auto_reject_specification = self.auto_reject_specification.to_dict()
+                auto_approve_specifications.append(auto_approve_specifications_item)
 
+        auto_reject_specifications: Union[Unset, List[Dict[str, Any]]] = UNSET
+        if not isinstance(self.auto_reject_specifications, Unset):
+            auto_reject_specifications = []
+            for auto_reject_specifications_item_data in self.auto_reject_specifications:
+                auto_reject_specifications_item = auto_reject_specifications_item_data.to_dict()
+
+                auto_reject_specifications.append(auto_reject_specifications_item)
+
+        client_max_timeout = self.client_max_timeout
+        client_max_timeout_enabled = self.client_max_timeout_enabled
+        computation_timeout = self.computation_timeout
+        computation_timeout_enabled = self.computation_timeout_enabled
         data_screening = self.data_screening
         default_contract: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.default_contract, Unset):
@@ -93,10 +113,18 @@ class Settings:
             field_dict["accessWithPython"] = access_with_python
         if authorized_project_types is not UNSET:
             field_dict["authorizedProjectTypes"] = authorized_project_types
-        if auto_approve_specification is not UNSET:
-            field_dict["autoApproveSpecification"] = auto_approve_specification
-        if auto_reject_specification is not UNSET:
-            field_dict["autoRejectSpecification"] = auto_reject_specification
+        if auto_approve_specifications is not UNSET:
+            field_dict["autoApproveSpecifications"] = auto_approve_specifications
+        if auto_reject_specifications is not UNSET:
+            field_dict["autoRejectSpecifications"] = auto_reject_specifications
+        if client_max_timeout is not UNSET:
+            field_dict["clientMaxTimeout"] = client_max_timeout
+        if client_max_timeout_enabled is not UNSET:
+            field_dict["clientMaxTimeoutEnabled"] = client_max_timeout_enabled
+        if computation_timeout is not UNSET:
+            field_dict["computationTimeout"] = computation_timeout
+        if computation_timeout_enabled is not UNSET:
+            field_dict["computationTimeoutEnabled"] = computation_timeout_enabled
         if data_screening is not UNSET:
             field_dict["dataScreening"] = data_screening
         if default_contract is not UNSET:
@@ -133,19 +161,27 @@ class Settings:
 
             authorized_project_types.append(authorized_project_types_item)
 
-        _auto_approve_specification = d.pop("autoApproveSpecification", UNSET)
-        auto_approve_specification: Union[Unset, ProjectSpecification]
-        if isinstance(_auto_approve_specification, Unset):
-            auto_approve_specification = UNSET
-        else:
-            auto_approve_specification = ProjectSpecification.from_dict(_auto_approve_specification)
+        auto_approve_specifications = []
+        _auto_approve_specifications = d.pop("autoApproveSpecifications", UNSET)
+        for auto_approve_specifications_item_data in _auto_approve_specifications or []:
+            auto_approve_specifications_item = ProjectSpecification.from_dict(auto_approve_specifications_item_data)
 
-        _auto_reject_specification = d.pop("autoRejectSpecification", UNSET)
-        auto_reject_specification: Union[Unset, ProjectSpecification]
-        if isinstance(_auto_reject_specification, Unset):
-            auto_reject_specification = UNSET
-        else:
-            auto_reject_specification = ProjectSpecification.from_dict(_auto_reject_specification)
+            auto_approve_specifications.append(auto_approve_specifications_item)
+
+        auto_reject_specifications = []
+        _auto_reject_specifications = d.pop("autoRejectSpecifications", UNSET)
+        for auto_reject_specifications_item_data in _auto_reject_specifications or []:
+            auto_reject_specifications_item = ProjectSpecification.from_dict(auto_reject_specifications_item_data)
+
+            auto_reject_specifications.append(auto_reject_specifications_item)
+
+        client_max_timeout = d.pop("clientMaxTimeout", UNSET)
+
+        client_max_timeout_enabled = d.pop("clientMaxTimeoutEnabled", UNSET)
+
+        computation_timeout = d.pop("computationTimeout", UNSET)
+
+        computation_timeout_enabled = d.pop("computationTimeoutEnabled", UNSET)
 
         data_screening = d.pop("dataScreening", UNSET)
 
@@ -172,8 +208,12 @@ class Settings:
             color_theme=color_theme,
             access_with_python=access_with_python,
             authorized_project_types=authorized_project_types,
-            auto_approve_specification=auto_approve_specification,
-            auto_reject_specification=auto_reject_specification,
+            auto_approve_specifications=auto_approve_specifications,
+            auto_reject_specifications=auto_reject_specifications,
+            client_max_timeout=client_max_timeout,
+            client_max_timeout_enabled=client_max_timeout_enabled,
+            computation_timeout=computation_timeout,
+            computation_timeout_enabled=computation_timeout_enabled,
             data_screening=data_screening,
             default_contract=default_contract,
             default_data_source=default_data_source,

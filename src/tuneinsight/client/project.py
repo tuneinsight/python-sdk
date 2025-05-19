@@ -27,7 +27,7 @@ from tuneinsight.api.sdk.api.api_project import (
 )
 from tuneinsight.api.sdk import client as api_client
 from tuneinsight.api.sdk.api.api_datasource import get_data_source
-from tuneinsight.api.sdk.api.api_computations import documentation
+from tuneinsight.api.sdk.api.api_computations import documentation, get_computation_list
 
 from tuneinsight.computations import Computation
 from tuneinsight.computations.policy import Policy
@@ -62,12 +62,17 @@ class Project:
     manually building a models.Project object.
 
     Args for __init__ (to do it manually):
-        model: the model.Project from the API that this object wraps.
-        client: the client used to access the API.
+        `model`: the model.Project from the API that this object wraps.
+        `client`: the low-level client used to access the API.
+        `diapason`: the high-level API client (which has more functionality than the direct client).
+
+    If `diapason` is provided, `client` is defined as `diapason.client`.
     """
 
     model: models.Project  # The underlying model
-    client: api_client.Client = None  # the client used to access the api
+    client: api_client.Client = None  # The client used to access the api.
+    # The higher level client (defined in tuneinsight.client.diapason).
+    diapason: "Diapason" = None
 
     # SDK-level abstractions (links to SDK objects).
     datasource: DataSource = None
@@ -80,6 +85,8 @@ class Project:
 
     def __attrs_post_init__(self):
         """Create a datasource object if one is defined in the project model."""
+        if self.diapason is not None:
+            self.client = self.diapason.client
         if is_set(self.model.data_source_id) and self.model.data_source_id:
             self.datasource = DataSource.fetch_from_id(
                 self.client, self.model.data_source_id
@@ -128,6 +135,12 @@ class Project:
         """
         if self._disable_patch:
             return
+        if not self.client_can(models.Capability.EDITPROJECTS):
+            warnings.warn(
+                "You do not have the capabilities to edit this project "
+                "so changes made with this code will not be taken into account."
+            )
+            return
         resp: Response[models.Project] = patch_project.sync_detailed(
             client=self.client, project_id=self.get_id(), json_body=proj_def
         )
@@ -138,9 +151,9 @@ class Project:
     def _display_error(self, hard: bool = False):
         """Raises warnings containing errors recorded in the project.
 
-        Projects have an "error" field that logs errors that occured during operations, but did
+        Projects have an "error" field that logs errors that occurred during operations, but did
         not block these operations from completing. These errors typically occur when parts of the
-        operation could complete, but some parts could not (usually, because of errors occuring in
+        operation could complete, but some parts could not (usually, because of errors occurring in
         remote participants out of this user's control). This method displays the error as a
         warning
 
@@ -153,7 +166,13 @@ class Project:
                 raise Exception(self.model.error)
             # If multiple errors occur, they will be listed on separate lines.
             for error in self.model.error.split("\n"):
-                warnings.warn(f"Error occured in project {self.get_id()}: {error}")
+                warnings.warn(f"Error occurred in project {self.get_id()}: {error}")
+
+    def client_can(self, capability: models.Capability) -> bool:
+        """Returns whether the Diapason client has a capability."""
+        if self.diapason is None:
+            return True
+        return self.diapason.can(capability)
 
     # Getters for model values.
 
@@ -486,6 +505,18 @@ class Project:
         proj_def = models.ProjectDefinition(shared=False)
         self._patch(proj_def=proj_def)
 
+    def archive(self):
+        """
+        Archives the project. Archived projects can no longer be edited or run.
+        """
+        self._patch(models.ProjectDefinition(archived=True))
+
+    def unarchive(self):
+        """
+        Unarchives the project, if it is archived. This will reset the authorization to draft.
+        """
+        self._patch(models.ProjectDefinition(archived=False))
+
     # End-to-end encryption
     def enable_end_to_end_encryption(self):
         """
@@ -595,10 +626,21 @@ class Project:
             _class = model_type_to_class(computation_definition.type)
             return _class.from_model(self, computation_definition)
 
-    def get_computations(self) -> List[models.Computation]:
-        """Returns the list of all computations that have been run on this project."""
-        self._refresh()
-        return self.model.computations
+    def get_computations(self, num_computations: int = 10) -> List[models.Computation]:
+        """Returns the list of the latest computations that have been run on this project.
+
+        Args:
+            num_computations (int, optional): Number of computations to fetch. Defaults to 10.
+        """
+        resp = get_computation_list.sync_detailed(
+            client=self.client,
+            project_id=self.get_id(),
+            per_page=num_computations,
+            order=models.GetComputationListOrder.DESC,
+            sort_by=models.GetComputationListSortBy.UPDATEDAT,
+        )
+        validate_response(resp)
+        return resp.parsed.items
 
     def fetch_results(self) -> List[Tuple[Computation, Any]]:
         """
@@ -749,7 +791,6 @@ class Project:
             contributes_text = "contributor" if p.is_contributor else "non-contributor"
             r.h3("Participant: ", r.code(p.node.name), f"({contributes_text})")
             for t in tables:
-                # print(f"Table name: {t.name}")
                 r.h4("Table name:", r.code(t.name))
                 data = {"Column": [], "Type": []}
                 num_cols = len(t.columns)
@@ -982,7 +1023,9 @@ class Project:
             r("Authorization Status:\n", r.code(part.authorization_status))
             r.end_paragraph()
 
-    def display_actions(self):
+    def display_actions(
+        self,
+    ):  # pylint: disable=too-many-branches disable=too-many-statements
         """
         Displays a human-readable summary of what actions are allowed on this project, along
         with explanations on why some actions are not allowed.
@@ -1021,6 +1064,40 @@ class Project:
                 r.item("Project cannot be run")
             for mode in actions.available_run_modes:
                 r.item(mode)
+
+        # Auto-approve and auto-reject specifications status.
+        participants = value_if_unset(self.model.participants, [])
+        auto_approve: List[models.AvailabilityStatus] = []
+        auto_reject: List[models.AvailabilityStatus] = []
+        for part in participants:
+            auto_approve += value_if_unset(part.matches_auto_approve_specifications, [])
+            auto_reject += value_if_unset(part.matches_auto_reject_specifications, [])
+        if auto_approve or auto_reject:
+            r.h2("Project specifications")
+            if auto_approve:
+                r.h3("Auto-approve specifications")
+                for i, status in enumerate(auto_approve):
+                    if is_unset(status):
+                        continue
+                    if status.available:
+                        r.item(
+                            f'✅ Project satisfies specification _"{value_if_unset(status.context, i+1)}"_. The project will be approved automatically.'
+                        )
+                    else:
+                        r.item(
+                            f'❌ Project does not satisfy specification _"{value_if_unset(status.context, i+1)}"_ because {status.reason}.'
+                        )
+            if auto_reject:
+                r.h3("Auto-reject specifications")
+                for i, status in enumerate(auto_reject):
+                    if is_unset(status):
+                        continue
+                    if status.available:
+                        r.item(f"✅ Project satisfies specification {i+1}.")
+                    else:
+                        r.item(
+                            f'❌ The project will be automatically rejected, because it does not satisfy specification _"{value_if_unset(status.context, i+1)}"_: {status.reason}.'
+                        )
 
 
 def _render_action(r: Renderer, name: str, status: models.AvailabilityStatus):

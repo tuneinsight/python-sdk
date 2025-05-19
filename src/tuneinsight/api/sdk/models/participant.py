@@ -32,6 +32,10 @@ class Participant:
         data_sources (Union[Unset, List['DataSource']]): list of data sources exposed by this node
         input_metadata (Union[Unset, DataSourceMetadata]): metadata about a datasource
         is_contributor (Union[Unset, None, bool]):
+        matches_auto_approve_specifications (Union[Unset, List['AvailabilityStatus']]): whether this project can be
+            auto-approved by any of the instance's auto-approve specifications.
+        matches_auto_reject_specifications (Union[Unset, List['AvailabilityStatus']]): whether this project would be
+            auto-rejected by any of the instance's auto-reject specifications.
         node (Union[Unset, Node]): Node or agent of the network
         non_contributing_reason (Union[Unset, str]): Reason why the participant is not contributing to the project.
             Only shown when the participant is not a contributor in the computation.
@@ -47,6 +51,8 @@ class Participant:
     data_sources: Union[Unset, List["DataSource"]] = UNSET
     input_metadata: Union[Unset, "DataSourceMetadata"] = UNSET
     is_contributor: Union[Unset, None, bool] = UNSET
+    matches_auto_approve_specifications: Union[Unset, List["AvailabilityStatus"]] = UNSET
+    matches_auto_reject_specifications: Union[Unset, List["AvailabilityStatus"]] = UNSET
     node: Union[Unset, "Node"] = UNSET
     non_contributing_reason: Union[Unset, str] = UNSET
     participation_status: Union[Unset, ParticipationStatus] = UNSET
@@ -84,6 +90,22 @@ class Participant:
             input_metadata = self.input_metadata.to_dict()
 
         is_contributor = self.is_contributor
+        matches_auto_approve_specifications: Union[Unset, List[Dict[str, Any]]] = UNSET
+        if not isinstance(self.matches_auto_approve_specifications, Unset):
+            matches_auto_approve_specifications = []
+            for matches_auto_approve_specifications_item_data in self.matches_auto_approve_specifications:
+                matches_auto_approve_specifications_item = matches_auto_approve_specifications_item_data.to_dict()
+
+                matches_auto_approve_specifications.append(matches_auto_approve_specifications_item)
+
+        matches_auto_reject_specifications: Union[Unset, List[Dict[str, Any]]] = UNSET
+        if not isinstance(self.matches_auto_reject_specifications, Unset):
+            matches_auto_reject_specifications = []
+            for matches_auto_reject_specifications_item_data in self.matches_auto_reject_specifications:
+                matches_auto_reject_specifications_item = matches_auto_reject_specifications_item_data.to_dict()
+
+                matches_auto_reject_specifications.append(matches_auto_reject_specifications_item)
+
         node: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.node, Unset):
             node = self.node.to_dict()
@@ -115,6 +137,10 @@ class Participant:
             field_dict["inputMetadata"] = input_metadata
         if is_contributor is not UNSET:
             field_dict["isContributor"] = is_contributor
+        if matches_auto_approve_specifications is not UNSET:
+            field_dict["matchesAutoApproveSpecifications"] = matches_auto_approve_specifications
+        if matches_auto_reject_specifications is not UNSET:
+            field_dict["matchesAutoRejectSpecifications"] = matches_auto_reject_specifications
         if node is not UNSET:
             field_dict["node"] = node
         if non_contributing_reason is not UNSET:
@@ -181,6 +207,24 @@ class Participant:
 
         is_contributor = d.pop("isContributor", UNSET)
 
+        matches_auto_approve_specifications = []
+        _matches_auto_approve_specifications = d.pop("matchesAutoApproveSpecifications", UNSET)
+        for matches_auto_approve_specifications_item_data in _matches_auto_approve_specifications or []:
+            matches_auto_approve_specifications_item = AvailabilityStatus.from_dict(
+                matches_auto_approve_specifications_item_data
+            )
+
+            matches_auto_approve_specifications.append(matches_auto_approve_specifications_item)
+
+        matches_auto_reject_specifications = []
+        _matches_auto_reject_specifications = d.pop("matchesAutoRejectSpecifications", UNSET)
+        for matches_auto_reject_specifications_item_data in _matches_auto_reject_specifications or []:
+            matches_auto_reject_specifications_item = AvailabilityStatus.from_dict(
+                matches_auto_reject_specifications_item_data
+            )
+
+            matches_auto_reject_specifications.append(matches_auto_reject_specifications_item)
+
         _node = d.pop("node", UNSET)
         node: Union[Unset, Node]
         if isinstance(_node, Unset):
@@ -214,6 +258,8 @@ class Participant:
             data_sources=data_sources,
             input_metadata=input_metadata,
             is_contributor=is_contributor,
+            matches_auto_approve_specifications=matches_auto_approve_specifications,
+            matches_auto_reject_specifications=matches_auto_reject_specifications,
             node=node,
             non_contributing_reason=non_contributing_reason,
             participation_status=participation_status,

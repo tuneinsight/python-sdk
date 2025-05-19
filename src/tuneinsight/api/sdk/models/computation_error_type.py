@@ -8,6 +8,7 @@ class ComputationErrorType(str, Enum):
     VALIDATION = "validation"
     INTERNAL = "internal"
     CANCELLED = "cancelled"
+    TIMEOUT = "timeout"
 
     def __str__(self) -> str:
         return str(self.value)
