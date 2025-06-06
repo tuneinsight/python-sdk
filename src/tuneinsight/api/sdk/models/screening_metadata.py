@@ -5,7 +5,7 @@ import attr
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.data_source_column import DataSourceColumn
+    from ..models.screening_column import ScreeningColumn
 
 
 T = TypeVar("T", bound="ScreeningMetadata")
@@ -16,12 +16,12 @@ class ScreeningMetadata:
     """metadata of the dataset used in the screening process.
 
     Attributes:
-        columns (Union[Unset, List['DataSourceColumn']]):
+        columns (Union[Unset, List['ScreeningColumn']]):
         count (Union[Unset, int]): number of rows in the original dataset.
         screened_count (Union[Unset, int]): number of screened rows.
     """
 
-    columns: Union[Unset, List["DataSourceColumn"]] = UNSET
+    columns: Union[Unset, List["ScreeningColumn"]] = UNSET
     count: Union[Unset, int] = UNSET
     screened_count: Union[Unset, int] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
@@ -52,13 +52,13 @@ class ScreeningMetadata:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.data_source_column import DataSourceColumn
+        from ..models.screening_column import ScreeningColumn
 
         d = src_dict.copy()
         columns = []
         _columns = d.pop("columns", UNSET)
         for columns_item_data in _columns or []:
-            columns_item = DataSourceColumn.from_dict(columns_item_data)
+            columns_item = ScreeningColumn.from_dict(columns_item_data)
 
             columns.append(columns_item)
 

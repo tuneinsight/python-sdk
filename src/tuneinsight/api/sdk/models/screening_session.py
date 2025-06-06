@@ -21,6 +21,7 @@ class ScreeningSession:
     the screening operations that were applied.
 
         Attributes:
+            current_stage (Union[Unset, None, int]): current stage in the frontend screening session configuration steps.
             data_source_id (Union[Unset, None, str]): Unique identifier of a data source.
             name (Union[Unset, str]): name given to this session.
             operations (Union[Unset, List['ScreeningOperation']]): list of screening operations.
@@ -29,11 +30,13 @@ class ScreeningSession:
             created_by_user (Union[Unset, str]): name of the user that created this session.
             data (Union[Unset, List['ScreenedRow']]): the rows of the table that is being screened.
             data_object_id (Union[Unset, str]): Unique identifier of a data object.
+            highest_stage (Union[Unset, int]): the most advanced stage the user has visited in the frontend.
             id (Union[Unset, str]): id of the screening session
             metadata (Union[Unset, ScreeningMetadata]): metadata of the dataset used in the screening process.
             updated_at (Union[Unset, str]): time at which the session was last updated (RFC 3339 format).
     """
 
+    current_stage: Union[Unset, None, int] = UNSET
     data_source_id: Union[Unset, None, str] = UNSET
     name: Union[Unset, str] = UNSET
     operations: Union[Unset, List["ScreeningOperation"]] = UNSET
@@ -42,12 +45,14 @@ class ScreeningSession:
     created_by_user: Union[Unset, str] = UNSET
     data: Union[Unset, List["ScreenedRow"]] = UNSET
     data_object_id: Union[Unset, str] = UNSET
+    highest_stage: Union[Unset, int] = UNSET
     id: Union[Unset, str] = UNSET
     metadata: Union[Unset, "ScreeningMetadata"] = UNSET
     updated_at: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        current_stage = self.current_stage
         data_source_id = self.data_source_id
         name = self.name
         operations: Union[Unset, List[Dict[str, Any]]] = UNSET
@@ -73,6 +78,7 @@ class ScreeningSession:
                 data.append(data_item)
 
         data_object_id = self.data_object_id
+        highest_stage = self.highest_stage
         id = self.id
         metadata: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.metadata, Unset):
@@ -83,6 +89,8 @@ class ScreeningSession:
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if current_stage is not UNSET:
+            field_dict["currentStage"] = current_stage
         if data_source_id is not UNSET:
             field_dict["dataSourceId"] = data_source_id
         if name is not UNSET:
@@ -99,6 +107,8 @@ class ScreeningSession:
             field_dict["data"] = data
         if data_object_id is not UNSET:
             field_dict["dataObjectId"] = data_object_id
+        if highest_stage is not UNSET:
+            field_dict["highestStage"] = highest_stage
         if id is not UNSET:
             field_dict["id"] = id
         if metadata is not UNSET:
@@ -116,6 +126,8 @@ class ScreeningSession:
         from ..models.screening_operation import ScreeningOperation
 
         d = src_dict.copy()
+        current_stage = d.pop("currentStage", UNSET)
+
         data_source_id = d.pop("dataSourceId", UNSET)
 
         name = d.pop("name", UNSET)
@@ -147,6 +159,8 @@ class ScreeningSession:
 
         data_object_id = d.pop("dataObjectId", UNSET)
 
+        highest_stage = d.pop("highestStage", UNSET)
+
         id = d.pop("id", UNSET)
 
         _metadata = d.pop("metadata", UNSET)
@@ -159,6 +173,7 @@ class ScreeningSession:
         updated_at = d.pop("updatedAt", UNSET)
 
         screening_session = cls(
+            current_stage=current_stage,
             data_source_id=data_source_id,
             name=name,
             operations=operations,
@@ -167,6 +182,7 @@ class ScreeningSession:
             created_by_user=created_by_user,
             data=data,
             data_object_id=data_object_id,
+            highest_stage=highest_stage,
             id=id,
             metadata=metadata,
             updated_at=updated_at,

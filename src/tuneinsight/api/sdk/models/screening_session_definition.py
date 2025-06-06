@@ -17,12 +17,14 @@ class ScreeningSessionDefinition:
     """part of the screening session defined by the user.
 
     Attributes:
+        current_stage (Union[Unset, None, int]): current stage in the frontend screening session configuration steps.
         data_source_id (Union[Unset, None, str]): Unique identifier of a data source.
         name (Union[Unset, str]): name given to this session.
         operations (Union[Unset, List['ScreeningOperation']]): list of screening operations.
         query (Union[Unset, DataSourceQuery]): schema used for the query
     """
 
+    current_stage: Union[Unset, None, int] = UNSET
     data_source_id: Union[Unset, None, str] = UNSET
     name: Union[Unset, str] = UNSET
     operations: Union[Unset, List["ScreeningOperation"]] = UNSET
@@ -30,6 +32,7 @@ class ScreeningSessionDefinition:
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        current_stage = self.current_stage
         data_source_id = self.data_source_id
         name = self.name
         operations: Union[Unset, List[Dict[str, Any]]] = UNSET
@@ -47,6 +50,8 @@ class ScreeningSessionDefinition:
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if current_stage is not UNSET:
+            field_dict["currentStage"] = current_stage
         if data_source_id is not UNSET:
             field_dict["dataSourceId"] = data_source_id
         if name is not UNSET:
@@ -64,6 +69,8 @@ class ScreeningSessionDefinition:
         from ..models.screening_operation import ScreeningOperation
 
         d = src_dict.copy()
+        current_stage = d.pop("currentStage", UNSET)
+
         data_source_id = d.pop("dataSourceId", UNSET)
 
         name = d.pop("name", UNSET)
@@ -83,6 +90,7 @@ class ScreeningSessionDefinition:
             query = DataSourceQuery.from_dict(_query)
 
         screening_session_definition = cls(
+            current_stage=current_stage,
             data_source_id=data_source_id,
             name=name,
             operations=operations,

@@ -15,7 +15,7 @@ def _get_kwargs(
     *,
     client: Client,
     page: Union[Unset, None, int] = 1,
-    per_page: Union[Unset, None, int] = 50,
+    rows_per_page: Union[Unset, None, int] = UNSET,
 ) -> Dict[str, Any]:
     url = "{}/screening-sessions/{sessionId}".format(client.base_url, sessionId=session_id)
 
@@ -25,18 +25,18 @@ def _get_kwargs(
     params: Dict[str, Any] = {}
     params["page"] = page
 
-    params["perPage"] = per_page
+    params["rowsPerPage"] = rows_per_page
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
     # Set the proxies if the client has proxies set.
     proxies = None
     if hasattr(client, "proxies") and client.proxies is not None:
-        https_proxy = client.proxies.get("https")
+        https_proxy = client.proxies.get("https://")
         if https_proxy:
             proxies = https_proxy
         else:
-            http_proxy = client.proxies.get("http")
+            http_proxy = client.proxies.get("http://")
             if http_proxy:
                 proxies = http_proxy
 
@@ -96,14 +96,14 @@ def sync_detailed(
     *,
     client: Client,
     page: Union[Unset, None, int] = 1,
-    per_page: Union[Unset, None, int] = 50,
+    rows_per_page: Union[Unset, None, int] = UNSET,
 ) -> Response[Union[Error, ScreeningSession]]:
     """Returns a specific screening session by ID.
 
     Args:
         session_id (str):
         page (Union[Unset, None, int]):  Default: 1.
-        per_page (Union[Unset, None, int]):  Default: 50.
+        rows_per_page (Union[Unset, None, int]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -117,7 +117,7 @@ def sync_detailed(
         session_id=session_id,
         client=client,
         page=page,
-        per_page=per_page,
+        rows_per_page=rows_per_page,
     )
 
     response = httpx.request(
@@ -133,14 +133,14 @@ def sync(
     *,
     client: Client,
     page: Union[Unset, None, int] = 1,
-    per_page: Union[Unset, None, int] = 50,
+    rows_per_page: Union[Unset, None, int] = UNSET,
 ) -> Optional[Union[Error, ScreeningSession]]:
     """Returns a specific screening session by ID.
 
     Args:
         session_id (str):
         page (Union[Unset, None, int]):  Default: 1.
-        per_page (Union[Unset, None, int]):  Default: 50.
+        rows_per_page (Union[Unset, None, int]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -154,7 +154,7 @@ def sync(
         session_id=session_id,
         client=client,
         page=page,
-        per_page=per_page,
+        rows_per_page=rows_per_page,
     ).parsed
 
 
@@ -163,14 +163,14 @@ async def asyncio_detailed(
     *,
     client: Client,
     page: Union[Unset, None, int] = 1,
-    per_page: Union[Unset, None, int] = 50,
+    rows_per_page: Union[Unset, None, int] = UNSET,
 ) -> Response[Union[Error, ScreeningSession]]:
     """Returns a specific screening session by ID.
 
     Args:
         session_id (str):
         page (Union[Unset, None, int]):  Default: 1.
-        per_page (Union[Unset, None, int]):  Default: 50.
+        rows_per_page (Union[Unset, None, int]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -184,7 +184,7 @@ async def asyncio_detailed(
         session_id=session_id,
         client=client,
         page=page,
-        per_page=per_page,
+        rows_per_page=rows_per_page,
     )
 
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
@@ -198,14 +198,14 @@ async def asyncio(
     *,
     client: Client,
     page: Union[Unset, None, int] = 1,
-    per_page: Union[Unset, None, int] = 50,
+    rows_per_page: Union[Unset, None, int] = UNSET,
 ) -> Optional[Union[Error, ScreeningSession]]:
     """Returns a specific screening session by ID.
 
     Args:
         session_id (str):
         page (Union[Unset, None, int]):  Default: 1.
-        per_page (Union[Unset, None, int]):  Default: 50.
+        rows_per_page (Union[Unset, None, int]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -220,6 +220,6 @@ async def asyncio(
             session_id=session_id,
             client=client,
             page=page,
-            per_page=per_page,
+            rows_per_page=rows_per_page,
         )
     ).parsed

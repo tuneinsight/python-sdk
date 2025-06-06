@@ -88,8 +88,8 @@ class Diapason:
                 password=self.conf.security.password,
                 verify_ssl=self.conf.security.verify_ssl,
                 proxies={
-                    "http": self.conf.http_proxy,
-                    "https": self.conf.https_proxy,
+                    "http://": self.conf.http_proxy,
+                    "https://": self.conf.https_proxy,
                 },
             )
 
