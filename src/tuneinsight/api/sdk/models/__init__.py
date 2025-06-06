@@ -175,6 +175,7 @@ from .locus_range import LocusRange
 from .log import Log
 from .logical_formula import LogicalFormula
 from .logical_formula_operator import LogicalFormulaOperator
+from .logical_operator import LogicalOperator
 from .matching_column import MatchingColumn
 from .matching_params import MatchingParams
 from .measurement import Measurement
@@ -265,6 +266,7 @@ from .run_project_parameters import RunProjectParameters
 from .s3_parameters import S3Parameters
 from .scale import Scale
 from .screened_row import ScreenedRow
+from .screening_column import ScreeningColumn
 from .screening_metadata import ScreeningMetadata
 from .screening_operation import ScreeningOperation
 from .screening_session import ScreeningSession
@@ -492,6 +494,7 @@ __all__ = (
     "Log",
     "LogicalFormula",
     "LogicalFormulaOperator",
+    "LogicalOperator",
     "MatchingColumn",
     "MatchingParams",
     "Measurement",
@@ -582,6 +585,7 @@ __all__ = (
     "S3Parameters",
     "Scale",
     "ScreenedRow",
+    "ScreeningColumn",
     "ScreeningMetadata",
     "ScreeningOperation",
     "ScreeningSession",

@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 import attr
 
 from ..models.computation_type import ComputationType
+from ..models.logical_operator import LogicalOperator
 from ..models.run_mode import RunMode
 from ..types import UNSET, Unset
 
@@ -38,6 +39,7 @@ class Dummy:
         ignore_boundary_checks (Union[Unset, bool]): when set to true, data boundary checks are disabled. (WARNING
             setting this to true can lead to erroneous results)
         input_data_object (Union[Unset, str]): Shared identifier of a data object.
+        linkage_operator (Union[Unset, LogicalOperator]):
         local (Union[Unset, bool]): True if the project's computation should run only with local data (not configured
             the network)
         local_input (Union[Unset, LocalInput]): If a local input is provided, the node initiating the computation will
@@ -63,6 +65,8 @@ class Dummy:
         project_id (Union[Unset, str]): Unique identifier of a project.
         query_timeout (Union[Unset, int]): The maximum amount of time in seconds the data source query is allowed to
             run.
+        record_deduplication (Union[Unset, bool]): controls whether records are deduplicated or not when performing
+            record linkage.
         release_results (Union[Unset, bool]): flag to set to true if the computation should directly release the output
             results.
             If set, then encrypted results are automatically key switched and decrypted
@@ -89,6 +93,7 @@ class Dummy:
     end_to_end_encrypted: Union[Unset, bool] = UNSET
     ignore_boundary_checks: Union[Unset, bool] = UNSET
     input_data_object: Union[Unset, str] = UNSET
+    linkage_operator: Union[Unset, LogicalOperator] = UNSET
     local: Union[Unset, bool] = UNSET
     local_input: Union[Unset, "LocalInput"] = UNSET
     local_input_id: Union[Unset, str] = UNSET
@@ -97,6 +102,7 @@ class Dummy:
     preprocessing_parameters: Union[Unset, "ComputationPreprocessingParameters"] = UNSET
     project_id: Union[Unset, str] = UNSET
     query_timeout: Union[Unset, int] = UNSET
+    record_deduplication: Union[Unset, bool] = UNSET
     release_results: Union[Unset, bool] = UNSET
     run_mode: Union[Unset, RunMode] = UNSET
     timeout: Union[Unset, int] = UNSET
@@ -127,6 +133,10 @@ class Dummy:
         end_to_end_encrypted = self.end_to_end_encrypted
         ignore_boundary_checks = self.ignore_boundary_checks
         input_data_object = self.input_data_object
+        linkage_operator: Union[Unset, str] = UNSET
+        if not isinstance(self.linkage_operator, Unset):
+            linkage_operator = self.linkage_operator.value
+
         local = self.local
         local_input: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.local_input, Unset):
@@ -141,6 +151,7 @@ class Dummy:
 
         project_id = self.project_id
         query_timeout = self.query_timeout
+        record_deduplication = self.record_deduplication
         release_results = self.release_results
         run_mode: Union[Unset, str] = UNSET
         if not isinstance(self.run_mode, Unset):
@@ -193,6 +204,8 @@ class Dummy:
             field_dict["ignoreBoundaryChecks"] = ignore_boundary_checks
         if input_data_object is not UNSET:
             field_dict["inputDataObject"] = input_data_object
+        if linkage_operator is not UNSET:
+            field_dict["linkageOperator"] = linkage_operator
         if local is not UNSET:
             field_dict["local"] = local
         if local_input is not UNSET:
@@ -209,6 +222,8 @@ class Dummy:
             field_dict["projectId"] = project_id
         if query_timeout is not UNSET:
             field_dict["queryTimeout"] = query_timeout
+        if record_deduplication is not UNSET:
+            field_dict["recordDeduplication"] = record_deduplication
         if release_results is not UNSET:
             field_dict["releaseResults"] = release_results
         if run_mode is not UNSET:
@@ -272,6 +287,13 @@ class Dummy:
 
         input_data_object = d.pop("inputDataObject", UNSET)
 
+        _linkage_operator = d.pop("linkageOperator", UNSET)
+        linkage_operator: Union[Unset, LogicalOperator]
+        if isinstance(_linkage_operator, Unset):
+            linkage_operator = UNSET
+        else:
+            linkage_operator = LogicalOperator(_linkage_operator)
+
         local = d.pop("local", UNSET)
 
         _local_input = d.pop("localInput", UNSET)
@@ -297,6 +319,8 @@ class Dummy:
         project_id = d.pop("projectId", UNSET)
 
         query_timeout = d.pop("queryTimeout", UNSET)
+
+        record_deduplication = d.pop("recordDeduplication", UNSET)
 
         release_results = d.pop("releaseResults", UNSET)
 
@@ -345,6 +369,7 @@ class Dummy:
             end_to_end_encrypted=end_to_end_encrypted,
             ignore_boundary_checks=ignore_boundary_checks,
             input_data_object=input_data_object,
+            linkage_operator=linkage_operator,
             local=local,
             local_input=local_input,
             local_input_id=local_input_id,
@@ -353,6 +378,7 @@ class Dummy:
             preprocessing_parameters=preprocessing_parameters,
             project_id=project_id,
             query_timeout=query_timeout,
+            record_deduplication=record_deduplication,
             release_results=release_results,
             run_mode=run_mode,
             timeout=timeout,

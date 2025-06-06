@@ -34,7 +34,7 @@ class KeycloakClient(client.AuthenticatedClient):
     refresh_token_timeout: float = 0
     refresh_delay_seconds: float = 10
     verify_ssl: bool = True
-    proxies: dict = {"http": "", "https": ""}
+    proxies: dict = {"http://": "", "https://": ""}
 
     def __attrs_post_init__(self):
         self.kc_open_id = KeycloakOpenID(

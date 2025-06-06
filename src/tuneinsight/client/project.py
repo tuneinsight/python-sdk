@@ -332,9 +332,7 @@ class Project:
         if isinstance(definition, Computation):
             definition: models.ComputationDefinition = definition.get_full_model()
         self._patch(
-            proj_def=models.ProjectDefinition(
-                computation_definition=definition, broadcast=True
-            )
+            proj_def=models.ProjectDefinition(computation_definition=definition)
         )
 
     def set_datasource(self, ds: Union[DataSource, str, RemoteDataSource]):

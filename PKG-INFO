@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: tuneinsight
-Version: 1.1.0
+Version: 1.1.2
 Summary: Official Python SDK for the Tune Insight API. The current version is compatible with the same version of the API.
 License: Apache-2.0
 Author: Tune Insight SA
@@ -10,6 +10,7 @@ Classifier: Programming Language :: Python :: 3
 Classifier: Programming Language :: Python :: 3.10
 Classifier: Programming Language :: Python :: 3.11
 Classifier: Programming Language :: Python :: 3.12
+Provides-Extra: full
 Requires-Dist: PyYAML (>=6.0,<7.0)
 Requires-Dist: attrs (>=21.3.0)
 Requires-Dist: black (==24.2.0)
@@ -17,15 +18,18 @@ Requires-Dist: certifi (>=2024.07.04,<2025.0.0)
 Requires-Dist: cryptography (>=44.0.1,<45.0.0)
 Requires-Dist: h11 (>=0.16.0,<0.17.0)
 Requires-Dist: httpx (>=0.15.4,<0.28.0)
+Requires-Dist: ipython (==8.18.1)
 Requires-Dist: jinja2 (>=3.1.6,<4.0.0)
-Requires-Dist: jupyter (>=1.1.1,<2.0.0)
-Requires-Dist: jupyterlab (==4.2.5)
+Requires-Dist: jupyter (>=1.1.1,<2.0.0) ; extra == "full"
+Requires-Dist: jupyter-client (>=8.6.3,<9.0.0) ; extra == "full"
+Requires-Dist: jupyterlab (>=4.3.6,<5.0.0) ; extra == "full"
 Requires-Dist: matplotlib (>=3.5.0,<4.0.0)
-Requires-Dist: notebook (>=6.4.11,<7.0.0)
+Requires-Dist: notebook (>=7.3.3,<8.0.0) ; extra == "full"
 Requires-Dist: pandas (>=2.2.3,<3.0.0)
 Requires-Dist: python-dateutil (>=2.8.0,<3.0.0)
 Requires-Dist: python-dotenv (>=0.21.0,<0.22.0)
-Requires-Dist: python-keycloak (>=3.9.0,<4.0.0)
+Requires-Dist: python-keycloak
+Requires-Dist: tornado (>=6.5.0,<7.0.0) ; extra == "full"
 Requires-Dist: tqdm (>=4.66.4,<5.0.0)
 Requires-Dist: typing-extensions (>=4.6.3,<5.0.0)
 Description-Content-Type: text/markdown
@@ -56,6 +60,14 @@ Note that versions `0.13.1` and older are not available on `pip`: [contact us](t
 
 It is recommended to set up a custom environment for the SDK, e.g. using [`conda`](https://anaconda.org/anaconda/conda).
 
+### Installing optional dependencies
+
+Starting with version 1.1.1, some dependencies are no longer packaged with the SDK to make the installation lighter. These include all dependencies related to Jupyter notebooks. If size is not a constraint, you can install all dependencies by adding `[full]` to the package name:
+
+```bash
+pip install tuneinsight[full]
+```
+
 ### Testing your implementation
 
 After installing the package, run the following command in your terminal.
@@ -73,6 +85,14 @@ The Tune Insight SDK is correctly installed.
 ```
 
 Refer to the [troubleshooting](#troubleshooting) section if you see any ❌.
+
+Note: if you did not install the full package, you might see the following error message that can be safely ignored:
+
+```
+Checking optional packages:
+# Jupyter is available  ❌
+        Jupyter is not installed, use `pip install tuneinsight[full]` to install it if needed.
+```
 
 ### Connecting to a server
 

@@ -36,6 +36,7 @@ class Settings:
             change when a project is authorized
         default_data_source (Union[Unset, None, str]): Unique identifier of a data source.
         default_project (Union[Unset, str]): Unique identifier of a project.
+        disable_shared_bookmarks (Union[Unset, None, bool]): whether to disable the shared bookmarks
         feasibility_layout (Union[Unset, None, bool]): whether or not to enable the feasibility mode layout.
         selectable_data_source (Union[Unset, None, bool]): whether or not the datasource of the project can be modified.
         set_project_policies (Union[Unset, None, bool]): whether policies can be set for projects.
@@ -55,6 +56,7 @@ class Settings:
     default_contract: Union[Unset, "AuthorizationContract"] = UNSET
     default_data_source: Union[Unset, None, str] = UNSET
     default_project: Union[Unset, str] = UNSET
+    disable_shared_bookmarks: Union[Unset, None, bool] = UNSET
     feasibility_layout: Union[Unset, None, bool] = UNSET
     selectable_data_source: Union[Unset, None, bool] = UNSET
     set_project_policies: Union[Unset, None, bool] = UNSET
@@ -99,6 +101,7 @@ class Settings:
 
         default_data_source = self.default_data_source
         default_project = self.default_project
+        disable_shared_bookmarks = self.disable_shared_bookmarks
         feasibility_layout = self.feasibility_layout
         selectable_data_source = self.selectable_data_source
         set_project_policies = self.set_project_policies
@@ -133,6 +136,8 @@ class Settings:
             field_dict["defaultDataSource"] = default_data_source
         if default_project is not UNSET:
             field_dict["defaultProject"] = default_project
+        if disable_shared_bookmarks is not UNSET:
+            field_dict["disableSharedBookmarks"] = disable_shared_bookmarks
         if feasibility_layout is not UNSET:
             field_dict["feasibilityLayout"] = feasibility_layout
         if selectable_data_source is not UNSET:
@@ -196,6 +201,8 @@ class Settings:
 
         default_project = d.pop("defaultProject", UNSET)
 
+        disable_shared_bookmarks = d.pop("disableSharedBookmarks", UNSET)
+
         feasibility_layout = d.pop("feasibilityLayout", UNSET)
 
         selectable_data_source = d.pop("selectableDataSource", UNSET)
@@ -218,6 +225,7 @@ class Settings:
             default_contract=default_contract,
             default_data_source=default_data_source,
             default_project=default_project,
+            disable_shared_bookmarks=disable_shared_bookmarks,
             feasibility_layout=feasibility_layout,
             selectable_data_source=selectable_data_source,
             set_project_policies=set_project_policies,

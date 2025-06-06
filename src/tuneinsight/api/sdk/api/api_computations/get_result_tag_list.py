@@ -30,11 +30,11 @@ def _get_kwargs(
     # Set the proxies if the client has proxies set.
     proxies = None
     if hasattr(client, "proxies") and client.proxies is not None:
-        https_proxy = client.proxies.get("https")
+        https_proxy = client.proxies.get("https://")
         if https_proxy:
             proxies = https_proxy
         else:
-            http_proxy = client.proxies.get("http")
+            http_proxy = client.proxies.get("http://")
             if http_proxy:
                 proxies = http_proxy
 

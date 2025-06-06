@@ -23,29 +23,52 @@ def _test_version():
     client.check_api_compatibility(hard=True)
 
 
+def _test_jupyter():
+    """Checks that Jupyter is installed (full install)."""
+    import jupyter  # pylint: disable=import-error,unused-import,import-outside-toplevel
+
+
 _INSTALL_TESTS = [
     (_test_basic, "Package is available  "),
     (_test_cryptolib, "Cryptolib is available"),
     # (_test_version, "Latest version installed"),
 ]
 
+_OPTIONAL_TESTS = [
+    (
+        _test_jupyter,
+        "Jupyter is available",
+        "Jupyter is not installed, use `pip install tuneinsight[full]` to install it if needed.",
+    )
+]
+
+
+def _run(f, description, failure_message=""):
+    print(f"# {description}\t", end="")
+    try:
+        f()
+    except Exception as err:  # pylint: disable=broad-exception-caught
+        print("❌")
+        if failure_message:
+            print(f"\t{failure_message}")
+        else:
+            print("\tError:", str(err))
+        return False
+    print("✅")
+    return True
+
 
 def test_install():
     """Runs simple tests to check that the installation is correct."""
     all_success = True
     for f, description in _INSTALL_TESTS:
-        print(f"# {description}\t", end="")
-        try:
-            f()
-        except Exception as err:  # pylint: disable=broad-exception-caught
-            print("❌")
-            print("\tError:", str(err))
-            all_success = False
-        else:
-            print("✅")
+        all_success = _run(f, description) and all_success
     if all_success:
         print("The Tune Insight SDK is correctly installed.")
     else:
         print(
             "Your installation is not correct, see https://github.com/tuneinsight/python-sdk for troubleshooting help."
         )
+    print("\nChecking optional packages:")
+    for f, description, failure_message in _OPTIONAL_TESTS:
+        _run(f, description, failure_message)

@@ -100,9 +100,8 @@ def raise_computation_error(errors: List[ComputationError]):
         ComputationError: the default computation error when no common pattern is detected
     """
     with hidden_traceback_scope():
-        if len(errors) > 0:
-            # Only take the first error
-            err = errors[0]
+        # Only take the first error.
+        err = errors[0]
         if err.type in error_types:
             exc = error_types[err.type]
             raise exc(comp_error=err)

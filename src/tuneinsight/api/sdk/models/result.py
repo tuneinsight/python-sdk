@@ -7,6 +7,7 @@ from ..models.visualization_type import VisualizationType
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.computation import Computation
     from ..models.result_metadata import ResultMetadata
 
 
@@ -31,6 +32,7 @@ class Result:
         visualization_type (Union[Unset, VisualizationType]): represents the appropriate visualization type for a
             result.
         collective_encrypted (Union[Unset, None, bool]):
+        computation (Union[Unset, Computation]): Metadata of a computation.
         computation_id (Union[Unset, str]): Identifier of a computation, unique across all computing nodes.
         computation_type (Union[Unset, ComputationType]): Type of the computation.
         created_at (Union[Unset, str]):
@@ -59,6 +61,7 @@ class Result:
     title: Union[Unset, str] = UNSET
     visualization_type: Union[Unset, VisualizationType] = UNSET
     collective_encrypted: Union[Unset, None, bool] = UNSET
+    computation: Union[Unset, "Computation"] = UNSET
     computation_id: Union[Unset, str] = UNSET
     computation_type: Union[Unset, ComputationType] = UNSET
     created_at: Union[Unset, str] = UNSET
@@ -92,6 +95,10 @@ class Result:
             visualization_type = self.visualization_type.value
 
         collective_encrypted = self.collective_encrypted
+        computation: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.computation, Unset):
+            computation = self.computation.to_dict()
+
         computation_id = self.computation_id
         computation_type: Union[Unset, str] = UNSET
         if not isinstance(self.computation_type, Unset):
@@ -135,6 +142,8 @@ class Result:
             field_dict["visualizationType"] = visualization_type
         if collective_encrypted is not UNSET:
             field_dict["collectiveEncrypted"] = collective_encrypted
+        if computation is not UNSET:
+            field_dict["computation"] = computation
         if computation_id is not UNSET:
             field_dict["computationId"] = computation_id
         if computation_type is not UNSET:
@@ -170,6 +179,7 @@ class Result:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.computation import Computation
         from ..models.result_metadata import ResultMetadata
 
         d = src_dict.copy()
@@ -195,6 +205,13 @@ class Result:
             visualization_type = VisualizationType(_visualization_type)
 
         collective_encrypted = d.pop("collectiveEncrypted", UNSET)
+
+        _computation = d.pop("computation", UNSET)
+        computation: Union[Unset, Computation]
+        if isinstance(_computation, Unset):
+            computation = UNSET
+        else:
+            computation = Computation.from_dict(_computation)
 
         computation_id = d.pop("computationId", UNSET)
 
@@ -246,6 +263,7 @@ class Result:
             title=title,
             visualization_type=visualization_type,
             collective_encrypted=collective_encrypted,
+            computation=computation,
             computation_id=computation_id,
             computation_type=computation_type,
             created_at=created_at,

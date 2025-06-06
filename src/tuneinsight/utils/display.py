@@ -17,7 +17,7 @@ class Renderer:
         r.h1("Some square roots")
         for x in range(1, 4):
             r.h2("number", x)
-            r.text("The square root of", x, ",", r.math(f"\\sqrt{x}"), "is", math.sqrt(x))
+            r.text("The square root of", x, ",", r.math(f"\\sqrt{{{x}}}"), "is", math.sqrt(x))
         r.end_paragraph()
     ```
     """
