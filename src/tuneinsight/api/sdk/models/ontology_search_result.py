@@ -18,8 +18,8 @@ class OntologySearchResult:
         description (Union[Unset, str]):
         level (Union[Unset, float]):
         name (Union[Unset, str]):
-        occurrence (Union[Unset, float]):
-        occurrence_network (Union[Unset, float]):
+        occurrence (Union[Unset, None, float]):
+        occurrence_network (Union[Unset, None, float]):
         ontology (Union[Unset, str]):
         parents (Union[Unset, str]):
         uri (Union[Unset, str]):
@@ -32,8 +32,8 @@ class OntologySearchResult:
     description: Union[Unset, str] = UNSET
     level: Union[Unset, float] = UNSET
     name: Union[Unset, str] = UNSET
-    occurrence: Union[Unset, float] = UNSET
-    occurrence_network: Union[Unset, float] = UNSET
+    occurrence: Union[Unset, None, float] = UNSET
+    occurrence_network: Union[Unset, None, float] = UNSET
     ontology: Union[Unset, str] = UNSET
     parents: Union[Unset, str] = UNSET
     uri: Union[Unset, str] = UNSET

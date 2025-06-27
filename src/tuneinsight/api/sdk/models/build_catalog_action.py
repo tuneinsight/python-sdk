@@ -6,6 +6,7 @@ class BuildCatalogAction(str, Enum):
     STOP = "stop"
     PAUSE = "pause"
     RESUME = "resume"
+    RESET = "reset"
 
     def __str__(self) -> str:
         return str(self.value)
