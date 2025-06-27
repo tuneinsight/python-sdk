@@ -41,6 +41,8 @@ class _ErrorObject:
 # Find the shared library for the compiled Go Cryptolib.
 cwd = Path(__file__).absolute().parent
 arch = platform.machine()
+if arch == "aarch64":
+    arch = "arm64"  # Handle special case for Linux in docker.
 os = platform.system().lower()
 ext = "dll" if os == "windows" else "so"
 cryptolib_path = cwd / "build" / f"cryptolib-{os}_{arch}.{ext}"

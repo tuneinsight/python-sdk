@@ -671,9 +671,9 @@ class ModelBasedComputation(Computation):
             elif is_unset(self.model.dp_epsilon):
                 warnings.warn(
                     warn_message
-                    % "the parameter dp_epsilon was not set. Using default value 0.1."
+                    % "the parameter dp_epsilon was not set. Using default value 1."
                 )
-                self.model.dp_epsilon = 0.1
+                self.model.dp_epsilon = 1
             else:
                 epsilon = float(
                     self.model.dp_epsilon
