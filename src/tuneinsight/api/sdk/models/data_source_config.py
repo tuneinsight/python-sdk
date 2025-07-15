@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
@@ -8,6 +8,10 @@ from ..models.database_type import DatabaseType
 from ..models.local_data_source_type import LocalDataSourceType
 from ..models.mock_method import MockMethod
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.sql_metadata import SQLMetadata
+
 
 T = TypeVar("T", bound="DataSourceConfig")
 
@@ -19,6 +23,8 @@ class DataSourceConfig:
     Attributes:
         api_type (Union[Unset, APIType]):
         csv_path (Union[Unset, str]): the path to the CSV file.
+        sql_metadata (Union[Unset, SQLMetadata]): The metadata required to translate cross-standard queries to SQL for a
+            datasource.
         api_url (Union[Unset, str]): URL of the API
         cert (Union[Unset, str]): If applicable, name of the certificate to access the datasource. Certificate should be
             in '/usr/local/share/datasource-certificates/<cert>.{crt/key}'
@@ -33,9 +39,8 @@ class DataSourceConfig:
         local_type (Union[Unset, LocalDataSourceType]):
         port (Union[Unset, str]): Port number of the database
         s_3_bucket (Union[Unset, str]): Name of the S3 bucket
-        s_3_data_bucket (Union[Unset, str]): Name of the S3 data bucket, reserved to store ML data and models
         s_3_default_object_key (Union[Unset, str]): Default object key to use when querying the S3 bucket
-        s_3_region (Union[Unset, str]): Region of the S3 buckets
+        s_3_region (Union[Unset, str]): Region of the S3 bucket
         s_3url (Union[Unset, str]): URL of the S3
         suricata_path (Union[Unset, str]): the path to the suricata JSON file.
         with_auth (Union[Unset, bool]): Whether the API requires authentication
@@ -43,6 +48,7 @@ class DataSourceConfig:
 
     api_type: Union[Unset, APIType] = UNSET
     csv_path: Union[Unset, str] = UNSET
+    sql_metadata: Union[Unset, "SQLMetadata"] = UNSET
     api_url: Union[Unset, str] = UNSET
     cert: Union[Unset, str] = UNSET
     data_standard: Union[Unset, DataStandard] = UNSET
@@ -55,7 +61,6 @@ class DataSourceConfig:
     local_type: Union[Unset, LocalDataSourceType] = UNSET
     port: Union[Unset, str] = UNSET
     s_3_bucket: Union[Unset, str] = UNSET
-    s_3_data_bucket: Union[Unset, str] = UNSET
     s_3_default_object_key: Union[Unset, str] = UNSET
     s_3_region: Union[Unset, str] = UNSET
     s_3url: Union[Unset, str] = UNSET
@@ -69,6 +74,10 @@ class DataSourceConfig:
             api_type = self.api_type.value
 
         csv_path = self.csv_path
+        sql_metadata: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.sql_metadata, Unset):
+            sql_metadata = self.sql_metadata.to_dict()
+
         api_url = self.api_url
         cert = self.cert
         data_standard: Union[Unset, str] = UNSET
@@ -93,7 +102,6 @@ class DataSourceConfig:
 
         port = self.port
         s_3_bucket = self.s_3_bucket
-        s_3_data_bucket = self.s_3_data_bucket
         s_3_default_object_key = self.s_3_default_object_key
         s_3_region = self.s_3_region
         s_3url = self.s_3url
@@ -107,6 +115,8 @@ class DataSourceConfig:
             field_dict["APIType"] = api_type
         if csv_path is not UNSET:
             field_dict["CSVPath"] = csv_path
+        if sql_metadata is not UNSET:
+            field_dict["SQLMetadata"] = sql_metadata
         if api_url is not UNSET:
             field_dict["api-url"] = api_url
         if cert is not UNSET:
@@ -131,8 +141,6 @@ class DataSourceConfig:
             field_dict["port"] = port
         if s_3_bucket is not UNSET:
             field_dict["s3Bucket"] = s_3_bucket
-        if s_3_data_bucket is not UNSET:
-            field_dict["s3DataBucket"] = s_3_data_bucket
         if s_3_default_object_key is not UNSET:
             field_dict["s3DefaultObjectKey"] = s_3_default_object_key
         if s_3_region is not UNSET:
@@ -148,6 +156,8 @@ class DataSourceConfig:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.sql_metadata import SQLMetadata
+
         d = src_dict.copy()
         _api_type = d.pop("APIType", UNSET)
         api_type: Union[Unset, APIType]
@@ -157,6 +167,13 @@ class DataSourceConfig:
             api_type = APIType(_api_type)
 
         csv_path = d.pop("CSVPath", UNSET)
+
+        _sql_metadata = d.pop("SQLMetadata", UNSET)
+        sql_metadata: Union[Unset, SQLMetadata]
+        if isinstance(_sql_metadata, Unset):
+            sql_metadata = UNSET
+        else:
+            sql_metadata = SQLMetadata.from_dict(_sql_metadata)
 
         api_url = d.pop("api-url", UNSET)
 
@@ -202,8 +219,6 @@ class DataSourceConfig:
 
         s_3_bucket = d.pop("s3Bucket", UNSET)
 
-        s_3_data_bucket = d.pop("s3DataBucket", UNSET)
-
         s_3_default_object_key = d.pop("s3DefaultObjectKey", UNSET)
 
         s_3_region = d.pop("s3Region", UNSET)
@@ -217,6 +232,7 @@ class DataSourceConfig:
         data_source_config = cls(
             api_type=api_type,
             csv_path=csv_path,
+            sql_metadata=sql_metadata,
             api_url=api_url,
             cert=cert,
             data_standard=data_standard,
@@ -229,7 +245,6 @@ class DataSourceConfig:
             local_type=local_type,
             port=port,
             s_3_bucket=s_3_bucket,
-            s_3_data_bucket=s_3_data_bucket,
             s_3_default_object_key=s_3_default_object_key,
             s_3_region=s_3_region,
             s_3url=s_3url,

@@ -8,6 +8,7 @@ from ...client import Client
 from ...models.error import Error
 from ...models.get_log_list_order import GetLogListOrder
 from ...models.get_log_list_response_200 import GetLogListResponse200
+from ...models.get_log_list_sort_by import GetLogListSortBy
 from ...types import UNSET, Response, Unset
 
 
@@ -18,6 +19,8 @@ def _get_kwargs(
     per_page: Union[Unset, None, int] = 50,
     with_total: Union[Unset, None, bool] = True,
     order: Union[Unset, None, GetLogListOrder] = UNSET,
+    sort_by: Union[Unset, None, GetLogListSortBy] = UNSET,
+    quick_filter: Union[Unset, None, str] = UNSET,
 ) -> Dict[str, Any]:
     url = "{}/logs".format(client.base_url)
 
@@ -36,6 +39,14 @@ def _get_kwargs(
         json_order = order.value if order else None
 
     params["order"] = json_order
+
+    json_sort_by: Union[Unset, None, str] = UNSET
+    if not isinstance(sort_by, Unset):
+        json_sort_by = sort_by.value if sort_by else None
+
+    params["sortBy"] = json_sort_by
+
+    params["quickFilter"] = quick_filter
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
@@ -96,6 +107,8 @@ def sync_detailed(
     per_page: Union[Unset, None, int] = 50,
     with_total: Union[Unset, None, bool] = True,
     order: Union[Unset, None, GetLogListOrder] = UNSET,
+    sort_by: Union[Unset, None, GetLogListSortBy] = UNSET,
+    quick_filter: Union[Unset, None, str] = UNSET,
 ) -> Response[Union[Error, GetLogListResponse200]]:
     """Gets logs
 
@@ -104,6 +117,8 @@ def sync_detailed(
         per_page (Union[Unset, None, int]):  Default: 50.
         with_total (Union[Unset, None, bool]):  Default: True.
         order (Union[Unset, None, GetLogListOrder]):
+        sort_by (Union[Unset, None, GetLogListSortBy]):
+        quick_filter (Union[Unset, None, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -119,6 +134,8 @@ def sync_detailed(
         per_page=per_page,
         with_total=with_total,
         order=order,
+        sort_by=sort_by,
+        quick_filter=quick_filter,
     )
 
     response = httpx.request(
@@ -136,6 +153,8 @@ def sync(
     per_page: Union[Unset, None, int] = 50,
     with_total: Union[Unset, None, bool] = True,
     order: Union[Unset, None, GetLogListOrder] = UNSET,
+    sort_by: Union[Unset, None, GetLogListSortBy] = UNSET,
+    quick_filter: Union[Unset, None, str] = UNSET,
 ) -> Optional[Union[Error, GetLogListResponse200]]:
     """Gets logs
 
@@ -144,6 +163,8 @@ def sync(
         per_page (Union[Unset, None, int]):  Default: 50.
         with_total (Union[Unset, None, bool]):  Default: True.
         order (Union[Unset, None, GetLogListOrder]):
+        sort_by (Union[Unset, None, GetLogListSortBy]):
+        quick_filter (Union[Unset, None, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -159,6 +180,8 @@ def sync(
         per_page=per_page,
         with_total=with_total,
         order=order,
+        sort_by=sort_by,
+        quick_filter=quick_filter,
     ).parsed
 
 
@@ -169,6 +192,8 @@ async def asyncio_detailed(
     per_page: Union[Unset, None, int] = 50,
     with_total: Union[Unset, None, bool] = True,
     order: Union[Unset, None, GetLogListOrder] = UNSET,
+    sort_by: Union[Unset, None, GetLogListSortBy] = UNSET,
+    quick_filter: Union[Unset, None, str] = UNSET,
 ) -> Response[Union[Error, GetLogListResponse200]]:
     """Gets logs
 
@@ -177,6 +202,8 @@ async def asyncio_detailed(
         per_page (Union[Unset, None, int]):  Default: 50.
         with_total (Union[Unset, None, bool]):  Default: True.
         order (Union[Unset, None, GetLogListOrder]):
+        sort_by (Union[Unset, None, GetLogListSortBy]):
+        quick_filter (Union[Unset, None, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -192,6 +219,8 @@ async def asyncio_detailed(
         per_page=per_page,
         with_total=with_total,
         order=order,
+        sort_by=sort_by,
+        quick_filter=quick_filter,
     )
 
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
@@ -207,6 +236,8 @@ async def asyncio(
     per_page: Union[Unset, None, int] = 50,
     with_total: Union[Unset, None, bool] = True,
     order: Union[Unset, None, GetLogListOrder] = UNSET,
+    sort_by: Union[Unset, None, GetLogListSortBy] = UNSET,
+    quick_filter: Union[Unset, None, str] = UNSET,
 ) -> Optional[Union[Error, GetLogListResponse200]]:
     """Gets logs
 
@@ -215,6 +246,8 @@ async def asyncio(
         per_page (Union[Unset, None, int]):  Default: 50.
         with_total (Union[Unset, None, bool]):  Default: True.
         order (Union[Unset, None, GetLogListOrder]):
+        sort_by (Union[Unset, None, GetLogListSortBy]):
+        quick_filter (Union[Unset, None, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -231,5 +264,7 @@ async def asyncio(
             per_page=per_page,
             with_total=with_total,
             order=order,
+            sort_by=sort_by,
+            quick_filter=quick_filter,
         )
     ).parsed

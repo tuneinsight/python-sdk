@@ -40,6 +40,8 @@ class Participant:
         non_contributing_reason (Union[Unset, str]): Reason why the participant is not contributing to the project.
             Only shown when the participant is not a contributor in the computation.
         participation_status (Union[Unset, ParticipationStatus]): participation state of a project's participant
+        query_time (Union[Unset, None, int]): Time in milliseconds that the participant took to run the query on its
+            data source.
         selected_data_source (Union[Unset, None, str]): Unique identifier of a data source.
         status (Union[Unset, ProjectStatus]): Stages of a project workflow
     """
@@ -56,6 +58,7 @@ class Participant:
     node: Union[Unset, "Node"] = UNSET
     non_contributing_reason: Union[Unset, str] = UNSET
     participation_status: Union[Unset, ParticipationStatus] = UNSET
+    query_time: Union[Unset, None, int] = UNSET
     selected_data_source: Union[Unset, None, str] = UNSET
     status: Union[Unset, ProjectStatus] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
@@ -115,6 +118,7 @@ class Participant:
         if not isinstance(self.participation_status, Unset):
             participation_status = self.participation_status.value
 
+        query_time = self.query_time
         selected_data_source = self.selected_data_source
         status: Union[Unset, str] = UNSET
         if not isinstance(self.status, Unset):
@@ -147,6 +151,8 @@ class Participant:
             field_dict["nonContributingReason"] = non_contributing_reason
         if participation_status is not UNSET:
             field_dict["participationStatus"] = participation_status
+        if query_time is not UNSET:
+            field_dict["queryTime"] = query_time
         if selected_data_source is not UNSET:
             field_dict["selectedDataSource"] = selected_data_source
         if status is not UNSET:
@@ -241,6 +247,8 @@ class Participant:
         else:
             participation_status = ParticipationStatus(_participation_status)
 
+        query_time = d.pop("queryTime", UNSET)
+
         selected_data_source = d.pop("selectedDataSource", UNSET)
 
         _status = d.pop("status", UNSET)
@@ -263,6 +271,7 @@ class Participant:
             node=node,
             non_contributing_reason=non_contributing_reason,
             participation_status=participation_status,
+            query_time=query_time,
             selected_data_source=selected_data_source,
             status=status,
         )

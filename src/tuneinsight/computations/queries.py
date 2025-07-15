@@ -1,6 +1,7 @@
 """Class used to define the data source query for each participant in the project."""
 
-from typing import Callable, Dict, List
+from typing import Callable, Dict, List, Union
+from tuneinsight.computations.tiql import Builder
 from tuneinsight.api.sdk import models
 from tuneinsight.api.sdk.types import is_unset
 from tuneinsight.api.sdk.models.computation_data_source_parameters import (
@@ -129,6 +130,25 @@ class QueryBuilder:
             query_dict (dict:str->str): a dictionary mapping the node name to the JSON-path for that node.
         """
         self._set_query_from_dict("api_json_path", query_dict)
+
+    def set_cross_standard_query(
+        self,
+        query: Union[models.CrossStandardQuery, Builder],
+        nodes: List[str] = None,
+    ):
+        """
+        Sets the cross-standard feasibility query (tiql).
+
+        If this is set and the datasource supports this format (i.e., this query can be translated to a
+        query in the destination language), this overrides the other queries.
+
+        Args:
+            query (models.CrossStandardQuery): the query to set.
+            nodes (list, default None): the list of nodes to which this applies. By default, all nodes.
+        """
+        if isinstance(query, Builder):
+            query = query.get_model()
+        self._set_query("cross_standard_query", query, nodes)
 
     def get_model(self) -> models.ComputationDataSourceParameters:
         """Returns the API model for this object."""

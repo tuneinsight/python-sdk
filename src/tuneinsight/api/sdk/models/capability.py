@@ -63,6 +63,10 @@ class Capability(str, Enum):
     VIEWANYQUERYBOOKMARK = "ViewAnyQueryBookmark"
     MANAGEQUERYBOOKMARKS = "ManageQueryBookmarks"
     MANAGEANYQUERYBOOKMARK = "ManageAnyQueryBookmark"
+    VIEWAIBUILDERPROMPTS = "ViewAIBuilderPrompts"
+    VIEWANYAIBUILDERPROMPT = "ViewAnyAIBuilderPrompt"
+    MANAGEAIBUILDERPROMPTS = "ManageAIBuilderPrompts"
+    MANAGEANYAIBUILDERPROMPT = "ManageAnyAIBuilderPrompt"
     PROMPTLLMS = "PromptLLMs"
     SEARCHONTOLOGIES = "SearchOntologies"
     BUILDCATALOG = "BuildCatalog"
@@ -80,6 +84,7 @@ class Capability(str, Enum):
     SYNCNETWORKS = "SyncNetworks"
     SYNCCONFIG = "SyncConfig"
     GETREMOTEINFOS = "GetRemoteInfos"
+    MANAGENOTIFICATIONS = "ManageNotifications"
 
     def __str__(self) -> str:
         return str(self.value)

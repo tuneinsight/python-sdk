@@ -38,7 +38,7 @@ class PrivateSearch:
         ignore_boundary_checks (Union[Unset, bool]): when set to true, data boundary checks are disabled. (WARNING
             setting this to true can lead to erroneous results)
         input_data_object (Union[Unset, str]): Shared identifier of a data object.
-        linkage_operator (Union[Unset, LogicalOperator]):
+        linkage_operator (Union[Unset, LogicalOperator]): A logical operator to "aggregate" multiple boolean values.
         local (Union[Unset, bool]): True if the project's computation should run only with local data (not configured
             the network)
         local_input (Union[Unset, LocalInput]): If a local input is provided, the node initiating the computation will

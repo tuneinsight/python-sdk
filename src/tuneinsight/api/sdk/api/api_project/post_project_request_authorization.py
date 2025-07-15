@@ -14,6 +14,7 @@ def _get_kwargs(
     *,
     client: Client,
     revoke: Union[Unset, None, bool] = UNSET,
+    notify: Union[Unset, None, bool] = UNSET,
 ) -> Dict[str, Any]:
     url = "{}/projects/{projectId}/request-authorization".format(client.base_url, projectId=project_id)
 
@@ -22,6 +23,8 @@ def _get_kwargs(
 
     params: Dict[str, Any] = {}
     params["revoke"] = revoke
+
+    params["notify"] = notify
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
@@ -87,12 +90,14 @@ def sync_detailed(
     *,
     client: Client,
     revoke: Union[Unset, None, bool] = UNSET,
+    notify: Union[Unset, None, bool] = UNSET,
 ) -> Response[Union[Any, Error]]:
     """Request authorization to run this project.
 
     Args:
         project_id (str):
         revoke (Union[Unset, None, bool]):
+        notify (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -106,6 +111,7 @@ def sync_detailed(
         project_id=project_id,
         client=client,
         revoke=revoke,
+        notify=notify,
     )
 
     response = httpx.request(
@@ -121,12 +127,14 @@ def sync(
     *,
     client: Client,
     revoke: Union[Unset, None, bool] = UNSET,
+    notify: Union[Unset, None, bool] = UNSET,
 ) -> Optional[Union[Any, Error]]:
     """Request authorization to run this project.
 
     Args:
         project_id (str):
         revoke (Union[Unset, None, bool]):
+        notify (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -140,6 +148,7 @@ def sync(
         project_id=project_id,
         client=client,
         revoke=revoke,
+        notify=notify,
     ).parsed
 
 
@@ -148,12 +157,14 @@ async def asyncio_detailed(
     *,
     client: Client,
     revoke: Union[Unset, None, bool] = UNSET,
+    notify: Union[Unset, None, bool] = UNSET,
 ) -> Response[Union[Any, Error]]:
     """Request authorization to run this project.
 
     Args:
         project_id (str):
         revoke (Union[Unset, None, bool]):
+        notify (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -167,6 +178,7 @@ async def asyncio_detailed(
         project_id=project_id,
         client=client,
         revoke=revoke,
+        notify=notify,
     )
 
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
@@ -180,12 +192,14 @@ async def asyncio(
     *,
     client: Client,
     revoke: Union[Unset, None, bool] = UNSET,
+    notify: Union[Unset, None, bool] = UNSET,
 ) -> Optional[Union[Any, Error]]:
     """Request authorization to run this project.
 
     Args:
         project_id (str):
         revoke (Union[Unset, None, bool]):
+        notify (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -200,5 +214,6 @@ async def asyncio(
             project_id=project_id,
             client=client,
             revoke=revoke,
+            notify=notify,
         )
     ).parsed
