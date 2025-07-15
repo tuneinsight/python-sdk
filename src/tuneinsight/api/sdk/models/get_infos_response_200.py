@@ -15,6 +15,7 @@ class GetInfosResponse200:
         accepted_groups (Union[Unset, List[str]]): List of user groups that this instance accepts (users are treated as
             local)
         auth_status (Union[Unset, str]): Authentication provider connectivity status
+        build_version (Union[Unset, str]): Tune Insight build version
         portal_status (Union[Unset, str]): Portal connectivity status
         service_account (Union[Unset, str]): name of the service account used by this instance when sending requests to
             other instances.
@@ -25,6 +26,7 @@ class GetInfosResponse200:
     api_checksum: Union[Unset, str] = UNSET
     accepted_groups: Union[Unset, List[str]] = UNSET
     auth_status: Union[Unset, str] = UNSET
+    build_version: Union[Unset, str] = UNSET
     portal_status: Union[Unset, str] = UNSET
     service_account: Union[Unset, str] = UNSET
     startup_status: Union[Unset, str] = UNSET
@@ -38,6 +40,7 @@ class GetInfosResponse200:
             accepted_groups = self.accepted_groups
 
         auth_status = self.auth_status
+        build_version = self.build_version
         portal_status = self.portal_status
         service_account = self.service_account
         startup_status = self.startup_status
@@ -52,6 +55,8 @@ class GetInfosResponse200:
             field_dict["acceptedGroups"] = accepted_groups
         if auth_status is not UNSET:
             field_dict["authStatus"] = auth_status
+        if build_version is not UNSET:
+            field_dict["buildVersion"] = build_version
         if portal_status is not UNSET:
             field_dict["portalStatus"] = portal_status
         if service_account is not UNSET:
@@ -72,6 +77,8 @@ class GetInfosResponse200:
 
         auth_status = d.pop("authStatus", UNSET)
 
+        build_version = d.pop("buildVersion", UNSET)
+
         portal_status = d.pop("portalStatus", UNSET)
 
         service_account = d.pop("serviceAccount", UNSET)
@@ -84,6 +91,7 @@ class GetInfosResponse200:
             api_checksum=api_checksum,
             accepted_groups=accepted_groups,
             auth_status=auth_status,
+            build_version=build_version,
             portal_status=portal_status,
             service_account=service_account,
             startup_status=startup_status,

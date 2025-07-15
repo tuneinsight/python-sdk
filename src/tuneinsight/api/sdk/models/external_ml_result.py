@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
 
 import attr
 
@@ -20,6 +20,7 @@ class ExternalMlResult:
         type (ContentType): Type of the content
         result_path (str): Path of the result shared model
         contextual_info (Union[Unset, ResultContextualInfo]): contextual information about the content retrieved
+        coefficients (Union[Unset, List[float]]):
         history (Union[Unset, ExternalMlHistory]): Training history of external ML containing the evolution of the
             metrics during training
     """
@@ -27,6 +28,7 @@ class ExternalMlResult:
     type: ContentType
     result_path: str
     contextual_info: Union[Unset, "ResultContextualInfo"] = UNSET
+    coefficients: Union[Unset, List[float]] = UNSET
     history: Union[Unset, "ExternalMlHistory"] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -37,6 +39,10 @@ class ExternalMlResult:
         contextual_info: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.contextual_info, Unset):
             contextual_info = self.contextual_info.to_dict()
+
+        coefficients: Union[Unset, List[float]] = UNSET
+        if not isinstance(self.coefficients, Unset):
+            coefficients = self.coefficients
 
         history: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.history, Unset):
@@ -52,6 +58,8 @@ class ExternalMlResult:
         )
         if contextual_info is not UNSET:
             field_dict["contextualInfo"] = contextual_info
+        if coefficients is not UNSET:
+            field_dict["coefficients"] = coefficients
         if history is not UNSET:
             field_dict["history"] = history
 
@@ -74,6 +82,8 @@ class ExternalMlResult:
         else:
             contextual_info = ResultContextualInfo.from_dict(_contextual_info)
 
+        coefficients = cast(List[float], d.pop("coefficients", UNSET))
+
         _history = d.pop("history", UNSET)
         history: Union[Unset, ExternalMlHistory]
         if isinstance(_history, Unset):
@@ -85,6 +95,7 @@ class ExternalMlResult:
             type=type,
             result_path=result_path,
             contextual_info=contextual_info,
+            coefficients=coefficients,
             history=history,
         )
 

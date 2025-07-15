@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
-from ..models.logical_formula_operator import LogicalFormulaOperator
+from ..models.logical_operator import LogicalOperator
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -18,13 +18,13 @@ class LogicalFormula:
 
     Attributes:
         left_formula (Union[Unset, LogicalFormula]): logical formula composing filters
-        operator (Union[Unset, LogicalFormulaOperator]):
+        operator (Union[Unset, LogicalOperator]): A logical operator to "aggregate" multiple boolean values.
         right_formula (Union[Unset, LogicalFormula]): logical formula composing filters
         single_filter (Union[Unset, Filter]):
     """
 
     left_formula: Union[Unset, "LogicalFormula"] = UNSET
-    operator: Union[Unset, LogicalFormulaOperator] = UNSET
+    operator: Union[Unset, LogicalOperator] = UNSET
     right_formula: Union[Unset, "LogicalFormula"] = UNSET
     single_filter: Union[Unset, "Filter"] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
@@ -73,11 +73,11 @@ class LogicalFormula:
             left_formula = LogicalFormula.from_dict(_left_formula)
 
         _operator = d.pop("operator", UNSET)
-        operator: Union[Unset, LogicalFormulaOperator]
+        operator: Union[Unset, LogicalOperator]
         if isinstance(_operator, Unset):
             operator = UNSET
         else:
-            operator = LogicalFormulaOperator(_operator)
+            operator = LogicalOperator(_operator)
 
         _right_formula = d.pop("rightFormula", UNSET)
         right_formula: Union[Unset, LogicalFormula]

@@ -1,9 +1,12 @@
-""" Contains all the data models used in inputs/outputs """
+"""Contains all the data models used in inputs/outputs"""
 
 from .access_scope import AccessScope
 from .add_columns import AddColumns
+from .advanced_filter import AdvancedFilter
+from .advanced_filter_type import AdvancedFilterType
 from .aggregated_dataset_length import AggregatedDatasetLength
 from .aggregation_strategy import AggregationStrategy
+from .ai_builder_prompt_definition import AIBuilderPromptDefinition
 from .api_type import APIType
 from .apply_mapping import ApplyMapping
 from .apply_reg_ex import ApplyRegEx
@@ -11,6 +14,7 @@ from .apply_reg_ex_regex_type import ApplyRegExRegexType
 from .approximation_params import ApproximationParams
 from .as_type import AsType
 from .as_type_type_map import AsTypeTypeMap
+from .atomic_filter import AtomicFilter
 from .authorization_contract import AuthorizationContract
 from .authorization_status import AuthorizationStatus
 from .authorized_column import AuthorizedColumn
@@ -19,6 +23,7 @@ from .backup_definition import BackupDefinition
 from .backup_type import BackupType
 from .binning_parameters import BinningParameters
 from .binning_parameters_method import BinningParametersMethod
+from .boolean_aggregator import BooleanAggregator
 from .build_catalog_action import BuildCatalogAction
 from .capability import Capability
 from .categorical_column import CategoricalColumn
@@ -52,6 +57,7 @@ from .contribution_error import ContributionError
 from .contribution_error_type import ContributionErrorType
 from .credentials import Credentials
 from .credentials_type import CredentialsType
+from .cross_standard_query import CrossStandardQuery
 from .custom import Custom
 from .cut import Cut
 from .data_object import DataObject
@@ -88,6 +94,7 @@ from .datasource_policy import DatasourcePolicy
 from .date_format import DateFormat
 from .deviation_squares import DeviationSquares
 from .displayed_capability import DisplayedCapability
+from .displayed_role import DisplayedRole
 from .documentation_response_200 import DocumentationResponse200
 from .dp_noise_metadata import DpNoiseMetadata
 from .dp_policy import DPPolicy
@@ -119,6 +126,9 @@ from .filter_ import Filter
 from .filtered_aggregation import FilteredAggregation
 from .float_matrix import FloatMatrix
 from .fuzzy_matching_parameters import FuzzyMatchingParameters
+from .get_ai_builder_prompts_data_source_type import GetAIBuilderPromptsDataSourceType
+from .get_ai_builder_prompts_order import GetAIBuilderPromptsOrder
+from .get_ai_builder_prompts_sort_by import GetAIBuilderPromptsSortBy
 from .get_availability_status_resource_type import GetAvailabilityStatusResourceType
 from .get_build_catalog_progress_response_200 import GetBuildCatalogProgressResponse200
 from .get_comp_bookmark_list_order import GetCompBookmarkListOrder
@@ -128,10 +138,13 @@ from .get_computation_list_sort_by import GetComputationListSortBy
 from .get_infos_response_200 import GetInfosResponse200
 from .get_log_list_order import GetLogListOrder
 from .get_log_list_response_200 import GetLogListResponse200
+from .get_log_list_sort_by import GetLogListSortBy
 from .get_model_list_order import GetModelListOrder
 from .get_model_list_sort_by import GetModelListSortBy
 from .get_network_metadata_response_200 import GetNetworkMetadataResponse200
 from .get_network_metadata_response_200_network_type import GetNetworkMetadataResponse200NetworkType
+from .get_notifications_order import GetNotificationsOrder
+from .get_notifications_sort_by import GetNotificationsSortBy
 from .get_ontology_codes_response_200 import GetOntologyCodesResponse200
 from .get_ontology_search_ontologies_item import GetOntologySearchOntologiesItem
 from .get_ontology_search_response_200_item import GetOntologySearchResponse200Item
@@ -174,8 +187,8 @@ from .local_input import LocalInput
 from .locus_range import LocusRange
 from .log import Log
 from .logical_formula import LogicalFormula
-from .logical_formula_operator import LogicalFormulaOperator
 from .logical_operator import LogicalOperator
+from .logical_operator_filter import LogicalOperatorFilter
 from .matching_column import MatchingColumn
 from .matching_params import MatchingParams
 from .measurement import Measurement
@@ -194,6 +207,8 @@ from .new_column_random import NewColumnRandom
 from .node import Node
 from .node_status import NodeStatus
 from .noise_distributions import NoiseDistributions
+from .notification import Notification
+from .notification_type import NotificationType
 from .one_hot_encoding import OneHotEncoding
 from .ontology_search_result import OntologySearchResult
 from .ontology_type import OntologyType
@@ -204,6 +219,9 @@ from .participant import Participant
 from .participants_access_scope import ParticipantsAccessScope
 from .participation_status import ParticipationStatus
 from .phonetic_encoding import PhoneticEncoding
+from .post_ai_query_builder_json_body import PostAIQueryBuilderJsonBody
+from .post_ai_query_builder_json_body_data_model_template import PostAIQueryBuilderJsonBodyDataModelTemplate
+from .post_ai_query_builder_response_200 import PostAIQueryBuilderResponse200
 from .post_data_object_json_body import PostDataObjectJsonBody
 from .post_data_source_command_json_body import PostDataSourceCommandJsonBody
 from .post_data_source_command_json_body_parameters import PostDataSourceCommandJsonBodyParameters
@@ -217,6 +235,11 @@ from .post_project_data_json_body import PostProjectDataJsonBody
 from .post_project_data_source_command_json_body import PostProjectDataSourceCommandJsonBody
 from .post_project_data_source_command_json_body_parameters import PostProjectDataSourceCommandJsonBodyParameters
 from .post_protocol_message_multipart_data import PostProtocolMessageMultipartData
+from .post_summarize_query_json_body import PostSummarizeQueryJsonBody
+from .post_summarize_query_json_body_payload import PostSummarizeQueryJsonBodyPayload
+from .post_summarize_query_response_200 import PostSummarizeQueryResponse200
+from .post_transcribe_audio_multipart_data import PostTranscribeAudioMultipartData
+from .post_transcribe_audio_response_200 import PostTranscribeAudioResponse200
 from .post_user_response_201 import PostUserResponse201
 from .prediction import Prediction
 from .prediction_params import PredictionParams
@@ -232,6 +255,7 @@ from .private_search_setup import PrivateSearchSetup
 from .project import Project
 from .project_actions import ProjectActions
 from .project_base import ProjectBase
+from .project_base_recurring_interval_unit import ProjectBaseRecurringIntervalUnit
 from .project_computation import ProjectComputation
 from .project_definition import ProjectDefinition
 from .project_participant_status import ProjectParticipantStatus
@@ -272,6 +296,11 @@ from .screening_operation import ScreeningOperation
 from .screening_session import ScreeningSession
 from .screening_session_definition import ScreeningSessionDefinition
 from .select import Select
+from .series_filter import SeriesFilter
+from .series_filter_output_variables_item import SeriesFilterOutputVariablesItem
+from .series_filter_output_variables_item_entry_selection_criterion import (
+    SeriesFilterOutputVariablesItemEntrySelectionCriterion,
+)
 from .session import Session
 from .session_definition import SessionDefinition
 from .set_index import SetIndex
@@ -279,6 +308,7 @@ from .set_intersection import SetIntersection
 from .set_intersection_output_format import SetIntersectionOutputFormat
 from .settings import Settings
 from .setup_session import SetupSession
+from .sql_metadata import SQLMetadata
 from .statistic_base import StatisticBase
 from .statistic_definition import StatisticDefinition
 from .statistic_result import StatisticResult
@@ -292,6 +322,7 @@ from .survival import Survival
 from .survival_aggregation import SurvivalAggregation
 from .survival_aggregation_subgroups_item import SurvivalAggregationSubgroupsItem
 from .task_progress import TaskProgress
+from .task_progress_payload import TaskProgressPayload
 from .threshold import Threshold
 from .threshold_type import ThresholdType
 from .time_diff import TimeDiff
@@ -323,8 +354,11 @@ from .workflow_type import WorkflowType
 __all__ = (
     "AccessScope",
     "AddColumns",
+    "AdvancedFilter",
+    "AdvancedFilterType",
     "AggregatedDatasetLength",
     "AggregationStrategy",
+    "AIBuilderPromptDefinition",
     "APIType",
     "ApplyMapping",
     "ApplyRegEx",
@@ -332,6 +366,7 @@ __all__ = (
     "ApproximationParams",
     "AsType",
     "AsTypeTypeMap",
+    "AtomicFilter",
     "AuthorizationContract",
     "AuthorizationStatus",
     "AuthorizedColumn",
@@ -340,6 +375,7 @@ __all__ = (
     "BackupType",
     "BinningParameters",
     "BinningParametersMethod",
+    "BooleanAggregator",
     "BuildCatalogAction",
     "Capability",
     "CategoricalColumn",
@@ -371,6 +407,7 @@ __all__ = (
     "ContributionErrorType",
     "Credentials",
     "CredentialsType",
+    "CrossStandardQuery",
     "Custom",
     "Cut",
     "DatabaseType",
@@ -407,6 +444,7 @@ __all__ = (
     "DateFormat",
     "DeviationSquares",
     "DisplayedCapability",
+    "DisplayedRole",
     "DocumentationResponse200",
     "DpNoiseMetadata",
     "DPPolicy",
@@ -438,6 +476,9 @@ __all__ = (
     "FilteredAggregation",
     "FloatMatrix",
     "FuzzyMatchingParameters",
+    "GetAIBuilderPromptsDataSourceType",
+    "GetAIBuilderPromptsOrder",
+    "GetAIBuilderPromptsSortBy",
     "GetAvailabilityStatusResourceType",
     "GetBuildCatalogProgressResponse200",
     "GetCompBookmarkListOrder",
@@ -447,10 +488,13 @@ __all__ = (
     "GetInfosResponse200",
     "GetLogListOrder",
     "GetLogListResponse200",
+    "GetLogListSortBy",
     "GetModelListOrder",
     "GetModelListSortBy",
     "GetNetworkMetadataResponse200",
     "GetNetworkMetadataResponse200NetworkType",
+    "GetNotificationsOrder",
+    "GetNotificationsSortBy",
     "GetOntologyCodesResponse200",
     "GetOntologySearchOntologiesItem",
     "GetOntologySearchResponse200Item",
@@ -493,8 +537,8 @@ __all__ = (
     "LocusRange",
     "Log",
     "LogicalFormula",
-    "LogicalFormulaOperator",
     "LogicalOperator",
+    "LogicalOperatorFilter",
     "MatchingColumn",
     "MatchingParams",
     "Measurement",
@@ -513,6 +557,8 @@ __all__ = (
     "Node",
     "NodeStatus",
     "NoiseDistributions",
+    "Notification",
+    "NotificationType",
     "OneHotEncoding",
     "OntologySearchResult",
     "OntologyType",
@@ -523,6 +569,9 @@ __all__ = (
     "ParticipantsAccessScope",
     "ParticipationStatus",
     "PhoneticEncoding",
+    "PostAIQueryBuilderJsonBody",
+    "PostAIQueryBuilderJsonBodyDataModelTemplate",
+    "PostAIQueryBuilderResponse200",
     "PostDataObjectJsonBody",
     "PostDataSourceCommandJsonBody",
     "PostDataSourceCommandJsonBodyParameters",
@@ -536,6 +585,11 @@ __all__ = (
     "PostProjectDataSourceCommandJsonBody",
     "PostProjectDataSourceCommandJsonBodyParameters",
     "PostProtocolMessageMultipartData",
+    "PostSummarizeQueryJsonBody",
+    "PostSummarizeQueryJsonBodyPayload",
+    "PostSummarizeQueryResponse200",
+    "PostTranscribeAudioMultipartData",
+    "PostTranscribeAudioResponse200",
     "PostUserResponse201",
     "Prediction",
     "PredictionParams",
@@ -551,6 +605,7 @@ __all__ = (
     "Project",
     "ProjectActions",
     "ProjectBase",
+    "ProjectBaseRecurringIntervalUnit",
     "ProjectComputation",
     "ProjectDefinition",
     "ProjectParticipantStatus",
@@ -591,6 +646,9 @@ __all__ = (
     "ScreeningSession",
     "ScreeningSessionDefinition",
     "Select",
+    "SeriesFilter",
+    "SeriesFilterOutputVariablesItem",
+    "SeriesFilterOutputVariablesItemEntrySelectionCriterion",
     "Session",
     "SessionDefinition",
     "SetIndex",
@@ -598,6 +656,7 @@ __all__ = (
     "SetIntersectionOutputFormat",
     "Settings",
     "SetupSession",
+    "SQLMetadata",
     "StatisticalQuantity",
     "StatisticBase",
     "StatisticDefinition",
@@ -611,6 +670,7 @@ __all__ = (
     "SurvivalAggregation",
     "SurvivalAggregationSubgroupsItem",
     "TaskProgress",
+    "TaskProgressPayload",
     "Threshold",
     "ThresholdType",
     "TimeDiff",

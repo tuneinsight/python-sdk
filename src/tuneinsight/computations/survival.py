@@ -1,6 +1,7 @@
 """Classes for survival analysis."""
 
 from typing import List, Dict
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -13,7 +14,7 @@ from tuneinsight.cryptolib.postprocessing import (
     post_process_survival,
     kaplan_meier_confidence_interval,
 )
-from tuneinsight.utils.plots import style_plot
+from tuneinsight.utils.plots import style_plot, TI_COLORS
 
 from tuneinsight.api.sdk import models
 from tuneinsight.api.sdk.types import UNSET, is_set
@@ -216,7 +217,7 @@ class SurvivalResults(ComputationResult):
         size: tuple = (6, 4),
         duration_col: str = None,
         title: str = "Survival curve",
-        ci: bool = False,
+        ci: bool = True,
     ):
         """
         Plots the survival curve of each subgroup.
@@ -233,20 +234,41 @@ class SurvivalResults(ComputationResult):
             confidence_intervals = self.confidence_interval()
         plt.style.use("bmh")
         fig, ax = plt.subplots()
-        for label, df in self.results.items():
-            x = df[duration_col]
-            y = df["survival_probability"]
-            ax.step(x, y, linewidth=2.5, label=label)
+        x_max = 0
+        for i, (label, df) in enumerate(self.results.items()):
+            # We add a point at the beginning to start with a plateau of 1 on the first frame,
+            # and a last point that duplicates the previous one to have a last step.
+            x = np.array(df[duration_col])
+            x = np.concat(([0], x + 1, [x[-1] + 2]))
+            x_max = max(x_max, *x)
+            y = np.array(df["survival_probability"])
+            y = np.concat(([1], y, [y[-1]]))
+            color = TI_COLORS[i % len(TI_COLORS)]
+            ax.step(x, y, "-", linewidth=2, label=label, where="post", color=color)
+            # Add big points for all the data points (the end of each time frame).
+            ax.plot(x[1:-1], y[1:-1], ".", ms=5, color=color)
             if ci:
                 this_ci = confidence_intervals[label]
+                # Duplicate the last point of CIs as well.
+                lower = np.array(this_ci["lower"])
+                upper = np.array(this_ci["upper"])
                 ax.fill_between(
                     x,
-                    this_ci["lower"],
-                    this_ci["upper"],
+                    np.concat([lower, [lower[-1]]]),
+                    np.concat([upper, [upper[-1]]]),
                     alpha=0.2,
+                    step="post",
+                    color=color,
                 )
         ax.legend()
+        # We add margin in the topleft so as to show the starting point (0,1).
         ax.set_ylim([0, 1.01])
+        # Set "clever" xticks: we should have about 8 integer-valued ticks.
+        space = x_max // 8
+        x_max = int(space * np.ceil(x_max / space))
+        ax.set_xlim([0, x_max])
+        ticks = list(range(0, x_max + space, space))
+        ax.set_xticks(ticks)
         style_plot(ax, fig, title, duration_col, "Survival Probability", size=size)
         plt.show()
 

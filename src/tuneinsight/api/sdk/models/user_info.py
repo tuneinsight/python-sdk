@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
@@ -6,6 +6,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.displayed_capability import DisplayedCapability
+    from ..models.displayed_role import DisplayedRole
     from ..models.user_group import UserGroup
 
 
@@ -20,13 +21,13 @@ class UserInfo:
         capabilities (Union[Unset, List['DisplayedCapability']]):
         groups (Union[Unset, List['UserGroup']]):
         local (Union[Unset, bool]): whether the user is part of this instance's organization or not.
-        roles (Union[Unset, List[str]]):
+        roles (Union[Unset, List['DisplayedRole']]):
     """
 
     capabilities: Union[Unset, List["DisplayedCapability"]] = UNSET
     groups: Union[Unset, List["UserGroup"]] = UNSET
     local: Union[Unset, bool] = UNSET
-    roles: Union[Unset, List[str]] = UNSET
+    roles: Union[Unset, List["DisplayedRole"]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -47,9 +48,13 @@ class UserInfo:
                 groups.append(groups_item)
 
         local = self.local
-        roles: Union[Unset, List[str]] = UNSET
+        roles: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.roles, Unset):
-            roles = self.roles
+            roles = []
+            for roles_item_data in self.roles:
+                roles_item = roles_item_data.to_dict()
+
+                roles.append(roles_item)
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -68,6 +73,7 @@ class UserInfo:
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         from ..models.displayed_capability import DisplayedCapability
+        from ..models.displayed_role import DisplayedRole
         from ..models.user_group import UserGroup
 
         d = src_dict.copy()
@@ -87,7 +93,12 @@ class UserInfo:
 
         local = d.pop("local", UNSET)
 
-        roles = cast(List[str], d.pop("roles", UNSET))
+        roles = []
+        _roles = d.pop("roles", UNSET)
+        for roles_item_data in _roles or []:
+            roles_item = DisplayedRole.from_dict(roles_item_data)
+
+            roles.append(roles_item)
 
         user_info = cls(
             capabilities=capabilities,

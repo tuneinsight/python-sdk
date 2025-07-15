@@ -4,6 +4,7 @@ import attr
 
 from ..models.client import Client
 from ..models.participants_access_scope import ParticipantsAccessScope
+from ..models.project_base_recurring_interval_unit import ProjectBaseRecurringIntervalUnit
 from ..models.topology import Topology
 from ..models.workflow_type import WorkflowType
 from ..types import UNSET, Unset
@@ -62,6 +63,8 @@ class ProjectDefinition:
         recurring_end_time (Union[Unset, None, str]): ISO 8601 datetime when the repetition should stop. If not set, the
             project will run indefinitely
         recurring_interval (Union[Unset, None, int]): Interval between each repetition in minutes
+        recurring_interval_unit (Union[Unset, ProjectBaseRecurringIntervalUnit]): Unit in which the recurring interval
+            is given (minutes, hours, days, weeks, months, years) Default: ProjectBaseRecurringIntervalUnit.MINUTES.
         recurring_start_time (Union[Unset, None, str]): ISO 8601 datetime when the repetition should start
         restrict_instances (Union[Unset, None, bool]): (DEPRECATED: replace by using `specified` as the
             `runAccessScope`)
@@ -126,6 +129,7 @@ class ProjectDefinition:
     query_timeout_enabled: Union[Unset, None, bool] = UNSET
     recurring_end_time: Union[Unset, None, str] = UNSET
     recurring_interval: Union[Unset, None, int] = UNSET
+    recurring_interval_unit: Union[Unset, ProjectBaseRecurringIntervalUnit] = ProjectBaseRecurringIntervalUnit.MINUTES
     recurring_start_time: Union[Unset, None, str] = UNSET
     restrict_instances: Union[Unset, None, bool] = UNSET
     run_access_scope: Union[Unset, ParticipantsAccessScope] = UNSET
@@ -191,6 +195,10 @@ class ProjectDefinition:
         query_timeout_enabled = self.query_timeout_enabled
         recurring_end_time = self.recurring_end_time
         recurring_interval = self.recurring_interval
+        recurring_interval_unit: Union[Unset, str] = UNSET
+        if not isinstance(self.recurring_interval_unit, Unset):
+            recurring_interval_unit = self.recurring_interval_unit.value
+
         recurring_start_time = self.recurring_start_time
         restrict_instances = self.restrict_instances
         run_access_scope: Union[Unset, str] = UNSET
@@ -288,6 +296,8 @@ class ProjectDefinition:
             field_dict["recurringEndTime"] = recurring_end_time
         if recurring_interval is not UNSET:
             field_dict["recurringInterval"] = recurring_interval
+        if recurring_interval_unit is not UNSET:
+            field_dict["recurringIntervalUnit"] = recurring_interval_unit
         if recurring_start_time is not UNSET:
             field_dict["recurringStartTime"] = recurring_start_time
         if restrict_instances is not UNSET:
@@ -407,6 +417,13 @@ class ProjectDefinition:
 
         recurring_interval = d.pop("recurringInterval", UNSET)
 
+        _recurring_interval_unit = d.pop("recurringIntervalUnit", UNSET)
+        recurring_interval_unit: Union[Unset, ProjectBaseRecurringIntervalUnit]
+        if isinstance(_recurring_interval_unit, Unset):
+            recurring_interval_unit = UNSET
+        else:
+            recurring_interval_unit = ProjectBaseRecurringIntervalUnit(_recurring_interval_unit)
+
         recurring_start_time = d.pop("recurringStartTime", UNSET)
 
         restrict_instances = d.pop("restrictInstances", UNSET)
@@ -494,6 +511,7 @@ class ProjectDefinition:
             query_timeout_enabled=query_timeout_enabled,
             recurring_end_time=recurring_end_time,
             recurring_interval=recurring_interval,
+            recurring_interval_unit=recurring_interval_unit,
             recurring_start_time=recurring_start_time,
             restrict_instances=restrict_instances,
             run_access_scope=run_access_scope,
