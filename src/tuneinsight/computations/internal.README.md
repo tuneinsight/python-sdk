@@ -37,6 +37,8 @@ In some cases, API models require some parameters to take values of specific API
 
 Also, if your class implements differential privacy, don't forget to include `dp_epsilon: float = None` as an argument! This parameter is part of all computation definitions, but is the only one that users are expected to change.
 
+**Note** -- the `super().__init__` call PATCHes the project with the new computation definition. Hence, it should be done _after_ setting internal variables of the `Computation` object (preferably at the end of the constructor).
+
 ### Pre-/post-processing
 
 Users interact with computations mostly by calling `.run`. By default, this interface is relatively low-level, returning a list of data objects (potentially still encrypted). To make this interface friendlier, implement the `._process_results` method (that is called by `Computation.run`). For instance, for shifted sum (where the answer is a scalar):

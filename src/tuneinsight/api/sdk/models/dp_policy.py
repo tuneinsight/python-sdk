@@ -26,6 +26,8 @@ class DPPolicy:
                 Warning: this mechanism is only effective when the data selection parameters (data source queries) are fixed,
                 and therefore
                 returned variables cannot be aliased (for example using aliases in SQL SELECT statements) to evade this trap.
+            combine_local_results (Union[Unset, bool]): when enabled, local computation results are combined into a single
+                collective results that includes a breakdown of all local results.
             execution_quota_parameters (Union[Unset, ExecutionQuotaParameters]): Execution quota settings.
                 The unit of the execution quota depends on the computation and other policies.
                 If differential privacy is applied, it is in terms of the the epsilon value (ϵ) of the privacy budget.
@@ -50,6 +52,7 @@ class DPPolicy:
     """
 
     authorized_columns: Union[Unset, List["AuthorizedColumn"]] = UNSET
+    combine_local_results: Union[Unset, bool] = UNSET
     execution_quota_parameters: Union[Unset, "ExecutionQuotaParameters"] = UNSET
     link_records: Union[Unset, bool] = UNSET
     linkage_identifier: Union[Unset, str] = UNSET
@@ -70,6 +73,7 @@ class DPPolicy:
 
                 authorized_columns.append(authorized_columns_item)
 
+        combine_local_results = self.combine_local_results
         execution_quota_parameters: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.execution_quota_parameters, Unset):
             execution_quota_parameters = self.execution_quota_parameters.to_dict()
@@ -91,6 +95,8 @@ class DPPolicy:
         field_dict.update({})
         if authorized_columns is not UNSET:
             field_dict["authorizedColumns"] = authorized_columns
+        if combine_local_results is not UNSET:
+            field_dict["combineLocalResults"] = combine_local_results
         if execution_quota_parameters is not UNSET:
             field_dict["executionQuotaParameters"] = execution_quota_parameters
         if link_records is not UNSET:
@@ -126,6 +132,8 @@ class DPPolicy:
 
             authorized_columns.append(authorized_columns_item)
 
+        combine_local_results = d.pop("combineLocalResults", UNSET)
+
         _execution_quota_parameters = d.pop("executionQuotaParameters", UNSET)
         execution_quota_parameters: Union[Unset, ExecutionQuotaParameters]
         if isinstance(_execution_quota_parameters, Unset):
@@ -156,6 +164,7 @@ class DPPolicy:
 
         dp_policy = cls(
             authorized_columns=authorized_columns,
+            combine_local_results=combine_local_results,
             execution_quota_parameters=execution_quota_parameters,
             link_records=link_records,
             linkage_identifier=linkage_identifier,

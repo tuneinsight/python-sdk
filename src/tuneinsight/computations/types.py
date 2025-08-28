@@ -11,13 +11,14 @@ from tuneinsight.api.sdk.models import ComputationType as ct
 from tuneinsight.computations import (
     Aggregation,
     DatasetLength,
+    Distribution,
     EncryptedMean,
+    Feasibility,
+    GWAS,
     HybridFL,
     Matching,
-    GWAS,
-    SurvivalAnalysis,
     Statistics,
-    Feasibility,
+    SurvivalAnalysis,
 )
 
 
@@ -27,16 +28,17 @@ class Type(Enum):
     """
 
     AGGREGATION = ct.ENCRYPTEDAGGREGATION
-    DATASETLENGTH = ct.AGGREGATEDDATASETLENGTH
-    HYBRIDFL = ct.HYBRIDFL
-    MEAN = ct.ENCRYPTEDMEAN
-    REGRESSION = ct.ENCRYPTEDREGRESSION
-    PREDICTION = ct.ENCRYPTEDPREDICTION
-    INTERSECTION = ct.SETINTERSECTION
-    GWAS = ct.GWAS
-    SURVIVAL_ANALYSIS = ct.SURVIVALAGGREGATION
+    DATASET_LENGTH = ct.AGGREGATEDDATASETLENGTH
     DATASET_STATISTICS = ct.DATASETSTATISTICS
     FEASIBILITY = ct.FEASIBILITY
+    GWAS = ct.GWAS
+    HYBRIDFL = ct.HYBRIDFL
+    INTERSECTION = ct.SETINTERSECTION
+    MEAN = ct.ENCRYPTEDMEAN
+    PREDICTION = ct.ENCRYPTEDPREDICTION
+    REGRESSION = ct.ENCRYPTEDREGRESSION
+    SURVIVAL_ANALYSIS = ct.SURVIVALAGGREGATION
+    VALUE_DISTRIBUTION = ct.VALUEDISTRIBUTION
 
     def to_computation_type(self) -> ct:
         # The warning is here, because putting it at top-level causes the diapason import to print a warning.
@@ -45,30 +47,32 @@ class Type(Enum):
 
 displayed_types = {
     Type.AGGREGATION: "Aggregation",
-    Type.DATASETLENGTH: "Dataset Length",
-    Type.HYBRIDFL: "Hybrid Federated Learning",
-    Type.MEAN: "Mean",
-    Type.REGRESSION: "Regression",
-    Type.PREDICTION: "Prediction",
-    Type.INTERSECTION: "Private Set Intersection",
-    Type.GWAS: "GWAS",
-    Type.SURVIVAL_ANALYSIS: "Survival Analysis",
+    Type.DATASET_LENGTH: "Dataset Length",
     Type.DATASET_STATISTICS: "Secure Quantiles Computation",
     Type.FEASIBILITY: "Feasibility",
+    Type.GWAS: "GWAS",
+    Type.HYBRIDFL: "Hybrid Federated Learning",
+    Type.INTERSECTION: "Private Set Intersection",
+    Type.MEAN: "Mean",
+    Type.PREDICTION: "Prediction",
+    Type.REGRESSION: "Regression",
+    Type.SURVIVAL_ANALYSIS: "Survival Analysis",
+    Type.VALUE_DISTRIBUTION: "Value Distribution",
 }
 """Mapping from computation type to human-readable name."""
 
 
 type_to_class = {
     Type.AGGREGATION: Aggregation,
-    Type.DATASETLENGTH: DatasetLength,
-    Type.HYBRIDFL: HybridFL,
-    Type.MEAN: EncryptedMean,
-    Type.INTERSECTION: Matching,
-    Type.GWAS: GWAS,
-    Type.SURVIVAL_ANALYSIS: SurvivalAnalysis,
+    Type.DATASET_LENGTH: DatasetLength,
     Type.DATASET_STATISTICS: Statistics,
     Type.FEASIBILITY: Feasibility,
+    Type.GWAS: GWAS,
+    Type.HYBRIDFL: HybridFL,
+    Type.INTERSECTION: Matching,
+    Type.MEAN: EncryptedMean,
+    Type.SURVIVAL_ANALYSIS: SurvivalAnalysis,
+    Type.VALUE_DISTRIBUTION: Distribution,
 }
 """Mapping from computation type to SDK class."""
 

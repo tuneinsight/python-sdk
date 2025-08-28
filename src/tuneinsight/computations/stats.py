@@ -149,7 +149,7 @@ class Statistics(ModelBasedComputation):
     def __init__(
         self,
         project,
-        variables: List[Union[str, dict]] = None,
+        variables: Union[List[Union[str, dict]], str] = None,
         quantities: List[models.StatisticalQuantity] = UNSET,
         dp_epsilon: float = UNSET,
     ):
@@ -158,25 +158,23 @@ class Statistics(ModelBasedComputation):
 
         Args
             project (client.Project): the project to which this computation belongs.
-            variables (list of str or dict): the variables to which this computation
+            variables (str or list of (str or dict)): the variables to which this computation
                 should be applied. Each variable can be specified either as a string
                 (its name), in which case default bounds [0, 200] apply, or as a
                 dictionary with entry "name" and optional "min_bound" and "max_bound".
+                If this is a single string, then the input is equivalent to `[variables]`.
             quantities (list of StatisticalQuantity): if provided, only compute the
                 restricted set of statistics. If not provided, all quantities (mean,
                 variance, and quantiles) will be computed.
         """
-        super().__init__(
-            project,
-            models.DatasetStatistics,
-            type=models.ComputationType.DATASETSTATISTICS,
-            dp_epsilon=dp_epsilon,
-        )
         self.quantities = quantities
         # The computation expects a dict mapping strings to models.StatisticDefinition
         # as input containing min and max bounds. We implement a high-level interface
         # where users can call add_variable to instantiate the variables.
         self._variables = {}
+        if isinstance(variables, str):
+            # Prevent easy error where the user sets variable="my_variable".
+            variables = [variables]
         for var in variables or []:
             if isinstance(var, str):
                 self.add_variable(var, var)
@@ -184,6 +182,12 @@ class Statistics(ModelBasedComputation):
                 if "variable" not in var:
                     var["variable"] = var["name"]
                 self.add_variable(**var)
+        super().__init__(
+            project,
+            models.DatasetStatistics,
+            type=models.ComputationType.DATASETSTATISTICS,
+            dp_epsilon=dp_epsilon,
+        )
 
     @classmethod
     def from_model(
@@ -194,7 +198,7 @@ class Statistics(ModelBasedComputation):
         # Parse the statistics in the object, and convert them to variables.
         conf = model.statistics
         quantities = UNSET
-        if is_set(conf):
+        if is_set(conf) and len(conf) > 0:
             quantities = conf[0].quantities
             for qt in conf[1:]:
                 if quantities != qt.quantities:

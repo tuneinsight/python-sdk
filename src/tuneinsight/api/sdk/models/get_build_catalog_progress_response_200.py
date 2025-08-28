@@ -13,15 +13,18 @@ class GetBuildCatalogProgressResponse200:
     Attributes:
         progress (Union[Unset, str]):
         status (Union[Unset, str]):
+        time_left (Union[Unset, int]): the estimated time left in seconds.
     """
 
     progress: Union[Unset, str] = UNSET
     status: Union[Unset, str] = UNSET
+    time_left: Union[Unset, int] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         progress = self.progress
         status = self.status
+        time_left = self.time_left
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -30,6 +33,8 @@ class GetBuildCatalogProgressResponse200:
             field_dict["progress"] = progress
         if status is not UNSET:
             field_dict["status"] = status
+        if time_left is not UNSET:
+            field_dict["timeLeft"] = time_left
 
         return field_dict
 
@@ -40,9 +45,12 @@ class GetBuildCatalogProgressResponse200:
 
         status = d.pop("status", UNSET)
 
+        time_left = d.pop("timeLeft", UNSET)
+
         get_build_catalog_progress_response_200 = cls(
             progress=progress,
             status=status,
+            time_left=time_left,
         )
 
         get_build_catalog_progress_response_200.additional_properties = d

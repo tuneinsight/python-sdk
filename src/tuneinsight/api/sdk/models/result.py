@@ -18,6 +18,8 @@ T = TypeVar("T", bound="Result")
 class Result:
     """
     Attributes:
+        display_breakdown (Union[Unset, None, bool]): frontend flag used to toggle the display of the local breakdown
+            when available.
         display_confidence_intervals (Union[Unset, None, bool]): frontend flag used to toggle the display of the
             confidence intervals in differentially private results.
         display_local (Union[Unset, None, bool]): frontend flag used to toggle the display of the local result when the
@@ -31,6 +33,7 @@ class Result:
         title (Union[Unset, str]): title given to the result (mostly for the frontend)
         visualization_type (Union[Unset, VisualizationType]): represents the appropriate visualization type for a
             result.
+        breakdown_data_object_id (Union[Unset, str]): Unique identifier of a data object.
         collective_encrypted (Union[Unset, None, bool]):
         computation (Union[Unset, Computation]): Metadata of a computation.
         computation_id (Union[Unset, str]): Identifier of a computation, unique across all computing nodes.
@@ -52,6 +55,7 @@ class Result:
         updated_at (Union[Unset, str]):
     """
 
+    display_breakdown: Union[Unset, None, bool] = UNSET
     display_confidence_intervals: Union[Unset, None, bool] = UNSET
     display_local: Union[Unset, None, bool] = UNSET
     display_raw_results: Union[Unset, None, bool] = UNSET
@@ -60,6 +64,7 @@ class Result:
     tags: Union[Unset, List[str]] = UNSET
     title: Union[Unset, str] = UNSET
     visualization_type: Union[Unset, VisualizationType] = UNSET
+    breakdown_data_object_id: Union[Unset, str] = UNSET
     collective_encrypted: Union[Unset, None, bool] = UNSET
     computation: Union[Unset, "Computation"] = UNSET
     computation_id: Union[Unset, str] = UNSET
@@ -80,6 +85,7 @@ class Result:
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        display_breakdown = self.display_breakdown
         display_confidence_intervals = self.display_confidence_intervals
         display_local = self.display_local
         display_raw_results = self.display_raw_results
@@ -94,6 +100,7 @@ class Result:
         if not isinstance(self.visualization_type, Unset):
             visualization_type = self.visualization_type.value
 
+        breakdown_data_object_id = self.breakdown_data_object_id
         collective_encrypted = self.collective_encrypted
         computation: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.computation, Unset):
@@ -124,6 +131,8 @@ class Result:
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if display_breakdown is not UNSET:
+            field_dict["displayBreakdown"] = display_breakdown
         if display_confidence_intervals is not UNSET:
             field_dict["displayConfidenceIntervals"] = display_confidence_intervals
         if display_local is not UNSET:
@@ -140,6 +149,8 @@ class Result:
             field_dict["title"] = title
         if visualization_type is not UNSET:
             field_dict["visualizationType"] = visualization_type
+        if breakdown_data_object_id is not UNSET:
+            field_dict["breakdownDataObjectId"] = breakdown_data_object_id
         if collective_encrypted is not UNSET:
             field_dict["collectiveEncrypted"] = collective_encrypted
         if computation is not UNSET:
@@ -183,6 +194,8 @@ class Result:
         from ..models.result_metadata import ResultMetadata
 
         d = src_dict.copy()
+        display_breakdown = d.pop("displayBreakdown", UNSET)
+
         display_confidence_intervals = d.pop("displayConfidenceIntervals", UNSET)
 
         display_local = d.pop("displayLocal", UNSET)
@@ -203,6 +216,8 @@ class Result:
             visualization_type = UNSET
         else:
             visualization_type = VisualizationType(_visualization_type)
+
+        breakdown_data_object_id = d.pop("breakdownDataObjectId", UNSET)
 
         collective_encrypted = d.pop("collectiveEncrypted", UNSET)
 
@@ -254,6 +269,7 @@ class Result:
         updated_at = d.pop("updatedAt", UNSET)
 
         result = cls(
+            display_breakdown=display_breakdown,
             display_confidence_intervals=display_confidence_intervals,
             display_local=display_local,
             display_raw_results=display_raw_results,
@@ -262,6 +278,7 @@ class Result:
             tags=tags,
             title=title,
             visualization_type=visualization_type,
+            breakdown_data_object_id=breakdown_data_object_id,
             collective_encrypted=collective_encrypted,
             computation=computation,
             computation_id=computation_id,

@@ -24,6 +24,7 @@ from ...models.private_search_setup import PrivateSearchSetup
 from ...models.set_intersection import SetIntersection
 from ...models.setup_session import SetupSession
 from ...models.survival_aggregation import SurvivalAggregation
+from ...models.undefined import Undefined
 from ...models.v_binned_aggregation import VBinnedAggregation
 from ...models.value_distribution import ValueDistribution
 from ...types import Response
@@ -50,6 +51,7 @@ def _get_kwargs(
         "SetIntersection",
         "SetupSession",
         "SurvivalAggregation",
+        "Undefined",
         "VBinnedAggregation",
         "ValueDistribution",
     ],
@@ -62,6 +64,9 @@ def _get_kwargs(
     json_json_body: Dict[str, Any]
 
     if isinstance(json_body, Dummy):
+        json_json_body = json_body.to_dict()
+
+    elif isinstance(json_body, Undefined):
         json_json_body = json_body.to_dict()
 
     elif isinstance(json_body, CollectiveKeySwitch):
@@ -197,6 +202,7 @@ def sync_detailed(
         "SetIntersection",
         "SetupSession",
         "SurvivalAggregation",
+        "Undefined",
         "VBinnedAggregation",
         "ValueDistribution",
     ],
@@ -208,7 +214,7 @@ def sync_detailed(
             'Dummy', 'EncryptedAggregation', 'EncryptedMean', 'EncryptedPrediction',
             'EncryptedRegression', 'Feasibility', 'FilteredAggregation', 'GWAS', 'HybridFL',
             'PrivateSearch', 'PrivateSearchSetup', 'SetIntersection', 'SetupSession',
-            'SurvivalAggregation', 'VBinnedAggregation', 'ValueDistribution']):
+            'SurvivalAggregation', 'Undefined', 'VBinnedAggregation', 'ValueDistribution']):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -252,6 +258,7 @@ def sync(
         "SetIntersection",
         "SetupSession",
         "SurvivalAggregation",
+        "Undefined",
         "VBinnedAggregation",
         "ValueDistribution",
     ],
@@ -263,7 +270,7 @@ def sync(
             'Dummy', 'EncryptedAggregation', 'EncryptedMean', 'EncryptedPrediction',
             'EncryptedRegression', 'Feasibility', 'FilteredAggregation', 'GWAS', 'HybridFL',
             'PrivateSearch', 'PrivateSearchSetup', 'SetIntersection', 'SetupSession',
-            'SurvivalAggregation', 'VBinnedAggregation', 'ValueDistribution']):
+            'SurvivalAggregation', 'Undefined', 'VBinnedAggregation', 'ValueDistribution']):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -300,6 +307,7 @@ async def asyncio_detailed(
         "SetIntersection",
         "SetupSession",
         "SurvivalAggregation",
+        "Undefined",
         "VBinnedAggregation",
         "ValueDistribution",
     ],
@@ -311,7 +319,7 @@ async def asyncio_detailed(
             'Dummy', 'EncryptedAggregation', 'EncryptedMean', 'EncryptedPrediction',
             'EncryptedRegression', 'Feasibility', 'FilteredAggregation', 'GWAS', 'HybridFL',
             'PrivateSearch', 'PrivateSearchSetup', 'SetIntersection', 'SetupSession',
-            'SurvivalAggregation', 'VBinnedAggregation', 'ValueDistribution']):
+            'SurvivalAggregation', 'Undefined', 'VBinnedAggregation', 'ValueDistribution']):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -353,6 +361,7 @@ async def asyncio(
         "SetIntersection",
         "SetupSession",
         "SurvivalAggregation",
+        "Undefined",
         "VBinnedAggregation",
         "ValueDistribution",
     ],
@@ -364,7 +373,7 @@ async def asyncio(
             'Dummy', 'EncryptedAggregation', 'EncryptedMean', 'EncryptedPrediction',
             'EncryptedRegression', 'Feasibility', 'FilteredAggregation', 'GWAS', 'HybridFL',
             'PrivateSearch', 'PrivateSearchSetup', 'SetIntersection', 'SetupSession',
-            'SurvivalAggregation', 'VBinnedAggregation', 'ValueDistribution']):
+            'SurvivalAggregation', 'Undefined', 'VBinnedAggregation', 'ValueDistribution']):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

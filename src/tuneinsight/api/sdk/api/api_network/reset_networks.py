@@ -43,6 +43,10 @@ def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Uni
     if response.status_code == HTTPStatus.NO_CONTENT:
         response_204 = cast(Any, None)
         return response_204
+    if response.status_code == HTTPStatus.UNAUTHORIZED:
+        response_401 = Error.from_dict(response.json())
+
+        return response_401
     if response.status_code == HTTPStatus.FORBIDDEN:
         response_403 = Error.from_dict(response.json())
 

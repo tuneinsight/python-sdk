@@ -45,6 +45,9 @@ def _get_kwargs(
 
 
 def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[Error, str]]:
+    if response.status_code == HTTPStatus.OK:
+        response_200 = cast(str, response.json())
+        return response_200
     if response.status_code == HTTPStatus.CREATED:
         response_201 = cast(str, response.json())
         return response_201
@@ -52,6 +55,10 @@ def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Uni
         response_400 = Error.from_dict(response.json())
 
         return response_400
+    if response.status_code == HTTPStatus.UNAUTHORIZED:
+        response_401 = Error.from_dict(response.json())
+
+        return response_401
     if response.status_code == HTTPStatus.FORBIDDEN:
         response_403 = Error.from_dict(response.json())
 

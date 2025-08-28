@@ -3,7 +3,7 @@
 from typing import List
 import pandas as pd
 from tuneinsight.api.sdk import models
-from tuneinsight.api.sdk.types import UNSET
+from tuneinsight.api.sdk.types import UNSET, value_if_unset
 from tuneinsight.client.dataobject import DataContent
 from tuneinsight.computations.aggregation import Aggregation
 from tuneinsight.computations.base import ModelBasedComputation
@@ -145,7 +145,7 @@ class Distribution(ModelBasedComputation):
                 bin_min=model.bin_min,
                 bin_max=model.bin_max,
                 possible_values=model.possible_values,
-                float_precision=model.precision,
+                float_precision=value_if_unset(model.precision, 2),
                 dp_epsilon=model.dp_epsilon,
             )
         comp._adapt(model)

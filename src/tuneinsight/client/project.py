@@ -1,6 +1,7 @@
 """Classes to interact with Tune Insight projects."""
 
 from contextlib import contextmanager
+import collections
 from typing import Dict, List, Tuple, Union, Any
 import warnings
 
@@ -613,6 +614,10 @@ class Project:
         Returns:
             computation: a `tuneinsight.Computation` object that can be used to modify the
                 computation set on this project.
+
+        Raises:
+            ValueError: if the computation is not supported by the SDK. This occurs if the computation
+                type is unknown or there is no computation class in the SDK handling this type.
         """
         # Instantiating computations patches the project -- we do not want this here.
         with self.disable_patch():
@@ -650,8 +655,8 @@ class Project:
         Returns:
             A list of pairs (`Computation`, result) consisting of the computation definition
             as a `Computation` object and a post-processed result (whose type depends on the
-            specific computation being run).
-
+            specific computation being run). If a computation is not supported by the SDK,
+            it is skipped and its result will not be included.
         """
         output = []
         for computation in self.get_computations():
@@ -663,7 +668,11 @@ class Project:
                     == models.ComputationType.COLLECTIVEKEYSWITCH
                 ):
                     continue
-                comp: Computation = self.get_computation(computation.definition)
+                try:
+                    comp: Computation = self.get_computation(computation.definition)
+                except ValueError as err:
+                    warnings.warn(f"A computation could not be loaded: {err}")
+                    continue
                 result = comp.fetch_results(computation)
                 output.append((comp, result))
         # Revert the order of entries (they are in reverse chronological order in the answer).
@@ -806,6 +815,8 @@ class Project:
         Returns:
             List[str]: a list of the names of the participating nodes
         """
+        if is_unset(self.model.participants):
+            return []
         return [p.node.name for p in self.model.participants]
 
     def display_policy(self, detailed: bool = False, show_queries: bool = True):
@@ -992,7 +1003,11 @@ class Project:
                     "All users from this organization are authorized to run this project."
                 )
             )
-        elif len(p.authorized_users) > 0:
+        elif (
+            p.authorized_users is not None
+            and is_set(p.authorized_users)
+            and len(p.authorized_users) > 0
+        ):
             r("Authorized users:", r.code(p.authorized_users), end=".")
         else:
             r(
@@ -1008,7 +1023,9 @@ class Project:
             "(peer-to-peer" if p.topology == models.Topology.TREE else "(star",
             "topology)",
         )
-        participants: List[models.Participant] = self.model.participants
+        participants: List[models.Participant] = value_if_unset(
+            self.model.participants, []
+        )
         for part in participants:
             r(
                 r.bf(part.node.name) + ":",
@@ -1096,6 +1113,46 @@ class Project:
                         r.item(
                             f'❌ The project will be automatically rejected, because it does not satisfy specification _"{value_if_unset(status.context, i+1)}"_: {status.reason}.'
                         )
+
+    def display_privacy_warnings(self) -> bool:
+        """
+        Displays the privacy warnings of this project in a human-readable format.
+
+        Some project configurations can lead to privacy vulnerabilities. The Tune Insight instance
+        automatically screens project for known potential issues. These might not be a problem for
+        your specific use case, but it is important to review these carefully to ensure that issues
+        found (if any) are an acceptable risk.
+
+        Returns:
+            bool: whether a privacy warning was found.
+        """
+        r = Renderer()
+        if is_unset(self.model.privacy_summary):
+            return False
+        project_warnings = self.model.privacy_summary.privacy_warnings
+        if is_unset(project_warnings) or not project_warnings:
+            r.text("This project has no privacy warnings ✅")
+            return False
+        header_by_severity = {
+            models.PrivacyWarningSeverity.HIGH: "🔥 High risk",
+            models.PrivacyWarningSeverity.MEDIUM: "⚠️ Medium risk",
+            models.PrivacyWarningSeverity.LOW: "👉 Low risk",
+        }
+        warnings_by_severity = collections.defaultdict(list)
+        for warning in project_warnings:
+            warnings_by_severity[warning.severity].append(warning.description)
+        r.h1("Privacy warnings")
+        r.text(
+            "The current configuration of the project could lead to one or more privacy risks. Please review these risks carefully."
+        )
+        for severity, header in header_by_severity.items():
+            ws = warnings_by_severity[severity]
+            if not ws:
+                continue
+            r.h2(header)
+            for w in ws:
+                r.item(w)
+        return True
 
 
 def _render_action(r: Renderer, name: str, status: models.AvailabilityStatus):

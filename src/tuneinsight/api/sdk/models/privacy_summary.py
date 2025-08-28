@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     from ..models.data_source import DataSource
     from ..models.execution_quota import ExecutionQuota
     from ..models.privacy_summary_computation import PrivacySummaryComputation
+    from ..models.privacy_warning import PrivacyWarning
 
 
 T = TypeVar("T", bound="PrivacySummary")
@@ -24,12 +25,15 @@ class PrivacySummary:
             project
         data_source (Union[Unset, DataSource]):
         execution_quota (Union[Unset, ExecutionQuota]): stores information about the status of the execution quota
+        privacy_warnings (Union[Unset, List['PrivacyWarning']]): list of potential privacy risks in the current
+            configuration of the project.
     """
 
     authorization_status: Union[Unset, AuthorizationStatus] = UNSET
     computation: Union[Unset, "PrivacySummaryComputation"] = UNSET
     data_source: Union[Unset, "DataSource"] = UNSET
     execution_quota: Union[Unset, "ExecutionQuota"] = UNSET
+    privacy_warnings: Union[Unset, List["PrivacyWarning"]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -49,6 +53,14 @@ class PrivacySummary:
         if not isinstance(self.execution_quota, Unset):
             execution_quota = self.execution_quota.to_dict()
 
+        privacy_warnings: Union[Unset, List[Dict[str, Any]]] = UNSET
+        if not isinstance(self.privacy_warnings, Unset):
+            privacy_warnings = []
+            for privacy_warnings_item_data in self.privacy_warnings:
+                privacy_warnings_item = privacy_warnings_item_data.to_dict()
+
+                privacy_warnings.append(privacy_warnings_item)
+
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
@@ -60,6 +72,8 @@ class PrivacySummary:
             field_dict["dataSource"] = data_source
         if execution_quota is not UNSET:
             field_dict["executionQuota"] = execution_quota
+        if privacy_warnings is not UNSET:
+            field_dict["privacyWarnings"] = privacy_warnings
 
         return field_dict
 
@@ -68,6 +82,7 @@ class PrivacySummary:
         from ..models.data_source import DataSource
         from ..models.execution_quota import ExecutionQuota
         from ..models.privacy_summary_computation import PrivacySummaryComputation
+        from ..models.privacy_warning import PrivacyWarning
 
         d = src_dict.copy()
         _authorization_status = d.pop("authorizationStatus", UNSET)
@@ -98,11 +113,19 @@ class PrivacySummary:
         else:
             execution_quota = ExecutionQuota.from_dict(_execution_quota)
 
+        privacy_warnings = []
+        _privacy_warnings = d.pop("privacyWarnings", UNSET)
+        for privacy_warnings_item_data in _privacy_warnings or []:
+            privacy_warnings_item = PrivacyWarning.from_dict(privacy_warnings_item_data)
+
+            privacy_warnings.append(privacy_warnings_item)
+
         privacy_summary = cls(
             authorization_status=authorization_status,
             computation=computation,
             data_source=data_source,
             execution_quota=execution_quota,
+            privacy_warnings=privacy_warnings,
         )
 
         privacy_summary.additional_properties = d

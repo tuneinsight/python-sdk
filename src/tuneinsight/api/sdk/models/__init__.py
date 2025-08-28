@@ -1,4 +1,4 @@
-"""Contains all the data models used in inputs/outputs"""
+""" Contains all the data models used in inputs/outputs """
 
 from .access_scope import AccessScope
 from .add_columns import AddColumns
@@ -19,7 +19,6 @@ from .authorization_contract import AuthorizationContract
 from .authorization_status import AuthorizationStatus
 from .authorized_column import AuthorizedColumn
 from .availability_status import AvailabilityStatus
-from .backup_definition import BackupDefinition
 from .backup_type import BackupType
 from .binning_parameters import BinningParameters
 from .binning_parameters_method import BinningParametersMethod
@@ -79,6 +78,7 @@ from .data_source_query import DataSourceQuery
 from .data_source_query_definition import DataSourceQueryDefinition
 from .data_source_query_preview import DataSourceQueryPreview
 from .data_source_query_result import DataSourceQueryResult
+from .data_source_status import DataSourceStatus
 from .data_source_table import DataSourceTable
 from .data_source_type import DataSourceType
 from .data_source_types_info import DataSourceTypesInfo
@@ -136,6 +136,8 @@ from .get_comp_bookmark_list_sort_by import GetCompBookmarkListSortBy
 from .get_computation_list_order import GetComputationListOrder
 from .get_computation_list_sort_by import GetComputationListSortBy
 from .get_infos_response_200 import GetInfosResponse200
+from .get_jobs_order import GetJobsOrder
+from .get_jobs_response_200 import GetJobsResponse200
 from .get_log_list_order import GetLogListOrder
 from .get_log_list_response_200 import GetLogListResponse200
 from .get_log_list_sort_by import GetLogListSortBy
@@ -170,6 +172,7 @@ from .group_by_type import GroupByType
 from .group_info import GroupInfo
 from .grouping_parameters import GroupingParameters
 from .gwas import GWAS
+from .health_status import HealthStatus
 from .hybrid_fl import HybridFL
 from .hybrid_fl_community_detection_params import HybridFLCommunityDetectionParams
 from .hybrid_fl_dp_params import HybridFLDpParams
@@ -179,7 +182,13 @@ from .hybrid_fl_params_type import HybridFLParamsType
 from .hybrid_fl_spec_base_params import HybridFLSpecBaseParams
 from .hybrid_fl_spec_params import HybridFLSpecParams
 from .instance_configuration import InstanceConfiguration
+from .job import Job
+from .job_error import JobError
+from .job_log import JobLog
+from .job_params import JobParams
+from .job_state import JobState
 from .key_info import KeyInfo
+from .labelled_value import LabelledValue
 from .local_data_selection import LocalDataSelection
 from .local_data_selection_definition import LocalDataSelectionDefinition
 from .local_data_source_type import LocalDataSourceType
@@ -248,6 +257,8 @@ from .preprocessing_operation import PreprocessingOperation
 from .preprocessing_operation_type import PreprocessingOperationType
 from .privacy_summary import PrivacySummary
 from .privacy_summary_computation import PrivacySummaryComputation
+from .privacy_warning import PrivacyWarning
+from .privacy_warning_severity import PrivacyWarningSeverity
 from .private_search import PrivateSearch
 from .private_search_database import PrivateSearchDatabase
 from .private_search_query import PrivateSearchQuery
@@ -287,7 +298,6 @@ from .result_metadata import ResultMetadata
 from .result_release import ResultRelease
 from .run_mode import RunMode
 from .run_project_parameters import RunProjectParameters
-from .s3_parameters import S3Parameters
 from .scale import Scale
 from .screened_row import ScreenedRow
 from .screening_column import ScreeningColumn
@@ -330,7 +340,9 @@ from .time_unit import TimeUnit
 from .topology import Topology
 from .training_algorithm import TrainingAlgorithm
 from .transpose import Transpose
+from .undefined import Undefined
 from .unit_filter import UnitFilter
+from .usage_type import UsageType
 from .use_policy_status import UsePolicyStatus
 from .user import User
 from .user_definition import UserDefinition
@@ -371,7 +383,6 @@ __all__ = (
     "AuthorizationStatus",
     "AuthorizedColumn",
     "AvailabilityStatus",
-    "BackupDefinition",
     "BackupType",
     "BinningParameters",
     "BinningParametersMethod",
@@ -435,6 +446,7 @@ __all__ = (
     "DataSourceQueryDefinition",
     "DataSourceQueryPreview",
     "DataSourceQueryResult",
+    "DataSourceStatus",
     "DataSourceTable",
     "DataSourceType",
     "DataSourceTypesInfo",
@@ -486,6 +498,8 @@ __all__ = (
     "GetComputationListOrder",
     "GetComputationListSortBy",
     "GetInfosResponse200",
+    "GetJobsOrder",
+    "GetJobsResponse200",
     "GetLogListOrder",
     "GetLogListResponse200",
     "GetLogListSortBy",
@@ -520,6 +534,7 @@ __all__ = (
     "GroupInfo",
     "GroupingParameters",
     "GWAS",
+    "HealthStatus",
     "HybridFL",
     "HybridFLCommunityDetectionParams",
     "HybridFLDpParams",
@@ -529,7 +544,13 @@ __all__ = (
     "HybridFLSpecBaseParams",
     "HybridFLSpecParams",
     "InstanceConfiguration",
+    "Job",
+    "JobError",
+    "JobLog",
+    "JobParams",
+    "JobState",
     "KeyInfo",
+    "LabelledValue",
     "LocalDataSelection",
     "LocalDataSelectionDefinition",
     "LocalDataSourceType",
@@ -598,6 +619,8 @@ __all__ = (
     "PreprocessingOperationType",
     "PrivacySummary",
     "PrivacySummaryComputation",
+    "PrivacyWarning",
+    "PrivacyWarningSeverity",
     "PrivateSearch",
     "PrivateSearchDatabase",
     "PrivateSearchQuery",
@@ -637,7 +660,6 @@ __all__ = (
     "ResultRelease",
     "RunMode",
     "RunProjectParameters",
-    "S3Parameters",
     "Scale",
     "ScreenedRow",
     "ScreeningColumn",
@@ -678,7 +700,9 @@ __all__ = (
     "Topology",
     "TrainingAlgorithm",
     "Transpose",
+    "Undefined",
     "UnitFilter",
+    "UsageType",
     "UsePolicyStatus",
     "User",
     "UserDefinition",
