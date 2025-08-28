@@ -218,9 +218,10 @@ class Aggregation(ModelBasedComputation):
                 for agg_col in self.columns:
                     if agg_col.name not in record:
                         continue
-                    record[f"average_{agg_col.name}"] = round(
-                        record[agg_col.name] / record["count"], self.float_precision
-                    )
+                    if record["count"] > 0:
+                        record[f"average_{agg_col.name}"] = round(
+                            record[agg_col.name] / record["count"], self.float_precision
+                        )
         return pd.DataFrame(data=list(df_data.values()))
 
     @staticmethod

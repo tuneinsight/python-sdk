@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from ..models.data_source_config import DataSourceConfig
     from ..models.data_source_definition_structure_template_json import DataSourceDefinitionStructureTemplateJSON
     from ..models.data_source_metadata import DataSourceMetadata
+    from ..models.data_source_status import DataSourceStatus
     from ..models.dataset_schema import DatasetSchema
     from ..models.datasource_policy import DatasourcePolicy
     from ..models.local_data_selection import LocalDataSelection
@@ -51,11 +52,14 @@ class DataSource:
         created_at (Union[Unset, str]):
         inferred_schemas (Union[Unset, List['DatasetSchema']]): list of all inferred data schemas for tables in this
             data
+        last_up_at (Union[Unset, str]): timestamp of the most recent successful health check for the data source.
         metadata (Union[Unset, DataSourceMetadata]): metadata about a datasource
         owner (Union[Unset, str]):
         projects (Union[Unset, List[str]]): ids of connected projects
         selections (Union[Unset, List['LocalDataSelection']]): list of local data selections associated with the data
             source
+        status (Union[Unset, DataSourceStatus]): regroups data source health check status information
+        status_updated_at (Union[Unset, str]): time at which the status was last updated.
         updated_at (Union[Unset, str]):
     """
 
@@ -77,10 +81,13 @@ class DataSource:
     type: Union[Unset, DataSourceType] = UNSET
     created_at: Union[Unset, str] = UNSET
     inferred_schemas: Union[Unset, List["DatasetSchema"]] = UNSET
+    last_up_at: Union[Unset, str] = UNSET
     metadata: Union[Unset, "DataSourceMetadata"] = UNSET
     owner: Union[Unset, str] = UNSET
     projects: Union[Unset, List[str]] = UNSET
     selections: Union[Unset, List["LocalDataSelection"]] = UNSET
+    status: Union[Unset, "DataSourceStatus"] = UNSET
+    status_updated_at: Union[Unset, str] = UNSET
     updated_at: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -140,6 +147,7 @@ class DataSource:
 
                 inferred_schemas.append(inferred_schemas_item)
 
+        last_up_at = self.last_up_at
         metadata: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.metadata, Unset):
             metadata = self.metadata.to_dict()
@@ -157,6 +165,11 @@ class DataSource:
 
                 selections.append(selections_item)
 
+        status: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.status, Unset):
+            status = self.status.to_dict()
+
+        status_updated_at = self.status_updated_at
         updated_at = self.updated_at
 
         field_dict: Dict[str, Any] = {}
@@ -198,6 +211,8 @@ class DataSource:
             field_dict["createdAt"] = created_at
         if inferred_schemas is not UNSET:
             field_dict["inferredSchemas"] = inferred_schemas
+        if last_up_at is not UNSET:
+            field_dict["lastUpAt"] = last_up_at
         if metadata is not UNSET:
             field_dict["metadata"] = metadata
         if owner is not UNSET:
@@ -206,6 +221,10 @@ class DataSource:
             field_dict["projects"] = projects
         if selections is not UNSET:
             field_dict["selections"] = selections
+        if status is not UNSET:
+            field_dict["status"] = status
+        if status_updated_at is not UNSET:
+            field_dict["statusUpdatedAt"] = status_updated_at
         if updated_at is not UNSET:
             field_dict["updatedAt"] = updated_at
 
@@ -217,6 +236,7 @@ class DataSource:
         from ..models.data_source_config import DataSourceConfig
         from ..models.data_source_definition_structure_template_json import DataSourceDefinitionStructureTemplateJSON
         from ..models.data_source_metadata import DataSourceMetadata
+        from ..models.data_source_status import DataSourceStatus
         from ..models.dataset_schema import DatasetSchema
         from ..models.datasource_policy import DatasourcePolicy
         from ..models.local_data_selection import LocalDataSelection
@@ -298,6 +318,8 @@ class DataSource:
 
             inferred_schemas.append(inferred_schemas_item)
 
+        last_up_at = d.pop("lastUpAt", UNSET)
+
         _metadata = d.pop("metadata", UNSET)
         metadata: Union[Unset, DataSourceMetadata]
         if isinstance(_metadata, Unset):
@@ -315,6 +337,15 @@ class DataSource:
             selections_item = LocalDataSelection.from_dict(selections_item_data)
 
             selections.append(selections_item)
+
+        _status = d.pop("status", UNSET)
+        status: Union[Unset, DataSourceStatus]
+        if isinstance(_status, Unset):
+            status = UNSET
+        else:
+            status = DataSourceStatus.from_dict(_status)
+
+        status_updated_at = d.pop("statusUpdatedAt", UNSET)
 
         updated_at = d.pop("updatedAt", UNSET)
 
@@ -337,10 +368,13 @@ class DataSource:
             type=type,
             created_at=created_at,
             inferred_schemas=inferred_schemas,
+            last_up_at=last_up_at,
             metadata=metadata,
             owner=owner,
             projects=projects,
             selections=selections,
+            status=status,
+            status_updated_at=status_updated_at,
             updated_at=updated_at,
         )
 

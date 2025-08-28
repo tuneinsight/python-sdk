@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
+from ..models.usage_type import UsageType
 from ..models.workflow_type import WorkflowType
 from ..types import UNSET, Unset
 
@@ -41,6 +42,7 @@ class Settings:
         selectable_data_source (Union[Unset, None, bool]): whether or not the datasource of the project can be modified.
         set_project_policies (Union[Unset, None, bool]): whether policies can be set for projects.
         sparql_query_builder (Union[Unset, None, bool]): whether or not to enable the SparQL Query Builder.
+        usage_type (Union[Unset, UsageType]): enumeration of usage types
     """
 
     color_theme: Union[Unset, None, str] = UNSET
@@ -61,6 +63,7 @@ class Settings:
     selectable_data_source: Union[Unset, None, bool] = UNSET
     set_project_policies: Union[Unset, None, bool] = UNSET
     sparql_query_builder: Union[Unset, None, bool] = UNSET
+    usage_type: Union[Unset, UsageType] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -106,6 +109,9 @@ class Settings:
         selectable_data_source = self.selectable_data_source
         set_project_policies = self.set_project_policies
         sparql_query_builder = self.sparql_query_builder
+        usage_type: Union[Unset, str] = UNSET
+        if not isinstance(self.usage_type, Unset):
+            usage_type = self.usage_type.value
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -146,6 +152,8 @@ class Settings:
             field_dict["setProjectPolicies"] = set_project_policies
         if sparql_query_builder is not UNSET:
             field_dict["sparqlQueryBuilder"] = sparql_query_builder
+        if usage_type is not UNSET:
+            field_dict["usageType"] = usage_type
 
         return field_dict
 
@@ -211,6 +219,13 @@ class Settings:
 
         sparql_query_builder = d.pop("sparqlQueryBuilder", UNSET)
 
+        _usage_type = d.pop("usageType", UNSET)
+        usage_type: Union[Unset, UsageType]
+        if isinstance(_usage_type, Unset):
+            usage_type = UNSET
+        else:
+            usage_type = UsageType(_usage_type)
+
         settings = cls(
             color_theme=color_theme,
             access_with_python=access_with_python,
@@ -230,6 +245,7 @@ class Settings:
             selectable_data_source=selectable_data_source,
             set_project_policies=set_project_policies,
             sparql_query_builder=sparql_query_builder,
+            usage_type=usage_type,
         )
 
         settings.additional_properties = d

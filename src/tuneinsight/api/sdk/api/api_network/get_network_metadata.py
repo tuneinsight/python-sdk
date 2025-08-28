@@ -54,6 +54,10 @@ def _parse_response(
         response_200 = GetNetworkMetadataResponse200.from_dict(response.json())
 
         return response_200
+    if response.status_code == HTTPStatus.UNAUTHORIZED:
+        response_401 = Error.from_dict(response.json())
+
+        return response_401
     if response.status_code == HTTPStatus.FORBIDDEN:
         response_403 = Error.from_dict(response.json())
 

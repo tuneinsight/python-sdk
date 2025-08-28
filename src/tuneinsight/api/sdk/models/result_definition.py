@@ -13,6 +13,8 @@ class ResultDefinition:
     """user-defined computation result fields
 
     Attributes:
+        display_breakdown (Union[Unset, None, bool]): frontend flag used to toggle the display of the local breakdown
+            when available.
         display_confidence_intervals (Union[Unset, None, bool]): frontend flag used to toggle the display of the
             confidence intervals in differentially private results.
         display_local (Union[Unset, None, bool]): frontend flag used to toggle the display of the local result when the
@@ -28,6 +30,7 @@ class ResultDefinition:
             result.
     """
 
+    display_breakdown: Union[Unset, None, bool] = UNSET
     display_confidence_intervals: Union[Unset, None, bool] = UNSET
     display_local: Union[Unset, None, bool] = UNSET
     display_raw_results: Union[Unset, None, bool] = UNSET
@@ -39,6 +42,7 @@ class ResultDefinition:
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        display_breakdown = self.display_breakdown
         display_confidence_intervals = self.display_confidence_intervals
         display_local = self.display_local
         display_raw_results = self.display_raw_results
@@ -56,6 +60,8 @@ class ResultDefinition:
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if display_breakdown is not UNSET:
+            field_dict["displayBreakdown"] = display_breakdown
         if display_confidence_intervals is not UNSET:
             field_dict["displayConfidenceIntervals"] = display_confidence_intervals
         if display_local is not UNSET:
@@ -78,6 +84,8 @@ class ResultDefinition:
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
+        display_breakdown = d.pop("displayBreakdown", UNSET)
+
         display_confidence_intervals = d.pop("displayConfidenceIntervals", UNSET)
 
         display_local = d.pop("displayLocal", UNSET)
@@ -100,6 +108,7 @@ class ResultDefinition:
             visualization_type = VisualizationType(_visualization_type)
 
         result_definition = cls(
+            display_breakdown=display_breakdown,
             display_confidence_intervals=display_confidence_intervals,
             display_local=display_local,
             display_raw_results=display_raw_results,

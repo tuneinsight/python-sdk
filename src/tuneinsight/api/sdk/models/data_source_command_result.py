@@ -16,15 +16,18 @@ class DataSourceCommandResult:
     """Command result.
 
     Attributes:
+        info (Union[Unset, str]): additional information and context about the command result.
         query (Union[Unset, str]):
         result (Union[Unset, List['DataSourceCommandResultResultItem']]):
     """
 
+    info: Union[Unset, str] = UNSET
     query: Union[Unset, str] = UNSET
     result: Union[Unset, List["DataSourceCommandResultResultItem"]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        info = self.info
         query = self.query
         result: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.result, Unset):
@@ -37,6 +40,8 @@ class DataSourceCommandResult:
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if info is not UNSET:
+            field_dict["info"] = info
         if query is not UNSET:
             field_dict["query"] = query
         if result is not UNSET:
@@ -49,6 +54,8 @@ class DataSourceCommandResult:
         from ..models.data_source_command_result_result_item import DataSourceCommandResultResultItem
 
         d = src_dict.copy()
+        info = d.pop("info", UNSET)
+
         query = d.pop("query", UNSET)
 
         result = []
@@ -59,6 +66,7 @@ class DataSourceCommandResult:
             result.append(result_item)
 
         data_source_command_result = cls(
+            info=info,
             query=query,
             result=result,
         )

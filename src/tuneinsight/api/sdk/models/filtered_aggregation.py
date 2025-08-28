@@ -79,7 +79,12 @@ class FilteredAggregation:
         columns (Union[Unset, List['ColumnProperties']]): the list of column (names) to aggregate in remote instances.
         identifier (Union[Unset, str]): name of the column used as unique identifier (in all datasets).
         identifier_provider (Union[Unset, str]): alias of the instance providing the list of identifiers to match on.
-        per_instance_breakdown (Union[Unset, bool]): whether the per-instance breakdown should be computed.
+        local_columns_to_aggregate (Union[Unset, List['ColumnProperties']]): If this instance is run by an instance
+            different from the identifier provider, additional columns to aggregate in
+            the local (filtered) dataset and show to the local instance.
+        per_instance_breakdown (Union[Unset, bool]): Whether the per-instance breakdown should be computed. Ignored if
+            this computation is initiated by an instance
+            different from the identifier provider.
     """
 
     type: ComputationType
@@ -109,6 +114,7 @@ class FilteredAggregation:
     columns: Union[Unset, List["ColumnProperties"]] = UNSET
     identifier: Union[Unset, str] = UNSET
     identifier_provider: Union[Unset, str] = UNSET
+    local_columns_to_aggregate: Union[Unset, List["ColumnProperties"]] = UNSET
     per_instance_breakdown: Union[Unset, bool] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -173,6 +179,14 @@ class FilteredAggregation:
 
         identifier = self.identifier
         identifier_provider = self.identifier_provider
+        local_columns_to_aggregate: Union[Unset, List[Dict[str, Any]]] = UNSET
+        if not isinstance(self.local_columns_to_aggregate, Unset):
+            local_columns_to_aggregate = []
+            for local_columns_to_aggregate_item_data in self.local_columns_to_aggregate:
+                local_columns_to_aggregate_item = local_columns_to_aggregate_item_data.to_dict()
+
+                local_columns_to_aggregate.append(local_columns_to_aggregate_item)
+
         per_instance_breakdown = self.per_instance_breakdown
 
         field_dict: Dict[str, Any] = {}
@@ -234,6 +248,8 @@ class FilteredAggregation:
             field_dict["identifier"] = identifier
         if identifier_provider is not UNSET:
             field_dict["identifierProvider"] = identifier_provider
+        if local_columns_to_aggregate is not UNSET:
+            field_dict["localColumnsToAggregate"] = local_columns_to_aggregate
         if per_instance_breakdown is not UNSET:
             field_dict["perInstanceBreakdown"] = per_instance_breakdown
 
@@ -343,6 +359,13 @@ class FilteredAggregation:
 
         identifier_provider = d.pop("identifierProvider", UNSET)
 
+        local_columns_to_aggregate = []
+        _local_columns_to_aggregate = d.pop("localColumnsToAggregate", UNSET)
+        for local_columns_to_aggregate_item_data in _local_columns_to_aggregate or []:
+            local_columns_to_aggregate_item = ColumnProperties.from_dict(local_columns_to_aggregate_item_data)
+
+            local_columns_to_aggregate.append(local_columns_to_aggregate_item)
+
         per_instance_breakdown = d.pop("perInstanceBreakdown", UNSET)
 
         filtered_aggregation = cls(
@@ -373,6 +396,7 @@ class FilteredAggregation:
             columns=columns,
             identifier=identifier,
             identifier_provider=identifier_provider,
+            local_columns_to_aggregate=local_columns_to_aggregate,
             per_instance_breakdown=per_instance_breakdown,
         )
 

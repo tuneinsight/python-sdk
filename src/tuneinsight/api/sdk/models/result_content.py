@@ -18,12 +18,14 @@ class ResultContent:
     """result along with content and computation details
 
     Attributes:
+        breakdown_content (Union[Unset, Content]): Content that can be retrieved and displayed for the user
         computation (Union[Unset, Computation]): Metadata of a computation.
         content (Union[Unset, Content]): Content that can be retrieved and displayed for the user
         local_content (Union[Unset, Content]): Content that can be retrieved and displayed for the user
         result (Union[Unset, Result]):
     """
 
+    breakdown_content: Union[Unset, "Content"] = UNSET
     computation: Union[Unset, "Computation"] = UNSET
     content: Union[Unset, "Content"] = UNSET
     local_content: Union[Unset, "Content"] = UNSET
@@ -31,6 +33,10 @@ class ResultContent:
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        breakdown_content: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.breakdown_content, Unset):
+            breakdown_content = self.breakdown_content.to_dict()
+
         computation: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.computation, Unset):
             computation = self.computation.to_dict()
@@ -50,6 +56,8 @@ class ResultContent:
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if breakdown_content is not UNSET:
+            field_dict["breakdownContent"] = breakdown_content
         if computation is not UNSET:
             field_dict["computation"] = computation
         if content is not UNSET:
@@ -68,6 +76,13 @@ class ResultContent:
         from ..models.result import Result
 
         d = src_dict.copy()
+        _breakdown_content = d.pop("breakdownContent", UNSET)
+        breakdown_content: Union[Unset, Content]
+        if isinstance(_breakdown_content, Unset):
+            breakdown_content = UNSET
+        else:
+            breakdown_content = Content.from_dict(_breakdown_content)
+
         _computation = d.pop("computation", UNSET)
         computation: Union[Unset, Computation]
         if isinstance(_computation, Unset):
@@ -97,6 +112,7 @@ class ResultContent:
             result = Result.from_dict(_result)
 
         result_content = cls(
+            breakdown_content=breakdown_content,
             computation=computation,
             content=content,
             local_content=local_content,

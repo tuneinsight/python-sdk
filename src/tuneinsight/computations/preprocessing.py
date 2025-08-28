@@ -53,8 +53,9 @@ class PreprocessingBuilder:
     applies (by default, `None`, meaning all nodes), and returns this object, so that they can
     be chained within one Python statement.
 
-    This chain is typically attached to a computation directly (through the `.preprocessing`
-    attribute of `Computation` objects), or in the project's local data selection.
+    ⚠️ Do not instantiate this object directly: this chain is typically attached to a computation
+    directly (through the `.preprocessing` attribute of `Computation` objects), or in the project's
+    local data selection. Use these instead.
 
     """
 
@@ -74,6 +75,11 @@ class PreprocessingBuilder:
                 the computation definition whenever the preprocessing is updated.
         """
         self.update_function = update_function
+        if update_function is None:
+            warn(
+                "Initialized PreprocessingBuilder without an update function: "
+                "changes you make on this object may not appear in the project."
+            )
         self.reset(patch=False)
 
     def new_schema(self) -> DatasetSchema:
@@ -1085,7 +1091,7 @@ class PreprocessingBuilder:
         if is_set(model.global_preprocessing):
             p.new_chain(model.global_preprocessing.chain)
         if is_set(model.compound_preprocessing):
-            p.new_compound_chain(model.compound_preprocessing.chain)
+            p.new_compound_chain(model.compound_preprocessing.additional_properties)
         if is_set(model.select):
             p.output_selection = model.select
             p.output_selection_set = True

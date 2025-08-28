@@ -3,6 +3,7 @@ from enum import Enum
 
 class ComputationType(str, Enum):
     DUMMY = "dummy"
+    UNDEFINED = "undefined"
     COLLECTIVEKEYSWITCH = "collectiveKeySwitch"
     ENCRYPTEDAGGREGATION = "encryptedAggregation"
     AGGREGATEDDATASETLENGTH = "aggregatedDatasetLength"

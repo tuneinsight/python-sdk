@@ -50,6 +50,10 @@ def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Uni
     if response.status_code == HTTPStatus.OK:
         response_200 = cast(Any, None)
         return response_200
+    if response.status_code == HTTPStatus.UNAUTHORIZED:
+        response_401 = Error.from_dict(response.json())
+
+        return response_401
     if response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
         response_422 = Error.from_dict(response.json())
 
