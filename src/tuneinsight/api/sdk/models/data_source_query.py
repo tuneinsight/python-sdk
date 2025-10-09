@@ -36,6 +36,7 @@ class DataSourceQuery:
             format)
         database_query_builder (Union[Unset, str]): builder's version of the query (e.g. builder's JSON for the SPARQL
             Query)
+        name (Union[Unset, str]): name of the query (used for debugging purposes)
         s_3_object_key (Union[Unset, str]): key of the object in the S3 bucket
         select (Union[Unset, Select]):
     """
@@ -46,6 +47,7 @@ class DataSourceQuery:
     cross_standard_query: Union[Unset, "CrossStandardQuery"] = UNSET
     database_query: Union[Unset, str] = UNSET
     database_query_builder: Union[Unset, str] = UNSET
+    name: Union[Unset, str] = UNSET
     s_3_object_key: Union[Unset, str] = UNSET
     select: Union[Unset, "Select"] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
@@ -60,6 +62,7 @@ class DataSourceQuery:
 
         database_query = self.database_query
         database_query_builder = self.database_query_builder
+        name = self.name
         s_3_object_key = self.s_3_object_key
         select: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.select, Unset):
@@ -80,6 +83,8 @@ class DataSourceQuery:
             field_dict["databaseQuery"] = database_query
         if database_query_builder is not UNSET:
             field_dict["databaseQueryBuilder"] = database_query_builder
+        if name is not UNSET:
+            field_dict["name"] = name
         if s_3_object_key is not UNSET:
             field_dict["s3ObjectKey"] = s_3_object_key
         if select is not UNSET:
@@ -110,6 +115,8 @@ class DataSourceQuery:
 
         database_query_builder = d.pop("databaseQueryBuilder", UNSET)
 
+        name = d.pop("name", UNSET)
+
         s_3_object_key = d.pop("s3ObjectKey", UNSET)
 
         _select = d.pop("select", UNSET)
@@ -126,6 +133,7 @@ class DataSourceQuery:
             cross_standard_query=cross_standard_query,
             database_query=database_query,
             database_query_builder=database_query_builder,
+            name=name,
             s_3_object_key=s_3_object_key,
             select=select,
         )

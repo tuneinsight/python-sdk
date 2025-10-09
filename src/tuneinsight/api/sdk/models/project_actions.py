@@ -18,6 +18,8 @@ class ProjectActions:
     computations.
 
         Attributes:
+            archive_or_unarchive (Union[Unset, AvailabilityStatus]): generic object that holds information about whether a
+                resource or action is available to the user.
             available_run_modes (Union[Unset, List[RunMode]]): list of run modes that are currently supported.
             edit_data_source (Union[Unset, AvailabilityStatus]): generic object that holds information about whether a
                 resource or action is available to the user.
@@ -47,6 +49,7 @@ class ProjectActions:
                 action is available to the user.
     """
 
+    archive_or_unarchive: Union[Unset, "AvailabilityStatus"] = UNSET
     available_run_modes: Union[Unset, List[RunMode]] = UNSET
     edit_data_source: Union[Unset, "AvailabilityStatus"] = UNSET
     edit_operation_params: Union[Unset, "AvailabilityStatus"] = UNSET
@@ -64,6 +67,10 @@ class ProjectActions:
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        archive_or_unarchive: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.archive_or_unarchive, Unset):
+            archive_or_unarchive = self.archive_or_unarchive.to_dict()
+
         available_run_modes: Union[Unset, List[str]] = UNSET
         if not isinstance(self.available_run_modes, Unset):
             available_run_modes = []
@@ -121,6 +128,8 @@ class ProjectActions:
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if archive_or_unarchive is not UNSET:
+            field_dict["archiveOrUnarchive"] = archive_or_unarchive
         if available_run_modes is not UNSET:
             field_dict["availableRunModes"] = available_run_modes
         if edit_data_source is not UNSET:
@@ -157,6 +166,13 @@ class ProjectActions:
         from ..models.availability_status import AvailabilityStatus
 
         d = src_dict.copy()
+        _archive_or_unarchive = d.pop("archiveOrUnarchive", UNSET)
+        archive_or_unarchive: Union[Unset, AvailabilityStatus]
+        if isinstance(_archive_or_unarchive, Unset):
+            archive_or_unarchive = UNSET
+        else:
+            archive_or_unarchive = AvailabilityStatus.from_dict(_archive_or_unarchive)
+
         available_run_modes = []
         _available_run_modes = d.pop("availableRunModes", UNSET)
         for available_run_modes_item_data in _available_run_modes or []:
@@ -246,6 +262,7 @@ class ProjectActions:
             share = AvailabilityStatus.from_dict(_share)
 
         project_actions = cls(
+            archive_or_unarchive=archive_or_unarchive,
             available_run_modes=available_run_modes,
             edit_data_source=edit_data_source,
             edit_operation_params=edit_operation_params,

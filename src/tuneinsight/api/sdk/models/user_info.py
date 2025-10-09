@@ -22,12 +22,14 @@ class UserInfo:
         groups (Union[Unset, List['UserGroup']]):
         local (Union[Unset, bool]): whether the user is part of this instance's organization or not.
         roles (Union[Unset, List['DisplayedRole']]):
+        username (Union[Unset, str]): (self-selected, unique) username for this user.
     """
 
     capabilities: Union[Unset, List["DisplayedCapability"]] = UNSET
     groups: Union[Unset, List["UserGroup"]] = UNSET
     local: Union[Unset, bool] = UNSET
     roles: Union[Unset, List["DisplayedRole"]] = UNSET
+    username: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -56,6 +58,8 @@ class UserInfo:
 
                 roles.append(roles_item)
 
+        username = self.username
+
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
@@ -67,6 +71,8 @@ class UserInfo:
             field_dict["local"] = local
         if roles is not UNSET:
             field_dict["roles"] = roles
+        if username is not UNSET:
+            field_dict["username"] = username
 
         return field_dict
 
@@ -100,11 +106,14 @@ class UserInfo:
 
             roles.append(roles_item)
 
+        username = d.pop("username", UNSET)
+
         user_info = cls(
             capabilities=capabilities,
             groups=groups,
             local=local,
             roles=roles,
+            username=username,
         )
 
         user_info.additional_properties = d

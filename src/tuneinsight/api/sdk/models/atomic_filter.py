@@ -11,7 +11,7 @@ T = TypeVar("T", bound="AtomicFilter")
 
 @attr.s(auto_attribs=True)
 class AtomicFilter:
-    """A filter performing a single comparison between a variable and a value or another variable.
+    """A filter performing a single comparison between a variable and a value/bounds or another variable.
     The left-hand variable must either be a feature of the record, or the name of a feature of an
     entry in a series (if as part of a seriesFilter). The comparison can be made either against
     a static value (rightHandValue) or another variable (defined for the query).
@@ -20,8 +20,15 @@ class AtomicFilter:
             type (AdvancedFilterType): A type of filter for cross-standard queries.
             comparator (Union[Unset, ComparisonType]): type of comparison
             left_hand_variable (Union[Unset, str]):
-            right_hand_value (Union[Unset, str]):
+            right_hand_value (Union[Unset, str]): The raw value to compare the data with.
+                If the between/notBetween or isIn/notIsIn operators
+                are used, then this value is interpreted as a list of values
+                separated with the provided `valueDelimiter` parameter.
+                Ex: if between is used with the `,` delimiter, then the rightHandValue should be formatted as
+                `min,max`.
             right_hand_variable (Union[Unset, str]):
+            value_delimiter (Union[Unset, str]): delimiter to use when multiple right hand values are provided. Default:
+                ','.
     """
 
     type: AdvancedFilterType
@@ -29,6 +36,7 @@ class AtomicFilter:
     left_hand_variable: Union[Unset, str] = UNSET
     right_hand_value: Union[Unset, str] = UNSET
     right_hand_variable: Union[Unset, str] = UNSET
+    value_delimiter: Union[Unset, str] = ","
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -41,6 +49,7 @@ class AtomicFilter:
         left_hand_variable = self.left_hand_variable
         right_hand_value = self.right_hand_value
         right_hand_variable = self.right_hand_variable
+        value_delimiter = self.value_delimiter
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -57,6 +66,8 @@ class AtomicFilter:
             field_dict["rightHandValue"] = right_hand_value
         if right_hand_variable is not UNSET:
             field_dict["rightHandVariable"] = right_hand_variable
+        if value_delimiter is not UNSET:
+            field_dict["valueDelimiter"] = value_delimiter
 
         return field_dict
 
@@ -78,12 +89,15 @@ class AtomicFilter:
 
         right_hand_variable = d.pop("rightHandVariable", UNSET)
 
+        value_delimiter = d.pop("valueDelimiter", UNSET)
+
         atomic_filter = cls(
             type=type,
             comparator=comparator,
             left_hand_variable=left_hand_variable,
             right_hand_value=right_hand_value,
             right_hand_variable=right_hand_variable,
+            value_delimiter=value_delimiter,
         )
 
         atomic_filter.additional_properties = d

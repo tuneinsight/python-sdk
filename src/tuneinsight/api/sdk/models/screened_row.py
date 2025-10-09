@@ -15,6 +15,7 @@ class ScreenedRow:
         Attributes:
             data (Union[Unset, List[str]]): original data from the row.
             filtered_by_operation (Union[Unset, int]): index of the operation that filtered out this data.
+            id (Union[Unset, str]): id of the row in the original data
             index (Union[Unset, int]): index of the row in the original data.
             reason (Union[Unset, str]): reason why this data point was discarded
             screened (Union[Unset, bool]): Indicates if the row has been screened, meaning that the screening process has
@@ -25,6 +26,7 @@ class ScreenedRow:
 
     data: Union[Unset, List[str]] = UNSET
     filtered_by_operation: Union[Unset, int] = UNSET
+    id: Union[Unset, str] = UNSET
     index: Union[Unset, int] = UNSET
     reason: Union[Unset, str] = UNSET
     screened: Union[Unset, bool] = UNSET
@@ -37,6 +39,7 @@ class ScreenedRow:
             data = self.data
 
         filtered_by_operation = self.filtered_by_operation
+        id = self.id
         index = self.index
         reason = self.reason
         screened = self.screened
@@ -51,6 +54,8 @@ class ScreenedRow:
             field_dict["data"] = data
         if filtered_by_operation is not UNSET:
             field_dict["filteredByOperation"] = filtered_by_operation
+        if id is not UNSET:
+            field_dict["id"] = id
         if index is not UNSET:
             field_dict["index"] = index
         if reason is not UNSET:
@@ -69,6 +74,8 @@ class ScreenedRow:
 
         filtered_by_operation = d.pop("filteredByOperation", UNSET)
 
+        id = d.pop("id", UNSET)
+
         index = d.pop("index", UNSET)
 
         reason = d.pop("reason", UNSET)
@@ -80,6 +87,7 @@ class ScreenedRow:
         screened_row = cls(
             data=data,
             filtered_by_operation=filtered_by_operation,
+            id=id,
             index=index,
             reason=reason,
             screened=screened,

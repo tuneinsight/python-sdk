@@ -1,8 +1,12 @@
-from typing import Any, Dict, List, Type, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
 
 import attr
 
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.node_status_catalog_status import NodeStatusCatalogStatus
+
 
 T = TypeVar("T", bound="NodeStatus")
 
@@ -14,6 +18,7 @@ class NodeStatus:
     Attributes:
         accepted_groups (Union[Unset, List[str]]): list of user groups that are accepted by this instance. This is used
             to authorize node-to-node requests.
+        catalog_status (Union[Unset, NodeStatusCatalogStatus]): Status of the node's catalog
         node (Union[Unset, str]): URL of the node
         rtt (Union[Unset, int]): Round-trip time to this node in milliseconds
         service_account (Union[Unset, str]): name of the service account used by this instance to authenticate when
@@ -23,6 +28,7 @@ class NodeStatus:
     """
 
     accepted_groups: Union[Unset, List[str]] = UNSET
+    catalog_status: Union[Unset, "NodeStatusCatalogStatus"] = UNSET
     node: Union[Unset, str] = UNSET
     rtt: Union[Unset, int] = UNSET
     service_account: Union[Unset, str] = UNSET
@@ -35,6 +41,10 @@ class NodeStatus:
         if not isinstance(self.accepted_groups, Unset):
             accepted_groups = self.accepted_groups
 
+        catalog_status: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.catalog_status, Unset):
+            catalog_status = self.catalog_status.to_dict()
+
         node = self.node
         rtt = self.rtt
         service_account = self.service_account
@@ -46,6 +56,8 @@ class NodeStatus:
         field_dict.update({})
         if accepted_groups is not UNSET:
             field_dict["acceptedGroups"] = accepted_groups
+        if catalog_status is not UNSET:
+            field_dict["catalogStatus"] = catalog_status
         if node is not UNSET:
             field_dict["node"] = node
         if rtt is not UNSET:
@@ -61,8 +73,17 @@ class NodeStatus:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.node_status_catalog_status import NodeStatusCatalogStatus
+
         d = src_dict.copy()
         accepted_groups = cast(List[str], d.pop("acceptedGroups", UNSET))
+
+        _catalog_status = d.pop("catalogStatus", UNSET)
+        catalog_status: Union[Unset, NodeStatusCatalogStatus]
+        if isinstance(_catalog_status, Unset):
+            catalog_status = UNSET
+        else:
+            catalog_status = NodeStatusCatalogStatus.from_dict(_catalog_status)
 
         node = d.pop("node", UNSET)
 
@@ -76,6 +97,7 @@ class NodeStatus:
 
         node_status = cls(
             accepted_groups=accepted_groups,
+            catalog_status=catalog_status,
             node=node,
             rtt=rtt,
             service_account=service_account,

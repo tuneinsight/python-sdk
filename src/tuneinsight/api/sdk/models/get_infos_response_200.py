@@ -1,8 +1,12 @@
-from typing import Any, Dict, List, Type, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
 
 import attr
 
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.get_infos_response_200_catalog_status import GetInfosResponse200CatalogStatus
+
 
 T = TypeVar("T", bound="GetInfosResponse200")
 
@@ -16,6 +20,7 @@ class GetInfosResponse200:
             local)
         auth_status (Union[Unset, str]): Authentication provider connectivity status
         build_version (Union[Unset, str]): Tune Insight build version
+        catalog_status (Union[Unset, GetInfosResponse200CatalogStatus]): Status of the node's catalog
         portal_status (Union[Unset, str]): Portal connectivity status
         service_account (Union[Unset, str]): name of the service account used by this instance when sending requests to
             other instances.
@@ -27,6 +32,7 @@ class GetInfosResponse200:
     accepted_groups: Union[Unset, List[str]] = UNSET
     auth_status: Union[Unset, str] = UNSET
     build_version: Union[Unset, str] = UNSET
+    catalog_status: Union[Unset, "GetInfosResponse200CatalogStatus"] = UNSET
     portal_status: Union[Unset, str] = UNSET
     service_account: Union[Unset, str] = UNSET
     startup_status: Union[Unset, str] = UNSET
@@ -41,6 +47,10 @@ class GetInfosResponse200:
 
         auth_status = self.auth_status
         build_version = self.build_version
+        catalog_status: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.catalog_status, Unset):
+            catalog_status = self.catalog_status.to_dict()
+
         portal_status = self.portal_status
         service_account = self.service_account
         startup_status = self.startup_status
@@ -57,6 +67,8 @@ class GetInfosResponse200:
             field_dict["authStatus"] = auth_status
         if build_version is not UNSET:
             field_dict["buildVersion"] = build_version
+        if catalog_status is not UNSET:
+            field_dict["catalogStatus"] = catalog_status
         if portal_status is not UNSET:
             field_dict["portalStatus"] = portal_status
         if service_account is not UNSET:
@@ -70,6 +82,8 @@ class GetInfosResponse200:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.get_infos_response_200_catalog_status import GetInfosResponse200CatalogStatus
+
         d = src_dict.copy()
         api_checksum = d.pop("APIChecksum", UNSET)
 
@@ -78,6 +92,13 @@ class GetInfosResponse200:
         auth_status = d.pop("authStatus", UNSET)
 
         build_version = d.pop("buildVersion", UNSET)
+
+        _catalog_status = d.pop("catalogStatus", UNSET)
+        catalog_status: Union[Unset, GetInfosResponse200CatalogStatus]
+        if isinstance(_catalog_status, Unset):
+            catalog_status = UNSET
+        else:
+            catalog_status = GetInfosResponse200CatalogStatus.from_dict(_catalog_status)
 
         portal_status = d.pop("portalStatus", UNSET)
 
@@ -92,6 +113,7 @@ class GetInfosResponse200:
             accepted_groups=accepted_groups,
             auth_status=auth_status,
             build_version=build_version,
+            catalog_status=catalog_status,
             portal_status=portal_status,
             service_account=service_account,
             startup_status=startup_status,

@@ -5,10 +5,10 @@ import httpx
 
 from ... import errors
 from ...client import Client
+from ...models.data_preparation_session import DataPreparationSession
 from ...models.error import Error
-from ...models.get_screening_sessions_order import GetScreeningSessionsOrder
-from ...models.get_screening_sessions_sort_by import GetScreeningSessionsSortBy
-from ...models.screening_session import ScreeningSession
+from ...models.get_data_preparation_sessions_order import GetDataPreparationSessionsOrder
+from ...models.get_data_preparation_sessions_sort_by import GetDataPreparationSessionsSortBy
 from ...types import UNSET, Response, Unset
 
 
@@ -18,8 +18,8 @@ def _get_kwargs(
     page: Union[Unset, None, int] = 1,
     per_page: Union[Unset, None, int] = 50,
     with_total: Union[Unset, None, bool] = True,
-    sort_by: Union[Unset, None, GetScreeningSessionsSortBy] = UNSET,
-    order: Union[Unset, None, GetScreeningSessionsOrder] = UNSET,
+    sort_by: Union[Unset, None, GetDataPreparationSessionsSortBy] = UNSET,
+    order: Union[Unset, None, GetDataPreparationSessionsOrder] = UNSET,
 ) -> Dict[str, Any]:
     url = "{}/screening-sessions".format(client.base_url)
 
@@ -69,12 +69,14 @@ def _get_kwargs(
     }
 
 
-def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[Error, List["ScreeningSession"]]]:
+def _parse_response(
+    *, client: Client, response: httpx.Response
+) -> Optional[Union[Error, List["DataPreparationSession"]]]:
     if response.status_code == HTTPStatus.OK:
         response_200 = []
         _response_200 = response.json()
         for response_200_item_data in _response_200:
-            response_200_item = ScreeningSession.from_dict(response_200_item_data)
+            response_200_item = DataPreparationSession.from_dict(response_200_item_data)
 
             response_200.append(response_200_item)
 
@@ -105,7 +107,9 @@ def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Uni
         return None
 
 
-def _build_response(*, client: Client, response: httpx.Response) -> Response[Union[Error, List["ScreeningSession"]]]:
+def _build_response(
+    *, client: Client, response: httpx.Response
+) -> Response[Union[Error, List["DataPreparationSession"]]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -120,24 +124,24 @@ def sync_detailed(
     page: Union[Unset, None, int] = 1,
     per_page: Union[Unset, None, int] = 50,
     with_total: Union[Unset, None, bool] = True,
-    sort_by: Union[Unset, None, GetScreeningSessionsSortBy] = UNSET,
-    order: Union[Unset, None, GetScreeningSessionsOrder] = UNSET,
-) -> Response[Union[Error, List["ScreeningSession"]]]:
-    """returns the list of screening sessions that are viewable by the requesting user.
+    sort_by: Union[Unset, None, GetDataPreparationSessionsSortBy] = UNSET,
+    order: Union[Unset, None, GetDataPreparationSessionsOrder] = UNSET,
+) -> Response[Union[Error, List["DataPreparationSession"]]]:
+    """returns the list of data preparation sessions that are viewable by the requesting user.
 
     Args:
         page (Union[Unset, None, int]):  Default: 1.
         per_page (Union[Unset, None, int]):  Default: 50.
         with_total (Union[Unset, None, bool]):  Default: True.
-        sort_by (Union[Unset, None, GetScreeningSessionsSortBy]):
-        order (Union[Unset, None, GetScreeningSessionsOrder]):
+        sort_by (Union[Unset, None, GetDataPreparationSessionsSortBy]):
+        order (Union[Unset, None, GetDataPreparationSessionsOrder]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Error, List['ScreeningSession']]]
+        Response[Union[Error, List['DataPreparationSession']]]
     """
 
     kwargs = _get_kwargs(
@@ -163,24 +167,24 @@ def sync(
     page: Union[Unset, None, int] = 1,
     per_page: Union[Unset, None, int] = 50,
     with_total: Union[Unset, None, bool] = True,
-    sort_by: Union[Unset, None, GetScreeningSessionsSortBy] = UNSET,
-    order: Union[Unset, None, GetScreeningSessionsOrder] = UNSET,
-) -> Optional[Union[Error, List["ScreeningSession"]]]:
-    """returns the list of screening sessions that are viewable by the requesting user.
+    sort_by: Union[Unset, None, GetDataPreparationSessionsSortBy] = UNSET,
+    order: Union[Unset, None, GetDataPreparationSessionsOrder] = UNSET,
+) -> Optional[Union[Error, List["DataPreparationSession"]]]:
+    """returns the list of data preparation sessions that are viewable by the requesting user.
 
     Args:
         page (Union[Unset, None, int]):  Default: 1.
         per_page (Union[Unset, None, int]):  Default: 50.
         with_total (Union[Unset, None, bool]):  Default: True.
-        sort_by (Union[Unset, None, GetScreeningSessionsSortBy]):
-        order (Union[Unset, None, GetScreeningSessionsOrder]):
+        sort_by (Union[Unset, None, GetDataPreparationSessionsSortBy]):
+        order (Union[Unset, None, GetDataPreparationSessionsOrder]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Error, List['ScreeningSession']]]
+        Response[Union[Error, List['DataPreparationSession']]]
     """
 
     return sync_detailed(
@@ -199,24 +203,24 @@ async def asyncio_detailed(
     page: Union[Unset, None, int] = 1,
     per_page: Union[Unset, None, int] = 50,
     with_total: Union[Unset, None, bool] = True,
-    sort_by: Union[Unset, None, GetScreeningSessionsSortBy] = UNSET,
-    order: Union[Unset, None, GetScreeningSessionsOrder] = UNSET,
-) -> Response[Union[Error, List["ScreeningSession"]]]:
-    """returns the list of screening sessions that are viewable by the requesting user.
+    sort_by: Union[Unset, None, GetDataPreparationSessionsSortBy] = UNSET,
+    order: Union[Unset, None, GetDataPreparationSessionsOrder] = UNSET,
+) -> Response[Union[Error, List["DataPreparationSession"]]]:
+    """returns the list of data preparation sessions that are viewable by the requesting user.
 
     Args:
         page (Union[Unset, None, int]):  Default: 1.
         per_page (Union[Unset, None, int]):  Default: 50.
         with_total (Union[Unset, None, bool]):  Default: True.
-        sort_by (Union[Unset, None, GetScreeningSessionsSortBy]):
-        order (Union[Unset, None, GetScreeningSessionsOrder]):
+        sort_by (Union[Unset, None, GetDataPreparationSessionsSortBy]):
+        order (Union[Unset, None, GetDataPreparationSessionsOrder]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Error, List['ScreeningSession']]]
+        Response[Union[Error, List['DataPreparationSession']]]
     """
 
     kwargs = _get_kwargs(
@@ -240,24 +244,24 @@ async def asyncio(
     page: Union[Unset, None, int] = 1,
     per_page: Union[Unset, None, int] = 50,
     with_total: Union[Unset, None, bool] = True,
-    sort_by: Union[Unset, None, GetScreeningSessionsSortBy] = UNSET,
-    order: Union[Unset, None, GetScreeningSessionsOrder] = UNSET,
-) -> Optional[Union[Error, List["ScreeningSession"]]]:
-    """returns the list of screening sessions that are viewable by the requesting user.
+    sort_by: Union[Unset, None, GetDataPreparationSessionsSortBy] = UNSET,
+    order: Union[Unset, None, GetDataPreparationSessionsOrder] = UNSET,
+) -> Optional[Union[Error, List["DataPreparationSession"]]]:
+    """returns the list of data preparation sessions that are viewable by the requesting user.
 
     Args:
         page (Union[Unset, None, int]):  Default: 1.
         per_page (Union[Unset, None, int]):  Default: 50.
         with_total (Union[Unset, None, bool]):  Default: True.
-        sort_by (Union[Unset, None, GetScreeningSessionsSortBy]):
-        order (Union[Unset, None, GetScreeningSessionsOrder]):
+        sort_by (Union[Unset, None, GetDataPreparationSessionsSortBy]):
+        order (Union[Unset, None, GetDataPreparationSessionsOrder]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Error, List['ScreeningSession']]]
+        Response[Union[Error, List['DataPreparationSession']]]
     """
 
     return (

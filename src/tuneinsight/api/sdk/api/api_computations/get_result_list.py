@@ -19,6 +19,7 @@ def _get_kwargs(
     owned: Union[Unset, None, bool] = UNSET,
     tagged: Union[Unset, None, bool] = UNSET,
     tags: Union[Unset, None, List[str]] = UNSET,
+    computation_i_ds: Union[Unset, None, List[str]] = UNSET,
     page: Union[Unset, None, int] = 1,
     per_page: Union[Unset, None, int] = 50,
     with_total: Union[Unset, None, bool] = True,
@@ -45,6 +46,15 @@ def _get_kwargs(
             json_tags = tags
 
     params["tags"] = json_tags
+
+    json_computation_i_ds: Union[Unset, None, List[str]] = UNSET
+    if not isinstance(computation_i_ds, Unset):
+        if computation_i_ds is None:
+            json_computation_i_ds = None
+        else:
+            json_computation_i_ds = computation_i_ds
+
+    params["computationIDs"] = json_computation_i_ds
 
     params["page"] = page
 
@@ -136,6 +146,7 @@ def sync_detailed(
     owned: Union[Unset, None, bool] = UNSET,
     tagged: Union[Unset, None, bool] = UNSET,
     tags: Union[Unset, None, List[str]] = UNSET,
+    computation_i_ds: Union[Unset, None, List[str]] = UNSET,
     page: Union[Unset, None, int] = 1,
     per_page: Union[Unset, None, int] = 50,
     with_total: Union[Unset, None, bool] = True,
@@ -149,6 +160,7 @@ def sync_detailed(
         owned (Union[Unset, None, bool]):
         tagged (Union[Unset, None, bool]):
         tags (Union[Unset, None, List[str]]):
+        computation_i_ds (Union[Unset, None, List[str]]):
         page (Union[Unset, None, int]):  Default: 1.
         per_page (Union[Unset, None, int]):  Default: 50.
         with_total (Union[Unset, None, bool]):  Default: True.
@@ -169,6 +181,7 @@ def sync_detailed(
         owned=owned,
         tagged=tagged,
         tags=tags,
+        computation_i_ds=computation_i_ds,
         page=page,
         per_page=per_page,
         with_total=with_total,
@@ -191,6 +204,7 @@ def sync(
     owned: Union[Unset, None, bool] = UNSET,
     tagged: Union[Unset, None, bool] = UNSET,
     tags: Union[Unset, None, List[str]] = UNSET,
+    computation_i_ds: Union[Unset, None, List[str]] = UNSET,
     page: Union[Unset, None, int] = 1,
     per_page: Union[Unset, None, int] = 50,
     with_total: Union[Unset, None, bool] = True,
@@ -204,6 +218,7 @@ def sync(
         owned (Union[Unset, None, bool]):
         tagged (Union[Unset, None, bool]):
         tags (Union[Unset, None, List[str]]):
+        computation_i_ds (Union[Unset, None, List[str]]):
         page (Union[Unset, None, int]):  Default: 1.
         per_page (Union[Unset, None, int]):  Default: 50.
         with_total (Union[Unset, None, bool]):  Default: True.
@@ -224,6 +239,7 @@ def sync(
         owned=owned,
         tagged=tagged,
         tags=tags,
+        computation_i_ds=computation_i_ds,
         page=page,
         per_page=per_page,
         with_total=with_total,
@@ -239,6 +255,7 @@ async def asyncio_detailed(
     owned: Union[Unset, None, bool] = UNSET,
     tagged: Union[Unset, None, bool] = UNSET,
     tags: Union[Unset, None, List[str]] = UNSET,
+    computation_i_ds: Union[Unset, None, List[str]] = UNSET,
     page: Union[Unset, None, int] = 1,
     per_page: Union[Unset, None, int] = 50,
     with_total: Union[Unset, None, bool] = True,
@@ -252,6 +269,7 @@ async def asyncio_detailed(
         owned (Union[Unset, None, bool]):
         tagged (Union[Unset, None, bool]):
         tags (Union[Unset, None, List[str]]):
+        computation_i_ds (Union[Unset, None, List[str]]):
         page (Union[Unset, None, int]):  Default: 1.
         per_page (Union[Unset, None, int]):  Default: 50.
         with_total (Union[Unset, None, bool]):  Default: True.
@@ -272,6 +290,7 @@ async def asyncio_detailed(
         owned=owned,
         tagged=tagged,
         tags=tags,
+        computation_i_ds=computation_i_ds,
         page=page,
         per_page=per_page,
         with_total=with_total,
@@ -292,6 +311,7 @@ async def asyncio(
     owned: Union[Unset, None, bool] = UNSET,
     tagged: Union[Unset, None, bool] = UNSET,
     tags: Union[Unset, None, List[str]] = UNSET,
+    computation_i_ds: Union[Unset, None, List[str]] = UNSET,
     page: Union[Unset, None, int] = 1,
     per_page: Union[Unset, None, int] = 50,
     with_total: Union[Unset, None, bool] = True,
@@ -305,6 +325,7 @@ async def asyncio(
         owned (Union[Unset, None, bool]):
         tagged (Union[Unset, None, bool]):
         tags (Union[Unset, None, List[str]]):
+        computation_i_ds (Union[Unset, None, List[str]]):
         page (Union[Unset, None, int]):  Default: 1.
         per_page (Union[Unset, None, int]):  Default: 50.
         with_total (Union[Unset, None, bool]):  Default: True.
@@ -326,6 +347,7 @@ async def asyncio(
             owned=owned,
             tagged=tagged,
             tags=tags,
+            computation_i_ds=computation_i_ds,
             page=page,
             per_page=per_page,
             with_total=with_total,

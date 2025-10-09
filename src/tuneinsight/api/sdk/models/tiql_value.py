@@ -1,31 +1,45 @@
-from typing import Any, Dict, List, Type, TypeVar
+from typing import Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
-T = TypeVar("T", bound="PostProjectDataSourceCommandJsonBodyParameters")
+from ..types import UNSET, Unset
+
+T = TypeVar("T", bound="TiqlValue")
 
 
 @attr.s(auto_attribs=True)
-class PostProjectDataSourceCommandJsonBodyParameters:
-    """Command's parameters."""
+class TiqlValue:
+    """a possible value that a field can take.
 
+    Attributes:
+        value (Union[Unset, str]): the string representation of a value for this field.
+    """
+
+    value: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        value = self.value
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if value is not UNSET:
+            field_dict["value"] = value
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        post_project_data_source_command_json_body_parameters = cls()
+        value = d.pop("value", UNSET)
 
-        post_project_data_source_command_json_body_parameters.additional_properties = d
-        return post_project_data_source_command_json_body_parameters
+        tiql_value = cls(
+            value=value,
+        )
+
+        tiql_value.additional_properties = d
+        return tiql_value
 
     @property
     def additional_keys(self) -> List[str]:

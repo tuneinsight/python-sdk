@@ -2,28 +2,36 @@ from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
+from ..models.data_source_command_type import DataSourceCommandType
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.post_data_source_command_json_body_parameters import PostDataSourceCommandJsonBodyParameters
+    from ..models.generic_command_parameters import GenericCommandParameters
 
 
-T = TypeVar("T", bound="PostDataSourceCommandJsonBody")
+T = TypeVar("T", bound="GenericCommand")
 
 
 @attr.s(auto_attribs=True)
-class PostDataSourceCommandJsonBody:
-    """
-    Attributes:
-        command (Union[Unset, str]): Command identifier.
-        parameters (Union[Unset, PostDataSourceCommandJsonBodyParameters]): Command's parameters.
+class GenericCommand:
+    """A generic datasource command, identified by a name (command), and taking any number of
+    named parameters. The names, arguments, and behavior expected are datasource specific.
+    This API will be deprecated once the new datasource commands have been integrated fully.
+
+        Attributes:
+            type (DataSourceCommandType): List of datasource commands that can be performed.
+            command (Union[Unset, str]): Command identifier.
+            parameters (Union[Unset, GenericCommandParameters]): Command's parameters.
     """
 
+    type: DataSourceCommandType
     command: Union[Unset, str] = UNSET
-    parameters: Union[Unset, "PostDataSourceCommandJsonBodyParameters"] = UNSET
+    parameters: Union[Unset, "GenericCommandParameters"] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        type = self.type.value
+
         command = self.command
         parameters: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.parameters, Unset):
@@ -31,7 +39,11 @@ class PostDataSourceCommandJsonBody:
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({})
+        field_dict.update(
+            {
+                "type": type,
+            }
+        )
         if command is not UNSET:
             field_dict["command"] = command
         if parameters is not UNSET:
@@ -41,25 +53,28 @@ class PostDataSourceCommandJsonBody:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.post_data_source_command_json_body_parameters import PostDataSourceCommandJsonBodyParameters
+        from ..models.generic_command_parameters import GenericCommandParameters
 
         d = src_dict.copy()
+        type = DataSourceCommandType(d.pop("type"))
+
         command = d.pop("command", UNSET)
 
         _parameters = d.pop("parameters", UNSET)
-        parameters: Union[Unset, PostDataSourceCommandJsonBodyParameters]
+        parameters: Union[Unset, GenericCommandParameters]
         if isinstance(_parameters, Unset):
             parameters = UNSET
         else:
-            parameters = PostDataSourceCommandJsonBodyParameters.from_dict(_parameters)
+            parameters = GenericCommandParameters.from_dict(_parameters)
 
-        post_data_source_command_json_body = cls(
+        generic_command = cls(
+            type=type,
             command=command,
             parameters=parameters,
         )
 
-        post_data_source_command_json_body.additional_properties = d
-        return post_data_source_command_json_body
+        generic_command.additional_properties = d
+        return generic_command
 
     @property
     def additional_keys(self) -> List[str]:

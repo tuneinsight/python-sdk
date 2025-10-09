@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class GetScreeningSessionsOrder(str, Enum):
+class GetDataPreparationSessionsOrder(str, Enum):
     DESC = "desc"
     ASC = "asc"
 

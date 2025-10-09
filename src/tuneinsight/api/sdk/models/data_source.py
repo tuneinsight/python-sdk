@@ -9,6 +9,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.credentials import Credentials
+    from ..models.data_schema import DataSchema
     from ..models.data_source_config import DataSourceConfig
     from ..models.data_source_definition_structure_template_json import DataSourceDefinitionStructureTemplateJSON
     from ..models.data_source_metadata import DataSourceMetadata
@@ -16,6 +17,7 @@ if TYPE_CHECKING:
     from ..models.dataset_schema import DatasetSchema
     from ..models.datasource_policy import DatasourcePolicy
     from ..models.local_data_selection import LocalDataSelection
+    from ..models.view_config import ViewConfig
 
 
 T = TypeVar("T", bound="DataSource")
@@ -38,6 +40,8 @@ class DataSource:
         configuration (Union[Unset, DataSourceConfig]): data source configuration
         consent_type (Union[Unset, DataSourceConsentType]): Consent type given to the data source.
         credentials (Union[Unset, Credentials]): The credentials needed to access the data source.
+        data_schema (Union[Unset, DataSchema]): aims to provide a flexible definition of a data schema, which includes
+            the tables and their relationships.
         id (Union[Unset, None, str]): Unique identifier of a data source.
         is_mock (Union[Unset, bool]): Whether this datasource contains mock/synthetic data and should not be used in
             production.
@@ -49,6 +53,7 @@ class DataSource:
         structure_template_json (Union[Unset, DataSourceDefinitionStructureTemplateJSON]): data source's structure
             template (used to determine the query builder structure, if provided)
         type (Union[Unset, DataSourceType]):
+        view_config (Union[Unset, ViewConfig]): holds data source parameters that are applicable only for data views.
         created_at (Union[Unset, str]):
         inferred_schemas (Union[Unset, List['DatasetSchema']]): list of all inferred data schemas for tables in this
             data
@@ -56,6 +61,13 @@ class DataSource:
         metadata (Union[Unset, DataSourceMetadata]): metadata about a datasource
         owner (Union[Unset, str]):
         projects (Union[Unset, List[str]]): ids of connected projects
+        query_enabled_can_be_toggled (Union[Unset, bool]): This field is purely informative (it cannot be edited and is
+            not persisted)
+            and indicates whether the `queryEnabled` field can be edited by the data source owner.
+            In some cases (for instance, when the data source is a data view), this field
+            will be true only if the `queryEnabled` field of the base data source is true as well.
+            This field is necessary because the client/UI does not necessarily know about
+            the configuration of the base data source.
         selections (Union[Unset, List['LocalDataSelection']]): list of local data selections associated with the data
             source
         status (Union[Unset, DataSourceStatus]): regroups data source health check status information
@@ -72,6 +84,7 @@ class DataSource:
     configuration: Union[Unset, "DataSourceConfig"] = UNSET
     consent_type: Union[Unset, DataSourceConsentType] = UNSET
     credentials: Union[Unset, "Credentials"] = UNSET
+    data_schema: Union[Unset, "DataSchema"] = UNSET
     id: Union[Unset, None, str] = UNSET
     is_mock: Union[Unset, bool] = UNSET
     name: Union[Unset, str] = UNSET
@@ -79,12 +92,14 @@ class DataSource:
     query_enabled: Union[Unset, None, bool] = UNSET
     structure_template_json: Union[Unset, "DataSourceDefinitionStructureTemplateJSON"] = UNSET
     type: Union[Unset, DataSourceType] = UNSET
+    view_config: Union[Unset, "ViewConfig"] = UNSET
     created_at: Union[Unset, str] = UNSET
     inferred_schemas: Union[Unset, List["DatasetSchema"]] = UNSET
     last_up_at: Union[Unset, str] = UNSET
     metadata: Union[Unset, "DataSourceMetadata"] = UNSET
     owner: Union[Unset, str] = UNSET
     projects: Union[Unset, List[str]] = UNSET
+    query_enabled_can_be_toggled: Union[Unset, bool] = UNSET
     selections: Union[Unset, List["LocalDataSelection"]] = UNSET
     status: Union[Unset, "DataSourceStatus"] = UNSET
     status_updated_at: Union[Unset, str] = UNSET
@@ -122,6 +137,10 @@ class DataSource:
         if not isinstance(self.credentials, Unset):
             credentials = self.credentials.to_dict()
 
+        data_schema: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.data_schema, Unset):
+            data_schema = self.data_schema.to_dict()
+
         id = self.id
         is_mock = self.is_mock
         name = self.name
@@ -137,6 +156,10 @@ class DataSource:
         type: Union[Unset, str] = UNSET
         if not isinstance(self.type, Unset):
             type = self.type.value
+
+        view_config: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.view_config, Unset):
+            view_config = self.view_config.to_dict()
 
         created_at = self.created_at
         inferred_schemas: Union[Unset, List[Dict[str, Any]]] = UNSET
@@ -157,6 +180,7 @@ class DataSource:
         if not isinstance(self.projects, Unset):
             projects = self.projects
 
+        query_enabled_can_be_toggled = self.query_enabled_can_be_toggled
         selections: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.selections, Unset):
             selections = []
@@ -193,6 +217,8 @@ class DataSource:
             field_dict["consentType"] = consent_type
         if credentials is not UNSET:
             field_dict["credentials"] = credentials
+        if data_schema is not UNSET:
+            field_dict["dataSchema"] = data_schema
         if id is not UNSET:
             field_dict["id"] = id
         if is_mock is not UNSET:
@@ -207,6 +233,8 @@ class DataSource:
             field_dict["structureTemplateJSON"] = structure_template_json
         if type is not UNSET:
             field_dict["type"] = type
+        if view_config is not UNSET:
+            field_dict["viewConfig"] = view_config
         if created_at is not UNSET:
             field_dict["createdAt"] = created_at
         if inferred_schemas is not UNSET:
@@ -219,6 +247,8 @@ class DataSource:
             field_dict["owner"] = owner
         if projects is not UNSET:
             field_dict["projects"] = projects
+        if query_enabled_can_be_toggled is not UNSET:
+            field_dict["queryEnabledCanBeToggled"] = query_enabled_can_be_toggled
         if selections is not UNSET:
             field_dict["selections"] = selections
         if status is not UNSET:
@@ -233,6 +263,7 @@ class DataSource:
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         from ..models.credentials import Credentials
+        from ..models.data_schema import DataSchema
         from ..models.data_source_config import DataSourceConfig
         from ..models.data_source_definition_structure_template_json import DataSourceDefinitionStructureTemplateJSON
         from ..models.data_source_metadata import DataSourceMetadata
@@ -240,6 +271,7 @@ class DataSource:
         from ..models.dataset_schema import DatasetSchema
         from ..models.datasource_policy import DatasourcePolicy
         from ..models.local_data_selection import LocalDataSelection
+        from ..models.view_config import ViewConfig
 
         d = src_dict.copy()
         _access_scope = d.pop("accessScope", UNSET)
@@ -280,6 +312,13 @@ class DataSource:
         else:
             credentials = Credentials.from_dict(_credentials)
 
+        _data_schema = d.pop("dataSchema", UNSET)
+        data_schema: Union[Unset, DataSchema]
+        if isinstance(_data_schema, Unset):
+            data_schema = UNSET
+        else:
+            data_schema = DataSchema.from_dict(_data_schema)
+
         id = d.pop("id", UNSET)
 
         is_mock = d.pop("isMock", UNSET)
@@ -309,6 +348,13 @@ class DataSource:
         else:
             type = DataSourceType(_type)
 
+        _view_config = d.pop("viewConfig", UNSET)
+        view_config: Union[Unset, ViewConfig]
+        if isinstance(_view_config, Unset):
+            view_config = UNSET
+        else:
+            view_config = ViewConfig.from_dict(_view_config)
+
         created_at = d.pop("createdAt", UNSET)
 
         inferred_schemas = []
@@ -330,6 +376,8 @@ class DataSource:
         owner = d.pop("owner", UNSET)
 
         projects = cast(List[str], d.pop("projects", UNSET))
+
+        query_enabled_can_be_toggled = d.pop("queryEnabledCanBeToggled", UNSET)
 
         selections = []
         _selections = d.pop("selections", UNSET)
@@ -359,6 +407,7 @@ class DataSource:
             configuration=configuration,
             consent_type=consent_type,
             credentials=credentials,
+            data_schema=data_schema,
             id=id,
             is_mock=is_mock,
             name=name,
@@ -366,12 +415,14 @@ class DataSource:
             query_enabled=query_enabled,
             structure_template_json=structure_template_json,
             type=type,
+            view_config=view_config,
             created_at=created_at,
             inferred_schemas=inferred_schemas,
             last_up_at=last_up_at,
             metadata=metadata,
             owner=owner,
             projects=projects,
+            query_enabled_can_be_toggled=query_enabled_can_be_toggled,
             selections=selections,
             status=status,
             status_updated_at=status_updated_at,

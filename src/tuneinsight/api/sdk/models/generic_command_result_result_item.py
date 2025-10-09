@@ -2,14 +2,14 @@ from typing import Any, Dict, List, Type, TypeVar
 
 import attr
 
-T = TypeVar("T", bound="PostDataSourceCommandJsonBodyParameters")
+T = TypeVar("T", bound="GenericCommandResultResultItem")
 
 
 @attr.s(auto_attribs=True)
-class PostDataSourceCommandJsonBodyParameters:
-    """Command's parameters."""
+class GenericCommandResultResultItem:
+    """ """
 
-    additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
+    additional_properties: Dict[str, str] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
 
@@ -22,19 +22,19 @@ class PostDataSourceCommandJsonBodyParameters:
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        post_data_source_command_json_body_parameters = cls()
+        generic_command_result_result_item = cls()
 
-        post_data_source_command_json_body_parameters.additional_properties = d
-        return post_data_source_command_json_body_parameters
+        generic_command_result_result_item.additional_properties = d
+        return generic_command_result_result_item
 
     @property
     def additional_keys(self) -> List[str]:
         return list(self.additional_properties.keys())
 
-    def __getitem__(self, key: str) -> Any:
+    def __getitem__(self, key: str) -> str:
         return self.additional_properties[key]
 
-    def __setitem__(self, key: str, value: Any) -> None:
+    def __setitem__(self, key: str, value: str) -> None:
         self.additional_properties[key] = value
 
     def __delitem__(self, key: str) -> None:

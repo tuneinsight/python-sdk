@@ -5,8 +5,8 @@ import httpx
 
 from ... import errors
 from ...client import Client
+from ...models.data_preparation_session import DataPreparationSession
 from ...models.error import Error
-from ...models.screening_session import ScreeningSession
 from ...types import UNSET, Response, Unset
 
 
@@ -17,7 +17,7 @@ def _get_kwargs(
     page: Union[Unset, None, int] = 1,
     rows_per_page: Union[Unset, None, int] = UNSET,
 ) -> Dict[str, Any]:
-    url = "{}/screening-sessions/{sessionId}".format(client.base_url, sessionId=session_id)
+    url = "{}/screening-sessions/{sessionId}/load".format(client.base_url, sessionId=session_id)
 
     headers: Dict[str, str] = client.get_headers()
     cookies: Dict[str, Any] = client.get_cookies()
@@ -41,7 +41,7 @@ def _get_kwargs(
                 proxies = http_proxy
 
     return {
-        "method": "get",
+        "method": "post",
         "url": url,
         "headers": headers,
         "cookies": cookies,
@@ -51,9 +51,9 @@ def _get_kwargs(
     }
 
 
-def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[Error, ScreeningSession]]:
+def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[DataPreparationSession, Error]]:
     if response.status_code == HTTPStatus.OK:
-        response_200 = ScreeningSession.from_dict(response.json())
+        response_200 = DataPreparationSession.from_dict(response.json())
 
         return response_200
     if response.status_code == HTTPStatus.BAD_REQUEST:
@@ -82,7 +82,7 @@ def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Uni
         return None
 
 
-def _build_response(*, client: Client, response: httpx.Response) -> Response[Union[Error, ScreeningSession]]:
+def _build_response(*, client: Client, response: httpx.Response) -> Response[Union[DataPreparationSession, Error]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -97,8 +97,8 @@ def sync_detailed(
     client: Client,
     page: Union[Unset, None, int] = 1,
     rows_per_page: Union[Unset, None, int] = UNSET,
-) -> Response[Union[Error, ScreeningSession]]:
-    """Returns a specific screening session by ID.
+) -> Response[Union[DataPreparationSession, Error]]:
+    """queries, loads and saves the retrieved dataset for a data preparation session.
 
     Args:
         session_id (str):
@@ -110,7 +110,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Error, ScreeningSession]]
+        Response[Union[DataPreparationSession, Error]]
     """
 
     kwargs = _get_kwargs(
@@ -134,8 +134,8 @@ def sync(
     client: Client,
     page: Union[Unset, None, int] = 1,
     rows_per_page: Union[Unset, None, int] = UNSET,
-) -> Optional[Union[Error, ScreeningSession]]:
-    """Returns a specific screening session by ID.
+) -> Optional[Union[DataPreparationSession, Error]]:
+    """queries, loads and saves the retrieved dataset for a data preparation session.
 
     Args:
         session_id (str):
@@ -147,7 +147,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Error, ScreeningSession]]
+        Response[Union[DataPreparationSession, Error]]
     """
 
     return sync_detailed(
@@ -164,8 +164,8 @@ async def asyncio_detailed(
     client: Client,
     page: Union[Unset, None, int] = 1,
     rows_per_page: Union[Unset, None, int] = UNSET,
-) -> Response[Union[Error, ScreeningSession]]:
-    """Returns a specific screening session by ID.
+) -> Response[Union[DataPreparationSession, Error]]:
+    """queries, loads and saves the retrieved dataset for a data preparation session.
 
     Args:
         session_id (str):
@@ -177,7 +177,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Error, ScreeningSession]]
+        Response[Union[DataPreparationSession, Error]]
     """
 
     kwargs = _get_kwargs(
@@ -199,8 +199,8 @@ async def asyncio(
     client: Client,
     page: Union[Unset, None, int] = 1,
     rows_per_page: Union[Unset, None, int] = UNSET,
-) -> Optional[Union[Error, ScreeningSession]]:
-    """Returns a specific screening session by ID.
+) -> Optional[Union[DataPreparationSession, Error]]:
+    """queries, loads and saves the retrieved dataset for a data preparation session.
 
     Args:
         session_id (str):
@@ -212,7 +212,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Error, ScreeningSession]]
+        Response[Union[DataPreparationSession, Error]]
     """
 
     return (

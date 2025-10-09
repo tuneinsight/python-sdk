@@ -9,9 +9,11 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.credentials import Credentials
+    from ..models.data_schema import DataSchema
     from ..models.data_source_config import DataSourceConfig
     from ..models.data_source_definition_structure_template_json import DataSourceDefinitionStructureTemplateJSON
     from ..models.datasource_policy import DatasourcePolicy
+    from ..models.view_config import ViewConfig
 
 
 T = TypeVar("T", bound="DataSourceDefinition")
@@ -35,6 +37,8 @@ class DataSourceDefinition:
         configuration (Union[Unset, DataSourceConfig]): data source configuration
         consent_type (Union[Unset, DataSourceConsentType]): Consent type given to the data source.
         credentials (Union[Unset, Credentials]): The credentials needed to access the data source.
+        data_schema (Union[Unset, DataSchema]): aims to provide a flexible definition of a data schema, which includes
+            the tables and their relationships.
         id (Union[Unset, None, str]): Unique identifier of a data source.
         is_mock (Union[Unset, bool]): Whether this datasource contains mock/synthetic data and should not be used in
             production.
@@ -46,6 +50,7 @@ class DataSourceDefinition:
         structure_template_json (Union[Unset, DataSourceDefinitionStructureTemplateJSON]): data source's structure
             template (used to determine the query builder structure, if provided)
         type (Union[Unset, DataSourceType]):
+        view_config (Union[Unset, ViewConfig]): holds data source parameters that are applicable only for data views.
     """
 
     access_scope: Union[Unset, AccessScope] = UNSET
@@ -57,6 +62,7 @@ class DataSourceDefinition:
     configuration: Union[Unset, "DataSourceConfig"] = UNSET
     consent_type: Union[Unset, DataSourceConsentType] = UNSET
     credentials: Union[Unset, "Credentials"] = UNSET
+    data_schema: Union[Unset, "DataSchema"] = UNSET
     id: Union[Unset, None, str] = UNSET
     is_mock: Union[Unset, bool] = UNSET
     name: Union[Unset, str] = UNSET
@@ -64,6 +70,7 @@ class DataSourceDefinition:
     query_enabled: Union[Unset, None, bool] = UNSET
     structure_template_json: Union[Unset, "DataSourceDefinitionStructureTemplateJSON"] = UNSET
     type: Union[Unset, DataSourceType] = UNSET
+    view_config: Union[Unset, "ViewConfig"] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -97,6 +104,10 @@ class DataSourceDefinition:
         if not isinstance(self.credentials, Unset):
             credentials = self.credentials.to_dict()
 
+        data_schema: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.data_schema, Unset):
+            data_schema = self.data_schema.to_dict()
+
         id = self.id
         is_mock = self.is_mock
         name = self.name
@@ -112,6 +123,10 @@ class DataSourceDefinition:
         type: Union[Unset, str] = UNSET
         if not isinstance(self.type, Unset):
             type = self.type.value
+
+        view_config: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.view_config, Unset):
+            view_config = self.view_config.to_dict()
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -134,6 +149,8 @@ class DataSourceDefinition:
             field_dict["consentType"] = consent_type
         if credentials is not UNSET:
             field_dict["credentials"] = credentials
+        if data_schema is not UNSET:
+            field_dict["dataSchema"] = data_schema
         if id is not UNSET:
             field_dict["id"] = id
         if is_mock is not UNSET:
@@ -148,15 +165,19 @@ class DataSourceDefinition:
             field_dict["structureTemplateJSON"] = structure_template_json
         if type is not UNSET:
             field_dict["type"] = type
+        if view_config is not UNSET:
+            field_dict["viewConfig"] = view_config
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         from ..models.credentials import Credentials
+        from ..models.data_schema import DataSchema
         from ..models.data_source_config import DataSourceConfig
         from ..models.data_source_definition_structure_template_json import DataSourceDefinitionStructureTemplateJSON
         from ..models.datasource_policy import DatasourcePolicy
+        from ..models.view_config import ViewConfig
 
         d = src_dict.copy()
         _access_scope = d.pop("accessScope", UNSET)
@@ -197,6 +218,13 @@ class DataSourceDefinition:
         else:
             credentials = Credentials.from_dict(_credentials)
 
+        _data_schema = d.pop("dataSchema", UNSET)
+        data_schema: Union[Unset, DataSchema]
+        if isinstance(_data_schema, Unset):
+            data_schema = UNSET
+        else:
+            data_schema = DataSchema.from_dict(_data_schema)
+
         id = d.pop("id", UNSET)
 
         is_mock = d.pop("isMock", UNSET)
@@ -226,6 +254,13 @@ class DataSourceDefinition:
         else:
             type = DataSourceType(_type)
 
+        _view_config = d.pop("viewConfig", UNSET)
+        view_config: Union[Unset, ViewConfig]
+        if isinstance(_view_config, Unset):
+            view_config = UNSET
+        else:
+            view_config = ViewConfig.from_dict(_view_config)
+
         data_source_definition = cls(
             access_scope=access_scope,
             attributes=attributes,
@@ -236,6 +271,7 @@ class DataSourceDefinition:
             configuration=configuration,
             consent_type=consent_type,
             credentials=credentials,
+            data_schema=data_schema,
             id=id,
             is_mock=is_mock,
             name=name,
@@ -243,6 +279,7 @@ class DataSourceDefinition:
             query_enabled=query_enabled,
             structure_template_json=structure_template_json,
             type=type,
+            view_config=view_config,
         )
 
         data_source_definition.additional_properties = d

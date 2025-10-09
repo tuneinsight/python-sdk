@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class GetScreeningSessionsSortBy(str, Enum):
+class GetDataPreparationSessionsSortBy(str, Enum):
     CREATEDAT = "createdAt"
     UPDATEDAT = "updatedAt"
 

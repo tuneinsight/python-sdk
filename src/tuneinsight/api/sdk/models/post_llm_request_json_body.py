@@ -17,11 +17,15 @@ class PostLlmRequestJsonBody:
 
     Attributes:
         prompt_args (PostLlmRequestJsonBodyPromptArgs): Parameters of the prompt as a dict
+        api_url (Union[Unset, str]): URL of the LLM API to use for the prompt
+        auth_token (Union[Unset, str]): Authentication token for the LLM API
         llm_model (Union[Unset, str]): LLM model name to get the prompt for
         prompt_only (Union[Unset, bool]): Set to True to get only the prompt to query the model afterwards
     """
 
     prompt_args: "PostLlmRequestJsonBodyPromptArgs"
+    api_url: Union[Unset, str] = UNSET
+    auth_token: Union[Unset, str] = UNSET
     llm_model: Union[Unset, str] = UNSET
     prompt_only: Union[Unset, bool] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
@@ -29,6 +33,8 @@ class PostLlmRequestJsonBody:
     def to_dict(self) -> Dict[str, Any]:
         prompt_args = self.prompt_args.to_dict()
 
+        api_url = self.api_url
+        auth_token = self.auth_token
         llm_model = self.llm_model
         prompt_only = self.prompt_only
 
@@ -39,6 +45,10 @@ class PostLlmRequestJsonBody:
                 "prompt_args": prompt_args,
             }
         )
+        if api_url is not UNSET:
+            field_dict["api_url"] = api_url
+        if auth_token is not UNSET:
+            field_dict["auth_token"] = auth_token
         if llm_model is not UNSET:
             field_dict["llm_model"] = llm_model
         if prompt_only is not UNSET:
@@ -53,12 +63,18 @@ class PostLlmRequestJsonBody:
         d = src_dict.copy()
         prompt_args = PostLlmRequestJsonBodyPromptArgs.from_dict(d.pop("prompt_args"))
 
+        api_url = d.pop("api_url", UNSET)
+
+        auth_token = d.pop("auth_token", UNSET)
+
         llm_model = d.pop("llm_model", UNSET)
 
         prompt_only = d.pop("prompt_only", UNSET)
 
         post_llm_request_json_body = cls(
             prompt_args=prompt_args,
+            api_url=api_url,
+            auth_token=auth_token,
             llm_model=llm_model,
             prompt_only=prompt_only,
         )

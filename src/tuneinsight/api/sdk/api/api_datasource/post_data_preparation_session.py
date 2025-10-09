@@ -1,23 +1,27 @@
 from http import HTTPStatus
-from typing import Any, Dict, Optional, Union, cast
+from typing import Any, Dict, Optional, Union
 
 import httpx
 
 from ... import errors
 from ...client import Client
+from ...models.data_preparation_session import DataPreparationSession
+from ...models.data_preparation_session_definition import DataPreparationSessionDefinition
 from ...models.error import Error
 from ...types import Response
 
 
 def _get_kwargs(
-    session_id: str,
     *,
     client: Client,
+    json_body: DataPreparationSessionDefinition,
 ) -> Dict[str, Any]:
-    url = "{}/screening-sessions/{sessionId}".format(client.base_url, sessionId=session_id)
+    url = "{}/screening-session".format(client.base_url)
 
     headers: Dict[str, str] = client.get_headers()
     cookies: Dict[str, Any] = client.get_cookies()
+
+    json_json_body = json_body.to_dict()
 
     # Set the proxies if the client has proxies set.
     proxies = None
@@ -31,19 +35,21 @@ def _get_kwargs(
                 proxies = http_proxy
 
     return {
-        "method": "delete",
+        "method": "post",
         "url": url,
         "headers": headers,
         "cookies": cookies,
         "timeout": client.get_timeout(),
         "proxies": proxies,
+        "json": json_json_body,
     }
 
 
-def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[Any, Error]]:
-    if response.status_code == HTTPStatus.NO_CONTENT:
-        response_204 = cast(Any, None)
-        return response_204
+def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[DataPreparationSession, Error]]:
+    if response.status_code == HTTPStatus.CREATED:
+        response_201 = DataPreparationSession.from_dict(response.json())
+
+        return response_201
     if response.status_code == HTTPStatus.BAD_REQUEST:
         response_400 = Error.from_dict(response.json())
 
@@ -70,7 +76,7 @@ def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Uni
         return None
 
 
-def _build_response(*, client: Client, response: httpx.Response) -> Response[Union[Any, Error]]:
+def _build_response(*, client: Client, response: httpx.Response) -> Response[Union[DataPreparationSession, Error]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -80,26 +86,27 @@ def _build_response(*, client: Client, response: httpx.Response) -> Response[Uni
 
 
 def sync_detailed(
-    session_id: str,
     *,
     client: Client,
-) -> Response[Union[Any, Error]]:
-    """Deletes a specific screening session by ID.
+    json_body: DataPreparationSessionDefinition,
+) -> Response[Union[DataPreparationSession, Error]]:
+    """creates a new data preparation session.
 
     Args:
-        session_id (str):
+        json_body (DataPreparationSessionDefinition): part of the data preparation session defined
+            by the user.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Any, Error]]
+        Response[Union[DataPreparationSession, Error]]
     """
 
     kwargs = _get_kwargs(
-        session_id=session_id,
         client=client,
+        json_body=json_body,
     )
 
     response = httpx.request(
@@ -111,50 +118,52 @@ def sync_detailed(
 
 
 def sync(
-    session_id: str,
     *,
     client: Client,
-) -> Optional[Union[Any, Error]]:
-    """Deletes a specific screening session by ID.
+    json_body: DataPreparationSessionDefinition,
+) -> Optional[Union[DataPreparationSession, Error]]:
+    """creates a new data preparation session.
 
     Args:
-        session_id (str):
+        json_body (DataPreparationSessionDefinition): part of the data preparation session defined
+            by the user.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Any, Error]]
+        Response[Union[DataPreparationSession, Error]]
     """
 
     return sync_detailed(
-        session_id=session_id,
         client=client,
+        json_body=json_body,
     ).parsed
 
 
 async def asyncio_detailed(
-    session_id: str,
     *,
     client: Client,
-) -> Response[Union[Any, Error]]:
-    """Deletes a specific screening session by ID.
+    json_body: DataPreparationSessionDefinition,
+) -> Response[Union[DataPreparationSession, Error]]:
+    """creates a new data preparation session.
 
     Args:
-        session_id (str):
+        json_body (DataPreparationSessionDefinition): part of the data preparation session defined
+            by the user.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Any, Error]]
+        Response[Union[DataPreparationSession, Error]]
     """
 
     kwargs = _get_kwargs(
-        session_id=session_id,
         client=client,
+        json_body=json_body,
     )
 
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
@@ -164,26 +173,27 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    session_id: str,
     *,
     client: Client,
-) -> Optional[Union[Any, Error]]:
-    """Deletes a specific screening session by ID.
+    json_body: DataPreparationSessionDefinition,
+) -> Optional[Union[DataPreparationSession, Error]]:
+    """creates a new data preparation session.
 
     Args:
-        session_id (str):
+        json_body (DataPreparationSessionDefinition): part of the data preparation session defined
+            by the user.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Any, Error]]
+        Response[Union[DataPreparationSession, Error]]
     """
 
     return (
         await asyncio_detailed(
-            session_id=session_id,
             client=client,
+            json_body=json_body,
         )
     ).parsed

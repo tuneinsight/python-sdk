@@ -12,11 +12,11 @@ from tuneinsight.client.validation import validate_response
 from tuneinsight.api.sdk import models
 from tuneinsight.api.sdk.types import value_if_unset
 from tuneinsight.api.sdk.api.api_datasource import (
-    get_screening_session,
-    post_screening_session,
-    patch_screening_session,
-    delete_screening_session,
-    load_screening_data,
+    get_data_preparation_session,
+    post_data_preparation_session,
+    patch_data_preparation_session,
+    delete_data_preparation_session,
+    load_data_preparation_data,
     export_screened_data,
 )
 
@@ -25,12 +25,12 @@ from tuneinsight.api.sdk.api.api_datasource import (
 class ScreenedDataset:
     """The result of a screening operation."""
 
-    metadata: models.ScreeningMetadata
+    metadata: models.DataPreparationMetadata
     data: List[models.ScreenedRow]
 
     def to_pandas(self) -> pd.DataFrame:
         """Restructures the screened dataset result as a pandas DataFrame for later analysis."""
-        data_columns = [c.name for c in self.metadata.columns]
+        data_columns = [c.name for c in self.metadata.screening_columns]
         columns = (
             list(map(lambda x: f"{x} (raw)", data_columns))
             + list(map(lambda x: f"{x} (screened)", data_columns))
@@ -45,15 +45,15 @@ class ScreenedDataset:
         return df
 
 
-class ScreeningSession:
+class DataPreparationSession:
     """
-    A screening session that allows users to interactively edit a dataset.
+    A data preparation session that allows users to interactively edit a dataset.
 
-    In a screening session, an authorized user iteratively adds screening operations to
+    In a data preparation session, an authorized user iteratively adds screening operations to
     a dataset in order to prepare it for computations. This involves filtering out and/or
     editing records that are not properly formatted or otherwise erroneous.
 
-    A screening session is attached to a datasource (and query), and defined by a list
+    A data preparation session is attached to a datasource (and query), and defined by a list
     of operations that filter and transform the data (result of the query on the datasource).
 
     The `load` operation queries the data and applies the current set of operations, and
@@ -65,46 +65,48 @@ class ScreeningSession:
 
     @classmethod
     def new(
-        cls, client: Diapason, definition: models.ScreeningSessionDefinition
-    ) -> "ScreeningSession":
-        """Create a new screening session.
+        cls, client: Diapason, definition: models.DataPreparationSessionDefinition
+    ) -> "DataPreparationSession":
+        """Create a new data preparation session.
 
         Args:
             client (Diapason): the client used to interact with the instance.
-            definition (models.ScreeningSessionDefinition): the definition of the screening session.
+            definition (models.DataPreparationSessionDefinition): the definition of the data preparation session.
 
         """
-        resp = post_screening_session.sync_detailed(
+        resp = post_data_preparation_session.sync_detailed(
             client=client.client, json_body=definition
         )
         validate_response(resp)
         return cls(client, unique_id=resp.parsed.id)
 
     def __init__(self, client: Diapason, unique_id: str):
-        """Accesses a screening session identified by a unique identifier.
+        """Accesses a data preparation session identified by a unique identifier.
 
         Args:
             client (Diapason): the connector client.
-            unique_id (str): the unique identifier of this screening session.
+            unique_id (str): the unique identifier of this data preparation session.
         """
         self.client = client.client
         self.unique_id = unique_id
-        self.model: models.ScreeningSession = self._get_model()
+        self.model: models.DataPreparationSession = self._get_model()
 
     ## Internal handlers.
 
     def _get_model(self):
-        resp = get_screening_session.sync_detailed(self.unique_id, client=self.client)
+        resp = get_data_preparation_session.sync_detailed(
+            self.unique_id, client=self.client
+        )
         validate_response(resp)
         return resp.parsed
 
-    def _patch(self, model: models.ScreeningSessionDefinition):
-        """Patches the definition of the screening session.
+    def _patch(self, model: models.DataPreparationSessionDefinition):
+        """Patches the definition of the data preparation session.
 
         Args:
-            model (models.ScreeningSessionDefinition): API models with fields to change.
+            model (models.DataPreparationSessionDefinition): API models with fields to change.
         """
-        resp = patch_screening_session.sync_detailed(
+        resp = patch_data_preparation_session.sync_detailed(
             self.unique_id, client=self.client, json_body=model
         )
         validate_response(resp)
@@ -113,22 +115,22 @@ class ScreeningSession:
     ## High-level methods to handle a session.
 
     def set_datasource(self, ds: Union[str, DataSource]):
-        """Sets the datasource of this screening session.
+        """Sets the datasource of this data preparation session.
 
         Args:
             ds (Union[str, DataSource]): either a Datasource object, or the unique ID of the datasource.
         """
         if isinstance(ds, DataSource):
             ds = ds.get_id()
-        self._patch(models.ScreeningSessionDefinition(data_source_id=ds))
+        self._patch(models.DataPreparationSessionDefinition(data_source_id=ds))
 
     def set_query(self, query: models.DataSourceQuery):
-        """Sets the datasource query for this screening session.
+        """Sets the datasource query for this data preparation session.
 
         Args:
             query (QueryBuilder): the query as an API model.
         """
-        self._patch(models.ScreeningSessionDefinition(query=query))
+        self._patch(models.DataPreparationSessionDefinition(query=query))
 
     def load(self) -> ScreenedDataset:
         """
@@ -136,20 +138,22 @@ class ScreeningSession:
 
         This returns the result of the operation, a screened dataset.
         """
-        resp = load_screening_data.sync_detailed(self.unique_id, client=self.client)
+        resp = load_data_preparation_data.sync_detailed(
+            self.unique_id, client=self.client
+        )
         validate_response(resp)
         self.model = resp.parsed
         return ScreenedDataset(metadata=self.model.metadata, data=self.model.data)
 
     def delete(self):
-        """Deletes this screening session."""
-        resp = delete_screening_session.sync_detailed(
+        """Deletes this data preparation session."""
+        resp = delete_data_preparation_session.sync_detailed(
             self.unique_id, client=self.client
         )
         validate_response(resp)
 
     def export(self, datasource_name: str) -> DataSource:
-        """Exports the screening session to a datasource.
+        """Exports the data preparation session to a datasource.
 
         Args:
             datasource_name (str): name of the datasource.
@@ -166,7 +170,7 @@ class ScreeningSession:
     ## Handling operations on this session.
 
     def _set_operations(self, operations: models.ScreeningOperation):
-        self._patch(models.ScreeningSessionDefinition(operations=operations))
+        self._patch(models.DataPreparationSessionDefinition(operations=operations))
 
     def add_operation(self, operation: models.ScreeningOperation):
         """Adds a screening operation to this session.
@@ -203,19 +207,23 @@ class ScreeningSession:
             operations[index].enabled = False
         self._set_operations(operations)
 
-    def remove_rows(self, rows: List[int]) -> "ScreeningSession":
+    def remove_rows(self, row_indices: List[int]) -> "DataPreparationSession":
         """Adds a screening operation that removes specific rows in the data.
 
         Args:
-            rows (List[int]): the list of indices (in the original data) or rows to remove
+            row_indices (List[int]): the list of indices (in the original data) or rows to remove
 
         Returns:
             self: this object (to chain operations).
         """
-        self.add_operation(models.ScreeningOperation(rows=rows, remove=True))
+        self.add_operation(
+            models.ScreeningOperation(row_indices=row_indices, remove=True)
+        )
         return self
 
-    def edit_value(self, row: int, column: str, value: str) -> "ScreeningSession":
+    def edit_value(
+        self, row_index: int, column: str, value: str
+    ) -> "DataPreparationSession":
         """Adds a screening operation that edits a specific entry in the data.
 
         Args:
@@ -227,7 +235,9 @@ class ScreeningSession:
             self: this object (to chain operations).
         """
         self.add_operation(
-            models.ScreeningOperation(columns=[column], rows=[row], replace_with=value)
+            models.ScreeningOperation(
+                columns=[column], row_indices=[row_index], replace_with=value
+            )
         )
         return self
 
@@ -236,7 +246,7 @@ class ScreeningSession:
         columns: Union[str, List[str]],
         threshold: float,
         replace_with: Optional[str] = None,
-    ) -> "ScreeningSession":
+    ) -> "DataPreparationSession":
         """Adds a screening operation that removes outliers in selected columns.
 
         Args:
@@ -259,7 +269,7 @@ class ScreeningSession:
 
     def filter_empty(
         self, columns: Union[str, List[str]], replace_with: Optional[str] = None
-    ) -> "ScreeningSession":
+    ) -> "DataPreparationSession":
         """Adds a screeening operation that filters rows with empty values.
 
         Args:
@@ -281,7 +291,7 @@ class ScreeningSession:
 
     def filter_non_numeric(
         self, columns: Union[str, List[str]], replace_with: Optional[str] = None
-    ) -> "ScreeningSession":
+    ) -> "DataPreparationSession":
         """Adds a screening operation that filters out rows with non-numeric values.
 
         Args:
@@ -301,7 +311,9 @@ class ScreeningSession:
         )
         return self
 
-    def autocorrect_dates(self, columns: Union[str, List[str]]) -> "ScreeningSession":
+    def autocorrect_dates(
+        self, columns: Union[str, List[str]]
+    ) -> "DataPreparationSession":
         """Adds a screening operation that auto-correct poorly formatted dates.
 
         Args:
@@ -319,7 +331,7 @@ class ScreeningSession:
 
     def filter_invalid_dates(
         self, columns: Union[str, List[str]], replace_with: Optional[str] = None
-    ) -> "ScreeningSession":
+    ) -> "DataPreparationSession":
         """Adds a screening operation that filters invalid dates.
 
         Args:

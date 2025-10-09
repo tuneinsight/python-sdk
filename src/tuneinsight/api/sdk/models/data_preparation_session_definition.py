@@ -6,29 +6,38 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.data_source_query import DataSourceQuery
+    from ..models.preprocessing_chain import PreprocessingChain
     from ..models.screening_operation import ScreeningOperation
 
 
-T = TypeVar("T", bound="ScreeningSessionDefinition")
+T = TypeVar("T", bound="DataPreparationSessionDefinition")
 
 
 @attr.s(auto_attribs=True)
-class ScreeningSessionDefinition:
-    """part of the screening session defined by the user.
+class DataPreparationSessionDefinition:
+    """part of the data preparation session defined by the user.
 
     Attributes:
-        current_stage (Union[Unset, None, int]): current stage in the frontend screening session configuration steps.
+        current_stage (Union[Unset, None, int]): current stage in the frontend data preparation session configuration
+            steps.
         data_source_id (Union[Unset, None, str]): Unique identifier of a data source.
         name (Union[Unset, str]): name given to this session.
         operations (Union[Unset, List['ScreeningOperation']]): list of screening operations.
+        preprocessing (Union[Unset, PreprocessingChain]): Chain of preprocessing operations applied to the input
+            dataframe
         query (Union[Unset, DataSourceQuery]): schema used for the query
+        row_identifier (Union[Unset, None, str]): column of the screened dataset to use as a unique row identifier.
+            If empty, then the rows are identified using their index, which can lead to issues if rows are reordered in the
+            underlying data source.
     """
 
     current_stage: Union[Unset, None, int] = UNSET
     data_source_id: Union[Unset, None, str] = UNSET
     name: Union[Unset, str] = UNSET
     operations: Union[Unset, List["ScreeningOperation"]] = UNSET
+    preprocessing: Union[Unset, "PreprocessingChain"] = UNSET
     query: Union[Unset, "DataSourceQuery"] = UNSET
+    row_identifier: Union[Unset, None, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -43,9 +52,15 @@ class ScreeningSessionDefinition:
 
                 operations.append(operations_item)
 
+        preprocessing: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.preprocessing, Unset):
+            preprocessing = self.preprocessing.to_dict()
+
         query: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.query, Unset):
             query = self.query.to_dict()
+
+        row_identifier = self.row_identifier
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -58,14 +73,19 @@ class ScreeningSessionDefinition:
             field_dict["name"] = name
         if operations is not UNSET:
             field_dict["operations"] = operations
+        if preprocessing is not UNSET:
+            field_dict["preprocessing"] = preprocessing
         if query is not UNSET:
             field_dict["query"] = query
+        if row_identifier is not UNSET:
+            field_dict["rowIdentifier"] = row_identifier
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         from ..models.data_source_query import DataSourceQuery
+        from ..models.preprocessing_chain import PreprocessingChain
         from ..models.screening_operation import ScreeningOperation
 
         d = src_dict.copy()
@@ -82,6 +102,13 @@ class ScreeningSessionDefinition:
 
             operations.append(operations_item)
 
+        _preprocessing = d.pop("preprocessing", UNSET)
+        preprocessing: Union[Unset, PreprocessingChain]
+        if isinstance(_preprocessing, Unset):
+            preprocessing = UNSET
+        else:
+            preprocessing = PreprocessingChain.from_dict(_preprocessing)
+
         _query = d.pop("query", UNSET)
         query: Union[Unset, DataSourceQuery]
         if isinstance(_query, Unset):
@@ -89,16 +116,20 @@ class ScreeningSessionDefinition:
         else:
             query = DataSourceQuery.from_dict(_query)
 
-        screening_session_definition = cls(
+        row_identifier = d.pop("rowIdentifier", UNSET)
+
+        data_preparation_session_definition = cls(
             current_stage=current_stage,
             data_source_id=data_source_id,
             name=name,
             operations=operations,
+            preprocessing=preprocessing,
             query=query,
+            row_identifier=row_identifier,
         )
 
-        screening_session_definition.additional_properties = d
-        return screening_session_definition
+        data_preparation_session_definition.additional_properties = d
+        return data_preparation_session_definition
 
     @property
     def additional_keys(self) -> List[str]:
