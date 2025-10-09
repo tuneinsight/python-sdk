@@ -7,6 +7,7 @@ from ... import errors
 from ...client import Client
 from ...models.data_source import DataSource
 from ...models.error import Error
+from ...models.export_screened_data_method import ExportScreenedDataMethod
 from ...types import UNSET, Response, Unset
 
 
@@ -15,6 +16,7 @@ def _get_kwargs(
     *,
     client: Client,
     data_source_name: Union[Unset, None, str] = UNSET,
+    method: Union[Unset, None, ExportScreenedDataMethod] = ExportScreenedDataMethod.SNAPSHOT,
 ) -> Dict[str, Any]:
     url = "{}/screening-sessions/{sessionId}/export".format(client.base_url, sessionId=session_id)
 
@@ -23,6 +25,12 @@ def _get_kwargs(
 
     params: Dict[str, Any] = {}
     params["dataSourceName"] = data_source_name
+
+    json_method: Union[Unset, None, str] = UNSET
+    if not isinstance(method, Unset):
+        json_method = method.value if method else None
+
+    params["method"] = json_method
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
@@ -93,12 +101,15 @@ def sync_detailed(
     *,
     client: Client,
     data_source_name: Union[Unset, None, str] = UNSET,
+    method: Union[Unset, None, ExportScreenedDataMethod] = ExportScreenedDataMethod.SNAPSHOT,
 ) -> Response[Union[DataSource, Error]]:
     """exports the screened data from a session to a local data source
 
     Args:
         session_id (str):
         data_source_name (Union[Unset, None, str]):
+        method (Union[Unset, None, ExportScreenedDataMethod]):  Default:
+            ExportScreenedDataMethod.SNAPSHOT.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -112,6 +123,7 @@ def sync_detailed(
         session_id=session_id,
         client=client,
         data_source_name=data_source_name,
+        method=method,
     )
 
     response = httpx.request(
@@ -127,12 +139,15 @@ def sync(
     *,
     client: Client,
     data_source_name: Union[Unset, None, str] = UNSET,
+    method: Union[Unset, None, ExportScreenedDataMethod] = ExportScreenedDataMethod.SNAPSHOT,
 ) -> Optional[Union[DataSource, Error]]:
     """exports the screened data from a session to a local data source
 
     Args:
         session_id (str):
         data_source_name (Union[Unset, None, str]):
+        method (Union[Unset, None, ExportScreenedDataMethod]):  Default:
+            ExportScreenedDataMethod.SNAPSHOT.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -146,6 +161,7 @@ def sync(
         session_id=session_id,
         client=client,
         data_source_name=data_source_name,
+        method=method,
     ).parsed
 
 
@@ -154,12 +170,15 @@ async def asyncio_detailed(
     *,
     client: Client,
     data_source_name: Union[Unset, None, str] = UNSET,
+    method: Union[Unset, None, ExportScreenedDataMethod] = ExportScreenedDataMethod.SNAPSHOT,
 ) -> Response[Union[DataSource, Error]]:
     """exports the screened data from a session to a local data source
 
     Args:
         session_id (str):
         data_source_name (Union[Unset, None, str]):
+        method (Union[Unset, None, ExportScreenedDataMethod]):  Default:
+            ExportScreenedDataMethod.SNAPSHOT.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -173,6 +192,7 @@ async def asyncio_detailed(
         session_id=session_id,
         client=client,
         data_source_name=data_source_name,
+        method=method,
     )
 
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
@@ -186,12 +206,15 @@ async def asyncio(
     *,
     client: Client,
     data_source_name: Union[Unset, None, str] = UNSET,
+    method: Union[Unset, None, ExportScreenedDataMethod] = ExportScreenedDataMethod.SNAPSHOT,
 ) -> Optional[Union[DataSource, Error]]:
     """exports the screened data from a session to a local data source
 
     Args:
         session_id (str):
         data_source_name (Union[Unset, None, str]):
+        method (Union[Unset, None, ExportScreenedDataMethod]):  Default:
+            ExportScreenedDataMethod.SNAPSHOT.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -206,5 +229,6 @@ async def asyncio(
             session_id=session_id,
             client=client,
             data_source_name=data_source_name,
+            method=method,
         )
     ).parsed

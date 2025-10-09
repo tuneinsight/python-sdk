@@ -63,11 +63,18 @@ from .data_object import DataObject
 from .data_object_creation_method import DataObjectCreationMethod
 from .data_object_type import DataObjectType
 from .data_object_visibility_status import DataObjectVisibilityStatus
+from .data_preparation_column import DataPreparationColumn
+from .data_preparation_metadata import DataPreparationMetadata
+from .data_preparation_session import DataPreparationSession
+from .data_preparation_session_definition import DataPreparationSessionDefinition
+from .data_schema import DataSchema
 from .data_selection_type import DataSelectionType
 from .data_source import DataSource
 from .data_source_column import DataSourceColumn
+from .data_source_command import DataSourceCommand
 from .data_source_command_result import DataSourceCommandResult
-from .data_source_command_result_result_item import DataSourceCommandResultResultItem
+from .data_source_command_result_type import DataSourceCommandResultType
+from .data_source_command_type import DataSourceCommandType
 from .data_source_compound_query import DataSourceCompoundQuery
 from .data_source_config import DataSourceConfig
 from .data_source_consent_type import DataSourceConsentType
@@ -90,6 +97,7 @@ from .dataset_schema import DatasetSchema
 from .dataset_schema_columns import DatasetSchemaColumns
 from .dataset_statistics import DatasetStatistics
 from .dataset_validation import DatasetValidation
+from .datasource_dev_options import DatasourceDevOptions
 from .datasource_policy import DatasourcePolicy
 from .date_format import DateFormat
 from .deviation_squares import DeviationSquares
@@ -118,6 +126,7 @@ from .error import Error
 from .execution_quota import ExecutionQuota
 from .execution_quota_parameters import ExecutionQuotaParameters
 from .execution_quota_parameters_scope import ExecutionQuotaParametersScope
+from .export_screened_data_method import ExportScreenedDataMethod
 from .external_ml_history import ExternalMlHistory
 from .external_ml_result import ExternalMlResult
 from .extract_dict_field import ExtractDictField
@@ -126,6 +135,10 @@ from .filter_ import Filter
 from .filtered_aggregation import FilteredAggregation
 from .float_matrix import FloatMatrix
 from .fuzzy_matching_parameters import FuzzyMatchingParameters
+from .generic_command import GenericCommand
+from .generic_command_parameters import GenericCommandParameters
+from .generic_command_result import GenericCommandResult
+from .generic_command_result_result_item import GenericCommandResultResultItem
 from .get_ai_builder_prompts_data_source_type import GetAIBuilderPromptsDataSourceType
 from .get_ai_builder_prompts_order import GetAIBuilderPromptsOrder
 from .get_ai_builder_prompts_sort_by import GetAIBuilderPromptsSortBy
@@ -135,12 +148,20 @@ from .get_comp_bookmark_list_order import GetCompBookmarkListOrder
 from .get_comp_bookmark_list_sort_by import GetCompBookmarkListSortBy
 from .get_computation_list_order import GetComputationListOrder
 from .get_computation_list_sort_by import GetComputationListSortBy
+from .get_concept_field_values_command import GetConceptFieldValuesCommand
+from .get_concept_field_values_command_result import GetConceptFieldValuesCommandResult
+from .get_concept_metadata_command import GetConceptMetadataCommand
+from .get_concept_metadata_command_result import GetConceptMetadataCommandResult
+from .get_data_preparation_sessions_order import GetDataPreparationSessionsOrder
+from .get_data_preparation_sessions_sort_by import GetDataPreparationSessionsSortBy
 from .get_infos_response_200 import GetInfosResponse200
+from .get_infos_response_200_catalog_status import GetInfosResponse200CatalogStatus
 from .get_jobs_order import GetJobsOrder
 from .get_jobs_response_200 import GetJobsResponse200
 from .get_log_list_order import GetLogListOrder
 from .get_log_list_response_200 import GetLogListResponse200
 from .get_log_list_sort_by import GetLogListSortBy
+from .get_metadata_command_result import GetMetadataCommandResult
 from .get_model_list_order import GetModelListOrder
 from .get_model_list_sort_by import GetModelListSortBy
 from .get_network_metadata_response_200 import GetNetworkMetadataResponse200
@@ -165,8 +186,6 @@ from .get_query_list_order import GetQueryListOrder
 from .get_query_list_sort_by import GetQueryListSortBy
 from .get_result_list_order import GetResultListOrder
 from .get_result_list_sort_by import GetResultListSortBy
-from .get_screening_sessions_order import GetScreeningSessionsOrder
-from .get_screening_sessions_sort_by import GetScreeningSessionsSortBy
 from .get_user_preference_key import GetUserPreferenceKey
 from .group_by_type import GroupByType
 from .group_info import GroupInfo
@@ -187,6 +206,7 @@ from .job_error import JobError
 from .job_log import JobLog
 from .job_params import JobParams
 from .job_state import JobState
+from .jupyter_notebook import JupyterNotebook
 from .key_info import KeyInfo
 from .labelled_value import LabelledValue
 from .local_data_selection import LocalDataSelection
@@ -215,6 +235,7 @@ from .new_column import NewColumn
 from .new_column_random import NewColumnRandom
 from .node import Node
 from .node_status import NodeStatus
+from .node_status_catalog_status import NodeStatusCatalogStatus
 from .noise_distributions import NoiseDistributions
 from .notification import Notification
 from .notification_type import NotificationType
@@ -232,8 +253,6 @@ from .post_ai_query_builder_json_body import PostAIQueryBuilderJsonBody
 from .post_ai_query_builder_json_body_data_model_template import PostAIQueryBuilderJsonBodyDataModelTemplate
 from .post_ai_query_builder_response_200 import PostAIQueryBuilderResponse200
 from .post_data_object_json_body import PostDataObjectJsonBody
-from .post_data_source_command_json_body import PostDataSourceCommandJsonBody
-from .post_data_source_command_json_body_parameters import PostDataSourceCommandJsonBodyParameters
 from .post_data_source_data_multipart_data import PostDataSourceDataMultipartData
 from .post_llm_request_json_body import PostLlmRequestJsonBody
 from .post_llm_request_json_body_prompt_args import PostLlmRequestJsonBodyPromptArgs
@@ -241,8 +260,6 @@ from .post_mock_dataset_access_scope import PostMockDatasetAccessScope
 from .post_mock_dataset_method import PostMockDatasetMethod
 from .post_notify_network_json_body import PostNotifyNetworkJsonBody
 from .post_project_data_json_body import PostProjectDataJsonBody
-from .post_project_data_source_command_json_body import PostProjectDataSourceCommandJsonBody
-from .post_project_data_source_command_json_body_parameters import PostProjectDataSourceCommandJsonBodyParameters
 from .post_protocol_message_multipart_data import PostProtocolMessageMultipartData
 from .post_summarize_query_json_body import PostSummarizeQueryJsonBody
 from .post_summarize_query_json_body_payload import PostSummarizeQueryJsonBodyPayload
@@ -284,6 +301,7 @@ from .query_bookmark_definition import QueryBookmarkDefinition
 from .query_status import QueryStatus
 from .realm_role import RealmRole
 from .regression_type import RegressionType
+from .relation import Relation
 from .remote_info import RemoteInfo
 from .rename import Rename
 from .rename_axis import RenameAxis
@@ -299,12 +317,10 @@ from .result_release import ResultRelease
 from .run_mode import RunMode
 from .run_project_parameters import RunProjectParameters
 from .scale import Scale
+from .schema_field import SchemaField
+from .schema_table import SchemaTable
 from .screened_row import ScreenedRow
-from .screening_column import ScreeningColumn
-from .screening_metadata import ScreeningMetadata
 from .screening_operation import ScreeningOperation
-from .screening_session import ScreeningSession
-from .screening_session_definition import ScreeningSessionDefinition
 from .select import Select
 from .series_filter import SeriesFilter
 from .series_filter_output_variables_item import SeriesFilterOutputVariablesItem
@@ -337,6 +353,9 @@ from .threshold import Threshold
 from .threshold_type import ThresholdType
 from .time_diff import TimeDiff
 from .time_unit import TimeUnit
+from .tiql_concept import TiqlConcept
+from .tiql_field import TiqlField
+from .tiql_value import TiqlValue
 from .topology import Topology
 from .training_algorithm import TrainingAlgorithm
 from .transpose import Transpose
@@ -356,6 +375,7 @@ from .user_list_query import UserListQuery
 from .user_preference_key import UserPreferenceKey
 from .v_binned_aggregation import VBinnedAggregation
 from .value_distribution import ValueDistribution
+from .view_config import ViewConfig
 from .visualization_type import VisualizationType
 from .whitelisted_query import WhitelistedQuery
 from .workflow_item import WorkflowItem
@@ -426,6 +446,11 @@ __all__ = (
     "DataObjectCreationMethod",
     "DataObjectType",
     "DataObjectVisibilityStatus",
+    "DataPreparationColumn",
+    "DataPreparationMetadata",
+    "DataPreparationSession",
+    "DataPreparationSessionDefinition",
+    "DataSchema",
     "DataSelectionType",
     "DatasetSchema",
     "DatasetSchemaColumns",
@@ -433,13 +458,16 @@ __all__ = (
     "DatasetValidation",
     "DataSource",
     "DataSourceColumn",
+    "DataSourceCommand",
     "DataSourceCommandResult",
-    "DataSourceCommandResultResultItem",
+    "DataSourceCommandResultType",
+    "DataSourceCommandType",
     "DataSourceCompoundQuery",
     "DataSourceConfig",
     "DataSourceConsentType",
     "DataSourceDefinition",
     "DataSourceDefinitionStructureTemplateJSON",
+    "DatasourceDevOptions",
     "DataSourceMetadata",
     "DatasourcePolicy",
     "DataSourceQuery",
@@ -480,6 +508,7 @@ __all__ = (
     "ExecutionQuota",
     "ExecutionQuotaParameters",
     "ExecutionQuotaParametersScope",
+    "ExportScreenedDataMethod",
     "ExternalMlHistory",
     "ExternalMlResult",
     "ExtractDictField",
@@ -488,6 +517,10 @@ __all__ = (
     "FilteredAggregation",
     "FloatMatrix",
     "FuzzyMatchingParameters",
+    "GenericCommand",
+    "GenericCommandParameters",
+    "GenericCommandResult",
+    "GenericCommandResultResultItem",
     "GetAIBuilderPromptsDataSourceType",
     "GetAIBuilderPromptsOrder",
     "GetAIBuilderPromptsSortBy",
@@ -497,12 +530,20 @@ __all__ = (
     "GetCompBookmarkListSortBy",
     "GetComputationListOrder",
     "GetComputationListSortBy",
+    "GetConceptFieldValuesCommand",
+    "GetConceptFieldValuesCommandResult",
+    "GetConceptMetadataCommand",
+    "GetConceptMetadataCommandResult",
+    "GetDataPreparationSessionsOrder",
+    "GetDataPreparationSessionsSortBy",
     "GetInfosResponse200",
+    "GetInfosResponse200CatalogStatus",
     "GetJobsOrder",
     "GetJobsResponse200",
     "GetLogListOrder",
     "GetLogListResponse200",
     "GetLogListSortBy",
+    "GetMetadataCommandResult",
     "GetModelListOrder",
     "GetModelListSortBy",
     "GetNetworkMetadataResponse200",
@@ -527,8 +568,6 @@ __all__ = (
     "GetQueryListSortBy",
     "GetResultListOrder",
     "GetResultListSortBy",
-    "GetScreeningSessionsOrder",
-    "GetScreeningSessionsSortBy",
     "GetUserPreferenceKey",
     "GroupByType",
     "GroupInfo",
@@ -549,6 +588,7 @@ __all__ = (
     "JobLog",
     "JobParams",
     "JobState",
+    "JupyterNotebook",
     "KeyInfo",
     "LabelledValue",
     "LocalDataSelection",
@@ -577,6 +617,7 @@ __all__ = (
     "NewColumnRandom",
     "Node",
     "NodeStatus",
+    "NodeStatusCatalogStatus",
     "NoiseDistributions",
     "Notification",
     "NotificationType",
@@ -594,8 +635,6 @@ __all__ = (
     "PostAIQueryBuilderJsonBodyDataModelTemplate",
     "PostAIQueryBuilderResponse200",
     "PostDataObjectJsonBody",
-    "PostDataSourceCommandJsonBody",
-    "PostDataSourceCommandJsonBodyParameters",
     "PostDataSourceDataMultipartData",
     "PostLlmRequestJsonBody",
     "PostLlmRequestJsonBodyPromptArgs",
@@ -603,8 +642,6 @@ __all__ = (
     "PostMockDatasetMethod",
     "PostNotifyNetworkJsonBody",
     "PostProjectDataJsonBody",
-    "PostProjectDataSourceCommandJsonBody",
-    "PostProjectDataSourceCommandJsonBodyParameters",
     "PostProtocolMessageMultipartData",
     "PostSummarizeQueryJsonBody",
     "PostSummarizeQueryJsonBodyPayload",
@@ -646,6 +683,7 @@ __all__ = (
     "QueryStatus",
     "RealmRole",
     "RegressionType",
+    "Relation",
     "RemoteInfo",
     "Rename",
     "RenameAxis",
@@ -661,12 +699,10 @@ __all__ = (
     "RunMode",
     "RunProjectParameters",
     "Scale",
+    "SchemaField",
+    "SchemaTable",
     "ScreenedRow",
-    "ScreeningColumn",
-    "ScreeningMetadata",
     "ScreeningOperation",
-    "ScreeningSession",
-    "ScreeningSessionDefinition",
     "Select",
     "SeriesFilter",
     "SeriesFilterOutputVariablesItem",
@@ -697,6 +733,9 @@ __all__ = (
     "ThresholdType",
     "TimeDiff",
     "TimeUnit",
+    "TiqlConcept",
+    "TiqlField",
+    "TiqlValue",
     "Topology",
     "TrainingAlgorithm",
     "Transpose",
@@ -716,6 +755,7 @@ __all__ = (
     "UserPreferenceKey",
     "ValueDistribution",
     "VBinnedAggregation",
+    "ViewConfig",
     "VisualizationType",
     "WhitelistedQuery",
     "WorkflowItem",

@@ -9,11 +9,11 @@ if TYPE_CHECKING:
     from ..models.date_format import DateFormat
 
 
-T = TypeVar("T", bound="ScreeningColumn")
+T = TypeVar("T", bound="DataPreparationColumn")
 
 
 @attr.s(auto_attribs=True)
-class ScreeningColumn:
+class DataPreparationColumn:
     """
     Attributes:
         name (Union[Unset, str]):
@@ -104,7 +104,7 @@ class ScreeningColumn:
 
         std = d.pop("std", UNSET)
 
-        screening_column = cls(
+        data_preparation_column = cls(
             name=name,
             type=type,
             type_group=type_group,
@@ -114,8 +114,8 @@ class ScreeningColumn:
             std=std,
         )
 
-        screening_column.additional_properties = d
-        return screening_column
+        data_preparation_column.additional_properties = d
+        return data_preparation_column
 
     @property
     def additional_keys(self) -> List[str]:

@@ -30,6 +30,8 @@ class Participant:
         contribution_error (Union[Unset, ContributionError]): represents a non-fatal error that is flagged whenever a
             participant fails to contribute data to a computation.
         data_sources (Union[Unset, List['DataSource']]): list of data sources exposed by this node
+        excluded_from_computation (Union[Unset, bool]): when describing the participant in a computation, this field
+            indicates if the participant was excluded from the computation.
         input_metadata (Union[Unset, DataSourceMetadata]): metadata about a datasource
         is_contributor (Union[Unset, None, bool]):
         matches_auto_approve_specifications (Union[Unset, List['AvailabilityStatus']]): whether this project can be
@@ -51,6 +53,7 @@ class Participant:
     connected_data_source: Union[Unset, "DataSource"] = UNSET
     contribution_error: Union[Unset, "ContributionError"] = UNSET
     data_sources: Union[Unset, List["DataSource"]] = UNSET
+    excluded_from_computation: Union[Unset, bool] = UNSET
     input_metadata: Union[Unset, "DataSourceMetadata"] = UNSET
     is_contributor: Union[Unset, None, bool] = UNSET
     matches_auto_approve_specifications: Union[Unset, List["AvailabilityStatus"]] = UNSET
@@ -88,6 +91,7 @@ class Participant:
 
                 data_sources.append(data_sources_item)
 
+        excluded_from_computation = self.excluded_from_computation
         input_metadata: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.input_metadata, Unset):
             input_metadata = self.input_metadata.to_dict()
@@ -137,6 +141,8 @@ class Participant:
             field_dict["contributionError"] = contribution_error
         if data_sources is not UNSET:
             field_dict["dataSources"] = data_sources
+        if excluded_from_computation is not UNSET:
+            field_dict["excludedFromComputation"] = excluded_from_computation
         if input_metadata is not UNSET:
             field_dict["inputMetadata"] = input_metadata
         if is_contributor is not UNSET:
@@ -204,6 +210,8 @@ class Participant:
 
             data_sources.append(data_sources_item)
 
+        excluded_from_computation = d.pop("excludedFromComputation", UNSET)
+
         _input_metadata = d.pop("inputMetadata", UNSET)
         input_metadata: Union[Unset, DataSourceMetadata]
         if isinstance(_input_metadata, Unset):
@@ -264,6 +272,7 @@ class Participant:
             connected_data_source=connected_data_source,
             contribution_error=contribution_error,
             data_sources=data_sources,
+            excluded_from_computation=excluded_from_computation,
             input_metadata=input_metadata,
             is_contributor=is_contributor,
             matches_auto_approve_specifications=matches_auto_approve_specifications,

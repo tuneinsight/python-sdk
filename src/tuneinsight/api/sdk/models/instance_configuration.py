@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Type, TypeVar, Union
+from typing import Any, Dict, List, Type, TypeVar, Union, cast
 
 import attr
 
@@ -14,15 +14,20 @@ class InstanceConfiguration:
     Attributes:
         config_yaml (Union[Unset, str]): YAML-serialized configuration string.
         instance_name (Union[Unset, str]): name or alias of the instance
+        warnings (Union[Unset, List[str]]): list of warnings related to misconfigurations.
     """
 
     config_yaml: Union[Unset, str] = UNSET
     instance_name: Union[Unset, str] = UNSET
+    warnings: Union[Unset, List[str]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         config_yaml = self.config_yaml
         instance_name = self.instance_name
+        warnings: Union[Unset, List[str]] = UNSET
+        if not isinstance(self.warnings, Unset):
+            warnings = self.warnings
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -31,6 +36,8 @@ class InstanceConfiguration:
             field_dict["configYAML"] = config_yaml
         if instance_name is not UNSET:
             field_dict["instanceName"] = instance_name
+        if warnings is not UNSET:
+            field_dict["warnings"] = warnings
 
         return field_dict
 
@@ -41,9 +48,12 @@ class InstanceConfiguration:
 
         instance_name = d.pop("instanceName", UNSET)
 
+        warnings = cast(List[str], d.pop("warnings", UNSET))
+
         instance_configuration = cls(
             config_yaml=config_yaml,
             instance_name=instance_name,
+            warnings=warnings,
         )
 
         instance_configuration.additional_properties = d

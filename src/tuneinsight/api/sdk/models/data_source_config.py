@@ -10,6 +10,7 @@ from ..models.mock_method import MockMethod
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.datasource_dev_options import DatasourceDevOptions
     from ..models.sql_metadata import SQLMetadata
 
 
@@ -25,12 +26,15 @@ class DataSourceConfig:
         csv_path (Union[Unset, str]): the path to the CSV file.
         sql_metadata (Union[Unset, SQLMetadata]): The metadata required to translate cross-standard queries to SQL for a
             datasource.
+        ssl_mode (Union[Unset, bool]): This flag enables SSL Mode by requiring SSL connections to the database.
         api_url (Union[Unset, str]): URL of the API
         cert (Union[Unset, str]): If applicable, name of the certificate to access the datasource. Certificate should be
             in '/usr/local/share/datasource-certificates/<cert>.{crt/key}'
         data_standard (Union[Unset, DataStandard]):
         database (Union[Unset, str]): Name of the database
         database_type (Union[Unset, DatabaseType]): Type of the database
+        datasource_dev_options (Union[Unset, DatasourceDevOptions]): Intended for development only, tools that can be
+            used to modify a datasource's behavior to emulate real-world problems.
         generator_config (Union[Unset, str]): The configuration of the generator, encoded as a JSON string.
         generator_type (Union[Unset, MockMethod]): Method used to generate the mock data.
         host (Union[Unset, str]): Hostname of the database
@@ -49,11 +53,13 @@ class DataSourceConfig:
     api_type: Union[Unset, APIType] = UNSET
     csv_path: Union[Unset, str] = UNSET
     sql_metadata: Union[Unset, "SQLMetadata"] = UNSET
+    ssl_mode: Union[Unset, bool] = UNSET
     api_url: Union[Unset, str] = UNSET
     cert: Union[Unset, str] = UNSET
     data_standard: Union[Unset, DataStandard] = UNSET
     database: Union[Unset, str] = UNSET
     database_type: Union[Unset, DatabaseType] = UNSET
+    datasource_dev_options: Union[Unset, "DatasourceDevOptions"] = UNSET
     generator_config: Union[Unset, str] = UNSET
     generator_type: Union[Unset, MockMethod] = UNSET
     host: Union[Unset, str] = UNSET
@@ -78,6 +84,7 @@ class DataSourceConfig:
         if not isinstance(self.sql_metadata, Unset):
             sql_metadata = self.sql_metadata.to_dict()
 
+        ssl_mode = self.ssl_mode
         api_url = self.api_url
         cert = self.cert
         data_standard: Union[Unset, str] = UNSET
@@ -88,6 +95,10 @@ class DataSourceConfig:
         database_type: Union[Unset, str] = UNSET
         if not isinstance(self.database_type, Unset):
             database_type = self.database_type.value
+
+        datasource_dev_options: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.datasource_dev_options, Unset):
+            datasource_dev_options = self.datasource_dev_options.to_dict()
 
         generator_config = self.generator_config
         generator_type: Union[Unset, str] = UNSET
@@ -117,6 +128,8 @@ class DataSourceConfig:
             field_dict["CSVPath"] = csv_path
         if sql_metadata is not UNSET:
             field_dict["SQLMetadata"] = sql_metadata
+        if ssl_mode is not UNSET:
+            field_dict["SSLMode"] = ssl_mode
         if api_url is not UNSET:
             field_dict["api-url"] = api_url
         if cert is not UNSET:
@@ -127,6 +140,8 @@ class DataSourceConfig:
             field_dict["database"] = database
         if database_type is not UNSET:
             field_dict["databaseType"] = database_type
+        if datasource_dev_options is not UNSET:
+            field_dict["datasourceDevOptions"] = datasource_dev_options
         if generator_config is not UNSET:
             field_dict["generatorConfig"] = generator_config
         if generator_type is not UNSET:
@@ -156,6 +171,7 @@ class DataSourceConfig:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.datasource_dev_options import DatasourceDevOptions
         from ..models.sql_metadata import SQLMetadata
 
         d = src_dict.copy()
@@ -174,6 +190,8 @@ class DataSourceConfig:
             sql_metadata = UNSET
         else:
             sql_metadata = SQLMetadata.from_dict(_sql_metadata)
+
+        ssl_mode = d.pop("SSLMode", UNSET)
 
         api_url = d.pop("api-url", UNSET)
 
@@ -194,6 +212,13 @@ class DataSourceConfig:
             database_type = UNSET
         else:
             database_type = DatabaseType(_database_type)
+
+        _datasource_dev_options = d.pop("datasourceDevOptions", UNSET)
+        datasource_dev_options: Union[Unset, DatasourceDevOptions]
+        if isinstance(_datasource_dev_options, Unset):
+            datasource_dev_options = UNSET
+        else:
+            datasource_dev_options = DatasourceDevOptions.from_dict(_datasource_dev_options)
 
         generator_config = d.pop("generatorConfig", UNSET)
 
@@ -233,11 +258,13 @@ class DataSourceConfig:
             api_type=api_type,
             csv_path=csv_path,
             sql_metadata=sql_metadata,
+            ssl_mode=ssl_mode,
             api_url=api_url,
             cert=cert,
             data_standard=data_standard,
             database=database,
             database_type=database_type,
+            datasource_dev_options=datasource_dev_options,
             generator_config=generator_config,
             generator_type=generator_type,
             host=host,

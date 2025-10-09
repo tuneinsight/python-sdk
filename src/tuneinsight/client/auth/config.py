@@ -127,6 +127,7 @@ class ClientConfiguration:
         if (
             not strict
             and not url.startswith("http://localhost")
+            and not url.startswith("http://nginx")
             and not url.endswith("/api")
         ):
             if not url.endswith("/"):

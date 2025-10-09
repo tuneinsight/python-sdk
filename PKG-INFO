@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: tuneinsight
-Version: 1.2.0
+Version: 1.2.3
 Summary: Official Python SDK for the Tune Insight API. The current version is compatible with the same version of the API.
 License: Apache-2.0
 Author: Tune Insight SA

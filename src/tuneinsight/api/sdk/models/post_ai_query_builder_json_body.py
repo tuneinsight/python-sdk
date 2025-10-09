@@ -19,6 +19,8 @@ class PostAIQueryBuilderJsonBody:
         data_model (str):
         data_model_template (PostAIQueryBuilderJsonBodyDataModelTemplate):
         prompt (AIBuilderPromptDefinition): definition of a prompt for the AI query builder
+        api_url (Union[Unset, str]): URL of the LLM API to use for the query builder
+        auth_token (Union[Unset, str]): Authentication token for the LLM API
         model_name (Union[Unset, str]):
         prompt_id (Union[Unset, str]):
     """
@@ -26,6 +28,8 @@ class PostAIQueryBuilderJsonBody:
     data_model: str
     data_model_template: "PostAIQueryBuilderJsonBodyDataModelTemplate"
     prompt: "AIBuilderPromptDefinition"
+    api_url: Union[Unset, str] = UNSET
+    auth_token: Union[Unset, str] = UNSET
     model_name: Union[Unset, str] = UNSET
     prompt_id: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
@@ -36,6 +40,8 @@ class PostAIQueryBuilderJsonBody:
 
         prompt = self.prompt.to_dict()
 
+        api_url = self.api_url
+        auth_token = self.auth_token
         model_name = self.model_name
         prompt_id = self.prompt_id
 
@@ -48,6 +54,10 @@ class PostAIQueryBuilderJsonBody:
                 "prompt": prompt,
             }
         )
+        if api_url is not UNSET:
+            field_dict["api_url"] = api_url
+        if auth_token is not UNSET:
+            field_dict["auth_token"] = auth_token
         if model_name is not UNSET:
             field_dict["model_name"] = model_name
         if prompt_id is not UNSET:
@@ -69,6 +79,10 @@ class PostAIQueryBuilderJsonBody:
 
         prompt = AIBuilderPromptDefinition.from_dict(d.pop("prompt"))
 
+        api_url = d.pop("api_url", UNSET)
+
+        auth_token = d.pop("auth_token", UNSET)
+
         model_name = d.pop("model_name", UNSET)
 
         prompt_id = d.pop("promptId", UNSET)
@@ -77,6 +91,8 @@ class PostAIQueryBuilderJsonBody:
             data_model=data_model,
             data_model_template=data_model_template,
             prompt=prompt,
+            api_url=api_url,
+            auth_token=auth_token,
             model_name=model_name,
             prompt_id=prompt_id,
         )

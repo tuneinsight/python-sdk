@@ -31,6 +31,9 @@ class Custom:
             when
             not using DP, as it enables column selections in the frontend (from dry-runs). If the custom operation modifies
             other columns in the datasets, it is recommended to follow this operation with a select.
+        requires_full_table (Union[Unset, bool]): whether the function must be applied to all table rows at the same
+            time for this custom operation to work correctly.
+            When enabled, the preprocessing operations are applied on the full table instead of being applied in batches.
     """
 
     type: PreprocessingOperationType
@@ -39,6 +42,7 @@ class Custom:
     function: Union[Unset, str] = UNSET
     name: Union[Unset, str] = UNSET
     output_columns: Union[Unset, List[str]] = UNSET
+    requires_full_table: Union[Unset, bool] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -51,6 +55,8 @@ class Custom:
         output_columns: Union[Unset, List[str]] = UNSET
         if not isinstance(self.output_columns, Unset):
             output_columns = self.output_columns
+
+        requires_full_table = self.requires_full_table
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -69,6 +75,8 @@ class Custom:
             field_dict["name"] = name
         if output_columns is not UNSET:
             field_dict["outputColumns"] = output_columns
+        if requires_full_table is not UNSET:
+            field_dict["requiresFullTable"] = requires_full_table
 
         return field_dict
 
@@ -87,6 +95,8 @@ class Custom:
 
         output_columns = cast(List[str], d.pop("outputColumns", UNSET))
 
+        requires_full_table = d.pop("requiresFullTable", UNSET)
+
         custom = cls(
             type=type,
             compatible_with_differential_privacy=compatible_with_differential_privacy,
@@ -94,6 +104,7 @@ class Custom:
             function=function,
             name=name,
             output_columns=output_columns,
+            requires_full_table=requires_full_table,
         )
 
         custom.additional_properties = d

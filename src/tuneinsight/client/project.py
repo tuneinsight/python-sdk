@@ -1063,6 +1063,7 @@ class Project:
         r.h2("Managing a project")
         _render_action(r, "Request Authorization", actions.request_auth)
         _render_action(r, "Revoke Authorization Request", actions.revoke_auth_request)
+        _render_action(r, "(un)archive Project", actions.archive)
         _render_action(r, "Share Project", actions.share)
         _render_action(r, "Run Locally", actions.run_local)
         _render_action(r, "Run Collectively", actions.run_collective)

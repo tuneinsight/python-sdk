@@ -5,34 +5,42 @@ import attr
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.data_preparation_metadata import DataPreparationMetadata
     from ..models.data_source_query import DataSourceQuery
+    from ..models.preprocessing_chain import PreprocessingChain
     from ..models.screened_row import ScreenedRow
-    from ..models.screening_metadata import ScreeningMetadata
     from ..models.screening_operation import ScreeningOperation
 
 
-T = TypeVar("T", bound="ScreeningSession")
+T = TypeVar("T", bound="DataPreparationSession")
 
 
 @attr.s(auto_attribs=True)
-class ScreeningSession:
-    """A screening session is used by users to retrieve, preprocess and validate data from a data source.
+class DataPreparationSession:
+    """A data preparation session is used by users to retrieve, preprocess and validate data from a data source.
     This model contains information about the state of the session, including the data that was retrieved and
     the screening operations that were applied.
 
         Attributes:
-            current_stage (Union[Unset, None, int]): current stage in the frontend screening session configuration steps.
+            current_stage (Union[Unset, None, int]): current stage in the frontend data preparation session configuration
+                steps.
             data_source_id (Union[Unset, None, str]): Unique identifier of a data source.
             name (Union[Unset, str]): name given to this session.
             operations (Union[Unset, List['ScreeningOperation']]): list of screening operations.
+            preprocessing (Union[Unset, PreprocessingChain]): Chain of preprocessing operations applied to the input
+                dataframe
             query (Union[Unset, DataSourceQuery]): schema used for the query
+            row_identifier (Union[Unset, None, str]): column of the screened dataset to use as a unique row identifier.
+                If empty, then the rows are identified using their index, which can lead to issues if rows are reordered in the
+                underlying data source.
             created_at (Union[Unset, str]): time at which the session was created (RFC 3339 format).
             created_by_user (Union[Unset, str]): name of the user that created this session.
-            data (Union[Unset, List['ScreenedRow']]): the rows of the table that is being screened.
+            data (Union[Unset, List['ScreenedRow']]): the current state of the table rows after applying the preprocessing
+                and screening operations.
             data_object_id (Union[Unset, str]): Unique identifier of a data object.
             highest_stage (Union[Unset, int]): the most advanced stage the user has visited in the frontend.
-            id (Union[Unset, str]): id of the screening session
-            metadata (Union[Unset, ScreeningMetadata]): metadata of the dataset used in the screening process.
+            id (Union[Unset, str]): id of the data preparation session
+            metadata (Union[Unset, DataPreparationMetadata]): metadata of the dataset used in the data preparation process.
             updated_at (Union[Unset, str]): time at which the session was last updated (RFC 3339 format).
     """
 
@@ -40,14 +48,16 @@ class ScreeningSession:
     data_source_id: Union[Unset, None, str] = UNSET
     name: Union[Unset, str] = UNSET
     operations: Union[Unset, List["ScreeningOperation"]] = UNSET
+    preprocessing: Union[Unset, "PreprocessingChain"] = UNSET
     query: Union[Unset, "DataSourceQuery"] = UNSET
+    row_identifier: Union[Unset, None, str] = UNSET
     created_at: Union[Unset, str] = UNSET
     created_by_user: Union[Unset, str] = UNSET
     data: Union[Unset, List["ScreenedRow"]] = UNSET
     data_object_id: Union[Unset, str] = UNSET
     highest_stage: Union[Unset, int] = UNSET
     id: Union[Unset, str] = UNSET
-    metadata: Union[Unset, "ScreeningMetadata"] = UNSET
+    metadata: Union[Unset, "DataPreparationMetadata"] = UNSET
     updated_at: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -63,10 +73,15 @@ class ScreeningSession:
 
                 operations.append(operations_item)
 
+        preprocessing: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.preprocessing, Unset):
+            preprocessing = self.preprocessing.to_dict()
+
         query: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.query, Unset):
             query = self.query.to_dict()
 
+        row_identifier = self.row_identifier
         created_at = self.created_at
         created_by_user = self.created_by_user
         data: Union[Unset, List[Dict[str, Any]]] = UNSET
@@ -97,8 +112,12 @@ class ScreeningSession:
             field_dict["name"] = name
         if operations is not UNSET:
             field_dict["operations"] = operations
+        if preprocessing is not UNSET:
+            field_dict["preprocessing"] = preprocessing
         if query is not UNSET:
             field_dict["query"] = query
+        if row_identifier is not UNSET:
+            field_dict["rowIdentifier"] = row_identifier
         if created_at is not UNSET:
             field_dict["createdAt"] = created_at
         if created_by_user is not UNSET:
@@ -120,9 +139,10 @@ class ScreeningSession:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.data_preparation_metadata import DataPreparationMetadata
         from ..models.data_source_query import DataSourceQuery
+        from ..models.preprocessing_chain import PreprocessingChain
         from ..models.screened_row import ScreenedRow
-        from ..models.screening_metadata import ScreeningMetadata
         from ..models.screening_operation import ScreeningOperation
 
         d = src_dict.copy()
@@ -139,12 +159,21 @@ class ScreeningSession:
 
             operations.append(operations_item)
 
+        _preprocessing = d.pop("preprocessing", UNSET)
+        preprocessing: Union[Unset, PreprocessingChain]
+        if isinstance(_preprocessing, Unset):
+            preprocessing = UNSET
+        else:
+            preprocessing = PreprocessingChain.from_dict(_preprocessing)
+
         _query = d.pop("query", UNSET)
         query: Union[Unset, DataSourceQuery]
         if isinstance(_query, Unset):
             query = UNSET
         else:
             query = DataSourceQuery.from_dict(_query)
+
+        row_identifier = d.pop("rowIdentifier", UNSET)
 
         created_at = d.pop("createdAt", UNSET)
 
@@ -164,20 +193,22 @@ class ScreeningSession:
         id = d.pop("id", UNSET)
 
         _metadata = d.pop("metadata", UNSET)
-        metadata: Union[Unset, ScreeningMetadata]
+        metadata: Union[Unset, DataPreparationMetadata]
         if isinstance(_metadata, Unset):
             metadata = UNSET
         else:
-            metadata = ScreeningMetadata.from_dict(_metadata)
+            metadata = DataPreparationMetadata.from_dict(_metadata)
 
         updated_at = d.pop("updatedAt", UNSET)
 
-        screening_session = cls(
+        data_preparation_session = cls(
             current_stage=current_stage,
             data_source_id=data_source_id,
             name=name,
             operations=operations,
+            preprocessing=preprocessing,
             query=query,
+            row_identifier=row_identifier,
             created_at=created_at,
             created_by_user=created_by_user,
             data=data,
@@ -188,8 +219,8 @@ class ScreeningSession:
             updated_at=updated_at,
         )
 
-        screening_session.additional_properties = d
-        return screening_session
+        data_preparation_session.additional_properties = d
+        return data_preparation_session
 
     @property
     def additional_keys(self) -> List[str]:

@@ -2,14 +2,14 @@ from typing import Any, Dict, List, Type, TypeVar
 
 import attr
 
-T = TypeVar("T", bound="DataSourceCommandResultResultItem")
+T = TypeVar("T", bound="GenericCommandParameters")
 
 
 @attr.s(auto_attribs=True)
-class DataSourceCommandResultResultItem:
-    """ """
+class GenericCommandParameters:
+    """Command's parameters."""
 
-    additional_properties: Dict[str, str] = attr.ib(init=False, factory=dict)
+    additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
 
@@ -22,19 +22,19 @@ class DataSourceCommandResultResultItem:
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        data_source_command_result_result_item = cls()
+        generic_command_parameters = cls()
 
-        data_source_command_result_result_item.additional_properties = d
-        return data_source_command_result_result_item
+        generic_command_parameters.additional_properties = d
+        return generic_command_parameters
 
     @property
     def additional_keys(self) -> List[str]:
         return list(self.additional_properties.keys())
 
-    def __getitem__(self, key: str) -> str:
+    def __getitem__(self, key: str) -> Any:
         return self.additional_properties[key]
 
-    def __setitem__(self, key: str, value: str) -> None:
+    def __setitem__(self, key: str, value: Any) -> None:
         self.additional_properties[key] = value
 
     def __delitem__(self, key: str) -> None:

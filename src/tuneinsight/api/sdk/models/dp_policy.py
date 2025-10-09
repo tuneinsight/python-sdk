@@ -40,10 +40,10 @@ class DPPolicy:
                 (must be specified when align tables is set to true).
             max_column_count (Union[Unset, Threshold]): represents a threshold, which can be made relative of the dataset
                 size
-            min_dataset_size (Union[Unset, int]): minimum size of the dataset used as local input (checked both before and
-                after the preprocessing operations are run)
-            min_global_dataset_size (Union[Unset, int]): minimum size of the global / collective dataset. It is collectively
-                computed using the encrypted aggregation
+            min_dataset_size (Union[Unset, None, int]): minimum size of the dataset used as local input (checked both before
+                and after the preprocessing operations are run)
+            min_global_dataset_size (Union[Unset, None, int]): minimum size of the global / collective dataset. It is
+                collectively computed using the encrypted aggregation
             noisy_global_size (Union[Unset, bool]): when computing the global size, whether noise is used or not. If so,
                 each node adds discrete noise to its input to the encrypted aggregation
             restrict_columns (Union[Unset, None, bool]): this flag controls whether columns restrictions is in place or not.
@@ -57,8 +57,8 @@ class DPPolicy:
     link_records: Union[Unset, bool] = UNSET
     linkage_identifier: Union[Unset, str] = UNSET
     max_column_count: Union[Unset, "Threshold"] = UNSET
-    min_dataset_size: Union[Unset, int] = UNSET
-    min_global_dataset_size: Union[Unset, int] = UNSET
+    min_dataset_size: Union[Unset, None, int] = UNSET
+    min_global_dataset_size: Union[Unset, None, int] = UNSET
     noisy_global_size: Union[Unset, bool] = UNSET
     restrict_columns: Union[Unset, None, bool] = UNSET
     use_differential_privacy: Union[Unset, bool] = False

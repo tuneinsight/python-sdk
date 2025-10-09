@@ -35,7 +35,8 @@ class ScreeningOperation:
             replaced with this value.
             If specified along with another validator operations (nonEmpty, numeric, etc), then any values
             that are invalidated by the operation are replaced with this value.
-        rows (Union[Unset, List[int]]): row indices of the dataset on which this operation applies to.
+        row_ids (Union[Unset, List[str]]): row identifiers of the dataset on which this operation applies to.
+        row_indices (Union[Unset, List[int]]): row indices of the dataset on which this operation applies to.
         warnings (Union[Unset, List[str]]): warning returned by the backend if the operation is invalid with the current
             data.
     """
@@ -51,7 +52,8 @@ class ScreeningOperation:
     outlier_threshold: Union[Unset, None, float] = UNSET
     remove: Union[Unset, bool] = UNSET
     replace_with: Union[Unset, None, str] = UNSET
-    rows: Union[Unset, List[int]] = UNSET
+    row_ids: Union[Unset, List[str]] = UNSET
+    row_indices: Union[Unset, List[int]] = UNSET
     warnings: Union[Unset, List[str]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -70,9 +72,13 @@ class ScreeningOperation:
         outlier_threshold = self.outlier_threshold
         remove = self.remove
         replace_with = self.replace_with
-        rows: Union[Unset, List[int]] = UNSET
-        if not isinstance(self.rows, Unset):
-            rows = self.rows
+        row_ids: Union[Unset, List[str]] = UNSET
+        if not isinstance(self.row_ids, Unset):
+            row_ids = self.row_ids
+
+        row_indices: Union[Unset, List[int]] = UNSET
+        if not isinstance(self.row_indices, Unset):
+            row_indices = self.row_indices
 
         warnings: Union[Unset, List[str]] = UNSET
         if not isinstance(self.warnings, Unset):
@@ -103,8 +109,10 @@ class ScreeningOperation:
             field_dict["remove"] = remove
         if replace_with is not UNSET:
             field_dict["replaceWith"] = replace_with
-        if rows is not UNSET:
-            field_dict["rows"] = rows
+        if row_ids is not UNSET:
+            field_dict["rowIds"] = row_ids
+        if row_indices is not UNSET:
+            field_dict["rowIndices"] = row_indices
         if warnings is not UNSET:
             field_dict["warnings"] = warnings
 
@@ -135,7 +143,9 @@ class ScreeningOperation:
 
         replace_with = d.pop("replaceWith", UNSET)
 
-        rows = cast(List[int], d.pop("rows", UNSET))
+        row_ids = cast(List[str], d.pop("rowIds", UNSET))
+
+        row_indices = cast(List[int], d.pop("rowIndices", UNSET))
 
         warnings = cast(List[str], d.pop("warnings", UNSET))
 
@@ -151,7 +161,8 @@ class ScreeningOperation:
             outlier_threshold=outlier_threshold,
             remove=remove,
             replace_with=replace_with,
-            rows=rows,
+            row_ids=row_ids,
+            row_indices=row_indices,
             warnings=warnings,
         )
 
