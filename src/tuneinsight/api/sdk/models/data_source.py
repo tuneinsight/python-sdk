@@ -40,8 +40,8 @@ class DataSource:
         configuration (Union[Unset, DataSourceConfig]): data source configuration
         consent_type (Union[Unset, DataSourceConsentType]): Consent type given to the data source.
         credentials (Union[Unset, Credentials]): The credentials needed to access the data source.
-        data_schema (Union[Unset, DataSchema]): aims to provide a flexible definition of a data schema, which includes
-            the tables and their relationships.
+        data_schema_name (Union[Unset, str]): the name of the data schema to load from the configuration for this data
+            source.
         id (Union[Unset, None, str]): Unique identifier of a data source.
         is_mock (Union[Unset, bool]): Whether this datasource contains mock/synthetic data and should not be used in
             production.
@@ -55,6 +55,8 @@ class DataSource:
         type (Union[Unset, DataSourceType]):
         view_config (Union[Unset, ViewConfig]): holds data source parameters that are applicable only for data views.
         created_at (Union[Unset, str]):
+        data_schema (Union[Unset, DataSchema]): aims to provide a flexible definition of a data schema, which includes
+            the tables and their relationships.
         inferred_schemas (Union[Unset, List['DatasetSchema']]): list of all inferred data schemas for tables in this
             data
         last_up_at (Union[Unset, str]): timestamp of the most recent successful health check for the data source.
@@ -84,7 +86,7 @@ class DataSource:
     configuration: Union[Unset, "DataSourceConfig"] = UNSET
     consent_type: Union[Unset, DataSourceConsentType] = UNSET
     credentials: Union[Unset, "Credentials"] = UNSET
-    data_schema: Union[Unset, "DataSchema"] = UNSET
+    data_schema_name: Union[Unset, str] = UNSET
     id: Union[Unset, None, str] = UNSET
     is_mock: Union[Unset, bool] = UNSET
     name: Union[Unset, str] = UNSET
@@ -94,6 +96,7 @@ class DataSource:
     type: Union[Unset, DataSourceType] = UNSET
     view_config: Union[Unset, "ViewConfig"] = UNSET
     created_at: Union[Unset, str] = UNSET
+    data_schema: Union[Unset, "DataSchema"] = UNSET
     inferred_schemas: Union[Unset, List["DatasetSchema"]] = UNSET
     last_up_at: Union[Unset, str] = UNSET
     metadata: Union[Unset, "DataSourceMetadata"] = UNSET
@@ -137,10 +140,7 @@ class DataSource:
         if not isinstance(self.credentials, Unset):
             credentials = self.credentials.to_dict()
 
-        data_schema: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.data_schema, Unset):
-            data_schema = self.data_schema.to_dict()
-
+        data_schema_name = self.data_schema_name
         id = self.id
         is_mock = self.is_mock
         name = self.name
@@ -162,6 +162,10 @@ class DataSource:
             view_config = self.view_config.to_dict()
 
         created_at = self.created_at
+        data_schema: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.data_schema, Unset):
+            data_schema = self.data_schema.to_dict()
+
         inferred_schemas: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.inferred_schemas, Unset):
             inferred_schemas = []
@@ -217,8 +221,8 @@ class DataSource:
             field_dict["consentType"] = consent_type
         if credentials is not UNSET:
             field_dict["credentials"] = credentials
-        if data_schema is not UNSET:
-            field_dict["dataSchema"] = data_schema
+        if data_schema_name is not UNSET:
+            field_dict["dataSchemaName"] = data_schema_name
         if id is not UNSET:
             field_dict["id"] = id
         if is_mock is not UNSET:
@@ -237,6 +241,8 @@ class DataSource:
             field_dict["viewConfig"] = view_config
         if created_at is not UNSET:
             field_dict["createdAt"] = created_at
+        if data_schema is not UNSET:
+            field_dict["dataSchema"] = data_schema
         if inferred_schemas is not UNSET:
             field_dict["inferredSchemas"] = inferred_schemas
         if last_up_at is not UNSET:
@@ -312,12 +318,7 @@ class DataSource:
         else:
             credentials = Credentials.from_dict(_credentials)
 
-        _data_schema = d.pop("dataSchema", UNSET)
-        data_schema: Union[Unset, DataSchema]
-        if isinstance(_data_schema, Unset):
-            data_schema = UNSET
-        else:
-            data_schema = DataSchema.from_dict(_data_schema)
+        data_schema_name = d.pop("dataSchemaName", UNSET)
 
         id = d.pop("id", UNSET)
 
@@ -356,6 +357,13 @@ class DataSource:
             view_config = ViewConfig.from_dict(_view_config)
 
         created_at = d.pop("createdAt", UNSET)
+
+        _data_schema = d.pop("dataSchema", UNSET)
+        data_schema: Union[Unset, DataSchema]
+        if isinstance(_data_schema, Unset):
+            data_schema = UNSET
+        else:
+            data_schema = DataSchema.from_dict(_data_schema)
 
         inferred_schemas = []
         _inferred_schemas = d.pop("inferredSchemas", UNSET)
@@ -407,7 +415,7 @@ class DataSource:
             configuration=configuration,
             consent_type=consent_type,
             credentials=credentials,
-            data_schema=data_schema,
+            data_schema_name=data_schema_name,
             id=id,
             is_mock=is_mock,
             name=name,
@@ -417,6 +425,7 @@ class DataSource:
             type=type,
             view_config=view_config,
             created_at=created_at,
+            data_schema=data_schema,
             inferred_schemas=inferred_schemas,
             last_up_at=last_up_at,
             metadata=metadata,

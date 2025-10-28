@@ -43,6 +43,7 @@ from tuneinsight.cryptolib.cryptolib import (
 from tuneinsight.computations.regression import _RegressionPredicting
 from tuneinsight.client.dataobject import DataObject
 from tuneinsight.api.sdk.types import Response
+from tuneinsight.utils import deprecation
 from tuneinsight.utils.io import data_to_bytes, data_from_bytes
 
 
@@ -223,6 +224,7 @@ class ModelManager:
         Args:
             client (Client): the API client
         """
+        deprecation.warn("Encrypted prediction", breaking=True)
         self.client = client
 
     @staticmethod

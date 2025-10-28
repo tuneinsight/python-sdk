@@ -6,6 +6,7 @@ class DataSourceCommandResultType(str, Enum):
     GETMETADATACOMMANDRESULT = "getMetadataCommandResult"
     GETCONCEPTMETADATACOMMANDRESULT = "getConceptMetadataCommandResult"
     GETCONCEPTFIELDVALUESCOMMANDRESULT = "getConceptFieldValuesCommandResult"
+    GETTRANSLATEDQUERYCOMMANDRESULT = "getTranslatedQueryCommandResult"
 
     def __str__(self) -> str:
         return str(self.value)

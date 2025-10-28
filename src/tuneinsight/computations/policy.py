@@ -7,7 +7,7 @@ import json
 from tuneinsight.computations.types import Type, displayed_types
 from tuneinsight.utils.display import Renderer
 from tuneinsight.api.sdk import models
-from tuneinsight.api.sdk.types import Unset, is_set, is_unset
+from tuneinsight.api.sdk.types import UNSET, is_set, is_unset
 
 
 class DataPolicy(models.DatasourcePolicy):
@@ -64,20 +64,33 @@ class DataPolicy(models.DatasourcePolicy):
             )
         self.authorized_preprocessing_operations = list(auth_operations)
 
-    def add_authorized_query(self, query: str, name: str = ""):
+    def add_authorized_query(
+        self,
+        query: str = "",
+        tiql_query: models.CrossStandardQuery = UNSET,
+        name: str = "",
+    ):
         """
         Adds a datasource query to the set of authorized queries.
 
         By default, all queries are authorized: using this function automatically
         unauthorizes all queries that are not explicitly authorized.
 
+        All nonempty fields of a query will be matched against the whitelist: if any one
+        does not match, the query will be rejected. You can whitelist raw (SQL/API) queries
+        or cross-standard queries.
+
         Args:
-            query (str): the data source query string
+            query (str): the data source query string (unset by default).
+            tiql_query (models.CrossStandardQuery): the TIQL query to whitelist (unset by default).
+            name (str): an optional name for this whitelisted query.
         """
+        if query == "" and is_unset(tiql_query):
+            raise ValueError("no query to whitelist")
         if is_unset(self.authorized_data_source_queries):
             self.authorized_data_source_queries = []
         self.authorized_data_source_queries.append(
-            models.WhitelistedQuery(name=name, raw_query=query)
+            models.WhitelistedQuery(name=name, tiql_query=tiql_query, raw_query=query)
         )
 
     def set_column_restrictions(self, restricted: bool = True):
@@ -290,7 +303,7 @@ class Policy(models.ComputationPolicy):
         """
         p = cls()
         for attr_name, attr_value in policy.__dict__.items():
-            if not isinstance(attr_value, Unset) and attr_value is not None:
+            if is_set(attr_value) and attr_value is not None:
                 setattr(p, attr_name, attr_value)
         if is_set(p.data_policy):
             p.data_policy = DataPolicy.from_model(p.data_policy)
@@ -351,9 +364,11 @@ class Policy(models.ComputationPolicy):
         """See `DataPolicy.add_authorized_preprocessing`."""
         self.data_policy.add_authorized_preprocessing(operations)
 
-    def add_authorized_query(self, query: str, name: str = ""):
+    def add_authorized_query(
+        self, query: str, tiql_query: models.CrossStandardQuery = UNSET, name: str = ""
+    ):
         """See `DataPolicy.add_authorized_query`."""
-        self.data_policy.add_authorized_query(query, name)
+        self.data_policy.add_authorized_query(query, tiql_query, name)
 
     def set_column_restrictions(self, restricted: bool = True):
         """See `DataPolicy.set_column_restrictions`."""

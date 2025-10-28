@@ -700,7 +700,7 @@ class ModelBasedComputation(Computation):
         self.model = model
         # Update all internal variables to be up-to-date with the model.
         self.preprocessing = PreprocessingBuilder.from_model(
-            model.preprocessing_parameters
+            model.preprocessing_parameters, self._patch_project
         )
         self.preprocessing.update_function = self._patch_project
         self.datasource.set_model(model.data_source_parameters)

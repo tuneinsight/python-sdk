@@ -89,9 +89,15 @@ class Project:
         if self.diapason is not None:
             self.client = self.diapason.client
         if is_set(self.model.data_source_id) and self.model.data_source_id:
-            self.datasource = DataSource.fetch_from_id(
-                self.client, self.model.data_source_id
-            )
+            try:
+                self.datasource = DataSource.fetch_from_id(
+                    self.client, self.model.data_source_id
+                )
+            # pylint: disable=broad-exception-caught
+            except Exception as err:
+                warnings.warn(
+                    f"Could not load datasource {self.model.data_source_id} of project (error: {err})"
+                )
 
     @contextmanager
     def disable_patch(self):

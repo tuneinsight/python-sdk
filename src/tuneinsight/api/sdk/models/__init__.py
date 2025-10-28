@@ -186,6 +186,8 @@ from .get_query_list_order import GetQueryListOrder
 from .get_query_list_sort_by import GetQueryListSortBy
 from .get_result_list_order import GetResultListOrder
 from .get_result_list_sort_by import GetResultListSortBy
+from .get_translated_query_command import GetTranslatedQueryCommand
+from .get_translated_query_command_result import GetTranslatedQueryCommandResult
 from .get_user_preference_key import GetUserPreferenceKey
 from .group_by_type import GroupByType
 from .group_info import GroupInfo
@@ -276,6 +278,7 @@ from .privacy_summary import PrivacySummary
 from .privacy_summary_computation import PrivacySummaryComputation
 from .privacy_warning import PrivacyWarning
 from .privacy_warning_severity import PrivacyWarningSeverity
+from .privacy_warning_type import PrivacyWarningType
 from .private_search import PrivateSearch
 from .private_search_database import PrivateSearchDatabase
 from .private_search_query import PrivateSearchQuery
@@ -298,6 +301,7 @@ from .put_user_preference_key import PutUserPreferenceKey
 from .quantiles import Quantiles
 from .query import Query
 from .query_bookmark_definition import QueryBookmarkDefinition
+from .query_output_variable import QueryOutputVariable
 from .query_status import QueryStatus
 from .realm_role import RealmRole
 from .regression_type import RegressionType
@@ -568,6 +572,8 @@ __all__ = (
     "GetQueryListSortBy",
     "GetResultListOrder",
     "GetResultListSortBy",
+    "GetTranslatedQueryCommand",
+    "GetTranslatedQueryCommandResult",
     "GetUserPreferenceKey",
     "GroupByType",
     "GroupInfo",
@@ -658,6 +664,7 @@ __all__ = (
     "PrivacySummaryComputation",
     "PrivacyWarning",
     "PrivacyWarningSeverity",
+    "PrivacyWarningType",
     "PrivateSearch",
     "PrivateSearchDatabase",
     "PrivateSearchQuery",
@@ -680,6 +687,7 @@ __all__ = (
     "Quantiles",
     "Query",
     "QueryBookmarkDefinition",
+    "QueryOutputVariable",
     "QueryStatus",
     "RealmRole",
     "RegressionType",

@@ -6,6 +6,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.advanced_filter import AdvancedFilter
+    from ..models.query_output_variable import QueryOutputVariable
 
 
 T = TypeVar("T", bound="CrossStandardQuery")
@@ -24,13 +25,17 @@ class CrossStandardQuery:
 
         Attributes:
             filter_ (Union[Unset, AdvancedFilter]): Abstract subclass of a filter for cross-standard queries.
-            variables (Union[Unset, List[str]]): The variables to be extracted from the cohort. Each variable should either
-                be the name
+            output_variables (Union[Unset, List['QueryOutputVariable']]): The variables to be extracted from the cohort.
+                Each variable should either be the name
                 of a feature (directly attached to a record), or a unique identifier defined in a filter
                 for series variables (variables attached to a record that contain a list of values).
+            unit (Union[Unset, str]): The unit of the feasibility query (i.e., what is a record -- should be "patient").
+            variables (Union[Unset, List[str]]): Legacy version of the above output variables
     """
 
     filter_: Union[Unset, "AdvancedFilter"] = UNSET
+    output_variables: Union[Unset, List["QueryOutputVariable"]] = UNSET
+    unit: Union[Unset, str] = UNSET
     variables: Union[Unset, List[str]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -39,6 +44,15 @@ class CrossStandardQuery:
         if not isinstance(self.filter_, Unset):
             filter_ = self.filter_.to_dict()
 
+        output_variables: Union[Unset, List[Dict[str, Any]]] = UNSET
+        if not isinstance(self.output_variables, Unset):
+            output_variables = []
+            for output_variables_item_data in self.output_variables:
+                output_variables_item = output_variables_item_data.to_dict()
+
+                output_variables.append(output_variables_item)
+
+        unit = self.unit
         variables: Union[Unset, List[str]] = UNSET
         if not isinstance(self.variables, Unset):
             variables = self.variables
@@ -48,6 +62,10 @@ class CrossStandardQuery:
         field_dict.update({})
         if filter_ is not UNSET:
             field_dict["filter"] = filter_
+        if output_variables is not UNSET:
+            field_dict["outputVariables"] = output_variables
+        if unit is not UNSET:
+            field_dict["unit"] = unit
         if variables is not UNSET:
             field_dict["variables"] = variables
 
@@ -56,6 +74,7 @@ class CrossStandardQuery:
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         from ..models.advanced_filter import AdvancedFilter
+        from ..models.query_output_variable import QueryOutputVariable
 
         d = src_dict.copy()
         _filter_ = d.pop("filter", UNSET)
@@ -65,10 +84,21 @@ class CrossStandardQuery:
         else:
             filter_ = AdvancedFilter.from_dict(_filter_)
 
+        output_variables = []
+        _output_variables = d.pop("outputVariables", UNSET)
+        for output_variables_item_data in _output_variables or []:
+            output_variables_item = QueryOutputVariable.from_dict(output_variables_item_data)
+
+            output_variables.append(output_variables_item)
+
+        unit = d.pop("unit", UNSET)
+
         variables = cast(List[str], d.pop("variables", UNSET))
 
         cross_standard_query = cls(
             filter_=filter_,
+            output_variables=output_variables,
+            unit=unit,
             variables=variables,
         )
 

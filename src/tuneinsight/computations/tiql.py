@@ -1,4 +1,18 @@
-"""Implements a wrapper for the Tune Insight Cross-Standard Feasibility Query Language (TIQL)."""
+"""Implements a wrapper for the Tune Insight Cross-Standard Feasibility Query Language (TIQL).
+
+This wrapper can be used to define filters using a syntax similar to a `pandas.DataFrame`.
+
+Example usage:
+
+```python
+from tuneinsight.computations import tiql
+
+query = tiql.Builder(variables=["foo", "bar"])
+query.set_filter((query.df.a >= 0) & (query.df.foo != ""))
+
+comp.datasource.set_cross_standard_query(query)
+```
+"""
 
 from typing import Any, List, Union
 from tuneinsight.api.sdk import models
@@ -64,7 +78,7 @@ class Variable:
     def __eq__(self, value):
         return self._cmp(value, models.ComparisonType.EQUAL)
 
-    def __neq__(self, value):
+    def __ne__(self, value):
         return self._cmp(value, models.ComparisonType.NEQUAL)
 
     def __ge__(self, value):
@@ -107,18 +121,38 @@ class _VariableBuilder:
 
 
 class Builder:
-    """Syntax sugar class to build a Cross-Standard Feasibility query."""
+    """
+    Syntax sugar class to build a TIQL query.
 
-    def __init__(self, variables: List[str]):
+    A TIQL query has two components:
+     1. Variables to be extracted, specified in the constructor of this class.
+     2. A filter to select rows, that can be specified with `set_filter`.
+
+    This class has a `.df` attribute to define TIQL filters with a human-readable
+    syntax. This attributes mimics the behavior of a `pandas.DataFrame`, in that
+    `df.col` or `df["col"]` references the column `col` of the data, and atomic
+    filters can be defined on it through comparisons, e.g. `df.col >= 0`.
+
+    These filters can then be combined with logical operators `&` and `|`.
+    Note: due to operation precedence in Python, you must include parentheses around
+    individual comparisons. For instance:
+
+    ```python
+       (df.age >= 25) & ((df.gender == "female") | (df.diagnosis == "ICD10-ABCDEF"))
+    ```
+    """
+
+    def __init__(self, output_variables: List[str]):
         """
         Args:
-            variables (List[str]): the variables to extract from the query
+            variables (List[str]): the variables to extract from the query.
         """
         self.model = models.CrossStandardQuery(
-            variables=variables,
+            output_variables=[models.QueryOutputVariable(v) for v in output_variables],
         )
 
     def set_filter(self, filter_: Union[_WrappedFilter, models.AdvancedFilter]):
+        """Set the filter of the TIQL query, overwriting previous queries."""
         if isinstance(filter_, _WrappedFilter):
             filter_ = filter_.filter
         self.model.filter_ = filter_

@@ -45,22 +45,22 @@ class SurvivalParameters:
 
     """
 
-    duration_col: str
-    event_col: str
-    event_val: str
-    start_event: str
-    end_event: str
+    duration_column: str
+    event_column: str
+    event_value: str
+    start_event_column: str
+    end_event_column: str
     unit: models.TimeUnit
     unit_value: int
     num_frames: int
 
     def __init__(
         self,
-        duration_col: str = UNSET,
-        event_col: str = UNSET,
-        event_val: str = UNSET,
-        start_event: str = UNSET,
-        end_event: str = UNSET,
+        duration_column: str = UNSET,
+        event_column: str = UNSET,
+        event_value: str = UNSET,
+        start_event_column: str = UNSET,
+        end_event_column: str = UNSET,
         num_frames: int = UNSET,
         unit: models.TimeUnit = models.TimeUnit.WEEKS,
         unit_value: int = 1,
@@ -69,14 +69,14 @@ class SurvivalParameters:
         Creates the parameters of a survival analysis.
 
         Args
-            duration_col (str): the name of the column that stores the duration
+            duration_column (str): the name of the column that stores the duration
                 for each sample, the values stored must be integers.
-            event_col (str): the name of the column that stores the event status
+            event_column (str): the name of the column that stores the event status
                 for each sample Default: 'event'.
-            event_val (str): the event value indicating a survival event (e.g. death).
-            start_event (Union[Unset, str]): the event column that must contain
+            event_value (str): the event value indicating a survival event (e.g. death).
+            start_event_column (Union[Unset, str]): the event column that must contain
                 the timestamps of the start of the trial.
-            end_event (Union[Unset, str]): the column that must contain the timestamps
+            end_event_column (Union[Unset, str]): the column that must contain the timestamps
                 of the end event (can be empty if no event happened)
             num_frames (Union[Unset, int]): the number of time frames to take
                 into account starting from the start of the survival.
@@ -84,19 +84,19 @@ class SurvivalParameters:
             unit_value (int): number of time units to use as time frame.
 
         """
-        self.duration_col = duration_col
-        self.event_col = event_col
-        self.event_val = event_val
-        self.start_event = start_event
+        self.duration_column = duration_column
+        self.event_column = event_column
+        self.event_value = event_value
+        self.start_event_column = start_event_column
         self.num_frames = num_frames
-        self.end_event = end_event
+        self.end_event_column = end_event_column
         self.unit = unit
         self.unit_value = unit_value
 
     def get_duration_column(self) -> str:
         """Finds the column to use as duration column."""
-        if self.duration_col is not UNSET:
-            return self.duration_col
+        if self.duration_column is not UNSET:
+            return self.duration_column
         if str(self.unit) is not UNSET:
             return str(self.unit)
         return str(models.TimeUnit.WEEKS)
@@ -129,16 +129,16 @@ class SurvivalParameters:
         final["survival_probability"] = survival_probabilities
         return final
 
-    def get_preprocessing_op(self) -> models.PreprocessingOperation:
-        """Converts the parameters to an API model."""
+    def to_model(self) -> models.PreprocessingOperation:
+        """Converts the parameters to an API model representing the associated preprocessing operation."""
         interval = models.Duration(unit=self.unit, value=self.unit_value)
         return models.Survival(
             models.PreprocessingOperationType.SURVIVAL,
-            duration_column=self.duration_col,
-            event_column=self.event_col,
-            event_value=self.event_val,
-            start_event_column=self.start_event,
-            end_event_column=self.end_event,
+            duration_column=self.duration_column,
+            event_column=self.event_column,
+            event_value=self.event_value,
+            start_event_column=self.start_event_column,
+            end_event_column=self.end_event_column,
             interval=interval,
             num_frames=self.num_frames,
         )
@@ -152,11 +152,11 @@ class SurvivalParameters:
             unit = interval.unit
             value = interval.value
         return cls(
-            duration_col=model.duration_col,
-            event_col=model.event_col,
-            event_val=model.event_val,
-            start_event=model.start_event,
-            end_event=model.end_event,
+            duration_column=model.duration_column,
+            event_column=model.event_column,
+            event_value=model.event_value,
+            start_event_column=model.start_event_column,
+            end_event_column=model.end_event_column,
             num_frames=model.num_frames,
             unit=unit,
             unit_value=value,
@@ -387,7 +387,7 @@ class SurvivalAnalysis(ModelBasedComputation):
             project,
             models.SurvivalAggregation,
             type=models.ComputationType.SURVIVALAGGREGATION,
-            survival_parameters=survival_parameters.get_preprocessing_op(),
+            survival_parameters=survival_parameters.to_model(),
             subgroups=[],
             secure_matching=len(matching_organization) > 0,
             matching_organization=matching_organization,

@@ -12,17 +12,20 @@ class SchemaField:
     """Definition of a table field or column, within a data schema definition.
 
     Attributes:
+        description (Union[Unset, str]): optional description for this field.
         field_type (Union[Unset, str]): The data type of the field (e.g., "string", "integer", "date").
         label (Union[Unset, str]): Human-readable label for the field (e.g., "Gender").
         name (Union[Unset, str]): The column name in the database (e.g., "gender").
     """
 
+    description: Union[Unset, str] = UNSET
     field_type: Union[Unset, str] = UNSET
     label: Union[Unset, str] = UNSET
     name: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        description = self.description
         field_type = self.field_type
         label = self.label
         name = self.name
@@ -30,6 +33,8 @@ class SchemaField:
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if description is not UNSET:
+            field_dict["description"] = description
         if field_type is not UNSET:
             field_dict["fieldType"] = field_type
         if label is not UNSET:
@@ -42,6 +47,8 @@ class SchemaField:
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
+        description = d.pop("description", UNSET)
+
         field_type = d.pop("fieldType", UNSET)
 
         label = d.pop("label", UNSET)
@@ -49,6 +56,7 @@ class SchemaField:
         name = d.pop("name", UNSET)
 
         schema_field = cls(
+            description=description,
             field_type=field_type,
             label=label,
             name=name,

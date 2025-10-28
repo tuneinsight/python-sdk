@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
 
 import attr
 
@@ -16,17 +16,28 @@ class DataSourceMetadata:
     """metadata about a datasource
 
     Attributes:
+        errors (Union[Unset, List[str]]): list of errors triggered when creating the metadata.
         metadata_available (Union[Unset, bool]): whether or not the datasource supports returning metadata
         stores_templates (Union[Unset, bool]): whether the data source stores template tables.
         tables (Union[Unset, List['DataSourceTable']]):
+        total_tables (Union[Unset, int]): total number of tables available with this data source. Not all tables may
+            appear in this metadata as they can still be loading.
+        warnings (Union[Unset, List[str]]): list of warnings triggered when creating the metadata.
     """
 
+    errors: Union[Unset, List[str]] = UNSET
     metadata_available: Union[Unset, bool] = UNSET
     stores_templates: Union[Unset, bool] = UNSET
     tables: Union[Unset, List["DataSourceTable"]] = UNSET
+    total_tables: Union[Unset, int] = UNSET
+    warnings: Union[Unset, List[str]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        errors: Union[Unset, List[str]] = UNSET
+        if not isinstance(self.errors, Unset):
+            errors = self.errors
+
         metadata_available = self.metadata_available
         stores_templates = self.stores_templates
         tables: Union[Unset, List[Dict[str, Any]]] = UNSET
@@ -37,15 +48,26 @@ class DataSourceMetadata:
 
                 tables.append(tables_item)
 
+        total_tables = self.total_tables
+        warnings: Union[Unset, List[str]] = UNSET
+        if not isinstance(self.warnings, Unset):
+            warnings = self.warnings
+
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if errors is not UNSET:
+            field_dict["errors"] = errors
         if metadata_available is not UNSET:
             field_dict["metadataAvailable"] = metadata_available
         if stores_templates is not UNSET:
             field_dict["storesTemplates"] = stores_templates
         if tables is not UNSET:
             field_dict["tables"] = tables
+        if total_tables is not UNSET:
+            field_dict["totalTables"] = total_tables
+        if warnings is not UNSET:
+            field_dict["warnings"] = warnings
 
         return field_dict
 
@@ -54,6 +76,8 @@ class DataSourceMetadata:
         from ..models.data_source_table import DataSourceTable
 
         d = src_dict.copy()
+        errors = cast(List[str], d.pop("errors", UNSET))
+
         metadata_available = d.pop("metadataAvailable", UNSET)
 
         stores_templates = d.pop("storesTemplates", UNSET)
@@ -65,10 +89,17 @@ class DataSourceMetadata:
 
             tables.append(tables_item)
 
+        total_tables = d.pop("totalTables", UNSET)
+
+        warnings = cast(List[str], d.pop("warnings", UNSET))
+
         data_source_metadata = cls(
+            errors=errors,
             metadata_available=metadata_available,
             stores_templates=stores_templates,
             tables=tables,
+            total_tables=total_tables,
+            warnings=warnings,
         )
 
         data_source_metadata.additional_properties = d

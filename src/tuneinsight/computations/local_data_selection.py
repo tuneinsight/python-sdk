@@ -33,11 +33,13 @@ class LocalDataSelection:
             compdef (Optional[models.ComputationDefinition], optional): an optional computation definition
                 from which to extract the preprocessing and datasource parameters. Defaults to None.
         """
-        self.preprocessing = PreprocessingBuilder(lambda: "")  # Disable warning.
+        self.preprocessing = PreprocessingBuilder(lambda: None)  # Disable warning.
         self.datasource = QueryBuilder()
         if compdef is not None and is_set(compdef):
             if is_set(compdef.preprocessing_parameters):
-                self.preprocessing.from_model(compdef.preprocessing_parameters)
+                self.preprocessing.from_model(
+                    compdef.preprocessing_parameters, lambda: None
+                )
             if is_set(compdef.data_source_parameters):
                 self.datasource.set_model(compdef.data_source_parameters)
 
