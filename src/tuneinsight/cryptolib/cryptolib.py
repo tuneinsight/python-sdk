@@ -23,6 +23,8 @@ import platform
 import warnings
 import pandas as pd
 
+from tuneinsight.utils import deprecation
+
 
 class _ErrorObject:
     """
@@ -140,6 +142,7 @@ def encrypt_prediction_dataset(
     Returns:
         bytes: the encrypted version of the dataset that can be used as input to a encrypted prediction computation
     """
+    deprecation.warn("Encrypted Prediction", breaking=True)
     encrypt_pred = so.EncryptPredictionDataset
     encrypt_pred.restype = ctypes.c_void_p
     res = encrypt_pred(
@@ -162,6 +165,7 @@ def decrypt_prediction(hefloat_operator_id: bytes, ct: bytes) -> bytes:
     Returns:
         bytes: the decrypted predicted values as a csv in byte format
     """
+    deprecation.warn("Encrypted Prediction", breaking=True)
     decrypt_pred = so.DecryptPredictionResult
     decrypt_pred.restype = ctypes.c_void_p
     res = decrypt_pred(hefloat_operator_id, ct, len(ct))
@@ -387,20 +391,6 @@ def decrypt_stats(hefloat_operator_id: bytes, stat_ciphertext: bytes) -> bytes:
     return stats_plaintext
 
 
-def test_prediction_params() -> str:
-    """Generates HEFloat parameters for a crypto system. (for testing purposes only)
-
-    Returns:
-        cryptoparameters_b64 (str): Base64 encoded marshalled HEFloat cryptoparameters
-    """
-    new_test_prediction_params = so.NewTestPredictionParams
-    new_test_prediction_params.restype = ctypes.c_char_p
-    cryptoparameters_b64 = new_test_prediction_params()
-    if cryptoparameters_b64 is None:
-        raise go_error()
-    return cryptoparameters_b64
-
-
 def test_polynomial_evaluation_hefloat_params() -> str:
     """Generates HEFloat parameters for a crypto system. (for testing purposes only)
 
@@ -570,6 +560,7 @@ class PIRContext:
         Raises:
             go_error: upon invalid parameters
         """
+        deprecation.warn("PIR", breaking=True)
         func = so.NewPIRContext
         func.restype = ctypes.c_char_p
         self.ctx_id = func(pir_b64.encode(), index_b64.encode())

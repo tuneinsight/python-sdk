@@ -18,6 +18,7 @@ from tuneinsight.cryptolib.cryptolib import (
     PIRContext,
 )
 from tuneinsight.client.dataobject import DataObject
+from tuneinsight.utils import deprecation
 from tuneinsight.utils.io import data_from_bytes
 
 
@@ -40,6 +41,7 @@ class Session:
             client (Client): client to which the session is linked
             cryptolib_params (str): cryptolib parameters
         """
+        deprecation.warn("PIR", breaking=True)
         self.client = client
         self.cryptolib_params = cryptolib_params
         self.session_id = self._new_session()

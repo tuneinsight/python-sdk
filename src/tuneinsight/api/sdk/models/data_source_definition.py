@@ -9,7 +9,6 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.credentials import Credentials
-    from ..models.data_schema import DataSchema
     from ..models.data_source_config import DataSourceConfig
     from ..models.data_source_definition_structure_template_json import DataSourceDefinitionStructureTemplateJSON
     from ..models.datasource_policy import DatasourcePolicy
@@ -37,8 +36,8 @@ class DataSourceDefinition:
         configuration (Union[Unset, DataSourceConfig]): data source configuration
         consent_type (Union[Unset, DataSourceConsentType]): Consent type given to the data source.
         credentials (Union[Unset, Credentials]): The credentials needed to access the data source.
-        data_schema (Union[Unset, DataSchema]): aims to provide a flexible definition of a data schema, which includes
-            the tables and their relationships.
+        data_schema_name (Union[Unset, str]): the name of the data schema to load from the configuration for this data
+            source.
         id (Union[Unset, None, str]): Unique identifier of a data source.
         is_mock (Union[Unset, bool]): Whether this datasource contains mock/synthetic data and should not be used in
             production.
@@ -62,7 +61,7 @@ class DataSourceDefinition:
     configuration: Union[Unset, "DataSourceConfig"] = UNSET
     consent_type: Union[Unset, DataSourceConsentType] = UNSET
     credentials: Union[Unset, "Credentials"] = UNSET
-    data_schema: Union[Unset, "DataSchema"] = UNSET
+    data_schema_name: Union[Unset, str] = UNSET
     id: Union[Unset, None, str] = UNSET
     is_mock: Union[Unset, bool] = UNSET
     name: Union[Unset, str] = UNSET
@@ -104,10 +103,7 @@ class DataSourceDefinition:
         if not isinstance(self.credentials, Unset):
             credentials = self.credentials.to_dict()
 
-        data_schema: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.data_schema, Unset):
-            data_schema = self.data_schema.to_dict()
-
+        data_schema_name = self.data_schema_name
         id = self.id
         is_mock = self.is_mock
         name = self.name
@@ -149,8 +145,8 @@ class DataSourceDefinition:
             field_dict["consentType"] = consent_type
         if credentials is not UNSET:
             field_dict["credentials"] = credentials
-        if data_schema is not UNSET:
-            field_dict["dataSchema"] = data_schema
+        if data_schema_name is not UNSET:
+            field_dict["dataSchemaName"] = data_schema_name
         if id is not UNSET:
             field_dict["id"] = id
         if is_mock is not UNSET:
@@ -173,7 +169,6 @@ class DataSourceDefinition:
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         from ..models.credentials import Credentials
-        from ..models.data_schema import DataSchema
         from ..models.data_source_config import DataSourceConfig
         from ..models.data_source_definition_structure_template_json import DataSourceDefinitionStructureTemplateJSON
         from ..models.datasource_policy import DatasourcePolicy
@@ -218,12 +213,7 @@ class DataSourceDefinition:
         else:
             credentials = Credentials.from_dict(_credentials)
 
-        _data_schema = d.pop("dataSchema", UNSET)
-        data_schema: Union[Unset, DataSchema]
-        if isinstance(_data_schema, Unset):
-            data_schema = UNSET
-        else:
-            data_schema = DataSchema.from_dict(_data_schema)
+        data_schema_name = d.pop("dataSchemaName", UNSET)
 
         id = d.pop("id", UNSET)
 
@@ -271,7 +261,7 @@ class DataSourceDefinition:
             configuration=configuration,
             consent_type=consent_type,
             credentials=credentials,
-            data_schema=data_schema,
+            data_schema_name=data_schema_name,
             id=id,
             is_mock=is_mock,
             name=name,

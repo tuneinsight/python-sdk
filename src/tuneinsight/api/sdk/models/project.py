@@ -106,6 +106,7 @@ class Project:
         previous_participants (Union[Unset, List['Participant']]): List of participants that were previously set in the
             project.
         privacy_summary (Union[Unset, PrivacySummary]): Privacy summary for a project
+        seeded (Union[Unset, bool]): whether this project was seeded from the configuration or the portal.
         status (Union[Unset, ProjectStatus]): Stages of a project workflow
         updated_at (Union[Unset, str]):
         workflow_description (Union[Unset, str]): dynamically generated markdown description of the distributed workflow
@@ -166,6 +167,7 @@ class Project:
     participation_status: Union[Unset, ParticipationStatus] = UNSET
     previous_participants: Union[Unset, List["Participant"]] = UNSET
     privacy_summary: Union[Unset, "PrivacySummary"] = UNSET
+    seeded: Union[Unset, bool] = UNSET
     status: Union[Unset, ProjectStatus] = UNSET
     updated_at: Union[Unset, str] = UNSET
     workflow_description: Union[Unset, str] = UNSET
@@ -287,6 +289,7 @@ class Project:
         if not isinstance(self.privacy_summary, Unset):
             privacy_summary = self.privacy_summary.to_dict()
 
+        seeded = self.seeded
         status: Union[Unset, str] = UNSET
         if not isinstance(self.status, Unset):
             status = self.status.value
@@ -401,6 +404,8 @@ class Project:
             field_dict["previousParticipants"] = previous_participants
         if privacy_summary is not UNSET:
             field_dict["privacySummary"] = privacy_summary
+        if seeded is not UNSET:
+            field_dict["seeded"] = seeded
         if status is not UNSET:
             field_dict["status"] = status
         if updated_at is not UNSET:
@@ -600,6 +605,8 @@ class Project:
         else:
             privacy_summary = PrivacySummary.from_dict(_privacy_summary)
 
+        seeded = d.pop("seeded", UNSET)
+
         _status = d.pop("status", UNSET)
         status: Union[Unset, ProjectStatus]
         if isinstance(_status, Unset):
@@ -664,6 +671,7 @@ class Project:
             participation_status=participation_status,
             previous_participants=previous_participants,
             privacy_summary=privacy_summary,
+            seeded=seeded,
             status=status,
             updated_at=updated_at,
             workflow_description=workflow_description,

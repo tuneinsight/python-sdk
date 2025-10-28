@@ -1083,9 +1083,18 @@ class PreprocessingBuilder:
             self.update_function()
 
     @classmethod
-    def from_model(cls, model: models.ComputationPreprocessingParameters):
-        """Initializes a PreprocessingBuilder from an API model."""
-        p = cls()
+    def from_model(
+        cls,
+        model: models.ComputationPreprocessingParameters,
+        update_function: Callable = None,
+    ) -> "PreprocessingBuilder":
+        """Initializes a PreprocessingBuilder from an API model.
+
+        Args:
+            model (models.ComputationPreprocessingParameters): model returned from the API.
+            update_function (Callable, optional): callback function to call whenever this is modified. Defaults to None.
+        """
+        p = cls(update_function)
         if is_unset(model):
             return p
         if is_set(model.global_preprocessing):

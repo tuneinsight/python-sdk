@@ -92,11 +92,6 @@ extern __declspec(dllexport) char* GetLastGoError(void);
 //
 extern __declspec(dllexport) char* NewPolynomialCkksParams(void);
 
-// NewTestPredictionParams creates a new set of CkksOperator ckks given test params for prediction
-// and returns them serialized with Marshall Binary and encoded in base64
-//
-extern __declspec(dllexport) char* NewTestPredictionParams(void);
-
 // NewCkksOperatorFromB64Parameters takes a b64 encoded marshalled ckks.Parameters to
 // instantiate a new ckks operator.
 //
@@ -128,20 +123,6 @@ extern __declspec(dllexport) char* DecryptCipherTable(char* id, void* ciphertext
 // DecryptStatistics decrypts the content of an encrypted statistics (a list of ciphertexts)
 //
 extern __declspec(dllexport) char* DecryptStatistics(char* id, void* ciphertext, size_t textSize);
-
-// DecryptPredictionResult decrypts a prediction result using as first argument the id of the cryptosystem
-// and bytes of the marshaled encrypted prediction along with its byte size
-//
-extern __declspec(dllexport) void* DecryptPredictionResult(char* id, void* ciphertext, size_t ctSize);
-
-// EncryptPredictionDataset encrypts a data taking as arguments:
-// 1. the id of the cryptosystem,
-// 2. the csv bytes
-// 3. the csv size
-// 4. the predParams as b64 marshaled PredictionParams
-// 5. if the header (first line) should be removed as boolean
-//
-extern __declspec(dllexport) void* EncryptPredictionDataset(char* id, void* csv, size_t csvSize, char* b64PredParams, int removeHeader);
 
 // GenRelinearizationKey generates a relinearization using as first argument the id of the CkksOperator
 // write a test that calls one of those functions
@@ -184,27 +165,6 @@ extern __declspec(dllexport) void* EncryptNumber(char* id, char* number);
 // DecryptNumber decrypts a ciphertable
 //
 extern __declspec(dllexport) void* DecryptNumber(char* id, void* ciphertext, size_t textSize);
-
-// NewPIRContext creates a new PIR context given the user metadata
-//
-extern __declspec(dllexport) char* NewPIRContext(char* b64DBparams, char* b64Index);
-
-// GetPIREvaluationKeyBytes returns the bytes of the evaluation key using the PIR context
-//
-extern __declspec(dllexport) void* GetPIREvaluationKeyBytes(char* id);
-
-// EncryptPIRQuery encrypts a the query search term using as arguments:
-// - id of the PIR context as first argument
-// - query as a string
-//
-extern __declspec(dllexport) void* EncryptPIRQuery(char* id, char* query);
-
-// DecryptPIRResult decrypts a PIR result using as arguments:
-// - id of the cryptosystems first argument
-// - bytes of a marshalled cryptolib.EncryptedPirResult
-// returns the bytes of the csv decrypted result
-//
-extern __declspec(dllexport) void* DecryptPIRResult(char* id, void* resultBytes, size_t resultSize);
 
 // Add adds two encrypted numbers
 //

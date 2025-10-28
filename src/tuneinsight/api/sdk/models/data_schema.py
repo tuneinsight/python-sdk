@@ -16,13 +16,16 @@ class DataSchema:
     """aims to provide a flexible definition of a data schema, which includes the tables and their relationships.
 
     Attributes:
+        name (Union[Unset, str]): optional name for the schema.
         tables (Union[Unset, List['SchemaTable']]):
     """
 
+    name: Union[Unset, str] = UNSET
     tables: Union[Unset, List["SchemaTable"]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        name = self.name
         tables: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.tables, Unset):
             tables = []
@@ -34,6 +37,8 @@ class DataSchema:
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if name is not UNSET:
+            field_dict["name"] = name
         if tables is not UNSET:
             field_dict["tables"] = tables
 
@@ -44,6 +49,8 @@ class DataSchema:
         from ..models.schema_table import SchemaTable
 
         d = src_dict.copy()
+        name = d.pop("name", UNSET)
+
         tables = []
         _tables = d.pop("tables", UNSET)
         for tables_item_data in _tables or []:
@@ -52,6 +59,7 @@ class DataSchema:
             tables.append(tables_item)
 
         data_schema = cls(
+            name=name,
             tables=tables,
         )
 

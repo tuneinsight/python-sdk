@@ -9,6 +9,7 @@ from tuneinsight.client.dataobject import DataContent
 from tuneinsight.client.session import PIRSession
 from tuneinsight.computations.base import ModelBasedComputation, ComputationResult
 from tuneinsight.client.validation import validate_response
+from tuneinsight.utils import deprecation
 from tuneinsight.utils.plots import style_plot
 
 from tuneinsight.api.sdk import models
@@ -114,6 +115,7 @@ class PrivateSearch(ModelBasedComputation):
             pir_dataset_id (str): id of the private search dataset
 
         """
+        deprecation.warn("PrivateSearch", breaking=True)
         super().__init__(
             project,
             models.PrivateSearch,

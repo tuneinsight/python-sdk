@@ -8,11 +8,14 @@ and projects.
 """
 
 from contextlib import contextmanager
+import os
 from typing import List, Optional, Union
 import warnings
 import webbrowser
-import os
+
 import attr
+import httpx
+import keycloak
 import pandas as pd
 
 from tuneinsight.api.sdk import models
@@ -37,7 +40,7 @@ from tuneinsight.client.validation import validate_response
 from tuneinsight.client.auth import config
 from tuneinsight.client.auth import auth
 from tuneinsight.client.models import ModelManager
-from tuneinsight.utils import time_tools
+from tuneinsight.utils import deprecation, time_tools
 
 
 @attr.s(auto_attribs=True)
@@ -248,6 +251,7 @@ class Diapason:
         This  is an 🧪 experimental feature, and is likely to change significantly.
         See `tuneinsight.computations.models.py` for more details.
         """
+        deprecation.warn("MaaS", breaking=True)
         self.maas = model_manager
 
     # User management.
@@ -290,12 +294,21 @@ class Diapason:
             webbrowser.open(login_url)
         if blocking:
             try:
-                self.wait_ready(repeat=30, sleep_seconds=1)
-            except TimeoutError:
+                self.wait_ready(repeat=60, sleep_seconds=1)
+            except httpx.ConnectError as err:
                 warnings.warn(
                     "The login attempt was likely successful, but the Tune Insight instance could "
-                    "not be reached. Check that you have entered the correct URL and client ID, "
-                    "and used appropriate proxy settings (if needed)."
+                    "not be reached. Check that you have entered the correct URL "
+                    f"and used appropriate proxy settings (error: {err})."
+                )
+            except keycloak.KeycloakAuthenticationError as err:
+                warnings.warn(
+                    "The login attempt was likely successful, but `oidc_client_id` is incorrect. "
+                    f"Correct it then use .login again (error: {err})."
+                )
+            except (TimeoutError, keycloak.KeycloakPostError) as err:
+                warnings.warn(
+                    f"The login attempt might have timed out (error: {err}). Use .login again to generate a new URL."
                 )
         return login_url
 

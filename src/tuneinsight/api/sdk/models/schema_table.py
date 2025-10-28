@@ -17,6 +17,7 @@ class SchemaTable:
     """Definition of table or view within a data schema, including fields and local relations.
 
     Attributes:
+        description (Union[Unset, str]): optional description for the table
         fields (Union[Unset, List['SchemaField']]): List of fields available in this table.
         identifier (Union[Unset, str]): The primary key column of this table (e.g., "id").
         is_main (Union[Unset, bool]): Marks this table as the main entry point for queries. Only one table
@@ -28,6 +29,7 @@ class SchemaTable:
         title (Union[Unset, str]): Human-readable label for the table (e.g., "Patient").
     """
 
+    description: Union[Unset, str] = UNSET
     fields: Union[Unset, List["SchemaField"]] = UNSET
     identifier: Union[Unset, str] = UNSET
     is_main: Union[Unset, bool] = UNSET
@@ -38,6 +40,7 @@ class SchemaTable:
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        description = self.description
         fields: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.fields, Unset):
             fields = []
@@ -63,6 +66,8 @@ class SchemaTable:
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if description is not UNSET:
+            field_dict["description"] = description
         if fields is not UNSET:
             field_dict["fields"] = fields
         if identifier is not UNSET:
@@ -86,6 +91,8 @@ class SchemaTable:
         from ..models.schema_field import SchemaField
 
         d = src_dict.copy()
+        description = d.pop("description", UNSET)
+
         fields = []
         _fields = d.pop("fields", UNSET)
         for fields_item_data in _fields or []:
@@ -111,6 +118,7 @@ class SchemaTable:
         title = d.pop("title", UNSET)
 
         schema_table = cls(
+            description=description,
             fields=fields,
             identifier=identifier,
             is_main=is_main,

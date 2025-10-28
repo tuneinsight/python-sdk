@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
 
 import attr
 
@@ -52,6 +52,8 @@ class HybridFL:
             ...}
         local_input_id (Union[Unset, str]): Unique identifier of a data object.
         owner (Union[Unset, str]): The username of the end user who requested the computation.
+        participants (Union[Unset, List[str]]): list of preferred participants (using their alias) to run the
+            computation with.
         precision (Union[Unset, None, int]): optional minimum required bit precision to guarantee when aggregating
             results.
             If the precision is set to `x`, then the user can expect the results error to be bounded by `2^(-x)`
@@ -101,6 +103,7 @@ class HybridFL:
     local_input: Union[Unset, "LocalInput"] = UNSET
     local_input_id: Union[Unset, str] = UNSET
     owner: Union[Unset, str] = UNSET
+    participants: Union[Unset, List[str]] = UNSET
     precision: Union[Unset, None, int] = UNSET
     preprocessing_parameters: Union[Unset, "ComputationPreprocessingParameters"] = UNSET
     project_id: Union[Unset, str] = UNSET
@@ -148,6 +151,10 @@ class HybridFL:
 
         local_input_id = self.local_input_id
         owner = self.owner
+        participants: Union[Unset, List[str]] = UNSET
+        if not isinstance(self.participants, Unset):
+            participants = self.participants
+
         precision = self.precision
         preprocessing_parameters: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.preprocessing_parameters, Unset):
@@ -213,6 +220,8 @@ class HybridFL:
             field_dict["localInputID"] = local_input_id
         if owner is not UNSET:
             field_dict["owner"] = owner
+        if participants is not UNSET:
+            field_dict["participants"] = participants
         if precision is not UNSET:
             field_dict["precision"] = precision
         if preprocessing_parameters is not UNSET:
@@ -306,6 +315,8 @@ class HybridFL:
 
         owner = d.pop("owner", UNSET)
 
+        participants = cast(List[str], d.pop("participants", UNSET))
+
         precision = d.pop("precision", UNSET)
 
         _preprocessing_parameters = d.pop("preprocessingParameters", UNSET)
@@ -369,6 +380,7 @@ class HybridFL:
             local_input=local_input,
             local_input_id=local_input_id,
             owner=owner,
+            participants=participants,
             precision=precision,
             preprocessing_parameters=preprocessing_parameters,
             project_id=project_id,

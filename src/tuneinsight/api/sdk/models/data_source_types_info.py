@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
@@ -6,6 +6,10 @@ from ..models.data_source_type import DataSourceType
 from ..models.database_type import DatabaseType
 from ..models.local_data_source_type import LocalDataSourceType
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.data_schema import DataSchema
+
 
 T = TypeVar("T", bound="DataSourceTypesInfo")
 
@@ -15,17 +19,27 @@ class DataSourceTypesInfo:
     """information about the available datasources
 
     Attributes:
+        available_schemas (Union[Unset, List['DataSchema']]): list of schemas that can be chosen as data standards
         data_source_types (Union[Unset, List[DataSourceType]]): list of available datasource types
         database_types (Union[Unset, List[DatabaseType]]): list of supported database types
         local_formats (Union[Unset, List[LocalDataSourceType]]): list of supported format for local datasources
     """
 
+    available_schemas: Union[Unset, List["DataSchema"]] = UNSET
     data_source_types: Union[Unset, List[DataSourceType]] = UNSET
     database_types: Union[Unset, List[DatabaseType]] = UNSET
     local_formats: Union[Unset, List[LocalDataSourceType]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        available_schemas: Union[Unset, List[Dict[str, Any]]] = UNSET
+        if not isinstance(self.available_schemas, Unset):
+            available_schemas = []
+            for available_schemas_item_data in self.available_schemas:
+                available_schemas_item = available_schemas_item_data.to_dict()
+
+                available_schemas.append(available_schemas_item)
+
         data_source_types: Union[Unset, List[str]] = UNSET
         if not isinstance(self.data_source_types, Unset):
             data_source_types = []
@@ -53,6 +67,8 @@ class DataSourceTypesInfo:
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if available_schemas is not UNSET:
+            field_dict["availableSchemas"] = available_schemas
         if data_source_types is not UNSET:
             field_dict["dataSourceTypes"] = data_source_types
         if database_types is not UNSET:
@@ -64,7 +80,16 @@ class DataSourceTypesInfo:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.data_schema import DataSchema
+
         d = src_dict.copy()
+        available_schemas = []
+        _available_schemas = d.pop("availableSchemas", UNSET)
+        for available_schemas_item_data in _available_schemas or []:
+            available_schemas_item = DataSchema.from_dict(available_schemas_item_data)
+
+            available_schemas.append(available_schemas_item)
+
         data_source_types = []
         _data_source_types = d.pop("dataSourceTypes", UNSET)
         for data_source_types_item_data in _data_source_types or []:
@@ -87,6 +112,7 @@ class DataSourceTypesInfo:
             local_formats.append(local_formats_item)
 
         data_source_types_info = cls(
+            available_schemas=available_schemas,
             data_source_types=data_source_types,
             database_types=database_types,
             local_formats=local_formats,

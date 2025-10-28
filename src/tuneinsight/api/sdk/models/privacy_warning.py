@@ -3,6 +3,7 @@ from typing import Any, Dict, List, Type, TypeVar, Union
 import attr
 
 from ..models.privacy_warning_severity import PrivacyWarningSeverity
+from ..models.privacy_warning_type import PrivacyWarningType
 from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="PrivacyWarning")
@@ -13,15 +14,19 @@ class PrivacyWarning:
     """description of a potential privacy risk in the configuration of a project.
 
     Attributes:
-        description (Union[Unset, str]): What is the privacy risk.
+        warning_type (PrivacyWarningType): represents the existing privacy warning
+        description (Union[Unset, str]): Small description for the privacy warning.
         severity (Union[Unset, PrivacyWarningSeverity]): How severe is the privacy risk.
     """
 
+    warning_type: PrivacyWarningType
     description: Union[Unset, str] = UNSET
     severity: Union[Unset, PrivacyWarningSeverity] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        warning_type = self.warning_type.value
+
         description = self.description
         severity: Union[Unset, str] = UNSET
         if not isinstance(self.severity, Unset):
@@ -29,7 +34,11 @@ class PrivacyWarning:
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({})
+        field_dict.update(
+            {
+                "warningType": warning_type,
+            }
+        )
         if description is not UNSET:
             field_dict["description"] = description
         if severity is not UNSET:
@@ -40,6 +49,8 @@ class PrivacyWarning:
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
+        warning_type = PrivacyWarningType(d.pop("warningType"))
+
         description = d.pop("description", UNSET)
 
         _severity = d.pop("severity", UNSET)
@@ -50,6 +61,7 @@ class PrivacyWarning:
             severity = PrivacyWarningSeverity(_severity)
 
         privacy_warning = cls(
+            warning_type=warning_type,
             description=description,
             severity=severity,
         )

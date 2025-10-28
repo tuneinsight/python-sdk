@@ -17,11 +17,15 @@ class DataSourceTable:
 
     Attributes:
         columns (Union[Unset, List['DataSourceColumn']]):
+        error (Union[Unset, str]): any error in loading this table metadata.
         name (Union[Unset, str]):
+        updated_at (Union[Unset, str]): the last time this table metadata was refreshed with the data source.
     """
 
     columns: Union[Unset, List["DataSourceColumn"]] = UNSET
+    error: Union[Unset, str] = UNSET
     name: Union[Unset, str] = UNSET
+    updated_at: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -33,15 +37,21 @@ class DataSourceTable:
 
                 columns.append(columns_item)
 
+        error = self.error
         name = self.name
+        updated_at = self.updated_at
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
         if columns is not UNSET:
             field_dict["columns"] = columns
+        if error is not UNSET:
+            field_dict["error"] = error
         if name is not UNSET:
             field_dict["name"] = name
+        if updated_at is not UNSET:
+            field_dict["updatedAt"] = updated_at
 
         return field_dict
 
@@ -57,11 +67,17 @@ class DataSourceTable:
 
             columns.append(columns_item)
 
+        error = d.pop("error", UNSET)
+
         name = d.pop("name", UNSET)
+
+        updated_at = d.pop("updatedAt", UNSET)
 
         data_source_table = cls(
             columns=columns,
+            error=error,
             name=name,
+            updated_at=updated_at,
         )
 
         data_source_table.additional_properties = d
