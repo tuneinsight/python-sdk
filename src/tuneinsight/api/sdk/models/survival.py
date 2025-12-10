@@ -21,7 +21,8 @@ class Survival:
         duration_column (Union[Unset, str]): the name of the column that stores the duration for each sample, the values
             stored must be integers Default: 'duration'.
         end_event_column (Union[Unset, str]): the column that contains the timestamps of the end event (can be empty if
-            no event happened)
+            no event happened). If eventColumn is not provided, having a value in this column is assumed to mean an event
+            and not censoring.
         event_column (Union[Unset, str]): the name of the column that stores the event status for each sample Default:
             'event_status'.
         event_value (Union[Unset, str]): the event value indicating a survival event (i.e. death), default 1. Default:

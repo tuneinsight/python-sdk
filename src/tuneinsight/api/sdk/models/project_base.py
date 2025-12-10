@@ -58,13 +58,13 @@ class ProjectBase:
             By default this field is set according to the instance's configuration.
         output_data_source_id (Union[Unset, None, str]): Unique identifier of a data source.
         policy (Union[Unset, ComputationPolicy]): policy to validate a specific computation
-        query_timeout (Union[Unset, int]): Timeout for the data source queries Default: 30.
+        query_timeout (Union[Unset, None, int]): Timeout for the data source queries. Default is 30.
         query_timeout_enabled (Union[Unset, None, bool]): whether to enable the query timeout or not
         recurring_end_time (Union[Unset, None, str]): ISO 8601 datetime when the repetition should stop. If not set, the
             project will run indefinitely
         recurring_interval (Union[Unset, None, int]): Interval between each repetition in minutes
-        recurring_interval_unit (Union[Unset, ProjectBaseRecurringIntervalUnit]): Unit in which the recurring interval
-            is given (minutes, hours, days, weeks, months, years) Default: ProjectBaseRecurringIntervalUnit.MINUTES.
+        recurring_interval_unit (Union[Unset, None, ProjectBaseRecurringIntervalUnit]): Unit in which the recurring
+            interval is given (minutes, hours, days, weeks, months, years). Default is minutes.
         recurring_start_time (Union[Unset, None, str]): ISO 8601 datetime when the repetition should start
         restrict_instances (Union[Unset, None, bool]): (DEPRECATED: replace by using `specified` as the
             `runAccessScope`)
@@ -108,11 +108,11 @@ class ProjectBase:
     non_contributor: Union[Unset, None, bool] = UNSET
     output_data_source_id: Union[Unset, None, str] = UNSET
     policy: Union[Unset, "ComputationPolicy"] = UNSET
-    query_timeout: Union[Unset, int] = 30
+    query_timeout: Union[Unset, None, int] = UNSET
     query_timeout_enabled: Union[Unset, None, bool] = UNSET
     recurring_end_time: Union[Unset, None, str] = UNSET
     recurring_interval: Union[Unset, None, int] = UNSET
-    recurring_interval_unit: Union[Unset, ProjectBaseRecurringIntervalUnit] = ProjectBaseRecurringIntervalUnit.MINUTES
+    recurring_interval_unit: Union[Unset, None, ProjectBaseRecurringIntervalUnit] = UNSET
     recurring_start_time: Union[Unset, None, str] = UNSET
     restrict_instances: Union[Unset, None, bool] = UNSET
     run_access_scope: Union[Unset, ParticipantsAccessScope] = UNSET
@@ -170,9 +170,9 @@ class ProjectBase:
         query_timeout_enabled = self.query_timeout_enabled
         recurring_end_time = self.recurring_end_time
         recurring_interval = self.recurring_interval
-        recurring_interval_unit: Union[Unset, str] = UNSET
+        recurring_interval_unit: Union[Unset, None, str] = UNSET
         if not isinstance(self.recurring_interval_unit, Unset):
-            recurring_interval_unit = self.recurring_interval_unit.value
+            recurring_interval_unit = self.recurring_interval_unit.value if self.recurring_interval_unit else None
 
         recurring_start_time = self.recurring_start_time
         restrict_instances = self.restrict_instances
@@ -358,8 +358,10 @@ class ProjectBase:
         recurring_interval = d.pop("recurringInterval", UNSET)
 
         _recurring_interval_unit = d.pop("recurringIntervalUnit", UNSET)
-        recurring_interval_unit: Union[Unset, ProjectBaseRecurringIntervalUnit]
-        if isinstance(_recurring_interval_unit, Unset):
+        recurring_interval_unit: Union[Unset, None, ProjectBaseRecurringIntervalUnit]
+        if _recurring_interval_unit is None:
+            recurring_interval_unit = None
+        elif isinstance(_recurring_interval_unit, Unset):
             recurring_interval_unit = UNSET
         else:
             recurring_interval_unit = ProjectBaseRecurringIntervalUnit(_recurring_interval_unit)

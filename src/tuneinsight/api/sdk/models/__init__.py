@@ -1,13 +1,15 @@
-"""Contains all the data models used in inputs/outputs"""
+""" Contains all the data models used in inputs/outputs """
 
 from .access_scope import AccessScope
 from .add_columns import AddColumns
+from .advanced_builder_field import AdvancedBuilderField
 from .advanced_filter import AdvancedFilter
 from .advanced_filter_type import AdvancedFilterType
 from .aggregated_dataset_length import AggregatedDatasetLength
 from .aggregation_strategy import AggregationStrategy
 from .ai_builder_prompt_definition import AIBuilderPromptDefinition
 from .api_type import APIType
+from .append_s3_presigned_ur_ls import AppendS3PresignedURLs
 from .apply_mapping import ApplyMapping
 from .apply_reg_ex import ApplyRegEx
 from .apply_reg_ex_regex_type import ApplyRegExRegexType
@@ -50,6 +52,7 @@ from .computation_preprocessing_parameters_compound_preprocessing import (
 )
 from .computation_status import ComputationStatus
 from .computation_type import ComputationType
+from .compute_time_since import ComputeTimeSince
 from .content import Content
 from .content_type import ContentType
 from .contribution_error import ContributionError
@@ -58,6 +61,7 @@ from .credentials import Credentials
 from .credentials_type import CredentialsType
 from .cross_standard_query import CrossStandardQuery
 from .custom import Custom
+from .custom_additional_inputs import CustomAdditionalInputs
 from .cut import Cut
 from .data_object import DataObject
 from .data_object_creation_method import DataObjectCreationMethod
@@ -68,6 +72,7 @@ from .data_preparation_metadata import DataPreparationMetadata
 from .data_preparation_session import DataPreparationSession
 from .data_preparation_session_definition import DataPreparationSessionDefinition
 from .data_schema import DataSchema
+from .data_schema_advanced_builder_fields import DataSchemaAdvancedBuilderFields
 from .data_selection_type import DataSelectionType
 from .data_source import DataSource
 from .data_source_column import DataSourceColumn
@@ -89,6 +94,7 @@ from .data_source_status import DataSourceStatus
 from .data_source_table import DataSourceTable
 from .data_source_type import DataSourceType
 from .data_source_types_info import DataSourceTypesInfo
+from .data_source_variable import DataSourceVariable
 from .data_standard import DataStandard
 from .data_upload_params import DataUploadParams
 from .data_upload_response import DataUploadResponse
@@ -107,6 +113,8 @@ from .documentation_response_200 import DocumentationResponse200
 from .dp_noise_metadata import DpNoiseMetadata
 from .dp_policy import DPPolicy
 from .drop import Drop
+from .drop_duplicates import DropDuplicates
+from .drop_duplicates_keep import DropDuplicatesKeep
 from .dropna import Dropna
 from .dummy import Dummy
 from .dummy_simulated_stages_item import DummySimulatedStagesItem
@@ -131,6 +139,8 @@ from .external_ml_history import ExternalMlHistory
 from .external_ml_result import ExternalMlResult
 from .extract_dict_field import ExtractDictField
 from .feasibility import Feasibility
+from .fill_na import FillNA
+from .fill_na_method import FillNAMethod
 from .filter_ import Filter
 from .filtered_aggregation import FilteredAggregation
 from .float_matrix import FloatMatrix
@@ -143,6 +153,7 @@ from .get_ai_builder_prompts_data_source_type import GetAIBuilderPromptsDataSour
 from .get_ai_builder_prompts_order import GetAIBuilderPromptsOrder
 from .get_ai_builder_prompts_sort_by import GetAIBuilderPromptsSortBy
 from .get_availability_status_resource_type import GetAvailabilityStatusResourceType
+from .get_available_columns_response_200 import GetAvailableColumnsResponse200
 from .get_build_catalog_progress_response_200 import GetBuildCatalogProgressResponse200
 from .get_comp_bookmark_list_order import GetCompBookmarkListOrder
 from .get_comp_bookmark_list_sort_by import GetCompBookmarkListSortBy
@@ -185,6 +196,7 @@ from .get_query_bookmarks_sort_by import GetQueryBookmarksSortBy
 from .get_query_list_order import GetQueryListOrder
 from .get_query_list_sort_by import GetQueryListSortBy
 from .get_result_list_order import GetResultListOrder
+from .get_result_list_response import GetResultListResponse
 from .get_result_list_sort_by import GetResultListSortBy
 from .get_translated_query_command import GetTranslatedQueryCommand
 from .get_translated_query_command_result import GetTranslatedQueryCommandResult
@@ -251,9 +263,6 @@ from .participant import Participant
 from .participants_access_scope import ParticipantsAccessScope
 from .participation_status import ParticipationStatus
 from .phonetic_encoding import PhoneticEncoding
-from .post_ai_query_builder_json_body import PostAIQueryBuilderJsonBody
-from .post_ai_query_builder_json_body_data_model_template import PostAIQueryBuilderJsonBodyDataModelTemplate
-from .post_ai_query_builder_response_200 import PostAIQueryBuilderResponse200
 from .post_data_object_json_body import PostDataObjectJsonBody
 from .post_data_source_data_multipart_data import PostDataSourceDataMultipartData
 from .post_llm_request_json_body import PostLlmRequestJsonBody
@@ -261,11 +270,16 @@ from .post_llm_request_json_body_prompt_args import PostLlmRequestJsonBodyPrompt
 from .post_mock_dataset_access_scope import PostMockDatasetAccessScope
 from .post_mock_dataset_method import PostMockDatasetMethod
 from .post_notify_network_json_body import PostNotifyNetworkJsonBody
+from .post_preprocessing_agent_json_body import PostPreprocessingAgentJsonBody
+from .post_preprocessing_agent_response_200 import PostPreprocessingAgentResponse200
 from .post_project_data_json_body import PostProjectDataJsonBody
 from .post_protocol_message_multipart_data import PostProtocolMessageMultipartData
-from .post_summarize_query_json_body import PostSummarizeQueryJsonBody
-from .post_summarize_query_json_body_payload import PostSummarizeQueryJsonBodyPayload
-from .post_summarize_query_response_200 import PostSummarizeQueryResponse200
+from .post_query_builder_agent_json_body import PostQueryBuilderAgentJsonBody
+from .post_query_builder_agent_json_body_data_model_template import PostQueryBuilderAgentJsonBodyDataModelTemplate
+from .post_query_builder_agent_response_200 import PostQueryBuilderAgentResponse200
+from .post_summarize_query_agent_json_body import PostSummarizeQueryAgentJsonBody
+from .post_summarize_query_agent_json_body_payload import PostSummarizeQueryAgentJsonBodyPayload
+from .post_summarize_query_agent_response_200 import PostSummarizeQueryAgentResponse200
 from .post_transcribe_audio_multipart_data import PostTranscribeAudioMultipartData
 from .post_transcribe_audio_response_200 import PostTranscribeAudioResponse200
 from .post_user_response_201 import PostUserResponse201
@@ -325,6 +339,7 @@ from .schema_field import SchemaField
 from .schema_table import SchemaTable
 from .screened_row import ScreenedRow
 from .screening_operation import ScreeningOperation
+from .secure_inference import SecureInference
 from .select import Select
 from .series_filter import SeriesFilter
 from .series_filter_output_variables_item import SeriesFilterOutputVariablesItem
@@ -353,6 +368,8 @@ from .survival_aggregation import SurvivalAggregation
 from .survival_aggregation_subgroups_item import SurvivalAggregationSubgroupsItem
 from .task_progress import TaskProgress
 from .task_progress_payload import TaskProgressPayload
+from .terminology_field import TerminologyField
+from .terminology_reference_type import TerminologyReferenceType
 from .threshold import Threshold
 from .threshold_type import ThresholdType
 from .time_diff import TimeDiff
@@ -381,6 +398,7 @@ from .v_binned_aggregation import VBinnedAggregation
 from .value_distribution import ValueDistribution
 from .view_config import ViewConfig
 from .visualization_type import VisualizationType
+from .vocabulary import Vocabulary
 from .whitelisted_query import WhitelistedQuery
 from .workflow_item import WorkflowItem
 from .workflow_item_data import WorkflowItemData
@@ -390,12 +408,14 @@ from .workflow_type import WorkflowType
 __all__ = (
     "AccessScope",
     "AddColumns",
+    "AdvancedBuilderField",
     "AdvancedFilter",
     "AdvancedFilterType",
     "AggregatedDatasetLength",
     "AggregationStrategy",
     "AIBuilderPromptDefinition",
     "APIType",
+    "AppendS3PresignedURLs",
     "ApplyMapping",
     "ApplyRegEx",
     "ApplyRegExRegexType",
@@ -436,6 +456,7 @@ __all__ = (
     "ComputationPreprocessingParametersCompoundPreprocessing",
     "ComputationStatus",
     "ComputationType",
+    "ComputeTimeSince",
     "Content",
     "ContentType",
     "ContributionError",
@@ -444,6 +465,7 @@ __all__ = (
     "CredentialsType",
     "CrossStandardQuery",
     "Custom",
+    "CustomAdditionalInputs",
     "Cut",
     "DatabaseType",
     "DataObject",
@@ -455,6 +477,7 @@ __all__ = (
     "DataPreparationSession",
     "DataPreparationSessionDefinition",
     "DataSchema",
+    "DataSchemaAdvancedBuilderFields",
     "DataSelectionType",
     "DatasetSchema",
     "DatasetSchemaColumns",
@@ -482,6 +505,7 @@ __all__ = (
     "DataSourceTable",
     "DataSourceType",
     "DataSourceTypesInfo",
+    "DataSourceVariable",
     "DataStandard",
     "DataUploadParams",
     "DataUploadResponse",
@@ -493,6 +517,8 @@ __all__ = (
     "DpNoiseMetadata",
     "DPPolicy",
     "Drop",
+    "DropDuplicates",
+    "DropDuplicatesKeep",
     "Dropna",
     "Dummy",
     "DummySimulatedStagesItem",
@@ -517,6 +543,8 @@ __all__ = (
     "ExternalMlResult",
     "ExtractDictField",
     "Feasibility",
+    "FillNA",
+    "FillNAMethod",
     "Filter",
     "FilteredAggregation",
     "FloatMatrix",
@@ -529,6 +557,7 @@ __all__ = (
     "GetAIBuilderPromptsOrder",
     "GetAIBuilderPromptsSortBy",
     "GetAvailabilityStatusResourceType",
+    "GetAvailableColumnsResponse200",
     "GetBuildCatalogProgressResponse200",
     "GetCompBookmarkListOrder",
     "GetCompBookmarkListSortBy",
@@ -571,6 +600,7 @@ __all__ = (
     "GetQueryListOrder",
     "GetQueryListSortBy",
     "GetResultListOrder",
+    "GetResultListResponse",
     "GetResultListSortBy",
     "GetTranslatedQueryCommand",
     "GetTranslatedQueryCommandResult",
@@ -637,9 +667,6 @@ __all__ = (
     "ParticipantsAccessScope",
     "ParticipationStatus",
     "PhoneticEncoding",
-    "PostAIQueryBuilderJsonBody",
-    "PostAIQueryBuilderJsonBodyDataModelTemplate",
-    "PostAIQueryBuilderResponse200",
     "PostDataObjectJsonBody",
     "PostDataSourceDataMultipartData",
     "PostLlmRequestJsonBody",
@@ -647,11 +674,16 @@ __all__ = (
     "PostMockDatasetAccessScope",
     "PostMockDatasetMethod",
     "PostNotifyNetworkJsonBody",
+    "PostPreprocessingAgentJsonBody",
+    "PostPreprocessingAgentResponse200",
     "PostProjectDataJsonBody",
     "PostProtocolMessageMultipartData",
-    "PostSummarizeQueryJsonBody",
-    "PostSummarizeQueryJsonBodyPayload",
-    "PostSummarizeQueryResponse200",
+    "PostQueryBuilderAgentJsonBody",
+    "PostQueryBuilderAgentJsonBodyDataModelTemplate",
+    "PostQueryBuilderAgentResponse200",
+    "PostSummarizeQueryAgentJsonBody",
+    "PostSummarizeQueryAgentJsonBodyPayload",
+    "PostSummarizeQueryAgentResponse200",
     "PostTranscribeAudioMultipartData",
     "PostTranscribeAudioResponse200",
     "PostUserResponse201",
@@ -711,6 +743,7 @@ __all__ = (
     "SchemaTable",
     "ScreenedRow",
     "ScreeningOperation",
+    "SecureInference",
     "Select",
     "SeriesFilter",
     "SeriesFilterOutputVariablesItem",
@@ -737,6 +770,8 @@ __all__ = (
     "SurvivalAggregationSubgroupsItem",
     "TaskProgress",
     "TaskProgressPayload",
+    "TerminologyField",
+    "TerminologyReferenceType",
     "Threshold",
     "ThresholdType",
     "TimeDiff",
@@ -765,6 +800,7 @@ __all__ = (
     "VBinnedAggregation",
     "ViewConfig",
     "VisualizationType",
+    "Vocabulary",
     "WhitelistedQuery",
     "WorkflowItem",
     "WorkflowItemData",

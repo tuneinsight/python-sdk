@@ -21,6 +21,7 @@ from tuneinsight.api.sdk.types import Response
 from tuneinsight.api.sdk import models
 from tuneinsight.api.sdk.api.api_project import (
     delete_project,
+    get_available_columns,
     get_project,
     patch_project,
     post_project_authorize,
@@ -203,7 +204,7 @@ class Project:
 
     def get_recurring_parameters(self) -> str:
         """
-        get_recurring_parameters returns the recurring parameters of the project
+        Returns the recurring parameters of the project
 
         Returns:
             dict: recurring parameters of the project
@@ -261,7 +262,7 @@ class Project:
         validate_response(resp)
         return DataSource(model=resp.parsed, client=self.client)
 
-    def get_participants(self) -> List[str]:
+    def get_participants(self) -> List[models.Participant]:
         """
         Refreshes the state of the project and returns the list of participants.
 
@@ -271,6 +272,14 @@ class Project:
         self._refresh()
         parts: List[models.Participant] = self.model.participants
         return parts
+
+    def get_max_num_contributors(self) -> int:
+        """Computes the number of participants in the network that could contribute to this project."""
+        num = 0
+        for part in self.get_participants():
+            if value_if_unset(part.is_contributor, True):
+                num += 1
+        return num
 
     def get_authorized_users(self) -> List[str]:
         """
@@ -568,7 +577,7 @@ class Project:
         end_time: Union[str, None],
     ):
         """
-        set_recurring Sets the project's recurring parameters
+        Sets the project's recurring parameters
 
         Args:
             start_time (str): start time (ISO 8601) of the recurring execution
@@ -975,6 +984,21 @@ class Project:
                 data_source_auto_match=True, auto_match_criteria=ds.auto_match
             )
         )
+
+    def get_available_columns(self) -> List[models.DataSourceVariable]:
+        """Fetches the list of available columns on this project.
+
+        This retrieves the datasource and parses the query and preprocessing to infer
+        what columns are available in the computations.
+
+        Returns:
+            List[str]: list of available columns.
+        """
+        resp: Response[models.GetAvailableColumnsResponse200] = (
+            get_available_columns.sync_detailed(self.get_id(), client=self.client)
+        )
+        validate_response(response=resp)
+        return resp.parsed.computation
 
     def display_overview(self):
         """

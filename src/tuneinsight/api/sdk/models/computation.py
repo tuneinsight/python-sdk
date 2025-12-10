@@ -38,6 +38,8 @@ class Computation:
         local (Union[Unset, bool]): deprecated
         measurements (Union[Unset, List['Measurement']]): list of benchmarking measurements done on the computation
         notify_end (Union[Unset, None, bool]): whether to notify the initiating user when the computation has ended.
+        num_synced_participants (Union[Unset, int]): the number of participants of the computation who have successfully
+            queried their input dataset
         output_data_source_id (Union[Unset, None, str]): Unique identifier of a data source.
         owner (Union[Unset, str]): identifier of the end user that has requested the computation
         participants (Union[Unset, List['Participant']]): list of participants that took part (interacted or
@@ -70,6 +72,7 @@ class Computation:
     local: Union[Unset, bool] = UNSET
     measurements: Union[Unset, List["Measurement"]] = UNSET
     notify_end: Union[Unset, None, bool] = UNSET
+    num_synced_participants: Union[Unset, int] = UNSET
     output_data_source_id: Union[Unset, None, str] = UNSET
     owner: Union[Unset, str] = UNSET
     participants: Union[Unset, List["Participant"]] = UNSET
@@ -116,6 +119,7 @@ class Computation:
                 measurements.append(measurements_item)
 
         notify_end = self.notify_end
+        num_synced_participants = self.num_synced_participants
         output_data_source_id = self.output_data_source_id
         owner = self.owner
         participants: Union[Unset, List[Dict[str, Any]]] = UNSET
@@ -182,6 +186,8 @@ class Computation:
             field_dict["measurements"] = measurements
         if notify_end is not UNSET:
             field_dict["notifyEnd"] = notify_end
+        if num_synced_participants is not UNSET:
+            field_dict["numSyncedParticipants"] = num_synced_participants
         if output_data_source_id is not UNSET:
             field_dict["outputDataSourceId"] = output_data_source_id
         if owner is not UNSET:
@@ -258,6 +264,8 @@ class Computation:
 
         notify_end = d.pop("notifyEnd", UNSET)
 
+        num_synced_participants = d.pop("numSyncedParticipants", UNSET)
+
         output_data_source_id = d.pop("outputDataSourceId", UNSET)
 
         owner = d.pop("owner", UNSET)
@@ -314,6 +322,7 @@ class Computation:
             local=local,
             measurements=measurements,
             notify_end=notify_end,
+            num_synced_participants=num_synced_participants,
             output_data_source_id=output_data_source_id,
             owner=owner,
             participants=participants,

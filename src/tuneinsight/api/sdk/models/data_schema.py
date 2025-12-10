@@ -5,6 +5,7 @@ import attr
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.data_schema_advanced_builder_fields import DataSchemaAdvancedBuilderFields
     from ..models.schema_table import SchemaTable
 
 
@@ -16,15 +17,22 @@ class DataSchema:
     """aims to provide a flexible definition of a data schema, which includes the tables and their relationships.
 
     Attributes:
+        advanced_builder_fields (Union[Unset, DataSchemaAdvancedBuilderFields]): Predefined fields for advanced query
+            builder parameters.
         name (Union[Unset, str]): optional name for the schema.
         tables (Union[Unset, List['SchemaTable']]):
     """
 
+    advanced_builder_fields: Union[Unset, "DataSchemaAdvancedBuilderFields"] = UNSET
     name: Union[Unset, str] = UNSET
     tables: Union[Unset, List["SchemaTable"]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        advanced_builder_fields: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.advanced_builder_fields, Unset):
+            advanced_builder_fields = self.advanced_builder_fields.to_dict()
+
         name = self.name
         tables: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.tables, Unset):
@@ -37,6 +45,8 @@ class DataSchema:
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if advanced_builder_fields is not UNSET:
+            field_dict["advancedBuilderFields"] = advanced_builder_fields
         if name is not UNSET:
             field_dict["name"] = name
         if tables is not UNSET:
@@ -46,9 +56,17 @@ class DataSchema:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.data_schema_advanced_builder_fields import DataSchemaAdvancedBuilderFields
         from ..models.schema_table import SchemaTable
 
         d = src_dict.copy()
+        _advanced_builder_fields = d.pop("advancedBuilderFields", UNSET)
+        advanced_builder_fields: Union[Unset, DataSchemaAdvancedBuilderFields]
+        if isinstance(_advanced_builder_fields, Unset):
+            advanced_builder_fields = UNSET
+        else:
+            advanced_builder_fields = DataSchemaAdvancedBuilderFields.from_dict(_advanced_builder_fields)
+
         name = d.pop("name", UNSET)
 
         tables = []
@@ -59,6 +77,7 @@ class DataSchema:
             tables.append(tables_item)
 
         data_schema = cls(
+            advanced_builder_fields=advanced_builder_fields,
             name=name,
             tables=tables,
         )

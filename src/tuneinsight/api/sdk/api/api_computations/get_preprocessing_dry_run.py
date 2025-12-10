@@ -1,10 +1,11 @@
 from http import HTTPStatus
-from typing import Any, Dict, List, Optional, cast
+from typing import Any, Dict, List, Optional
 
 import httpx
 
 from ... import errors
 from ...client import Client
+from ...models.data_source_variable import DataSourceVariable
 from ...models.get_preprocessing_dry_run_json_body import GetPreprocessingDryRunJsonBody
 from ...types import Response
 
@@ -43,12 +44,17 @@ def _get_kwargs(
     }
 
 
-def _parse_response(*, client: Client, response: httpx.Response) -> Optional[List[List[str]]]:
+def _parse_response(*, client: Client, response: httpx.Response) -> Optional[List[List["DataSourceVariable"]]]:
     if response.status_code == HTTPStatus.OK:
         response_200 = []
         _response_200 = response.json()
         for response_200_item_data in _response_200:
-            response_200_item = cast(List[str], response_200_item_data)
+            response_200_item = []
+            _response_200_item = response_200_item_data
+            for response_200_item_item_data in _response_200_item:
+                response_200_item_item = DataSourceVariable.from_dict(response_200_item_item_data)
+
+                response_200_item.append(response_200_item_item)
 
             response_200.append(response_200_item)
 
@@ -59,7 +65,7 @@ def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Lis
         return None
 
 
-def _build_response(*, client: Client, response: httpx.Response) -> Response[List[List[str]]]:
+def _build_response(*, client: Client, response: httpx.Response) -> Response[List[List["DataSourceVariable"]]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -72,7 +78,7 @@ def sync_detailed(
     *,
     client: Client,
     json_body: GetPreprocessingDryRunJsonBody,
-) -> Response[List[List[str]]]:
+) -> Response[List[List["DataSourceVariable"]]]:
     """Computes the dataset columns at every stage of a preprocessing chain. This also checks that the
     preprocessing chain is valid.
 
@@ -84,7 +90,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[List[List[str]]]
+        Response[List[List['DataSourceVariable']]]
     """
 
     kwargs = _get_kwargs(
@@ -104,7 +110,7 @@ def sync(
     *,
     client: Client,
     json_body: GetPreprocessingDryRunJsonBody,
-) -> Optional[List[List[str]]]:
+) -> Optional[List[List["DataSourceVariable"]]]:
     """Computes the dataset columns at every stage of a preprocessing chain. This also checks that the
     preprocessing chain is valid.
 
@@ -116,7 +122,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[List[List[str]]]
+        Response[List[List['DataSourceVariable']]]
     """
 
     return sync_detailed(
@@ -129,7 +135,7 @@ async def asyncio_detailed(
     *,
     client: Client,
     json_body: GetPreprocessingDryRunJsonBody,
-) -> Response[List[List[str]]]:
+) -> Response[List[List["DataSourceVariable"]]]:
     """Computes the dataset columns at every stage of a preprocessing chain. This also checks that the
     preprocessing chain is valid.
 
@@ -141,7 +147,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[List[List[str]]]
+        Response[List[List['DataSourceVariable']]]
     """
 
     kwargs = _get_kwargs(
@@ -159,7 +165,7 @@ async def asyncio(
     *,
     client: Client,
     json_body: GetPreprocessingDryRunJsonBody,
-) -> Optional[List[List[str]]]:
+) -> Optional[List[List["DataSourceVariable"]]]:
     """Computes the dataset columns at every stage of a preprocessing chain. This also checks that the
     preprocessing chain is valid.
 
@@ -171,7 +177,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[List[List[str]]]
+        Response[List[List['DataSourceVariable']]]
     """
 
     return (

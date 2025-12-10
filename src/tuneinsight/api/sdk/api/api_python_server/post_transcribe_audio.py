@@ -16,7 +16,7 @@ def _get_kwargs(
     client: Client,
     multipart_data: PostTranscribeAudioMultipartData,
 ) -> Dict[str, Any]:
-    url = "{}/pythonserver/aiquerybuilder/transcribe".format(client.base_url)
+    url = "{}/pythonserver/agents/querybuilder/transcribe".format(client.base_url)
 
     headers: Dict[str, str] = client.get_headers()
     cookies: Dict[str, Any] = client.get_cookies()

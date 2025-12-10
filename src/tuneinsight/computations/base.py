@@ -313,11 +313,30 @@ class Computation(ABC):
             local_input.additional_properties[str(col)] = col_list
         self.local_input = local_input
 
+    def _display_poll_status(self, comp: models.Computation):
+        """Prints a single string summarizing the current state of the computation."""
+        if self._is_done(comp):
+            print("Computation is done.")
+        progress = comp.progress
+        added_data = ""
+        if progress.stage_number == 2:
+            loaded = value_if_unset(comp.num_synced_participants, 0)
+            added_data = (
+                f" ({loaded}/{self.project.get_max_num_contributors()} datasets loaded)"
+            )
+        stage_number = value_if_unset(progress.stage_number, 0)
+        stage_name = value_if_unset(progress.stage_name, "preparing computation")
+        print(
+            f"\33[2K\rComputation running [{stage_number}/{progress.num_stages}]: {stage_name}{added_data}...",
+            end="",
+        )
+
     def _poll_computation(
         self,
         comp: models.Computation,
-        interval=100 * time_tools.MILLISECOND,
-        max_sleep_time=30 * time_tools.SECOND,
+        interval: int = 100 * time_tools.MILLISECOND,
+        max_sleep_time: int = 30 * time_tools.SECOND,
+        verbose: bool = False,
     ) -> Union[List[Result], List[DataObject]]:
         """
         Waits until a [models.]computation is finished and returns its result(s).
@@ -355,6 +374,8 @@ class Computation(ABC):
                 )
             time_tools.sleep(sleep_time)
             current_comp = self._refresh(comp)
+            if verbose:
+                self._display_poll_status(current_comp)
             if len(current_comp.warnings) > 0:
                 warnings.warn(current_comp.warnings[len(current_comp.warnings) - 1])
             if sleep_time < max_sleep_time:
@@ -466,6 +487,7 @@ class Computation(ABC):
         max_sleep_time=30 * time_tools.SECOND,
         on_previous_result: models.DataObject = None,
         resume_timedout: bool = False,
+        verbose: bool = False,
     ) -> Any:
         """
         Runs this computation.
@@ -501,7 +523,9 @@ class Computation(ABC):
         else:
             computation = self._launch(model)
 
-        results = self.fetch_results(computation, interval, max_sleep_time)
+        results = self.fetch_results(
+            computation, interval, max_sleep_time, verbose=verbose
+        )
 
         return results
 
@@ -510,6 +534,7 @@ class Computation(ABC):
         computation: models.Computation,
         interval: int = 100 * time_tools.MILLISECOND,
         max_sleep_time: int = 30 * time_tools.SECOND,
+        verbose: bool = False,
     ):
         """
         Fetches results for a `models.Computation` that has been started on the backend.
@@ -532,7 +557,10 @@ class Computation(ABC):
             return comp.fetch_results(computation, interval, max_sleep_time)
 
         results: Union[List[Result], List[DataObject]] = self._poll_computation(
-            comp=computation, interval=interval, max_sleep_time=max_sleep_time
+            comp=computation,
+            interval=interval,
+            max_sleep_time=max_sleep_time,
+            verbose=verbose,
         )
 
         # If using end-to-end encryption, decrypt each encrypted result.
@@ -655,20 +683,19 @@ class ModelBasedComputation(Computation):
             **kwargs (optional): additional keyword arguments to pass to the model class.
         """
         self.model = model_class(type=type, project_id=project.get_id(), **kwargs)
-        super().__init__(project)
         # Check DP compatibility (for now, with a friendly warning).
         if project.is_differentially_private:
-            warn_message = (
-                "This project has differential privacy enabled, but %s. "
-                "This will likely cause an error when running the computation. "
-                "Contact your administrator for more details."
-            )
+            warn_message = "This project has differential privacy enabled, but %s"
             if not hasattr(self.model, "dp_epsilon"):
                 warnings.warn(
-                    warn_message
-                    % "this computation does not appear to support differential privacy"
+                    (
+                        warn_message
+                        % "this computation does not appear to support differential privacy. "
+                        "This will likely cause an error when running the computation. "
+                        "Contact your administrator for more details."
+                    )
                 )
-            elif is_unset(self.model.dp_epsilon):
+            elif is_unset(self.model.dp_epsilon) or self.model.dp_epsilon is None:
                 warnings.warn(
                     warn_message
                     % "the parameter dp_epsilon was not set. Using default value 1."
@@ -682,6 +709,8 @@ class ModelBasedComputation(Computation):
                     raise ValueError(
                         "The parameter dp_epsilon must be a positive number."
                     )
+        # PATCH the project with the updated model.
+        super().__init__(project)
 
     def _get_model(self):
         return self.model

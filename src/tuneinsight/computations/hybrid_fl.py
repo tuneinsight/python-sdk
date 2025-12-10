@@ -157,7 +157,9 @@ class HybridFL(ModelBasedComputation):
 
         return train_metrics, test_metrics
 
-    def display_results(self, history, local_only=False, metrics_to_display=("acc",)):
+    def display_results(
+        self, history, local_only=False, metrics_to_display=("accuracy",)
+    ):
         """Displays the results of this computation, given its history."""
         history = deepcopy(history)
         _format_history(history)

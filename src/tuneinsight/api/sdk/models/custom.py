@@ -1,9 +1,13 @@
-from typing import Any, Dict, List, Type, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
 
 import attr
 
 from ..models.preprocessing_operation_type import PreprocessingOperationType
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.custom_additional_inputs import CustomAdditionalInputs
+
 
 T = TypeVar("T", bound="Custom")
 
@@ -13,14 +17,18 @@ class Custom:
     """
     Attributes:
         type (PreprocessingOperationType): type of preprocessing operation
+        additional_inputs (Union[Unset, CustomAdditionalInputs]): Optional additional keyword arguments to pass to the
+            custom function. Should contain simple values that can be marshalled
+            to and from JSON (e.g., no custom classes).
         compatible_with_differential_privacy (Union[Unset, bool]): Whether this preprocessing operation is compatible
             with differential privacy. For this to be the case,
             it needs to be stable (each input record creates at most one output record) and have a statically
-            determined (data-indenpendent) set of columns. Contact the Tune Insight team for more details on DP
+            determined (data-independent) set of columns. Contact the Tune Insight team for more details on DP
             compatibility.
         description (Union[Unset, str]): description given to the operation, for documentation purposes.
-        function (Union[Unset, str]): function definition which must respect the following format:
-            `def <custom_function_name>(df: pd.DataFrame) -> pd.DataFrame
+        function (Union[Unset, str]): function definition which must respect the following format (with optional
+            additional_inputs keyword arguments):
+            `def <custom_function_name>(df: pd.DataFrame, **additional_inputs) -> pd.DataFrame
                  <your code here>
                  return df`
         name (Union[Unset, str]): name given to the operation. The name has no impact on the operation
@@ -37,6 +45,7 @@ class Custom:
     """
 
     type: PreprocessingOperationType
+    additional_inputs: Union[Unset, "CustomAdditionalInputs"] = UNSET
     compatible_with_differential_privacy: Union[Unset, bool] = UNSET
     description: Union[Unset, str] = UNSET
     function: Union[Unset, str] = UNSET
@@ -47,6 +56,10 @@ class Custom:
 
     def to_dict(self) -> Dict[str, Any]:
         type = self.type.value
+
+        additional_inputs: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.additional_inputs, Unset):
+            additional_inputs = self.additional_inputs.to_dict()
 
         compatible_with_differential_privacy = self.compatible_with_differential_privacy
         description = self.description
@@ -65,6 +78,8 @@ class Custom:
                 "type": type,
             }
         )
+        if additional_inputs is not UNSET:
+            field_dict["additionalInputs"] = additional_inputs
         if compatible_with_differential_privacy is not UNSET:
             field_dict["compatibleWithDifferentialPrivacy"] = compatible_with_differential_privacy
         if description is not UNSET:
@@ -82,8 +97,17 @@ class Custom:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.custom_additional_inputs import CustomAdditionalInputs
+
         d = src_dict.copy()
         type = PreprocessingOperationType(d.pop("type"))
+
+        _additional_inputs = d.pop("additionalInputs", UNSET)
+        additional_inputs: Union[Unset, CustomAdditionalInputs]
+        if isinstance(_additional_inputs, Unset):
+            additional_inputs = UNSET
+        else:
+            additional_inputs = CustomAdditionalInputs.from_dict(_additional_inputs)
 
         compatible_with_differential_privacy = d.pop("compatibleWithDifferentialPrivacy", UNSET)
 
@@ -99,6 +123,7 @@ class Custom:
 
         custom = cls(
             type=type,
+            additional_inputs=additional_inputs,
             compatible_with_differential_privacy=compatible_with_differential_privacy,
             description=description,
             function=function,

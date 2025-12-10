@@ -77,7 +77,8 @@ class SurvivalParameters:
             start_event_column (Union[Unset, str]): the event column that must contain
                 the timestamps of the start of the trial.
             end_event_column (Union[Unset, str]): the column that must contain the timestamps
-                of the end event (can be empty if no event happened)
+                of the end event (can be empty if no event happened). If event_column is not
+                provided, the end event is always assumed to be event_value.
             num_frames (Union[Unset, int]): the number of time frames to take
                 into account starting from the start of the survival.
             unit (models.TimeUnit): the unit to use to measure time.
