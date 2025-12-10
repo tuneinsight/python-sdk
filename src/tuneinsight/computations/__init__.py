@@ -52,6 +52,7 @@ from .encrypted_mean import EncryptedMean
 from .feasibility import Feasibility
 from .gwas import GWAS
 from .hybrid_fl import HybridFL
+from .secure_inference import SecureInference
 from .intersection import Matching
 from .private_search import PrivateSearch
 from .regression import LinearRegression, LogisticRegression, PoissonRegression

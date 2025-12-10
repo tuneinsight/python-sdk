@@ -1,10 +1,11 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.data_source_column import DataSourceColumn
     from ..models.preprocessing_chain import PreprocessingChain
 
 
@@ -16,11 +17,11 @@ class GetPreprocessingDryRunJsonBody:
     """
     Attributes:
         chain (Union[Unset, PreprocessingChain]): Chain of preprocessing operations applied to the input dataframe
-        columns (Union[Unset, List[str]]): the list of names of input columns before preprocessing.
+        columns (Union[Unset, List['DataSourceColumn']]): the list of input columns, including the type of the column.
     """
 
     chain: Union[Unset, "PreprocessingChain"] = UNSET
-    columns: Union[Unset, List[str]] = UNSET
+    columns: Union[Unset, List["DataSourceColumn"]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -28,9 +29,13 @@ class GetPreprocessingDryRunJsonBody:
         if not isinstance(self.chain, Unset):
             chain = self.chain.to_dict()
 
-        columns: Union[Unset, List[str]] = UNSET
+        columns: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.columns, Unset):
-            columns = self.columns
+            columns = []
+            for columns_item_data in self.columns:
+                columns_item = columns_item_data.to_dict()
+
+                columns.append(columns_item)
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -44,6 +49,7 @@ class GetPreprocessingDryRunJsonBody:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.data_source_column import DataSourceColumn
         from ..models.preprocessing_chain import PreprocessingChain
 
         d = src_dict.copy()
@@ -54,7 +60,12 @@ class GetPreprocessingDryRunJsonBody:
         else:
             chain = PreprocessingChain.from_dict(_chain)
 
-        columns = cast(List[str], d.pop("columns", UNSET))
+        columns = []
+        _columns = d.pop("columns", UNSET)
+        for columns_item_data in _columns or []:
+            columns_item = DataSourceColumn.from_dict(columns_item_data)
+
+            columns.append(columns_item)
 
         get_preprocessing_dry_run_json_body = cls(
             chain=chain,

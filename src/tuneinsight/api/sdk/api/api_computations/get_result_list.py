@@ -7,8 +7,8 @@ from ... import errors
 from ...client import Client
 from ...models.error import Error
 from ...models.get_result_list_order import GetResultListOrder
+from ...models.get_result_list_response import GetResultListResponse
 from ...models.get_result_list_sort_by import GetResultListSortBy
-from ...models.result import Result
 from ...types import UNSET, Response, Unset
 
 
@@ -98,14 +98,9 @@ def _get_kwargs(
     }
 
 
-def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[Error, List["Result"]]]:
+def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[Error, GetResultListResponse]]:
     if response.status_code == HTTPStatus.OK:
-        response_200 = []
-        _response_200 = response.json()
-        for response_200_item_data in _response_200:
-            response_200_item = Result.from_dict(response_200_item_data)
-
-            response_200.append(response_200_item)
+        response_200 = GetResultListResponse.from_dict(response.json())
 
         return response_200
     if response.status_code == HTTPStatus.FORBIDDEN:
@@ -130,7 +125,7 @@ def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Uni
         return None
 
 
-def _build_response(*, client: Client, response: httpx.Response) -> Response[Union[Error, List["Result"]]]:
+def _build_response(*, client: Client, response: httpx.Response) -> Response[Union[Error, GetResultListResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -152,7 +147,7 @@ def sync_detailed(
     with_total: Union[Unset, None, bool] = True,
     sort_by: Union[Unset, None, GetResultListSortBy] = UNSET,
     order: Union[Unset, None, GetResultListOrder] = UNSET,
-) -> Response[Union[Error, List["Result"]]]:
+) -> Response[Union[Error, GetResultListResponse]]:
     """Get the list of results viewable by the logged-in user
 
     Args:
@@ -172,7 +167,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Error, List['Result']]]
+        Response[Union[Error, GetResultListResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -210,7 +205,7 @@ def sync(
     with_total: Union[Unset, None, bool] = True,
     sort_by: Union[Unset, None, GetResultListSortBy] = UNSET,
     order: Union[Unset, None, GetResultListOrder] = UNSET,
-) -> Optional[Union[Error, List["Result"]]]:
+) -> Optional[Union[Error, GetResultListResponse]]:
     """Get the list of results viewable by the logged-in user
 
     Args:
@@ -230,7 +225,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Error, List['Result']]]
+        Response[Union[Error, GetResultListResponse]]
     """
 
     return sync_detailed(
@@ -261,7 +256,7 @@ async def asyncio_detailed(
     with_total: Union[Unset, None, bool] = True,
     sort_by: Union[Unset, None, GetResultListSortBy] = UNSET,
     order: Union[Unset, None, GetResultListOrder] = UNSET,
-) -> Response[Union[Error, List["Result"]]]:
+) -> Response[Union[Error, GetResultListResponse]]:
     """Get the list of results viewable by the logged-in user
 
     Args:
@@ -281,7 +276,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Error, List['Result']]]
+        Response[Union[Error, GetResultListResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -317,7 +312,7 @@ async def asyncio(
     with_total: Union[Unset, None, bool] = True,
     sort_by: Union[Unset, None, GetResultListSortBy] = UNSET,
     order: Union[Unset, None, GetResultListOrder] = UNSET,
-) -> Optional[Union[Error, List["Result"]]]:
+) -> Optional[Union[Error, GetResultListResponse]]:
     """Get the list of results viewable by the logged-in user
 
     Args:
@@ -337,7 +332,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Error, List['Result']]]
+        Response[Union[Error, GetResultListResponse]]
     """
 
     return (

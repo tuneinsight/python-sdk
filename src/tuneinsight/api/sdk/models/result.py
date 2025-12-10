@@ -41,6 +41,7 @@ class Result:
         created_at (Union[Unset, str]):
         data_object_id (Union[Unset, str]): Unique identifier of a data object.
         end_to_end_encrypted (Union[Unset, bool]):
+        expires_at (Union[Unset, str]):
         id (Union[Unset, str]): Unique identifier of a result.
         local_data_object_id (Union[Unset, str]): Unique identifier of a data object.
         metadata (Union[Unset, ResultMetadata]): various metadata field along with the result to provide additional
@@ -72,6 +73,7 @@ class Result:
     created_at: Union[Unset, str] = UNSET
     data_object_id: Union[Unset, str] = UNSET
     end_to_end_encrypted: Union[Unset, bool] = UNSET
+    expires_at: Union[Unset, str] = UNSET
     id: Union[Unset, str] = UNSET
     local_data_object_id: Union[Unset, str] = UNSET
     metadata: Union[Unset, "ResultMetadata"] = UNSET
@@ -114,6 +116,7 @@ class Result:
         created_at = self.created_at
         data_object_id = self.data_object_id
         end_to_end_encrypted = self.end_to_end_encrypted
+        expires_at = self.expires_at
         id = self.id
         local_data_object_id = self.local_data_object_id
         metadata: Union[Unset, Dict[str, Any]] = UNSET
@@ -165,6 +168,8 @@ class Result:
             field_dict["dataObjectId"] = data_object_id
         if end_to_end_encrypted is not UNSET:
             field_dict["endToEndEncrypted"] = end_to_end_encrypted
+        if expires_at is not UNSET:
+            field_dict["expiresAt"] = expires_at
         if id is not UNSET:
             field_dict["id"] = id
         if local_data_object_id is not UNSET:
@@ -243,6 +248,8 @@ class Result:
 
         end_to_end_encrypted = d.pop("endToEndEncrypted", UNSET)
 
+        expires_at = d.pop("expiresAt", UNSET)
+
         id = d.pop("id", UNSET)
 
         local_data_object_id = d.pop("localDataObjectId", UNSET)
@@ -286,6 +293,7 @@ class Result:
             created_at=created_at,
             data_object_id=data_object_id,
             end_to_end_encrypted=end_to_end_encrypted,
+            expires_at=expires_at,
             id=id,
             local_data_object_id=local_data_object_id,
             metadata=metadata,

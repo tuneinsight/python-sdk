@@ -36,6 +36,7 @@ class Settings:
         default_data_source (Union[Unset, None, str]): Unique identifier of a data source.
         default_project (Union[Unset, str]): Unique identifier of a project.
         disable_shared_bookmarks (Union[Unset, None, bool]): whether to disable the shared bookmarks
+        enable_combine_protocol (Union[Unset, None, bool]): whether to enable the Combine Protocol
         feasibility_layout (Union[Unset, None, bool]): whether or not to enable the feasibility mode layout.
         query_timeout (Union[Unset, int]): custom timeout (seconds) to use for the query
         query_timeout_enabled (Union[Unset, None, bool]): whether to enable the query timeout
@@ -57,6 +58,7 @@ class Settings:
     default_data_source: Union[Unset, None, str] = UNSET
     default_project: Union[Unset, str] = UNSET
     disable_shared_bookmarks: Union[Unset, None, bool] = UNSET
+    enable_combine_protocol: Union[Unset, None, bool] = UNSET
     feasibility_layout: Union[Unset, None, bool] = UNSET
     query_timeout: Union[Unset, int] = UNSET
     query_timeout_enabled: Union[Unset, None, bool] = UNSET
@@ -103,6 +105,7 @@ class Settings:
         default_data_source = self.default_data_source
         default_project = self.default_project
         disable_shared_bookmarks = self.disable_shared_bookmarks
+        enable_combine_protocol = self.enable_combine_protocol
         feasibility_layout = self.feasibility_layout
         query_timeout = self.query_timeout
         query_timeout_enabled = self.query_timeout_enabled
@@ -140,6 +143,8 @@ class Settings:
             field_dict["defaultProject"] = default_project
         if disable_shared_bookmarks is not UNSET:
             field_dict["disableSharedBookmarks"] = disable_shared_bookmarks
+        if enable_combine_protocol is not UNSET:
+            field_dict["enableCombineProtocol"] = enable_combine_protocol
         if feasibility_layout is not UNSET:
             field_dict["feasibilityLayout"] = feasibility_layout
         if query_timeout is not UNSET:
@@ -207,6 +212,8 @@ class Settings:
 
         disable_shared_bookmarks = d.pop("disableSharedBookmarks", UNSET)
 
+        enable_combine_protocol = d.pop("enableCombineProtocol", UNSET)
+
         feasibility_layout = d.pop("feasibilityLayout", UNSET)
 
         query_timeout = d.pop("queryTimeout", UNSET)
@@ -239,6 +246,7 @@ class Settings:
             default_data_source=default_data_source,
             default_project=default_project,
             disable_shared_bookmarks=disable_shared_bookmarks,
+            enable_combine_protocol=enable_combine_protocol,
             feasibility_layout=feasibility_layout,
             query_timeout=query_timeout,
             query_timeout_enabled=query_timeout_enabled,

@@ -15,7 +15,7 @@ This module defines the following classes and functions:
 
 """
 
-from typing import Union, List
+from typing import Any, Callable, List, Union
 
 import re
 import black
@@ -32,7 +32,7 @@ from tuneinsight.computations.preprocessing import PreprocessingBuilder
 class _SelectedColumn:
     """The output of a selection operation (df[column_name])."""
 
-    def __init__(self, remotedf, name: str):
+    def __init__(self, remotedf: "RemoteDataFrame", name: str):
         self.remotedf = remotedf
         self.name = name
 
@@ -55,6 +55,34 @@ class _SelectedColumn:
     def replace(self, to_replace: dict, inplace=False, default=""):
         assert inplace is False, "replace cannot be done in place."
         return _ApplyMappingOperation(self, to_replace, default)
+
+    def fillna(self, value: Any):
+        "Fills missing entries in the data with a value (see `pandas.DataFrame.fillna`)."
+        return _InplaceOperation(
+            self,
+            lambda _: self.remotedf.fillna(value, columns=[self.name], inplace=True),
+        )
+
+    def ffill(self):
+        "Forward fills missing entries in the data (see `pandas.DataFrame.ffill`)."
+        return _InplaceOperation(
+            self, lambda _: self.remotedf.ffill(columns=[self.name], inplace=True)
+        )
+
+    def bfill(self):
+        "Backward fills missing entries in the data (see `pandas.DataFrame.bfill`)."
+        return _InplaceOperation(
+            self, lambda _: self.remotedf.bfill(columns=[self.name], inplace=True)
+        )
+
+    def interpolate(self, method="linear"):
+        "Fills missing entries in the data with linear interpolation (see `pandas.DataFrame.interpolate`)."
+        return _InplaceOperation(
+            self,
+            lambda _: self.remotedf.interpolate(
+                method=method, columns=[self.name], inplace=True
+            ),
+        )
 
     # All the following magic operations enable the filter operations (for comparisons).
     def __eq__(self, value):
@@ -89,6 +117,13 @@ class _PendingOperation:
     """
 
     def commit(self, output_name: str):
+        """Commits the pending operation by adding it to the preprocessing chain.
+
+        Called when assigning to a column: `remotedf[name] = op` is equivalent to `op.commit(name)`.
+
+        Args:
+            output_name (str): the name of the output column of the operation.
+        """
         raise NotImplementedError()
 
 
@@ -198,6 +233,25 @@ class _FilterOperation:
         )
 
 
+class _InplaceOperation(_PendingOperation):
+    """
+    Operations that are "in place" for column operations, using the syntax:
+
+    df[column] = f(df[column])
+    """
+
+    def __init__(self, column: _SelectedColumn, function: Callable[[str], None]):
+        self.column = column
+        self.f = function
+
+    def commit(self, output_name: str):
+        """Commits the pending operation by adding it to the preprocessing chain."""
+        assert (
+            output_name == self.column.name
+        ), "this operation must apply in place (df[column] = f(df[column])) on a RemoteDataFrame."
+        self.f(output_name)
+
+
 # Main class:
 
 
@@ -259,6 +313,7 @@ class RemoteDataFrame:
 
     # Re-implementing Pandas methods.
     def drop(self, columns: List[str], inplace: bool = True):
+        """Drops one or more columns from the dataframe."""
         assert inplace is True, "drop must be done inplace"
         self.builder.drop(columns)
         return self
@@ -315,6 +370,39 @@ class RemoteDataFrame:
         dtype = {k: converted.get(v, v) for k, v in dtype.items()}
         errors = {"raise": True, "ignore": False}[errors]
         self.builder.astype(dtype, errors)
+        return self
+
+    def fillna(self, value: Any, columns: List[str] = None, inplace=False):
+        "Fills missing entries in the data with a value (see `pandas.DataFrame.fillna`)."
+        assert inplace, "fillna must be in place"
+        self.builder.fillna(columns=columns, method="value", value=value)
+        return self
+
+    def ffill(self, columns: List[str] = None, inplace=False):
+        "Forward fills missing entries in the data (see `pandas.DataFrame.ffill`)."
+        assert inplace, "ffill must be in place"
+        self.builder.fillna(columns=columns, method="ffill")
+        return self
+
+    def bfill(self, columns: List[str] = None, inplace=False):
+        "Backward fills missing entries in the data (see `pandas.DataFrame.bfill`)."
+        assert inplace, "bfill must be in place"
+        self.builder.fillna(columns=columns, method="bfill")
+        return self
+
+    def interpolate(self, method="linear", columns: List[str] = None, inplace=False):
+        "Fills missing entries in the data with linear interpolation (see `pandas.DataFrame.interpolate`)."
+        assert method == "linear", "interpolation method must be linear"
+        assert inplace, "interpolate must be in place"
+        self.builder.fillna(columns=columns, method="interpolate")
+        return self
+
+    def drop_duplicates(
+        self, subset: List[str] = None, keep: str = "first", inplace=False
+    ):
+        "Drops duplicate records in the data (see `pandas.DataFrame.drop_duplicates`)."
+        assert inplace, "drop_duplicates must be in place"
+        self.builder.drop_duplicates(columns=subset, keep=keep)
         return self
 
 
@@ -415,14 +503,15 @@ def custom(
     """
 
     def decorator(func):
-        def wrappedfunc(df):
+        def wrappedfunc(df, **kwargs):
             if isinstance(df, pd.DataFrame):
-                return func(df)
+                return func(df, **kwargs)
             if isinstance(df, RemoteDataFrame):
                 df.builder.custom(
                     function=func,
                     name=name,
                     description=description,
+                    additional_inputs=kwargs,
                     output_columns=output_columns,
                     compatible_with_dp=compatible_with_dp,
                 )

@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Dict, List, Callable, Union
+from typing import Any, Dict, List, Callable, Union
 from warnings import warn
 import pandas as pd
 
@@ -875,11 +875,83 @@ class PreprocessingBuilder:
         )
         return self
 
+    def compute_time_since(self, date_column: str, output_column: str):
+        """
+        Adds a compute_time_since operation to the preprocessing chain.
+
+        This operation computes the time since a date given in the date_column, compared to today.
+        The year is saved in a new column called output_column.
+
+        Args:
+            date_column (str): the name of the column containing the date.
+            output_column (str): the name of the column created containing the time since in years.
+        """
+        self._append_to_chain(
+            models.ComputeTimeSince(
+                type=models.PreprocessingOperationType.COMPUTETIMESINCE,
+                date_column=date_column,
+                output_column=output_column,
+            )
+        )
+        return self
+
+    def drop_duplicates(self, columns: List[str] = None, keep: str = "first"):
+        """
+        Adds a drop_duplicates operation to the preprocessing chain.
+
+        Args:
+            columns (List[str], optional): the columns to use as keys for deduplication.
+                If None, all columns are used.
+            keep (str, optional): what records, if any, to keep from the duplicates. This can be
+                either "first", "last" or "none" (discard all duplicates). Defaults to "first".
+        """
+        self._append_to_chain(
+            models.DropDuplicates(
+                type=models.PreprocessingOperationType.DROPDUPLICATES,
+                columns=columns,
+                keep=models.DropDuplicatesKeep(keep),
+            )
+        )
+        return self
+
+    def fillna(self, method: str, columns: List[str] = None, value: Any = None):
+        """
+        Adds a fillna operation to the preprocessing chain.
+
+        This operation fills in missing value of the dataset. Missing values are either replaced by
+        a fixed value, or filled in with a specific method.
+
+        Args:
+            method (str): how to fill in the missing value. This is either "value", in which case
+                the argument `value` is required and used to fill in values. Otherwise, missing
+                values are filled in based on the dataset. Available methods are mean, median, mode
+                (filling in with the corresponding statistic in each column), ffill, bfill (forward
+                or backward fill) or interpolate (interpolating linearly between non-missing values).
+            columns (List[str], optional): columns where missing values are filled in. If None, all
+                columns are filled in.
+            value (Any, optional): the value to set in place of missing value. Required if the
+                method is "value" (otherwise can be left as None).
+        """
+        if value is None and method == "value":
+            raise ValueError(
+                'value must be set in fillna operation when method == "value".'
+            )
+        self._append_to_chain(
+            models.FillNA(
+                type=models.PreprocessingOperationType.FILLNA,
+                columns=columns,
+                value=str(value) if value is not None else None,
+                method=models.FillNAMethod(method) if method else None,
+            )
+        )
+        return self
+
     def custom(
         self,
         function: Callable[[pd.DataFrame], pd.DataFrame],
         name: str = "",
         description: str = "",
+        additional_inputs: Dict[str, Any] = UNSET,
         output_columns: List[str] = None,
         compatible_with_dp: bool = False,
         nodes: List[str] = None,
@@ -895,13 +967,15 @@ class PreprocessingBuilder:
         🔥 This preprocessing operation can be dangerous as it enables the users to run code on other organization's
         machine. Workflows containing such preprocessing blocks should always be carefully reviewed by the responsible
         data controllers from each participating organization before approving the project. This operation can be
-        disabled at the instance level, and may not be avaulable in oyur project.
+        disabled at the instance level, and may not be available in your project.
 
         Args:
             function (Callable[[pd.DataFrame], pd.DataFrame]): the preprocessing operation, must be a python function
                 which takes as input a dataframe and returns a new dataframe.
             name (str, optional): common name given to the operation, for indicative purposes. Defaults to "".
             description (str, optional): description given to the operation for indicative purposes. Defaults to "".
+            additional_inputs (Dict[str, any], optional): additional keyword arguments to pass to the custom function
+                when it is called. The values provided must be marshallable to JSON.
             compatible_with_dp (bool, optional): whether this operation is compatible with differential privacy. For this,
                 it must (1) be a stable transformation (at most one output record per input record) and (2) have a statically
                 determined set of output columns (i.e., not dependent on the input data). Contact Tune Insight if you
@@ -914,11 +988,16 @@ class PreprocessingBuilder:
         Returns:
             self (PreprocessingBuilder): the updated PreprocessingBuilder
         """
+        if is_set(additional_inputs):
+            tmp = models.CustomAdditionalInputs()
+            tmp.additional_properties = additional_inputs
+            additional_inputs = tmp
         self._append_to_chain(
             models.Custom(
                 type=models.PreprocessingOperationType.CUSTOM,
                 name=name,
                 description=description,
+                additional_inputs=additional_inputs,
                 function=get_code(function),
                 output_columns=output_columns,
                 compatible_with_differential_privacy=compatible_with_dp,
@@ -975,14 +1054,43 @@ class PreprocessingBuilder:
         self._append_to_chain(params.get_preprocessing_op(), nodes)
         return self
 
-    def dry_run(self, client: Client, starting_columns: List[str]) -> List[str]:
+    def dry_run(
+        self,
+        client: Client,
+        starting_columns: List[Union[models.DataSourceColumn, str]],
+    ) -> List[List[models.DataSourceVariable]]:
+        """Dry-runs the preprocessing operations on a set of starting columns.
+
+        This infers the columns available at the end of each preprocessing operation, as well
+        as the type of these columns.
+
+        Args:
+            client (Client): client to connect to.
+            starting_columns (List[Union[models.DataSourceVariable,str]]): the input columns of
+                the dry run (either column names, or variables with types).
+
+        Returns:
+            List[List[models.DataSourceVariable]]: the output variables at each step.
+        """
         if not isinstance(client, Client):
             client = client.client
+        wrapped_columns = []
+        for col in starting_columns:
+            if isinstance(col, models.DataSourceColumn):
+                wrapped_columns.append(col)
+            elif isinstance(col, str):
+                wrapped_columns.append(
+                    models.DataSourceColumn(
+                        name=col, type_group=models.ColumnTypeGroup.UNKNOWN
+                    )
+                )
+            else:
+                raise TypeError(f"Unknown data column type: {type(col)}")
         resp = get_preprocessing_dry_run.sync_detailed(
             client=client,
             json_body=get_preprocessing_dry_run.GetPreprocessingDryRunJsonBody(
                 chain=models.PreprocessingChain(chain=self.chain),
-                columns=starting_columns,
+                columns=wrapped_columns,
             ),
         )
         validate_response(resp)

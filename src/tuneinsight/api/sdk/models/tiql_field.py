@@ -5,6 +5,7 @@ import attr
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.terminology_field import TerminologyField
     from ..models.unit_filter import UnitFilter
 
 
@@ -23,6 +24,8 @@ class TiqlField:
         min_value (Union[Unset, None, float]): If this field is numeric, the minimum value it can take.
         name (Union[Unset, str]): the unique name for this field on its concept.
         scope (Union[Unset, str]): if provided, the ontology that the data values are taken from.
+        terminology (Union[Unset, TerminologyField]): Parameters that must be provided to schema fields when the field's
+            values are terminology references.
         type (Union[Unset, str]): type of the underlying data (number, freeform string, or categorical from an
             ontology).
         unit (Union[Unset, UnitFilter]): Filters to apply to columns of the input dataset to ensure that they have the
@@ -35,6 +38,7 @@ class TiqlField:
     min_value: Union[Unset, None, float] = UNSET
     name: Union[Unset, str] = UNSET
     scope: Union[Unset, str] = UNSET
+    terminology: Union[Unset, "TerminologyField"] = UNSET
     type: Union[Unset, str] = UNSET
     unit: Union[Unset, "UnitFilter"] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
@@ -46,6 +50,10 @@ class TiqlField:
         min_value = self.min_value
         name = self.name
         scope = self.scope
+        terminology: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.terminology, Unset):
+            terminology = self.terminology.to_dict()
+
         type = self.type
         unit: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.unit, Unset):
@@ -66,6 +74,8 @@ class TiqlField:
             field_dict["name"] = name
         if scope is not UNSET:
             field_dict["scope"] = scope
+        if terminology is not UNSET:
+            field_dict["terminology"] = terminology
         if type is not UNSET:
             field_dict["type"] = type
         if unit is not UNSET:
@@ -75,6 +85,7 @@ class TiqlField:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.terminology_field import TerminologyField
         from ..models.unit_filter import UnitFilter
 
         d = src_dict.copy()
@@ -89,6 +100,13 @@ class TiqlField:
         name = d.pop("name", UNSET)
 
         scope = d.pop("scope", UNSET)
+
+        _terminology = d.pop("terminology", UNSET)
+        terminology: Union[Unset, TerminologyField]
+        if isinstance(_terminology, Unset):
+            terminology = UNSET
+        else:
+            terminology = TerminologyField.from_dict(_terminology)
 
         type = d.pop("type", UNSET)
 
@@ -106,6 +124,7 @@ class TiqlField:
             min_value=min_value,
             name=name,
             scope=scope,
+            terminology=terminology,
             type=type,
             unit=unit,
         )
