@@ -1,6 +1,6 @@
-Metadata-Version: 2.1
+Metadata-Version: 2.4
 Name: tuneinsight
-Version: 1.4.0
+Version: 1.4.2
 Summary: Official Python SDK for the Tune Insight API. The current version is compatible with the same version of the API.
 License: Apache-2.0
 Author: Tune Insight SA
@@ -10,6 +10,8 @@ Classifier: Programming Language :: Python :: 3
 Classifier: Programming Language :: Python :: 3.10
 Classifier: Programming Language :: Python :: 3.11
 Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.14
 Provides-Extra: full
 Requires-Dist: PyYAML (>=6.0,<7.0)
 Requires-Dist: attrs (>=21.3.0)
@@ -20,6 +22,7 @@ Requires-Dist: h11 (>=0.16.0,<0.17.0)
 Requires-Dist: httpx (>=0.15.4,<0.28.0)
 Requires-Dist: ipython (==8.18.1)
 Requires-Dist: jinja2 (>=3.1.6,<4.0.0)
+Requires-Dist: jsonpickle (>=4.1.1,<5.0.0)
 Requires-Dist: jupyter (>=1.1.1,<2.0.0) ; extra == "full"
 Requires-Dist: jupyter-client (>=8.6.3,<9.0.0) ; extra == "full"
 Requires-Dist: jupyterlab (>=4.4.8,<5.0.0) ; extra == "full"

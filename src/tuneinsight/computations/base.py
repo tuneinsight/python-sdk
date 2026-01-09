@@ -641,6 +641,16 @@ class Computation(ABC):
             )
         )
 
+    def debug_dump(self) -> str:
+        """Outputs a JSON-formatted debugging dump of the state of this computation definition.
+
+        The dump contains the full API model of the computation definition, as would be run if the
+        computation was run. It is intended to be shared with your administrator to help debug errors.
+
+        """
+        model = self.get_full_model()
+        return json.dumps(model.to_dict())
+
     @classmethod
     def from_model(
         cls, project: "Project", model: models.ComputationDefinition  # type: ignore

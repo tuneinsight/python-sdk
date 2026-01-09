@@ -13,7 +13,8 @@ from tuneinsight.api.sdk import client
 from tuneinsight.client.auth import config
 
 
-@define(kw_only=True)
+# Slots=False is required to have _jsonpickle_exclude taken into account.
+@define(kw_only=True, slots=False)
 class KeycloakClient(client.AuthenticatedClient):
     """
     Client for Keycloak authentication.
@@ -35,6 +36,8 @@ class KeycloakClient(client.AuthenticatedClient):
     refresh_delay_seconds: float = 10
     verify_ssl: bool = True
     proxies: dict = {"http://": "", "https://": ""}
+
+    _jsonpickle_exclude = {"token", "password", "tokens", "kc_open_id"}
 
     def __attrs_post_init__(self):
         self.kc_open_id = KeycloakOpenID(

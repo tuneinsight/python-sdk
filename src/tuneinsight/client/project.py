@@ -2,6 +2,7 @@
 
 from contextlib import contextmanager
 import collections
+import json
 from typing import Dict, List, Tuple, Union, Any
 import warnings
 
@@ -1184,6 +1185,24 @@ class Project:
             for w in ws:
                 r.item(w)
         return True
+
+    def debug_dump(self) -> str:
+        """Outputs a JSON-formatted debugging dump of the state of this project.
+
+        The dump contains the current state of this project (its API model) and potentially
+        any error encountered when trying to refresh this project to its latest state.
+        It is intended to be shared with your administrator to help debug errors.
+
+        """
+        additional_state = {}
+        try:
+            self._refresh()
+        except Exception as err:  # pylint: disable=broad-exception-caught
+            warnings.warn("Error encountered when refreshing project state:", err)
+            additional_state["refreshing-error"] = str(err)
+        state = self.model.to_dict()
+        state["additional_debug_info"] = additional_state
+        return json.dumps(state)
 
 
 def _render_action(r: Renderer, name: str, status: models.AvailabilityStatus):
