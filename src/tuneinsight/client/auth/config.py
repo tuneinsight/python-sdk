@@ -38,6 +38,8 @@ class OIDCConfiguration:
     oidc_url: str
     oidc_realm: str
 
+    _jsonpickle_exclude = {"oidc_client_secret"}
+
     def __init__(
         self,
         oidc_client_id: str,
@@ -68,6 +70,8 @@ class SecurityConfiguration:
     password: str
     verify_ssl: bool
     oidc_config: OIDCConfiguration
+
+    _jsonpickle_exclude = {"password", "static_token"}
 
     def __init__(
         self,

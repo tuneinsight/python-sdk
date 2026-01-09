@@ -75,6 +75,9 @@ class Diapason:
     # The information about the user (capabilities etc.), stored to avoid re-requesting them.
     _user_info: models.UserInfo = None
 
+    # Do not include details about the API client when making a debug dump with this object.
+    _jsonpickle_exclude = {"client"}
+
     def __attrs_post_init__(self):
         if self.conf.security.static_token != "":
             self.client = api_client.AuthenticatedClient(

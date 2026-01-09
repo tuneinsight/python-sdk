@@ -1,15 +1,15 @@
 [tool.poetry]
 name = "tuneinsight"
-version = "1.4.0"  # Ignored.
+version = "1.4.2"  # Ignored.
 description = "Official Python SDK for the Tune Insight API. The current version is compatible with the same version of the API."
 authors = ["Tune Insight SA"]
 license = "Apache-2.0"
 include = [
-    "src/tuneinsight/api/**/*.py",
-    "src/tuneinsight/api/api-checksum",
-    "src/tuneinsight/cryptolib/build/*.so",
-    "src/tuneinsight/cryptolib/build/*.dll",
-    "src/tuneinsight/cryptolib/build/*.h"
+    { path = "src/tuneinsight/api/**/*.py", format = ["sdist", "wheel"] },
+    { path = "src/tuneinsight/api/api-checksum", format = ["sdist", "wheel"] },
+    { path = "src/tuneinsight/cryptolib/build/*.so", format = ["sdist", "wheel"] },
+    { path = "src/tuneinsight/cryptolib/build/*.dll", format = ["sdist", "wheel"] },
+    { path = "src/tuneinsight/cryptolib/build/*.h", format = ["sdist", "wheel"] }
 ]
 readme = "src/tuneinsight/README.md"
 
@@ -49,6 +49,7 @@ jupyter = { version = "^1.1.1", optional = true}
 jupyterlab = { version = "^4.4.8", optional = true}
 tornado = { version = "^6.5.0", optional = true}
 jupyter-client = { version = "^8.6.3", optional = true}
+jsonpickle = "^4.1.1"
 
 [tool.poetry.group.dev.dependencies]
 selenium = "^4.9.1"
