@@ -1,7 +1,6 @@
 """Class used to define the data source query for each participant in the project."""
 
-from typing import Callable, Dict, List, Union
-from tuneinsight.computations.tiql import Builder
+from typing import Callable
 from tuneinsight.api.sdk import models
 from tuneinsight.api.sdk.types import is_unset
 from tuneinsight.api.sdk.models.computation_data_source_parameters import (
@@ -23,7 +22,7 @@ class QueryBuilder:
     """
 
     global_query: DataSourceQuery
-    compound_query: Dict[str, DataSourceQuery]
+    compound_query: dict[str, DataSourceQuery]
     query_set: bool
 
     def __init__(self, update_function: Callable = None):
@@ -38,7 +37,7 @@ class QueryBuilder:
         self.query_set = False
         self.update_function = update_function
 
-    def _set_query(self, query_type: str, query: str, nodes: List[str] = None):
+    def _set_query(self, query_type: str, query: str, nodes: list[str] = None):
         if nodes is None:
             setattr(self.global_query, query_type, query)
         else:
@@ -50,12 +49,12 @@ class QueryBuilder:
         if self.update_function is not None:
             self.update_function()
 
-    def _set_query_from_dict(self, query_type: str, query_dict: Dict[str, str]):
+    def _set_query_from_dict(self, query_type: str, query_dict: dict[str, str]):
         for node in query_dict:
             query = query_dict[node]
             self._set_query(query_type, query, [node])
 
-    def set_database_query(self, query: str, nodes: List[str] = None):
+    def set_database_query(self, query: str, nodes: list[str] = None):
         """
         Sets the query to retrieve the input dataset from a database.
 
@@ -65,7 +64,7 @@ class QueryBuilder:
         """
         self._set_query("database_query", query, nodes)
 
-    def set_database_query_from_dict(self, query_dict: Dict[str, str]):
+    def set_database_query_from_dict(self, query_dict: dict[str, str]):
         """
         Sets the query to retrieve the input dataset from a database for each node.
 
@@ -74,7 +73,7 @@ class QueryBuilder:
         """
         self._set_query_from_dict("database_query", query_dict)
 
-    def set_api_request_body(self, request_body: str, nodes: List[str] = None):
+    def set_api_request_body(self, request_body: str, nodes: list[str] = None):
         """
         Sets the body of the request for an API datasource.
 
@@ -84,7 +83,7 @@ class QueryBuilder:
         """
         self._set_query("api_request_body", request_body, nodes)
 
-    def set_api_request_body_from_dict(self, query_dict: Dict[str, str]):
+    def set_api_request_body_from_dict(self, query_dict: dict[str, str]):
         """
         Sets the body of the request for an API datasource for each node.
 
@@ -93,7 +92,7 @@ class QueryBuilder:
         """
         self._set_query_from_dict("api_request_body", query_dict)
 
-    def set_api_path_query(self, query: str, nodes: List[str] = None):
+    def set_api_path_query(self, query: str, nodes: list[str] = None):
         """
         Sets the query path of the request for an API datasource.
 
@@ -103,7 +102,7 @@ class QueryBuilder:
         """
         self._set_query("api_path_query", query, nodes)
 
-    def set_api_path_query_from_dict(self, query_dict: Dict[str, str]):
+    def set_api_path_query_from_dict(self, query_dict: dict[str, str]):
         """
         Sets the query path of the request for an API datasource for each node.
 
@@ -112,7 +111,7 @@ class QueryBuilder:
         """
         self._set_query_from_dict("api_path_query", query_dict)
 
-    def set_api_json_path(self, json_path: str, nodes: List[str] = None):
+    def set_api_json_path(self, json_path: str, nodes: list[str] = None):
         """
         Sets the JSON-path of the request for an API datasource.
 
@@ -122,7 +121,7 @@ class QueryBuilder:
         """
         self._set_query("api_json_path", json_path, nodes)
 
-    def set_api_json_path_from_dict(self, query_dict: Dict[str, str]):
+    def set_api_json_path_from_dict(self, query_dict: dict[str, str]):
         """
         Sets the JSON-path of the request for an API datasource for each node.
 
@@ -133,8 +132,8 @@ class QueryBuilder:
 
     def set_cross_standard_query(
         self,
-        query: Union[models.CrossStandardQuery, Builder],
-        nodes: List[str] = None,
+        query: models.CrossStandardQuery,
+        nodes: list[str] = None,
     ):
         """
         Sets the cross-standard feasibility query (tiql).
@@ -146,8 +145,6 @@ class QueryBuilder:
             query (models.CrossStandardQuery): the query to set.
             nodes (list, default None): the list of nodes to which this applies. By default, all nodes.
         """
-        if isinstance(query, Builder):
-            query = query.get_model()
         self._set_query("cross_standard_query", query, nodes)
 
     def get_model(self) -> models.ComputationDataSourceParameters:

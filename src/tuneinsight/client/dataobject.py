@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from abc import abstractmethod
 import io
-from typing import Dict, Callable, List
+from typing import Callable
 import attr
 import pandas as pd
 
@@ -54,7 +54,7 @@ def _string_matrix_to_dataframe(t: models.StringMatrix) -> pd.DataFrame:
 
 
 # Maps content type to their appropriate dataframe converter
-content_to_dataframe: Dict[
+content_to_dataframe: dict[
     models.ContentType, Callable[[models.Content], pd.DataFrame]
 ] = {
     models.ContentType.FLOATMATRIX: _float_matrix_to_dataframe,
@@ -414,7 +414,7 @@ class Result(DataContent):
 
     # get_dataframe etc. is inherited from _Content.
 
-    def get_dataobjects(self) -> List[DataObject]:
+    def get_dataobjects(self) -> list[DataObject]:
         """
         Fetches the dataobjects for all the data of this result.
 
@@ -450,7 +450,7 @@ class Result(DataContent):
         return title
 
     @property
-    def tags(self) -> List[str]:
+    def tags(self) -> list[str]:
         """Returns the list of tags assigned to this result (if any)."""
         tags = self.model.result.tags
         if isinstance(tags, Unset):

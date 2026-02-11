@@ -1,6 +1,6 @@
 """Classes interacting with policies on a project."""
 
-from typing import List, Union
+from typing import Union
 
 import json
 
@@ -45,7 +45,7 @@ class DataPolicy(models.DatasourcePolicy):
         self.dp_policy = models.DPPolicy()
 
     def add_authorized_preprocessing(
-        self, operations: Union[List[models.PreprocessingOperationType], "PreprocessingBuilder"]  # type: ignore
+        self, operations: Union[list[models.PreprocessingOperationType], "PreprocessingBuilder"]  # type: ignore
     ):
         """
         Authorizes a preprocessing operation.
@@ -107,7 +107,7 @@ class DataPolicy(models.DatasourcePolicy):
         self,
         column: str,
         categorical: bool = False,
-        max_categories: Union[int, float] = 0,
+        max_categories: int | float = 0,
     ):
         """
         Adds a column to the set of authorized columns in the dataset.
@@ -279,6 +279,20 @@ class DataPolicy(models.DatasourcePolicy):
         if collective_size is not None:
             self.dp_policy.min_global_dataset_size = int(collective_size)
 
+    def restrict_to_TIQL_queries(self, undo=False):
+        """
+        Restricts the queries that can be performed in a project to use TIQL.
+
+        This is a security measure that prevents users from running queries in free languages
+        such as SQL. TIQL is designed to only allow queries that select records according
+        to some filters and extract variables from these records.
+
+        Args:
+            undo (bool, Optional): if set to True, unrestricts the project queries.
+
+        """
+        self.restrict_queries_to_tiql = not undo
+
 
 class Policy(models.ComputationPolicy):
     """
@@ -359,7 +373,7 @@ class Policy(models.ComputationPolicy):
         return models.AuthorizationContract(False, False, False, False, False)
 
     def add_authorized_preprocessing(
-        self, operations: Union[List[models.PreprocessingOperationType], "PreprocessingBuilder"]  # type: ignore
+        self, operations: Union[list[models.PreprocessingOperationType], "PreprocessingBuilder"]  # type: ignore
     ):
         """See `DataPolicy.add_authorized_preprocessing`."""
         self.data_policy.add_authorized_preprocessing(operations)
@@ -378,7 +392,7 @@ class Policy(models.ComputationPolicy):
         self,
         column: str,
         categorical: bool = False,
-        max_categories: Union[int, float] = 0,
+        max_categories: int | float = 0,
     ):
         """See `DataPolicy.add_authorized_column`."""
         self.data_policy.add_authorized_column(column, categorical, max_categories)

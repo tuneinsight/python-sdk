@@ -1,6 +1,6 @@
 """Utilities for benchmarking memory usage of and time taken by computations."""
 
-from typing import List, Any, Dict, Tuple
+from typing import Any
 from dateutil.parser import parse
 
 import numpy as np
@@ -73,9 +73,9 @@ def get_total_communication(comp: models.Computation) -> int:
 
 
 def plot_benchmarks(
-    x_values: List[Any],
-    times: Dict[str, np.ndarray],
-    nets: Dict[str, np.ndarray],
+    x_values: list[Any],
+    times: dict[str, np.ndarray],
+    nets: dict[str, np.ndarray],
     time_unit: int = time_tools.MILLISECOND,
     net_unit: int = KILOBYTE,
     title: str = "",
@@ -89,10 +89,10 @@ def plot_benchmarks(
     egress and ingress as a function of a free variable.
 
     Args:
-        x_values (List[Any]): the x-axis variables/settings
-        times (Dict[str,np.ndarray]): the benchmarked times, expects a dictionary from
+        x_values (list[Any]): the x-axis variables/settings
+        times (dict[str,np.ndarray]): the benchmarked times, expects a dictionary from
             computation type to numpy array storing the time values for each x value.
-        nets (Dict[str,np.ndarray]): the benchmarked communications, expects a dictionary
+        nets (dict[str,np.ndarray]): the benchmarked communications, expects a dictionary
             from computation type to numpy array storing the communication values for each x value.
         time_unit (int, optional): the time unit used. Defaults to time_tools.second.
         net_unit (int, optional): the communication size unit used. Defaults to kilobyte.
@@ -113,16 +113,16 @@ def plot_benchmarks(
     plt.show()
 
 
-def average_benchmarks(vals: List[Dict[str, np.ndarray]]) -> Dict[str, np.ndarray]:
+def average_benchmarks(vals: list[dict[str, np.ndarray]]) -> dict[str, np.ndarray]:
     """
     Averages a list of benchmark values.
 
     Args:
-        vals (List[Dict[str,np.ndarray]]): a list of benchmarks, expected to be a
+        vals (list[dict[str,np.ndarray]]): a list of benchmarks, expected to be a
             dictionary from computation type to numpy array of recorded values.
 
     Returns:
-        Dict[str,np.ndarray]: the dictionary that averages the list given as argument
+        dict[str,np.ndarray]: the dictionary that averages the list given as argument
     """
     result = {}
     for benchmarks in vals:
@@ -138,17 +138,17 @@ def average_benchmarks(vals: List[Dict[str, np.ndarray]]) -> Dict[str, np.ndarra
 
 
 def compute_benchmarks(
-    x_values: List[Any],
-    recordings: List[List[models.Computation]],
+    x_values: list[Any],
+    recordings: list[list[models.Computation]],
     time_unit: int = time_tools.MILLISECOND,
     net_unit: int = KILOBYTE,
-) -> Tuple[Dict[str, np.ndarray], Dict[str, np.ndarray]]:
+) -> tuple[dict[str, np.ndarray], dict[str, np.ndarray]]:
     """
     Computes the time/communication benchmarking results of a set of computations.
 
     Args:
-        x_values (List[Any]): the x axis values/settings used for the benchmarks
-        recordings (List[List[models.Computation]]): the list of recordings with
+        x_values (list[Any]): the x axis values/settings used for the benchmarks
+        recordings (list[list[models.Computation]]): the list of recordings with
             len(x_values) items (the list of recorded computations for each setting).
         time_unit (int, optional): the time unit to use for the benchmarking.
             Defaults to time_tools.second.
@@ -156,7 +156,7 @@ def compute_benchmarks(
             Defaults to kilobyte.
 
     Returns:
-        Tuple[Dict[str,np.ndarray],Dict[str,np.ndarray]]: a tuple (T,N) where T is the timings
+        tuple[dict[str,np.ndarray],dict[str,np.ndarray]]: a tuple (T,N) where T is the timings
             for each computation types and N is the communications for each computation types
     """
     all_comp_types = set()

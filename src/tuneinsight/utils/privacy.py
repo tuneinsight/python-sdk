@@ -1,7 +1,5 @@
 """Utilities for Differential Privacy post-analysis."""
 
-from typing import List
-
 from typing import Callable
 
 import numpy as np
@@ -62,7 +60,7 @@ class ConfidenceIntervalEstimator:
         self.observed = function(noisy_answers)
         self.samples = np.array([function(row) for row in samples])
 
-    def confidence_intervals(self, p: List[float] = (95, 99)):
+    def confidence_intervals(self, p: list[float] = (95, 99)):
         """
         Estimates confidence intervals for the function result.
 

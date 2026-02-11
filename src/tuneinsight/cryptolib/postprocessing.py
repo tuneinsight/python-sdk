@@ -4,7 +4,6 @@ import ctypes
 from io import StringIO
 import json
 import math
-from typing import List
 import pandas as pd
 
 from tuneinsight.api.sdk import models
@@ -54,7 +53,7 @@ def kaplan_meier_confidence_interval(
 
 
 def post_process_statistics(
-    comp: models.DatasetStatistics, results: List[List[float]]
+    comp: models.DatasetStatistics, results: list[list[float]]
 ) -> models.Statistics:
     """
     Post-processes the raw results of a statistics computation under differential privacy.
@@ -88,21 +87,21 @@ def post_process_statistics(
 
 def statistics_confidence_interval(
     comp: models.DatasetStatistics,
-    raw_results: List[List[float]],
+    raw_results: list[list[float]],
     noise_parameters: models.ResultMetadata,
 ) -> pd.DataFrame:
     """Estimates 95% confidence intervals on the mean and variance computed with differential privacy.
 
     Args:
         comp (models.DatasetStatistics): the computation definition.
-        raw_results (List[List[float]]): the raw results (a list of aggregated values).
+        raw_results (list[list[float]]): the raw results (a list of aggregated values).
         noise_parameters (models.ResultMetadata): the metadata on the noise added to each result.
     """
     csv_data = ",".join([str(x) for x in raw_results[0]])
     # Flatten the noise parameters to a single matrix.
     if is_unset(noise_parameters.dp_noise):
         raise ValueError("No DP noise metadata available.")
-    dp_metadata: List[List[float]] = []
+    dp_metadata: list[list[float]] = []
     # Concatenate the scaling matrices for the noise added to the different variables.
     for metadata in noise_parameters.dp_noise:
         if is_unset(metadata.sum_parameters):

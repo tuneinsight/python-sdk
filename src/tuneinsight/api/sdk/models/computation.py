@@ -9,9 +9,9 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.computation_definition import ComputationDefinition
     from ..models.computation_error import ComputationError
+    from ..models.computation_progress import ComputationProgress
     from ..models.measurement import Measurement
     from ..models.participant import Participant
-    from ..models.task_progress import TaskProgress
 
 
 T = TypeVar("T", bound="Computation")
@@ -37,6 +37,8 @@ class Computation:
             bandwidth measure
         local (Union[Unset, bool]): deprecated
         measurements (Union[Unset, List['Measurement']]): list of benchmarking measurements done on the computation
+        min_contributors_in_project (Union[Unset, None, int]): minimum number of participants required to run the
+            project, as defined on the project
         notify_end (Union[Unset, None, bool]): whether to notify the initiating user when the computation has ended.
         num_synced_participants (Union[Unset, int]): the number of participants of the computation who have successfully
             queried their input dataset
@@ -44,7 +46,7 @@ class Computation:
         owner (Union[Unset, str]): identifier of the end user that has requested the computation
         participants (Union[Unset, List['Participant']]): list of participants that took part (interacted or
             contributed) in this computation.
-        progress (Union[Unset, TaskProgress]): the progress of a remote task, divided in stages and steps
+        progress (Union[Unset, ComputationProgress]):
         project_id (Union[Unset, str]): Unique identifier of a project.
         result_id (Union[Unset, str]): Unique identifier of a result.
         result_ids (Union[Unset, List[str]]): List of results that have been associated with this computation.
@@ -71,12 +73,13 @@ class Computation:
     ingress: Union[Unset, int] = UNSET
     local: Union[Unset, bool] = UNSET
     measurements: Union[Unset, List["Measurement"]] = UNSET
+    min_contributors_in_project: Union[Unset, None, int] = UNSET
     notify_end: Union[Unset, None, bool] = UNSET
     num_synced_participants: Union[Unset, int] = UNSET
     output_data_source_id: Union[Unset, None, str] = UNSET
     owner: Union[Unset, str] = UNSET
     participants: Union[Unset, List["Participant"]] = UNSET
-    progress: Union[Unset, "TaskProgress"] = UNSET
+    progress: Union[Unset, "ComputationProgress"] = UNSET
     project_id: Union[Unset, str] = UNSET
     result_id: Union[Unset, str] = UNSET
     result_ids: Union[Unset, List[str]] = UNSET
@@ -118,6 +121,7 @@ class Computation:
 
                 measurements.append(measurements_item)
 
+        min_contributors_in_project = self.min_contributors_in_project
         notify_end = self.notify_end
         num_synced_participants = self.num_synced_participants
         output_data_source_id = self.output_data_source_id
@@ -184,6 +188,8 @@ class Computation:
             field_dict["local"] = local
         if measurements is not UNSET:
             field_dict["measurements"] = measurements
+        if min_contributors_in_project is not UNSET:
+            field_dict["minContributorsInProject"] = min_contributors_in_project
         if notify_end is not UNSET:
             field_dict["notifyEnd"] = notify_end
         if num_synced_participants is not UNSET:
@@ -221,9 +227,9 @@ class Computation:
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         from ..models.computation_definition import ComputationDefinition
         from ..models.computation_error import ComputationError
+        from ..models.computation_progress import ComputationProgress
         from ..models.measurement import Measurement
         from ..models.participant import Participant
-        from ..models.task_progress import TaskProgress
 
         d = src_dict.copy()
         definition = ComputationDefinition.from_dict(d.pop("definition"))
@@ -262,6 +268,8 @@ class Computation:
 
             measurements.append(measurements_item)
 
+        min_contributors_in_project = d.pop("minContributorsInProject", UNSET)
+
         notify_end = d.pop("notifyEnd", UNSET)
 
         num_synced_participants = d.pop("numSyncedParticipants", UNSET)
@@ -278,11 +286,11 @@ class Computation:
             participants.append(participants_item)
 
         _progress = d.pop("progress", UNSET)
-        progress: Union[Unset, TaskProgress]
+        progress: Union[Unset, ComputationProgress]
         if isinstance(_progress, Unset):
             progress = UNSET
         else:
-            progress = TaskProgress.from_dict(_progress)
+            progress = ComputationProgress.from_dict(_progress)
 
         project_id = d.pop("projectId", UNSET)
 
@@ -321,6 +329,7 @@ class Computation:
             ingress=ingress,
             local=local,
             measurements=measurements,
+            min_contributors_in_project=min_contributors_in_project,
             notify_end=notify_end,
             num_synced_participants=num_synced_participants,
             output_data_source_id=output_data_source_id,

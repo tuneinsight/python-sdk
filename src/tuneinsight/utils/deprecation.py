@@ -2,7 +2,7 @@
 
 import warnings
 
-DEPRECATION_VERSION = "1.3.0"
+DEPRECATION_VERSION = "1.6.0"
 MESSAGE = "⚠️ {} is deprecated and will be removed in the next major version (v{})."
 RECOMMENDATION = " 👉 Use {} instead."
 BREAKING = " 🚫 A breaking change was introduced: please update your code now."

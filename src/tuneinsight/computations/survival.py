@@ -1,6 +1,6 @@
 """Classes for survival analysis."""
 
-from typing import List, Dict
+from typing import Optional
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -59,9 +59,9 @@ class SurvivalParameters:
         duration_column: str = UNSET,
         event_column: str = UNSET,
         event_value: str = UNSET,
-        start_event_column: str = UNSET,
-        end_event_column: str = UNSET,
-        num_frames: int = UNSET,
+        start_event_column: Optional[str] = UNSET,
+        end_event_column: Optional[str] = UNSET,
+        num_frames: Optional[int] = UNSET,
         unit: models.TimeUnit = models.TimeUnit.WEEKS,
         unit_value: int = 1,
     ):
@@ -74,12 +74,12 @@ class SurvivalParameters:
             event_column (str): the name of the column that stores the event status
                 for each sample Default: 'event'.
             event_value (str): the event value indicating a survival event (e.g. death).
-            start_event_column (Union[Unset, str]): the event column that must contain
+            start_event_column (str, optional): the event column that must contain
                 the timestamps of the start of the trial.
-            end_event_column (Union[Unset, str]): the column that must contain the timestamps
+            end_event_column (str, optional): the column that must contain the timestamps
                 of the end event (can be empty if no event happened). If event_column is not
                 provided, the end event is always assumed to be event_value.
-            num_frames (Union[Unset, int]): the number of time frames to take
+            num_frames (int, optional): the number of time frames to take
                 into account starting from the start of the survival.
             unit (models.TimeUnit): the unit to use to measure time.
             unit_value (int): number of time units to use as time frame.
@@ -171,7 +171,7 @@ class SurvivalResults(ComputationResult):
         self,
         survival_parameters: SurvivalParameters,
         raw_results: pd.DataFrame,
-        group_parameters: List[models.SurvivalAggregationSubgroupsItem],
+        group_parameters: list[models.SurvivalAggregationSubgroupsItem],
         dp_epsilon: float = None,
     ):
         """
@@ -187,14 +187,14 @@ class SurvivalResults(ComputationResult):
         self.dp_noise = dp_epsilon
         self.results = self._process_raw(raw_results)
 
-    def _process_raw(self, raw_results: pd.DataFrame) -> Dict[str, pd.DataFrame]:
+    def _process_raw(self, raw_results: pd.DataFrame) -> dict[str, pd.DataFrame]:
         """Processes raw results to a dictionary of user-friendly dataframes (per group).
 
         Args:
             raw_results (pd.DataFrame): raw results from the floatmatrix result.
 
         Returns:
-            Dict[str, pd.DataFrame]: dictionary mapping each group name to its result.
+            dict[str, pd.DataFrame]: dictionary mapping each group name to its result.
         """
         result_mapping = {}
         for i, row in raw_results.iterrows():
@@ -311,7 +311,7 @@ class SurvivalResults(ComputationResult):
         style_plot(ax, fig, title, duration_col, "Survival Probability", size=size)
         plt.show()
 
-    def confidence_interval(self) -> Dict[str, pd.DataFrame]:
+    def confidence_interval(self) -> dict[str, pd.DataFrame]:
         """Estimates 95% confidence intervals for the Kaplan-Meier survival curve."""
         all_cis = kaplan_meier_confidence_interval(self.raw_results, self.dp_noise)
         grouped_cis = {}
@@ -367,9 +367,6 @@ class SurvivalAnalysis(ModelBasedComputation):
         self,
         project: "Project",
         survival_parameters: SurvivalParameters,
-        matching_organization: str = "",
-        matching_columns: List[str] = None,
-        fuzzy_matching: bool = False,
         dp_epsilon: float = UNSET,
     ):
         """
@@ -378,9 +375,6 @@ class SurvivalAnalysis(ModelBasedComputation):
         Args
             project (client.Project): the project to which this computation belongs.
             survival_parameter (SurvivalParameters): the parameters for this operation.
-            matching_organization (str): the organization with whom to match records.
-            matching_columns (list of str): the columns to use for the matching.
-            fuzzy_matching (bool, default False): whether to match approximately (fuzzy).
             dp_epsilon (float, optional): The privacy budget to use with this workflow.
                 Defaults to UNSET, in which case differential privacy is not used.
         """
@@ -390,16 +384,6 @@ class SurvivalAnalysis(ModelBasedComputation):
             type=models.ComputationType.SURVIVALAGGREGATION,
             survival_parameters=survival_parameters.to_model(),
             subgroups=[],
-            secure_matching=len(matching_organization) > 0,
-            matching_organization=matching_organization,
-            matching_columns=(
-                [
-                    models.MatchingColumn(name=c, fuzzy=fuzzy_matching)
-                    for c in matching_columns
-                ]
-                if matching_columns is not None
-                else []
-            ),
             dp_epsilon=dp_epsilon,
         )
         # Also save the survival parameters for post-processing.
@@ -411,29 +395,18 @@ class SurvivalAnalysis(ModelBasedComputation):
     ) -> "SurvivalAnalysis":
         """Initializes a SurvivalAnalysis computation from its API model."""
         model = models.SurvivalAggregation.from_dict(model.to_dict())
-        # Convert model.matching_columns to parameters.
-        fuzzy = False
-        matching_columns = []
-        if is_set(model.matching_columns):
-            for mc in model.matching_columns:
-                if is_set(mc.fuzzy) and mc.fuzzy:
-                    # All variables should have the same fuzzy value.
-                    fuzzy = True
-                matching_columns.append(mc.name)
         with project.disable_patch():
             comp = SurvivalAnalysis(
                 project,
                 survival_parameters=SurvivalParameters.from_model(
                     model.survival_parameters
                 ),
-                matching_columns=matching_columns,
-                fuzzy_matching=fuzzy,
                 dp_epsilon=model.dp_epsilon,
             )
         comp._adapt(model)
         return comp
 
-    def _process_results(self, results: List[DataContent]) -> Dict[str, pd.DataFrame]:
+    def _process_results(self, results: list[DataContent]) -> dict[str, pd.DataFrame]:
         """Converts raw results to a dictionary mapping subgroup name to a dataframe."""
         result = results[0]
         fm = result.get_float_matrix()
@@ -449,7 +422,7 @@ class SurvivalAnalysis(ModelBasedComputation):
             dp_epsilon=self.model.dp_epsilon,
         )
 
-    def add_categories(self, column: str, values: List[str]):
+    def add_categories(self, column: str, values: list[str]):
         """
         Creates subgroups of the data to study independently.
 

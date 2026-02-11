@@ -5,6 +5,7 @@ import httpx
 
 from ... import errors
 from ...client import Client
+from ...models.data_source_command import DataSourceCommand
 from ...models.data_source_command_result import DataSourceCommandResult
 from ...models.error import Error
 from ...types import UNSET, Response, Unset
@@ -14,6 +15,7 @@ def _get_kwargs(
     project_id: str,
     *,
     client: Client,
+    json_body: DataSourceCommand,
     global_execution: Union[Unset, None, bool] = UNSET,
 ) -> Dict[str, Any]:
     url = "{}/projects/{projectId}/datasource-command".format(client.base_url, projectId=project_id)
@@ -25,6 +27,8 @@ def _get_kwargs(
     params["globalExecution"] = global_execution
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
+
+    json_json_body = json_body.to_dict()
 
     # Set the proxies if the client has proxies set.
     proxies = None
@@ -44,6 +48,7 @@ def _get_kwargs(
         "cookies": cookies,
         "timeout": client.get_timeout(),
         "proxies": proxies,
+        "json": json_json_body,
         "params": params,
     }
 
@@ -92,6 +97,7 @@ def sync_detailed(
     project_id: str,
     *,
     client: Client,
+    json_body: DataSourceCommand,
     global_execution: Union[Unset, None, bool] = UNSET,
 ) -> Response[Union[DataSourceCommandResult, Error]]:
     """Execute a data source's command (e.g. to fetch metadata) on the project's datasource.
@@ -99,6 +105,7 @@ def sync_detailed(
     Args:
         project_id (str):
         global_execution (Union[Unset, None, bool]):
+        json_body (DataSourceCommand): Abstract subclass representing a datasource command.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -111,6 +118,7 @@ def sync_detailed(
     kwargs = _get_kwargs(
         project_id=project_id,
         client=client,
+        json_body=json_body,
         global_execution=global_execution,
     )
 
@@ -126,6 +134,7 @@ def sync(
     project_id: str,
     *,
     client: Client,
+    json_body: DataSourceCommand,
     global_execution: Union[Unset, None, bool] = UNSET,
 ) -> Optional[Union[DataSourceCommandResult, Error]]:
     """Execute a data source's command (e.g. to fetch metadata) on the project's datasource.
@@ -133,6 +142,7 @@ def sync(
     Args:
         project_id (str):
         global_execution (Union[Unset, None, bool]):
+        json_body (DataSourceCommand): Abstract subclass representing a datasource command.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -145,6 +155,7 @@ def sync(
     return sync_detailed(
         project_id=project_id,
         client=client,
+        json_body=json_body,
         global_execution=global_execution,
     ).parsed
 
@@ -153,6 +164,7 @@ async def asyncio_detailed(
     project_id: str,
     *,
     client: Client,
+    json_body: DataSourceCommand,
     global_execution: Union[Unset, None, bool] = UNSET,
 ) -> Response[Union[DataSourceCommandResult, Error]]:
     """Execute a data source's command (e.g. to fetch metadata) on the project's datasource.
@@ -160,6 +172,7 @@ async def asyncio_detailed(
     Args:
         project_id (str):
         global_execution (Union[Unset, None, bool]):
+        json_body (DataSourceCommand): Abstract subclass representing a datasource command.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -172,6 +185,7 @@ async def asyncio_detailed(
     kwargs = _get_kwargs(
         project_id=project_id,
         client=client,
+        json_body=json_body,
         global_execution=global_execution,
     )
 
@@ -185,6 +199,7 @@ async def asyncio(
     project_id: str,
     *,
     client: Client,
+    json_body: DataSourceCommand,
     global_execution: Union[Unset, None, bool] = UNSET,
 ) -> Optional[Union[DataSourceCommandResult, Error]]:
     """Execute a data source's command (e.g. to fetch metadata) on the project's datasource.
@@ -192,6 +207,7 @@ async def asyncio(
     Args:
         project_id (str):
         global_execution (Union[Unset, None, bool]):
+        json_body (DataSourceCommand): Abstract subclass representing a datasource command.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -205,6 +221,7 @@ async def asyncio(
         await asyncio_detailed(
             project_id=project_id,
             client=client,
+            json_body=json_body,
             global_execution=global_execution,
         )
     ).parsed

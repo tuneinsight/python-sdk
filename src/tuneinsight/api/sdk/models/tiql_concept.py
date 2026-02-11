@@ -1,8 +1,12 @@
-from typing import Any, Dict, List, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.tiql_field import TiqlField
+
 
 T = TypeVar("T", bound="TiqlConcept")
 
@@ -13,17 +17,27 @@ class TiqlConcept:
 
     Attributes:
         description (Union[Unset, str]): user-friendly description for this concept to be shown to the user.
+        fields (Union[Unset, List['TiqlField']]): All fields available on this concept
         label (Union[Unset, str]): the displayed name for this concept
         name (Union[Unset, str]): the unique name for this concept.
     """
 
     description: Union[Unset, str] = UNSET
+    fields: Union[Unset, List["TiqlField"]] = UNSET
     label: Union[Unset, str] = UNSET
     name: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         description = self.description
+        fields: Union[Unset, List[Dict[str, Any]]] = UNSET
+        if not isinstance(self.fields, Unset):
+            fields = []
+            for fields_item_data in self.fields:
+                fields_item = fields_item_data.to_dict()
+
+                fields.append(fields_item)
+
         label = self.label
         name = self.name
 
@@ -32,6 +46,8 @@ class TiqlConcept:
         field_dict.update({})
         if description is not UNSET:
             field_dict["description"] = description
+        if fields is not UNSET:
+            field_dict["fields"] = fields
         if label is not UNSET:
             field_dict["label"] = label
         if name is not UNSET:
@@ -41,8 +57,17 @@ class TiqlConcept:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.tiql_field import TiqlField
+
         d = src_dict.copy()
         description = d.pop("description", UNSET)
+
+        fields = []
+        _fields = d.pop("fields", UNSET)
+        for fields_item_data in _fields or []:
+            fields_item = TiqlField.from_dict(fields_item_data)
+
+            fields.append(fields_item)
 
         label = d.pop("label", UNSET)
 
@@ -50,6 +75,7 @@ class TiqlConcept:
 
         tiql_concept = cls(
             description=description,
+            fields=fields,
             label=label,
             name=name,
         )

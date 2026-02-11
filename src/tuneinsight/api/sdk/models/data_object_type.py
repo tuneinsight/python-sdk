@@ -21,8 +21,6 @@ class DataObjectType(str, Enum):
     ENCRYPTED_REG_MODEL_COMPRESSED = "encrypted-reg-model-compressed"
     DISTRIBUTED_JOIN_MAPPING = "distributed-join-mapping"
     ENCRYPTED_BUFFER = "encrypted-buffer"
-    COHORT = "cohort"
-    GWAS_MODEL = "gwas-model"
     EXTERNAL_ML_MODEL = "external-ml-model"
     ENCRYPTED_STATISTICS = "encrypted-statistics"
     DECRYPTED_STATISTICS = "decrypted-statistics"

@@ -5,7 +5,7 @@ import attr
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.ontology_search_result import OntologySearchResult
+    from ..models.term import Term
 
 
 T = TypeVar("T", bound="GetOntologyCodesResponse200")
@@ -15,11 +15,11 @@ T = TypeVar("T", bound="GetOntologyCodesResponse200")
 class GetOntologyCodesResponse200:
     """
     Attributes:
-        results (Union[Unset, List['OntologySearchResult']]):
+        results (Union[Unset, List['Term']]):
         total (Union[Unset, int]):
     """
 
-    results: Union[Unset, List["OntologySearchResult"]] = UNSET
+    results: Union[Unset, List["Term"]] = UNSET
     total: Union[Unset, int] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -46,13 +46,13 @@ class GetOntologyCodesResponse200:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.ontology_search_result import OntologySearchResult
+        from ..models.term import Term
 
         d = src_dict.copy()
         results = []
         _results = d.pop("results", UNSET)
         for results_item_data in _results or []:
-            results_item = OntologySearchResult.from_dict(results_item_data)
+            results_item = Term.from_dict(results_item_data)
 
             results.append(results_item)
 

@@ -1,6 +1,6 @@
 """Implementation of the advanced feasibility operation."""
 
-from typing import List, Union
+from typing import Any, Optional
 
 import json
 import matplotlib.pyplot as plt
@@ -24,7 +24,7 @@ from tuneinsight.api.sdk.types import none_if_unset, false_if_unset, value_if_un
 class FeasibilityResult(ComputationResult):
     """The result of a Feasibility computation."""
 
-    def __init__(self, dataframes: List[pd.DataFrame]):
+    def __init__(self, dataframes: list[pd.DataFrame]):
         self.dataframes = dataframes
         self.count = None
         self.grouped_counts = []
@@ -37,7 +37,7 @@ class FeasibilityResult(ComputationResult):
             self.grouped_counts.append(self._parse_grouped_dataframe(df))
 
     @staticmethod
-    def _parse_column_group(s: str) -> List[str]:
+    def _parse_column_group(s: str) -> list[str]:
         group_config = json.loads(s)
         group = group_config["groups"][0]
         return (group["column"], group["value"])
@@ -88,7 +88,7 @@ class Feasibility(ModelBasedComputation):
     def __init__(
         self,
         project: "Project",
-        groups: Union[List[any], any] = None,
+        groups: Optional[list[Any] | Any] = None,
         include_global_count: bool = True,
         per_instance_breakdown: bool = True,
         local_breakdown: bool = False,
@@ -98,7 +98,7 @@ class Feasibility(ModelBasedComputation):
 
         Args:
             project (Project): The project to run the computation with.
-            groups (Union[List[any], any], optional): Groups to use to disaggregate the counts by (by default, no groups).
+            groups (list[Any] | Any, optional): Groups to use to disaggregate the counts by (by default, no groups).
                 See `aggregation.py` for the syntax to use to specify this operation.
             include_global_count (bool, optional): whether to include the global count. Defaults to True.
             per_instance_breakdown (bool, optional): whether to also disaggregate the global count by instance. Defaults to True.

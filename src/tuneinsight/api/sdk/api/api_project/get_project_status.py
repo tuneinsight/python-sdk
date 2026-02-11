@@ -15,6 +15,7 @@ def _get_kwargs(
     *,
     client: Client,
     remote: Union[Unset, None, bool] = UNSET,
+    only_participant_info: Union[Unset, None, bool] = UNSET,
 ) -> Dict[str, Any]:
     url = "{}/projects/{projectId}/status".format(client.base_url, projectId=project_id)
 
@@ -23,6 +24,8 @@ def _get_kwargs(
 
     params: Dict[str, Any] = {}
     params["remote"] = remote
+
+    params["onlyParticipantInfo"] = only_participant_info
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
@@ -85,12 +88,14 @@ def sync_detailed(
     *,
     client: Client,
     remote: Union[Unset, None, bool] = UNSET,
+    only_participant_info: Union[Unset, None, bool] = UNSET,
 ) -> Response[Union[Error, GetProjectStatusResponse200]]:
     """Gets the various statuses of the project
 
     Args:
         project_id (str):
         remote (Union[Unset, None, bool]):
+        only_participant_info (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -104,6 +109,7 @@ def sync_detailed(
         project_id=project_id,
         client=client,
         remote=remote,
+        only_participant_info=only_participant_info,
     )
 
     response = httpx.request(
@@ -119,12 +125,14 @@ def sync(
     *,
     client: Client,
     remote: Union[Unset, None, bool] = UNSET,
+    only_participant_info: Union[Unset, None, bool] = UNSET,
 ) -> Optional[Union[Error, GetProjectStatusResponse200]]:
     """Gets the various statuses of the project
 
     Args:
         project_id (str):
         remote (Union[Unset, None, bool]):
+        only_participant_info (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -138,6 +146,7 @@ def sync(
         project_id=project_id,
         client=client,
         remote=remote,
+        only_participant_info=only_participant_info,
     ).parsed
 
 
@@ -146,12 +155,14 @@ async def asyncio_detailed(
     *,
     client: Client,
     remote: Union[Unset, None, bool] = UNSET,
+    only_participant_info: Union[Unset, None, bool] = UNSET,
 ) -> Response[Union[Error, GetProjectStatusResponse200]]:
     """Gets the various statuses of the project
 
     Args:
         project_id (str):
         remote (Union[Unset, None, bool]):
+        only_participant_info (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -165,6 +176,7 @@ async def asyncio_detailed(
         project_id=project_id,
         client=client,
         remote=remote,
+        only_participant_info=only_participant_info,
     )
 
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
@@ -178,12 +190,14 @@ async def asyncio(
     *,
     client: Client,
     remote: Union[Unset, None, bool] = UNSET,
+    only_participant_info: Union[Unset, None, bool] = UNSET,
 ) -> Optional[Union[Error, GetProjectStatusResponse200]]:
     """Gets the various statuses of the project
 
     Args:
         project_id (str):
         remote (Union[Unset, None, bool]):
+        only_participant_info (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -198,5 +212,6 @@ async def asyncio(
             project_id=project_id,
             client=client,
             remote=remote,
+            only_participant_info=only_participant_info,
         )
     ).parsed

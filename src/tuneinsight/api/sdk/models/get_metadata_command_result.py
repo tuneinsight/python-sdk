@@ -14,13 +14,16 @@ T = TypeVar("T", bound="GetMetadataCommandResult")
 
 @attr.s(auto_attribs=True)
 class GetMetadataCommandResult:
-    """The result of a getMetadata datasource command, returning the metadata of a datasource.
+    """The result of a getMetadata datasource command, returning comprehensive metadata about the datasource.
+    Contains the list of all concepts and their detailed metadata including fields.
 
-    Attributes:
-        type (DataSourceCommandResultType): List of output types and structures of datasource commands.
-        info (Union[Unset, str]): additional information and context about the command result.
-        query (Union[Unset, str]): the query that was executed as part of the datasource command.
-        concepts (Union[Unset, List['TiqlConcept']]): The list of all named concepts in this datasource.
+        Attributes:
+            type (DataSourceCommandResultType): List of output types and structures of datasource commands.
+            info (Union[Unset, str]): additional information and context about the command result.
+            query (Union[Unset, str]): the query that was executed as part of the datasource command.
+            concepts (Union[Unset, List['TiqlConcept']]): The list of all concepts in this datasource with their complete
+                metadata.
+                Each concept includes its name, label, description and the full list of fields with their types.
     """
 
     type: DataSourceCommandResultType

@@ -26,7 +26,6 @@ class SetIntersection:
         type (ComputationType): Type of the computation.
         dp_policy (Union[Unset, DPPolicy]): represents the disclosure prevention policy that enables toggling various
             mechanisms that are executed whenever the workflow runs.
-        cohort_id (Union[Unset, str]): Unique identifier of a data object.
         data_source_parameters (Union[Unset, ComputationDataSourceParameters]): Parameters used to query the datasource
             from each node before the computation
         dp_epsilon (Union[Unset, float]): If positive, the privacy budget used by this computation. Used only in DP
@@ -78,7 +77,6 @@ class SetIntersection:
         units (Union[Unset, List['UnitFilter']]): unit requirements for the numerical values in the computation. Used to
             filter input records with mismatching units.
         wait (Union[Unset, bool]): Whether to wait synchronously for the computation result.
-        encrypted_results (Union[Unset, bool]): if true, then the resulting matches are kept encrypted
         fuzzy_params (Union[Unset, FuzzyMatchingParameters]):
         hide_matching_origin (Union[Unset, bool]): if true, then the matches are aggregated before being decrypted,
             hiding the organizations with whom the items matched.
@@ -90,7 +88,6 @@ class SetIntersection:
 
     type: ComputationType
     dp_policy: Union[Unset, "DPPolicy"] = UNSET
-    cohort_id: Union[Unset, str] = UNSET
     data_source_parameters: Union[Unset, "ComputationDataSourceParameters"] = UNSET
     dp_epsilon: Union[Unset, float] = -1.0
     encrypted: Union[Unset, bool] = UNSET
@@ -113,7 +110,6 @@ class SetIntersection:
     timeout: Union[Unset, int] = UNSET
     units: Union[Unset, List["UnitFilter"]] = UNSET
     wait: Union[Unset, bool] = UNSET
-    encrypted_results: Union[Unset, bool] = UNSET
     fuzzy_params: Union[Unset, "FuzzyMatchingParameters"] = UNSET
     hide_matching_origin: Union[Unset, bool] = UNSET
     matching_columns: Union[Unset, List[str]] = UNSET
@@ -128,7 +124,6 @@ class SetIntersection:
         if not isinstance(self.dp_policy, Unset):
             dp_policy = self.dp_policy.to_dict()
 
-        cohort_id = self.cohort_id
         data_source_parameters: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.data_source_parameters, Unset):
             data_source_parameters = self.data_source_parameters.to_dict()
@@ -176,7 +171,6 @@ class SetIntersection:
                 units.append(units_item)
 
         wait = self.wait
-        encrypted_results = self.encrypted_results
         fuzzy_params: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.fuzzy_params, Unset):
             fuzzy_params = self.fuzzy_params.to_dict()
@@ -198,8 +192,6 @@ class SetIntersection:
         )
         if dp_policy is not UNSET:
             field_dict["DPPolicy"] = dp_policy
-        if cohort_id is not UNSET:
-            field_dict["cohortId"] = cohort_id
         if data_source_parameters is not UNSET:
             field_dict["dataSourceParameters"] = data_source_parameters
         if dp_epsilon is not UNSET:
@@ -244,8 +236,6 @@ class SetIntersection:
             field_dict["units"] = units
         if wait is not UNSET:
             field_dict["wait"] = wait
-        if encrypted_results is not UNSET:
-            field_dict["encryptedResults"] = encrypted_results
         if fuzzy_params is not UNSET:
             field_dict["fuzzyParams"] = fuzzy_params
         if hide_matching_origin is not UNSET:
@@ -277,8 +267,6 @@ class SetIntersection:
             dp_policy = UNSET
         else:
             dp_policy = DPPolicy.from_dict(_dp_policy)
-
-        cohort_id = d.pop("cohortId", UNSET)
 
         _data_source_parameters = d.pop("dataSourceParameters", UNSET)
         data_source_parameters: Union[Unset, ComputationDataSourceParameters]
@@ -354,8 +342,6 @@ class SetIntersection:
 
         wait = d.pop("wait", UNSET)
 
-        encrypted_results = d.pop("encryptedResults", UNSET)
-
         _fuzzy_params = d.pop("fuzzyParams", UNSET)
         fuzzy_params: Union[Unset, FuzzyMatchingParameters]
         if isinstance(_fuzzy_params, Unset):
@@ -374,7 +360,6 @@ class SetIntersection:
         set_intersection = cls(
             type=type,
             dp_policy=dp_policy,
-            cohort_id=cohort_id,
             data_source_parameters=data_source_parameters,
             dp_epsilon=dp_epsilon,
             encrypted=encrypted,
@@ -397,7 +382,6 @@ class SetIntersection:
             timeout=timeout,
             units=units,
             wait=wait,
-            encrypted_results=encrypted_results,
             fuzzy_params=fuzzy_params,
             hide_matching_origin=hide_matching_origin,
             matching_columns=matching_columns,

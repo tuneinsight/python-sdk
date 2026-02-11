@@ -9,6 +9,7 @@ class PrivacyWarningType(str, Enum):
     MINCONTRIBUTORSTOOSMALL = "minContributorsTooSmall"
     NOQUERYLIMIT = "noQueryLimit"
     NOQUERYLIMITDP = "noQueryLimitDP"
+    MINDATASETSIZETOOSMALL = "minDatasetSizeTooSmall"
     PERINSTANCEBREAKDOWN = "perInstanceBreakdown"
     RECORDLINKAGE = "recordLinkage"
     UNLOCKEDCOMPUTATIONTYPE = "unlockedComputationType"

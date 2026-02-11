@@ -1,25 +1,18 @@
 """Classes to interact with Tune Insight projects."""
 
-from contextlib import contextmanager
 import collections
 import json
-from typing import Dict, List, Tuple, Union, Any
 import warnings
-
-from dateutil.parser import isoparse
+from contextlib import contextmanager
+from typing import Any, Optional
 
 import attr
 import pandas as pd
-
-from tuneinsight.api.sdk.types import (
-    UNSET,
-    is_set,
-    is_unset,
-    value_if_unset,
-    false_if_unset,
-)
-from tuneinsight.api.sdk.types import Response
+from dateutil.parser import isoparse
+from tuneinsight.api.sdk import client as api_client
 from tuneinsight.api.sdk import models
+from tuneinsight.api.sdk.api.api_computations import documentation, get_computation_list
+from tuneinsight.api.sdk.api.api_datasource import get_data_source
 from tuneinsight.api.sdk.api.api_project import (
     delete_project,
     get_available_columns,
@@ -28,17 +21,21 @@ from tuneinsight.api.sdk.api.api_project import (
     post_project_authorize,
     post_project_request_authorization,
 )
-from tuneinsight.api.sdk import client as api_client
-from tuneinsight.api.sdk.api.api_datasource import get_data_source
-from tuneinsight.api.sdk.api.api_computations import documentation, get_computation_list
-
-from tuneinsight.computations import Computation
-from tuneinsight.computations.policy import Policy
-from tuneinsight.computations.dataset_schema import DatasetSchema
-from tuneinsight.computations.types import model_type_to_class
-from tuneinsight.client.validation import validate_response
+from tuneinsight.api.sdk.types import (
+    UNSET,
+    Response,
+    false_if_unset,
+    is_set,
+    is_unset,
+    value_if_unset,
+)
 from tuneinsight.client.datasource import DataSource, RemoteDataSource
+from tuneinsight.client.validation import validate_response
+from tuneinsight.computations import Computation
+from tuneinsight.computations.dataset_schema import DatasetSchema
 from tuneinsight.computations.local_data_selection import LocalDataSelection
+from tuneinsight.computations.policy import Policy
+from tuneinsight.computations.types import model_type_to_class
 from tuneinsight.utils.display import Renderer
 
 # pylint: disable=too-many-lines
@@ -113,7 +110,7 @@ class Project:
         Example:
             ```
             with project.disable_patch():
-                # Operatio
+                # Operation
             ```
         """
         _disable_patch_prev = self._disable_patch
@@ -263,15 +260,15 @@ class Project:
         validate_response(resp)
         return DataSource(model=resp.parsed, client=self.client)
 
-    def get_participants(self) -> List[models.Participant]:
+    def get_participants(self) -> list[models.Participant]:
         """
         Refreshes the state of the project and returns the list of participants.
 
         Returns:
-            List[str]: a list of the names of the participating nodes
+            list[str]: a list of the names of the participating nodes
         """
         self._refresh()
-        parts: List[models.Participant] = self.model.participants
+        parts: list[models.Participant] = self.model.participants
         return parts
 
     def get_max_num_contributors(self) -> int:
@@ -282,12 +279,12 @@ class Project:
                 num += 1
         return num
 
-    def get_authorized_users(self) -> List[str]:
+    def get_authorized_users(self) -> list[str]:
         """
         Returns the email addresses of all authorized users in this instance.
 
         Returns:
-            List[str]: a list of the email addresses of the authorized users
+            list[str]: a list of the email addresses of the authorized users
         """
         self._refresh()
         return self.model.authorized_users
@@ -333,9 +330,7 @@ class Project:
         lds = self.get_local_data_selection()
         lds.preprocessing.schema = schema
 
-    def set_computation(
-        self, definition: Union[Computation, models.ComputationDefinition]
-    ):
+    def set_computation(self, definition: Computation | models.ComputationDefinition):
         """
         Sets the project's current computation.
 
@@ -352,7 +347,7 @@ class Project:
             proj_def=models.ProjectDefinition(computation_definition=definition)
         )
 
-    def set_datasource(self, ds: Union[DataSource, str, RemoteDataSource]):
+    def set_datasource(self, ds: DataSource | str | RemoteDataSource):
         """Sets the project's input datasource.
 
         If a Datasource is provided, this sets the datasource to use by this instance on the project.
@@ -387,7 +382,7 @@ class Project:
             policy (Policy): the policy to add to the project
         """
         self._refresh()
-        participants: List[models.Participant] = self.model.participants
+        participants: list[models.Participant] = self.model.participants
         for participant in participants:
             if (
                 participant.authorization_status
@@ -404,7 +399,7 @@ class Project:
         """Resets the policy of this project (sets an empty policy)."""
         self.set_policy(models.ComputationPolicy())
 
-    def add_authorized_users(self, users: Union[str, List[str]]):
+    def add_authorized_users(self, users: str | list[str]):
         """
         Adds authorized users to this project.
 
@@ -476,7 +471,7 @@ class Project:
         """
         Requests authorization to run this project.
 
-        Projects need to be approved by data protection officiers or administrators
+        Projects need to be approved by data protection officers or administrators
         before they can be run (even locally). This function requests authorization.
         Once authorization is requested, the project becomes locked according to
         the authorization contract.
@@ -573,9 +568,9 @@ class Project:
 
     def set_recurring(
         self,
-        start_time: Union[str, None],
-        interval: Union[int, None],
-        end_time: Union[str, None],
+        start_time: Optional[str],
+        interval: Optional[int],
+        end_time: Optional[str],
     ):
         """
         Sets the project's recurring parameters
@@ -645,7 +640,7 @@ class Project:
             _class = model_type_to_class(computation_definition.type)
             return _class.from_model(self, computation_definition)
 
-    def get_computations(self, num_computations: int = 10) -> List[models.Computation]:
+    def get_computations(self, num_computations: int = 10) -> list[models.Computation]:
         """Returns the list of the latest computations that have been run on this project.
 
         Args:
@@ -661,7 +656,7 @@ class Project:
         validate_response(resp)
         return resp.parsed.items
 
-    def fetch_results(self) -> List[Tuple[Computation, Any]]:
+    def fetch_results(self) -> list[tuple[Computation, Any]]:
         """
         Fetches the results of all successful computations run on this project.
 
@@ -711,14 +706,14 @@ class Project:
         self._refresh()
         res = {}
         latest_comp = None
-        comps: List[models.Computation] = self.model.computations
+        comps: list[models.Computation] = self.model.computations
         for comp in comps:
             if comp.definition.type != models.ComputationType.COLLECTIVEKEYSWITCH:
                 latest_comp = comp
                 break
         if latest_comp is None:
             return res
-        measurements: List[models.Measurement] = latest_comp.measurements
+        measurements: list[models.Measurement] = latest_comp.measurements
         for measure in measurements:
             start_datetime = isoparse(measure.start[:-1])
             end_datetime = isoparse(measure.end[:-1])
@@ -746,7 +741,7 @@ class Project:
         res += f"name: {self.get_name()} \n"
         res += f"topology: {self.get_topology()} \n"
         res += "participants:\n"
-        participants: List[models.Participant] = self.model.participants
+        participants: list[models.Participant] = self.model.participants
         for p in participants:
             org = p.node.organization
             res += f"\tnode: {p.node.name}"
@@ -760,18 +755,18 @@ class Project:
                 and len(p.input_metadata.tables)
             ):
                 res += "\tinput tables :\n"
-                tables: List[models.DataSourceTable] = p.input_metadata.tables
+                tables: list[models.DataSourceTable] = p.input_metadata.tables
                 for table in tables:
                     res += f"\t\ttable name: {table.name}\n"
                     res += "\t\tcolumns:\n"
-                    cols: List[models.DataSourceColumn] = table.columns
+                    cols: list[models.DataSourceColumn] = table.columns
                     for col in cols:
                         res += f"\t\t\tname: {col.name}, type: {col.type} type group: {col.type_group}\n"
                     res += "\n"
             res += "\n"
         if is_set(self.model.computations) and len(self.model.computations) > 0:
             res += "computations: \n"
-            computations: List[models.Computation] = self.model.computations
+            computations: list[models.Computation] = self.model.computations
             for comp in computations:
                 res += f"\t{comp.created_at},{comp.definition.type}\n"
         return res
@@ -824,12 +819,12 @@ class Project:
                 r.df(df)
             r.end_paragraph()
 
-    def get_participants_names(self) -> List[str]:
+    def get_participants_names(self) -> list[str]:
         """
         Returns the names of the participating nodes.
 
         Returns:
-            List[str]: a list of the names of the participating nodes
+            list[str]: a list of the names of the participating nodes
         """
         if is_unset(self.model.participants):
             return []
@@ -899,7 +894,7 @@ class Project:
 
     def get_remaining_quota(
         self, include_next_allocation_date: bool = False
-    ) -> Union[Tuple[str, str], str]:
+    ) -> tuple[str, str] | str:
         """
         Returns the remaining quota from the project and optionally, the next allocation date.
 
@@ -910,7 +905,7 @@ class Project:
             ValueError: if no quota has been setup with the project.
 
         Returns:
-            Union[Tuple[str, str], str]: the remaining quota along with the allocation date if specified.
+            tuple[str, str] | str: the remaining quota along with the allocation date if specified.
         """
         self._refresh()
         quota = self.model.privacy_summary.execution_quota
@@ -926,7 +921,7 @@ class Project:
             return quota_val, next_alloc
         return quota_val
 
-    def get_sharing_links(self) -> Dict[str, str]:
+    def get_sharing_links(self) -> dict[str, str]:
         """
         Returns sharing links for each instance.
 
@@ -956,7 +951,7 @@ class Project:
             warnings.warn("Project not shared yet: sharing token will not work.")
         return self.model.share_token
 
-    def get_remote_datasources(self) -> List[RemoteDataSource]:
+    def get_remote_datasources(self) -> list[RemoteDataSource]:
         """Returns a list of remote datasources that can be used on this project."""
         self._refresh()
         datasources = []
@@ -986,14 +981,14 @@ class Project:
             )
         )
 
-    def get_available_columns(self) -> List[models.DataSourceVariable]:
+    def get_available_columns(self) -> list[models.DataSourceVariable]:
         """Fetches the list of available columns on this project.
 
         This retrieves the datasource and parses the query and preprocessing to infer
         what columns are available in the computations.
 
         Returns:
-            List[str]: list of available columns.
+            list[str]: list of available columns.
         """
         resp: Response[models.GetAvailableColumnsResponse200] = (
             get_available_columns.sync_detailed(self.get_id(), client=self.client)
@@ -1054,7 +1049,7 @@ class Project:
             "(peer-to-peer" if p.topology == models.Topology.TREE else "(star",
             "topology)",
         )
-        participants: List[models.Participant] = value_if_unset(
+        participants: list[models.Participant] = value_if_unset(
             self.model.participants, []
         )
         for part in participants:
@@ -1114,8 +1109,8 @@ class Project:
 
         # Auto-approve and auto-reject specifications status.
         participants = value_if_unset(self.model.participants, [])
-        auto_approve: List[models.AvailabilityStatus] = []
-        auto_reject: List[models.AvailabilityStatus] = []
+        auto_approve: list[models.AvailabilityStatus] = []
+        auto_reject: list[models.AvailabilityStatus] = []
         for part in participants:
             auto_approve += value_if_unset(part.matches_auto_approve_specifications, [])
             auto_reject += value_if_unset(part.matches_auto_reject_specifications, [])

@@ -23,12 +23,18 @@ class GetProjectStatusResponse200:
             This field is returned when the 'remote' parameter is set to true for the requesting instance to know if the
             project can be run.
         participant (Union[Unset, Participant]): Node participating in a project
-        remote_participants (Union[Unset, List['Participant']]):
+        previous_participants (Union[Unset, List['Participant']]): The list of participant information from instances
+            that were participants in the project but were removed or left the project.
+        remote_participants (Union[Unset, List['Participant']]): The list of participant information from other
+            instances that are participants in the project.
+            This additional information is only returned when the 'remote' or "onlyParticipantInfo" parameter is provided as
+            'true'.
     """
 
     num_contributors: Union[Unset, int] = UNSET
     num_ready_contributors: Union[Unset, int] = UNSET
     participant: Union[Unset, "Participant"] = UNSET
+    previous_participants: Union[Unset, List["Participant"]] = UNSET
     remote_participants: Union[Unset, List["Participant"]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -38,6 +44,14 @@ class GetProjectStatusResponse200:
         participant: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.participant, Unset):
             participant = self.participant.to_dict()
+
+        previous_participants: Union[Unset, List[Dict[str, Any]]] = UNSET
+        if not isinstance(self.previous_participants, Unset):
+            previous_participants = []
+            for previous_participants_item_data in self.previous_participants:
+                previous_participants_item = previous_participants_item_data.to_dict()
+
+                previous_participants.append(previous_participants_item)
 
         remote_participants: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.remote_participants, Unset):
@@ -56,6 +70,8 @@ class GetProjectStatusResponse200:
             field_dict["numReadyContributors"] = num_ready_contributors
         if participant is not UNSET:
             field_dict["participant"] = participant
+        if previous_participants is not UNSET:
+            field_dict["previousParticipants"] = previous_participants
         if remote_participants is not UNSET:
             field_dict["remoteParticipants"] = remote_participants
 
@@ -77,6 +93,13 @@ class GetProjectStatusResponse200:
         else:
             participant = Participant.from_dict(_participant)
 
+        previous_participants = []
+        _previous_participants = d.pop("previousParticipants", UNSET)
+        for previous_participants_item_data in _previous_participants or []:
+            previous_participants_item = Participant.from_dict(previous_participants_item_data)
+
+            previous_participants.append(previous_participants_item)
+
         remote_participants = []
         _remote_participants = d.pop("remoteParticipants", UNSET)
         for remote_participants_item_data in _remote_participants or []:
@@ -88,6 +111,7 @@ class GetProjectStatusResponse200:
             num_contributors=num_contributors,
             num_ready_contributors=num_ready_contributors,
             participant=participant,
+            previous_participants=previous_participants,
             remote_participants=remote_participants,
         )
 

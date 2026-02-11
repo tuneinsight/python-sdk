@@ -13,6 +13,7 @@ class ResetEntities:
 
     Attributes:
         computations (Union[Unset, bool]): Delete all computations
+        data_preparation_sessions (Union[Unset, bool]): Delete all data preparation sessions
         dataobjects (Union[Unset, bool]): Delete all data objects
         datasources (Union[Unset, bool]): Delete all data sources
         models (Union[Unset, bool]): Delete all data models
@@ -23,6 +24,7 @@ class ResetEntities:
     """
 
     computations: Union[Unset, bool] = False
+    data_preparation_sessions: Union[Unset, bool] = False
     dataobjects: Union[Unset, bool] = False
     datasources: Union[Unset, bool] = False
     models: Union[Unset, bool] = False
@@ -34,6 +36,7 @@ class ResetEntities:
 
     def to_dict(self) -> Dict[str, Any]:
         computations = self.computations
+        data_preparation_sessions = self.data_preparation_sessions
         dataobjects = self.dataobjects
         datasources = self.datasources
         models = self.models
@@ -47,6 +50,8 @@ class ResetEntities:
         field_dict.update({})
         if computations is not UNSET:
             field_dict["computations"] = computations
+        if data_preparation_sessions is not UNSET:
+            field_dict["dataPreparationSessions"] = data_preparation_sessions
         if dataobjects is not UNSET:
             field_dict["dataobjects"] = dataobjects
         if datasources is not UNSET:
@@ -69,6 +74,8 @@ class ResetEntities:
         d = src_dict.copy()
         computations = d.pop("computations", UNSET)
 
+        data_preparation_sessions = d.pop("dataPreparationSessions", UNSET)
+
         dataobjects = d.pop("dataobjects", UNSET)
 
         datasources = d.pop("datasources", UNSET)
@@ -85,6 +92,7 @@ class ResetEntities:
 
         reset_entities = cls(
             computations=computations,
+            data_preparation_sessions=data_preparation_sessions,
             dataobjects=dataobjects,
             datasources=datasources,
             models=models,

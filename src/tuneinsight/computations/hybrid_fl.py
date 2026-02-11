@@ -8,7 +8,7 @@ Classes for Hybrid Federated Learning.
    few releases. Use with caution.
 """
 
-from typing import Optional, Dict, Union, List
+from typing import Optional
 import json
 from copy import deepcopy
 import pandas as pd
@@ -43,7 +43,7 @@ class HybridFL(ModelBasedComputation):
         spec_params: models.HybridFLSpecParams = UNSET,
         dp_params: models.HybridFLDpParams = UNSET,
         task_id: str = None,
-        task_def: Optional[Dict[str, Union[str, int, float]]] = None,
+        task_def: Optional[dict[str, str | int | float]] = None,
         dp_epsilon: Optional[float] = UNSET,
     ):
         """
@@ -80,7 +80,7 @@ class HybridFL(ModelBasedComputation):
         spec_params: models.HybridFLSpecParams = UNSET,
         dp_params: models.HybridFLDpParams = UNSET,
         task_id: str = None,
-        task_def: Optional[Dict[str, Union[str, int, float]]] = None,
+        task_def: Optional[dict[str, str | int | float]] = None,
     ):
         deprecation.warn("create_from_params", "HybridFL.__init__")
 
@@ -168,7 +168,7 @@ class HybridFL(ModelBasedComputation):
             history, local_only=local_only, metrics_to_display=metrics_to_display
         )
 
-    def _process_results(self, results: List[DataContent]) -> pd.DataFrame:
+    def _process_results(self, results: list[DataContent]) -> pd.DataFrame:
         return results[0].get_ml_result()
 
 

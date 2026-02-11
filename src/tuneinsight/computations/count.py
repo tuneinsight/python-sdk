@@ -1,7 +1,5 @@
 """Classes to perform counting queries on the collective dataset."""
 
-from typing import List
-
 from tuneinsight.client.dataobject import DataContent
 from tuneinsight.computations.base import ModelBasedComputation
 
@@ -44,7 +42,7 @@ class Count(ModelBasedComputation):
         comp._adapt(model)
         return comp
 
-    def _process_results(self, results: List[DataContent]) -> float:
+    def _process_results(self, results: list[DataContent]) -> float:
         """Extracts the count value from the output results."""
         return results[0].get_float_matrix().data[0][0]
 

@@ -18,12 +18,9 @@ from tuneinsight.cryptolib import *
 import ctypes
 from pathlib import Path
 from os.path import exists
-from typing import List, Union
 import platform
 import warnings
 import pandas as pd
-
-from tuneinsight.utils import deprecation
 
 
 class _ErrorObject:
@@ -125,50 +122,6 @@ def get_relin_key_bytes(hefloat_operator_id: bytes) -> bytes:
     get_relin_key = so.GetRelinearizationKeyBytes
     get_relin_key.restype = ctypes.c_void_p
     res = get_relin_key(hefloat_operator_id)
-    return _handle_bytes_result(res)
-
-
-def encrypt_prediction_dataset(
-    hefloat_operator_id: bytes, csv_bytes: bytes, b64_params: str, remove_header: bool
-) -> bytes:
-    """Encrypts a provided dataset in prediction format using the secret key of the cryptosystem.
-
-    Args:
-        hefloat_operator_id (bytes): the cryptosystem id
-        csv_bytes (bytes): the csv data to encrypt
-        b64_params (str): the base64 machine learning model parameters
-        remove_header (bool): whether or not the csv data contains a header
-
-    Returns:
-        bytes: the encrypted version of the dataset that can be used as input to a encrypted prediction computation
-    """
-    deprecation.warn("Encrypted Prediction", breaking=True)
-    encrypt_pred = so.EncryptPredictionDataset
-    encrypt_pred.restype = ctypes.c_void_p
-    res = encrypt_pred(
-        hefloat_operator_id,
-        csv_bytes,
-        len(csv_bytes),
-        b64_params.encode(),
-        ctypes.c_bool(remove_header),
-    )
-    return _handle_bytes_result(res)
-
-
-def decrypt_prediction(hefloat_operator_id: bytes, ct: bytes) -> bytes:
-    """Decrypts the encrypted prediction ciphertext.
-
-    Args:
-        hefloat_operator_id (bytes): the id of the cryptosystem storing the secret key
-        ct (bytes): the encrypted prediction bytes
-
-    Returns:
-        bytes: the decrypted predicted values as a csv in byte format
-    """
-    deprecation.warn("Encrypted Prediction", breaking=True)
-    decrypt_pred = so.DecryptPredictionResult
-    decrypt_pred.restype = ctypes.c_void_p
-    res = decrypt_pred(hefloat_operator_id, ct, len(ct))
     return _handle_bytes_result(res)
 
 
@@ -298,7 +251,7 @@ def encrypt_matrix(hefloat_operator_id: bytes, csv_string: bytes) -> bytes:
 def decrypt_dataframe(
     hefloat_operator_id: bytes,
     dataframe_ciphertext: bytes,
-    headers: List[str] = None,
+    headers: list[str] = None,
     with_index: bool = False,
 ) -> pd.DataFrame:
     """
@@ -378,7 +331,7 @@ def decrypt_stats(hefloat_operator_id: bytes, stat_ciphertext: bytes) -> bytes:
         stat_ciphertext (bytes): The encrypted statistics
 
     Returns:
-        bytes: a JSON string representing a List[models.StatisticalResult].
+        bytes: a JSON string representing a list[models.StatisticalResult].
     """
     decrypt_encrypted_stats = so.DecryptStatistics
     decrypt_encrypted_stats.restype = ctypes.c_char_p
@@ -453,7 +406,7 @@ def encrypted_multiplication(
 
 def encrypted_polynomial_evaluation(
     hefloat_operator_id: bytes,
-    polynomial_coefficients: List[Union[int, float]],
+    polynomial_coefficients: list[int | float],
     number: bytes,
 ) -> bytes:
     """
@@ -534,77 +487,3 @@ def _handle_bytes_result(result) -> bytes:
     result_bytes = ctypes.string_at(result, result_length + 8)
     result_bytes = result_bytes[8:]
     return result_bytes
-
-
-############################################### PIR ###############################################
-
-
-class PIRContext:
-    """
-    Represents a PIR context for client side PIR operations
-
-    Raises:
-        go_error: upon getting invalid parameters
-    """
-
-    ctx_id: bytes
-
-    def __init__(self, pir_b64: str, index_b64: str):
-        """
-        Initializes a PIR context.
-
-        Args:
-            pir_b64 (str): base64-encoded PIR parameters
-            index_b64 (str): base64-encoded Index
-
-        Raises:
-            go_error: upon invalid parameters
-        """
-        deprecation.warn("PIR", breaking=True)
-        func = so.NewPIRContext
-        func.restype = ctypes.c_char_p
-        self.ctx_id = func(pir_b64.encode(), index_b64.encode())
-        if self.ctx_id is None:
-            raise go_error()
-
-    def get_eva_key(self) -> bytes:
-        """
-        Returns the bytes of the evaluation key set.
-
-        Returns:
-            bytes: the bytes of the evaluation key set
-        """
-        get_func = so.GetPIREvaluationKeyBytes
-        get_func.restype = ctypes.c_void_p
-        result = get_func(self.ctx_id)
-        return _handle_bytes_result(result)
-
-    def encrypt_query(self, query: str) -> bytes:
-        """
-        Encrypts a PIR query.
-
-        Args:
-            query (str): query string
-
-        Returns:
-            bytes: the encrypted query as bytes ready to be uploaded
-        """
-        encrypt_pir = so.EncryptPIRQuery
-        encrypt_pir.restype = ctypes.c_void_p
-        result = encrypt_pir(self.ctx_id, query.encode())
-        return _handle_bytes_result(result)
-
-    def decrypt_response(self, pir_result: bytes) -> bytes:
-        """
-        Decrypts the encrypted bytes as a plaintext CSV string.
-
-        Args:
-            pir_result (bytes): the encrypted bytes result
-
-        Returns:
-            bytes: the decrypted CSV as a byte string
-        """
-        decrypt_pir = so.DecryptPIRResult
-        decrypt_pir.restype = ctypes.c_void_p
-        result = decrypt_pir(self.ctx_id, pir_result, len(pir_result))
-        return _handle_bytes_result(result)

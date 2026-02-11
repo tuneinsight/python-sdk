@@ -1,7 +1,5 @@
 """Classes to implement the filtered aggregation computation."""
 
-from typing import List
-
 import pandas as pd
 
 from tuneinsight.client.dataobject import DataContent
@@ -72,7 +70,7 @@ class FilteredAggregation(ModelBasedComputation):
             dp_epsilon=dp_epsilon,
         )
 
-    def _process_results(self, results: List[DataContent]) -> float:
+    def _process_results(self, results: list[DataContent]) -> float:
         """Processes the results in the same way as Aggregation (without grouping parameters)."""
         result = results[0].get_float_matrix()
         totals = result.data[0]
