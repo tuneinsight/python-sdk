@@ -14,6 +14,7 @@ def _get_kwargs(
     *,
     client: Client,
     action: Union[Unset, None, BuildCatalogAction] = UNSET,
+    data_source_id: Union[Unset, None, str] = UNSET,
 ) -> Dict[str, Any]:
     url = "{}/build-catalog".format(client.base_url)
 
@@ -26,6 +27,8 @@ def _get_kwargs(
         json_action = action.value if action else None
 
     params["action"] = json_action
+
+    params["dataSourceId"] = data_source_id
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
@@ -86,11 +89,13 @@ def sync_detailed(
     *,
     client: Client,
     action: Union[Unset, None, BuildCatalogAction] = UNSET,
+    data_source_id: Union[Unset, None, str] = UNSET,
 ) -> Response[Union[Any, Error]]:
     """Build a catalog from the SPHN ontologies
 
     Args:
         action (Union[Unset, None, BuildCatalogAction]):
+        data_source_id (Union[Unset, None, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -103,6 +108,7 @@ def sync_detailed(
     kwargs = _get_kwargs(
         client=client,
         action=action,
+        data_source_id=data_source_id,
     )
 
     response = httpx.request(
@@ -117,11 +123,13 @@ def sync(
     *,
     client: Client,
     action: Union[Unset, None, BuildCatalogAction] = UNSET,
+    data_source_id: Union[Unset, None, str] = UNSET,
 ) -> Optional[Union[Any, Error]]:
     """Build a catalog from the SPHN ontologies
 
     Args:
         action (Union[Unset, None, BuildCatalogAction]):
+        data_source_id (Union[Unset, None, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -134,6 +142,7 @@ def sync(
     return sync_detailed(
         client=client,
         action=action,
+        data_source_id=data_source_id,
     ).parsed
 
 
@@ -141,11 +150,13 @@ async def asyncio_detailed(
     *,
     client: Client,
     action: Union[Unset, None, BuildCatalogAction] = UNSET,
+    data_source_id: Union[Unset, None, str] = UNSET,
 ) -> Response[Union[Any, Error]]:
     """Build a catalog from the SPHN ontologies
 
     Args:
         action (Union[Unset, None, BuildCatalogAction]):
+        data_source_id (Union[Unset, None, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -158,6 +169,7 @@ async def asyncio_detailed(
     kwargs = _get_kwargs(
         client=client,
         action=action,
+        data_source_id=data_source_id,
     )
 
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
@@ -170,11 +182,13 @@ async def asyncio(
     *,
     client: Client,
     action: Union[Unset, None, BuildCatalogAction] = UNSET,
+    data_source_id: Union[Unset, None, str] = UNSET,
 ) -> Optional[Union[Any, Error]]:
     """Build a catalog from the SPHN ontologies
 
     Args:
         action (Union[Unset, None, BuildCatalogAction]):
+        data_source_id (Union[Unset, None, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -188,5 +202,6 @@ async def asyncio(
         await asyncio_detailed(
             client=client,
             action=action,
+            data_source_id=data_source_id,
         )
     ).parsed

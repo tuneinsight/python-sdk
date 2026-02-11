@@ -18,9 +18,13 @@ class ProjectActions:
     computations.
 
         Attributes:
+            approve (Union[Unset, AvailabilityStatus]): generic object that holds information about whether a resource or
+                action is available to the user.
             archive_or_unarchive (Union[Unset, AvailabilityStatus]): generic object that holds information about whether a
                 resource or action is available to the user.
             available_run_modes (Union[Unset, List[RunMode]]): list of run modes that are currently supported.
+            deny (Union[Unset, AvailabilityStatus]): generic object that holds information about whether a resource or
+                action is available to the user.
             edit_data_source (Union[Unset, AvailabilityStatus]): generic object that holds information about whether a
                 resource or action is available to the user.
             edit_operation_params (Union[Unset, AvailabilityStatus]): generic object that holds information about whether a
@@ -49,8 +53,10 @@ class ProjectActions:
                 action is available to the user.
     """
 
+    approve: Union[Unset, "AvailabilityStatus"] = UNSET
     archive_or_unarchive: Union[Unset, "AvailabilityStatus"] = UNSET
     available_run_modes: Union[Unset, List[RunMode]] = UNSET
+    deny: Union[Unset, "AvailabilityStatus"] = UNSET
     edit_data_source: Union[Unset, "AvailabilityStatus"] = UNSET
     edit_operation_params: Union[Unset, "AvailabilityStatus"] = UNSET
     edit_operation_type: Union[Unset, "AvailabilityStatus"] = UNSET
@@ -67,6 +73,10 @@ class ProjectActions:
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        approve: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.approve, Unset):
+            approve = self.approve.to_dict()
+
         archive_or_unarchive: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.archive_or_unarchive, Unset):
             archive_or_unarchive = self.archive_or_unarchive.to_dict()
@@ -78,6 +88,10 @@ class ProjectActions:
                 available_run_modes_item = available_run_modes_item_data.value
 
                 available_run_modes.append(available_run_modes_item)
+
+        deny: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.deny, Unset):
+            deny = self.deny.to_dict()
 
         edit_data_source: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.edit_data_source, Unset):
@@ -128,10 +142,14 @@ class ProjectActions:
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if approve is not UNSET:
+            field_dict["approve"] = approve
         if archive_or_unarchive is not UNSET:
             field_dict["archiveOrUnarchive"] = archive_or_unarchive
         if available_run_modes is not UNSET:
             field_dict["availableRunModes"] = available_run_modes
+        if deny is not UNSET:
+            field_dict["deny"] = deny
         if edit_data_source is not UNSET:
             field_dict["editDataSource"] = edit_data_source
         if edit_operation_params is not UNSET:
@@ -166,6 +184,13 @@ class ProjectActions:
         from ..models.availability_status import AvailabilityStatus
 
         d = src_dict.copy()
+        _approve = d.pop("approve", UNSET)
+        approve: Union[Unset, AvailabilityStatus]
+        if isinstance(_approve, Unset):
+            approve = UNSET
+        else:
+            approve = AvailabilityStatus.from_dict(_approve)
+
         _archive_or_unarchive = d.pop("archiveOrUnarchive", UNSET)
         archive_or_unarchive: Union[Unset, AvailabilityStatus]
         if isinstance(_archive_or_unarchive, Unset):
@@ -179,6 +204,13 @@ class ProjectActions:
             available_run_modes_item = RunMode(available_run_modes_item_data)
 
             available_run_modes.append(available_run_modes_item)
+
+        _deny = d.pop("deny", UNSET)
+        deny: Union[Unset, AvailabilityStatus]
+        if isinstance(_deny, Unset):
+            deny = UNSET
+        else:
+            deny = AvailabilityStatus.from_dict(_deny)
 
         _edit_data_source = d.pop("editDataSource", UNSET)
         edit_data_source: Union[Unset, AvailabilityStatus]
@@ -262,8 +294,10 @@ class ProjectActions:
             share = AvailabilityStatus.from_dict(_share)
 
         project_actions = cls(
+            approve=approve,
             archive_or_unarchive=archive_or_unarchive,
             available_run_modes=available_run_modes,
+            deny=deny,
             edit_data_source=edit_data_source,
             edit_operation_params=edit_operation_params,
             edit_operation_type=edit_operation_type,

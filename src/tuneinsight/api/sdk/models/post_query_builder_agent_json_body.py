@@ -5,7 +5,7 @@ import attr
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.ai_builder_prompt_definition import AIBuilderPromptDefinition
+    from ..models.agent_prompt_definition import AgentPromptDefinition
     from ..models.post_query_builder_agent_json_body_data_model_template import (
         PostQueryBuilderAgentJsonBodyDataModelTemplate,
     )
@@ -20,7 +20,7 @@ class PostQueryBuilderAgentJsonBody:
     Attributes:
         data_model (str):
         data_model_template (PostQueryBuilderAgentJsonBodyDataModelTemplate):
-        prompt (AIBuilderPromptDefinition): definition of a prompt for the AI query builder
+        prompt (AgentPromptDefinition): definition of a prompt for the agent.
         api_url (Union[Unset, str]): URL of the LLM API to use for the query builder
         auth_token (Union[Unset, str]): Authentication token for the LLM API
         model_name (Union[Unset, str]):
@@ -29,7 +29,7 @@ class PostQueryBuilderAgentJsonBody:
 
     data_model: str
     data_model_template: "PostQueryBuilderAgentJsonBodyDataModelTemplate"
-    prompt: "AIBuilderPromptDefinition"
+    prompt: "AgentPromptDefinition"
     api_url: Union[Unset, str] = UNSET
     auth_token: Union[Unset, str] = UNSET
     model_name: Union[Unset, str] = UNSET
@@ -69,7 +69,7 @@ class PostQueryBuilderAgentJsonBody:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.ai_builder_prompt_definition import AIBuilderPromptDefinition
+        from ..models.agent_prompt_definition import AgentPromptDefinition
         from ..models.post_query_builder_agent_json_body_data_model_template import (
             PostQueryBuilderAgentJsonBodyDataModelTemplate,
         )
@@ -79,7 +79,7 @@ class PostQueryBuilderAgentJsonBody:
 
         data_model_template = PostQueryBuilderAgentJsonBodyDataModelTemplate.from_dict(d.pop("data_model_template"))
 
-        prompt = AIBuilderPromptDefinition.from_dict(d.pop("prompt"))
+        prompt = AgentPromptDefinition.from_dict(d.pop("prompt"))
 
         api_url = d.pop("api_url", UNSET)
 

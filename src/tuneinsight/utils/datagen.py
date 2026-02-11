@@ -3,7 +3,6 @@
 import json
 from enum import Enum
 import re
-from typing import Union, List
 
 import numpy as np
 
@@ -37,7 +36,7 @@ class MockGenerator:
 
     def generate(
         self,
-        client: Union[Diapason, Client],
+        client: Diapason | Client,
         num_rows: int,
         table_name: str = None,
         seed: str = None,
@@ -179,18 +178,18 @@ class PricesGenerator(MockGenerator):
 
     """
 
-    contributors: List[str]
+    contributors: list[str]
 
-    def __init__(self, contributors: List[str] = None):
+    def __init__(self, contributors: list[str] = None):
         MockGenerator.__init__(self, PostMockDatasetMethod.PRICES)
         self.contributors = contributors
 
-    def set_contributors(self, contributors: List[str]):
+    def set_contributors(self, contributors: list[str]):
         """
         Sets the custom list of contributors to use when generating the dataset.
 
         Args:
-            contributors (List[str]): the list of contributors
+            contributors (list[str]): the list of contributors
         """
         self.contributors = contributors
 
@@ -416,7 +415,7 @@ class AttributeParser:
         for attribute_config in _entries:
             self._add_attribute(**attribute_config)
 
-    def validate(self, list_of_attributes: List[dict]):
+    def validate(self, list_of_attributes: list[dict]):
         """Asserts that a data format is valid. Raises error if not."""
         for attr in list_of_attributes:
             assert "name" in attr, "Missing attribute name."
@@ -454,7 +453,7 @@ class AttributeParser:
         name: str,
         min_value: float,
         max_value: float,
-        bins: Union[int, list] = None,
+        bins: int | list[int] = None,
         missing: bool = False,
     ):
         """
@@ -485,7 +484,7 @@ class AttributeParser:
         name: str,
         min_value: int,
         max_value: int,
-        bins: Union[int, list] = None,
+        bins: int | list[int] = None,
         missing: bool = False,
     ):
         """
@@ -523,7 +522,7 @@ class AttributeParser:
         """
         self.add_integer(name, min_value=0, max_value=1, bins=2)
 
-    def add_categorical(self, name: str, possible_values: List[str]):
+    def add_categorical(self, name: str, possible_values: list[str]):
         """
         Adds a categorical-valued attribute to the data description.
 
@@ -541,7 +540,7 @@ class AttributeParser:
         name: str,
         start: str,
         end: str,
-        bins: Union[int, List[str]] = None,
+        bins: int | list[str] = None,
         strformat: str = None,
         missing: bool = False,
     ):
@@ -647,7 +646,7 @@ class MeasurementParser:
         self.measurement_list.append({"style": style, **kwargs})
 
     def add_marginal(
-        self, variables: List[str], measurement: np.array, noise_scale: float = None
+        self, variables: list[str], measurement: np.array, noise_scale: float = None
     ):
         """
         Adds a marginal to the measurements.
@@ -708,7 +707,7 @@ class MeasurementParser:
     def measure(
         self,
         dataset: pd.DataFrame,
-        variables: List[str],
+        variables: list[str],
         noise_scale=None,
         laplace=True,
     ):
@@ -758,14 +757,14 @@ class ConstraintParser:
         self.attributes = attributes
         self.constraint_list = constraint_list
 
-    def _add_constraint(self, ctype, variables: List[str], **kwargs):
+    def _add_constraint(self, ctype, variables: list[str], **kwargs):
         for v in variables:
             assert v in self.attributes.converters, f"Unknown variable {v}."
         self.constraint_list.append(
             {"type": ctype, "variables": list(variables), **kwargs}
         )
 
-    def apply_structural_zeroes(self, variables: List[str], index: List[int]):
+    def apply_structural_zeroes(self, variables: list[str], index: list[int]):
         """
         Requires structural zeroes in specific indices of the dataset.
 
@@ -789,7 +788,7 @@ class ConstraintParser:
             ConstraintParser.TYPES.ZEROES, variables, index=list(index)
         )
 
-    def apply_correlation(self, variables: List[str], correlation: float):
+    def apply_correlation(self, variables: list[str], correlation: float):
         """
         Requires that two variables are correlated with some strength.
 

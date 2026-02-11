@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, Dict, List, Callable, Union
+from typing import Any, Callable
 from warnings import warn
 import pandas as pd
 
@@ -59,8 +59,8 @@ class PreprocessingBuilder:
 
     """
 
-    chain: List[models.PreprocessingOperation]
-    compound_chain: Dict[str, models.PreprocessingChain]
+    chain: list[models.PreprocessingOperation]
+    compound_chain: dict[str, models.PreprocessingChain]
     output_selection: models.Select
     output_selection_set: bool
     schema: DatasetSchema
@@ -87,12 +87,12 @@ class PreprocessingBuilder:
         self.schema = DatasetSchema()
         return self.schema
 
-    def new_chain(self, chain: List[models.PreprocessingOperation]):
+    def new_chain(self, chain: list[models.PreprocessingOperation]):
         """
         Sets the global pre-processing chain to a value.
 
         Args:
-            chain (List[models.PreprocessingOperation]): list of pre-processing operations constituting the chain
+            chain (list[models.PreprocessingOperation]): list of pre-processing operations constituting the chain
 
         Returns:
             self (PreprocessingBuilder): the updated PreprocessingBuilder
@@ -100,12 +100,12 @@ class PreprocessingBuilder:
         self.chain = chain
         return self
 
-    def new_compound_chain(self, chain: Dict[str, models.PreprocessingChain]):
+    def new_compound_chain(self, chain: dict[str, models.PreprocessingChain]):
         """
         Sets the compound pre-processing chain to a value.
 
         Args:
-            chain (Dict[str, models.PreprocessingChain]): dictionary mapping each node to its
+            chain (dict[str, models.PreprocessingChain]): dictionary mapping each node to its
                 individual preprocessing chain.
         """
         self.compound_chain = chain
@@ -115,9 +115,9 @@ class PreprocessingBuilder:
         self,
         input_column: str,
         prefix: str = None,
-        specified_types: List[str] = None,
+        specified_types: list[str] = None,
         strict: bool = None,
-        nodes: List[str] = None,
+        nodes: list[str] = None,
     ):
         """
         Adds a one-hot encoding operation to the preprocessing chain.
@@ -129,12 +129,12 @@ class PreprocessingBuilder:
         Args:
             target_column (str, optional): the name of the column on which to perform the one-hot-encoding.
             prefix (str, optional): the prefix of the output column name containing the one-hot encoded values.
-            specified_types (List[str], optional): a list of categorical values to create one-hot encoding columns
+            specified_types (list[str], optional): a list of categorical values to create one-hot encoding columns
                 for (even if they are not in the target column).
             strict (bool, optional): if set to True, columns are created *only* for the specified types. Values
                 outside of these types are ignored. This is required for differential privacy. This also requires
                 that specified_types is provided.
-            nodes (List[str], optional): list of the name of nodes to apply the operation on, applied
+            nodes (list[str], optional): list of the name of nodes to apply the operation on, applied
                 to all if None. Defaults to None.
 
         Returns:
@@ -156,10 +156,10 @@ class PreprocessingBuilder:
 
     def select(
         self,
-        columns: List[str],
+        columns: list[str],
         create_if_missing: bool = False,
         dummy_value: str = "",
-        nodes: List[str] = None,
+        nodes: list[str] = None,
     ):
         """
         Adds a select operation to the preprocessing chain.
@@ -167,10 +167,10 @@ class PreprocessingBuilder:
         This operation selects a set of specified columns from data. All other columns are dropped.
 
         Args:
-            columns (List[str]): list of column names to be selected
+            columns (list[str]): list of column names to be selected
             create_if_missing (bool, optional): whether to create the columns if they do not exist. Defaults to False.
             dummy_value (str, optional): what to fill the created columns with. Defaults to "".
-            nodes (List[str], optional): list of the name of nodes to apply the operation on, applied to all if None. Defaults to None.
+            nodes (list[str], optional): list of the name of nodes to apply the operation on, applied to all if None. Defaults to None.
 
         Returns:
             self (PreprocessingBuilder): the updated PreprocessingBuilder
@@ -186,13 +186,13 @@ class PreprocessingBuilder:
         )
         return self
 
-    def drop(self, columns: List[str], nodes: List[str] = None):
+    def drop(self, columns: list[str], nodes: list[str] = None):
         """
         Adds a drop operation to the preprocessing chain, dropping a set of columns.
 
         Args:
-            columns (List[str]): the columns to drop from the data.
-            nodes (List[str], optional): list of the name of nodes to apply the operation on, applied to all if None. Defaults to None.
+            columns (list[str]): the columns to drop from the data.
+            nodes (list[str], optional): list of the name of nodes to apply the operation on, applied to all if None. Defaults to None.
 
         Returns:
             self (PreprocessingBuilder): the updated PreprocessingBuilder
@@ -204,7 +204,7 @@ class PreprocessingBuilder:
         return self
 
     def set_columns(
-        self, columns: List[str], create_if_missing: bool = False, dummy_value: str = ""
+        self, columns: list[str], create_if_missing: bool = False, dummy_value: str = ""
     ):
         """
         Sets the selected columns after all other preprocessing blocks are applied.
@@ -213,7 +213,7 @@ class PreprocessingBuilder:
         operations have been applied. This is always a global operation.
 
         Args:
-            columns (List[str]): list of column names to be selected
+            columns (list[str]): list of column names to be selected
             create_if_missing (bool, optional): whether to create the columns if they do not exist. Defaults to False.
             dummy_value (str, optional): what to fill the created columns with. Defaults to "".
         """
@@ -225,11 +225,11 @@ class PreprocessingBuilder:
     def filter(
         self,
         target_column: str,
-        comparator: Union[str, Comparator, models.ComparisonType],
+        comparator: str | Comparator | models.ComparisonType,
         value: str,
         numerical: bool = False,
         output_column: str = None,
-        nodes: List[str] = None,
+        nodes: list[str] = None,
     ):
         """
         Adds a filter operation to the preprocessing chain.
@@ -245,7 +245,7 @@ class PreprocessingBuilder:
             numerical (bool, optional): whether the comparison is on numerical values. Defaults to False.
             output_column (str, optional): if specified, the dataset is *not* filtered. Instead, the boolean values
                 of the filter are saved in a new column with the given name, taking values 0 or 1.
-            nodes (List[str], optional): list of the name of nodes to apply the operation on, applied to all if None. Defaults to None.
+            nodes (list[str], optional): list of the name of nodes to apply the operation on, applied to all if None. Defaults to None.
 
         Returns:
             self (PreprocessingBuilder): the updated PreprocessingBuilder
@@ -265,7 +265,7 @@ class PreprocessingBuilder:
         )
         return self
 
-    def isin(self, target_column: str, values: List[str], nodes: List[str] = None):
+    def isin(self, target_column: str, values: list[str], nodes: list[str] = None):
         """
         Adds a "is in" filter operation to the preprocessing chain.
 
@@ -273,8 +273,8 @@ class PreprocessingBuilder:
 
         Args:
             target_column (str): the column to check the membership with.
-            values (List[str]): the list of accepted values.
-            nodes (List[str], optional): list of the name of nodes to apply the operation on, applied to all if None. Defaults to None.
+            values (list[str]): the list of accepted values.
+            nodes (list[str], optional): list of the name of nodes to apply the operation on, applied to all if None. Defaults to None.
 
         Returns:
             self (PreprocessingBuilder): the updated PreprocessingBuilder
@@ -291,7 +291,7 @@ class PreprocessingBuilder:
         )
         return self
 
-    def counts(self, output_column_name: str = "count", nodes: List[str] = None):
+    def counts(self, output_column_name: str = "count", nodes: list[str] = None):
         """
         Adds a counts operation to the preprocessing chain.
 
@@ -300,21 +300,21 @@ class PreprocessingBuilder:
 
         Args:
             output_column_name (str): name of the column to store the counts. If not specified, the name 'count' will be used.
-            nodes (List[str], optional): list of the name of nodes to apply the operation on, applied to all if None. Defaults to None.
+            nodes (list[str], optional): list of the name of nodes to apply the operation on, applied to all if None. Defaults to None.
 
         Returns:
             self (PreprocessingBuilder): the updated PreprocessingBuilder
         """
         return self.new_column(name=output_column_name, value=1, nodes=nodes)
 
-    def transpose(self, nodes: List[str] = None):
+    def transpose(self, nodes: list[str] = None):
         """
         Adds a transpose operation to the preprocessing chain.
 
         This operation transposes the index and columns of the data (see `pandas.DataFrame.transpose`).
 
         Args:
-            nodes (List[str], optional): list of the name of nodes to apply the operation on, applied to all if None. Defaults to None.
+            nodes (list[str], optional): list of the name of nodes to apply the operation on, applied to all if None. Defaults to None.
 
         Returns:
             self (PreprocessingBuilder): the updated PreprocessingBuilder
@@ -329,10 +329,10 @@ class PreprocessingBuilder:
 
     def set_index(
         self,
-        columns: List[str],
+        columns: list[str],
         drop: bool = True,
         append: bool = False,
-        nodes: List[str] = None,
+        nodes: list[str] = None,
     ):
         """
         Adds a set_index operation to the preprocessing chain.
@@ -340,10 +340,10 @@ class PreprocessingBuilder:
         This operation sets the DataFrame index to one or more existing columns in the data.
 
         Args:
-            columns (List[str]): list of column names to set as index
+            columns (list[str]): list of column names to set as index
             drop (bool, optional): Delete columns to be used as the new index. Defaults to True.
             append (bool, optional): Whether to append columns to existing index. Defaults to False.
-            nodes (List[str], optional): list of the name of nodes to apply the operation on, applied to all if None. Defaults to None.
+            nodes (list[str], optional): list of the name of nodes to apply the operation on, applied to all if None. Defaults to None.
 
         Returns:
             self (PreprocessingBuilder): the updated PreprocessingBuilder
@@ -360,7 +360,7 @@ class PreprocessingBuilder:
         return self
 
     def reset_index(
-        self, drop: bool = False, level: List[str] = None, nodes: List[str] = None
+        self, drop: bool = False, level: list[str] = None, nodes: list[str] = None
     ):
         """
         Add a reset_index operation to the preprocessing chain.
@@ -371,8 +371,8 @@ class PreprocessingBuilder:
         Args:
             drop (bool, optional):  Whether to insert index into dataframe columns. This resets the index
                 to the default integer index. Defaults to False.
-            level (List[str], optional): list of column names to remove from index. Defaults to None.
-            nodes (List[str], optional): list of the name of nodes to apply the operation on, applied to all if None. Defaults to None.
+            level (list[str], optional): list of column names to remove from index. Defaults to None.
+            nodes (list[str], optional): list of the name of nodes to apply the operation on, applied to all if None. Defaults to None.
 
         Returns:
             self (PreprocessingBuilder): the updated PreprocessingBuilder
@@ -392,7 +392,7 @@ class PreprocessingBuilder:
         mapper: dict,
         axis: models.RenameAxis = models.RenameAxis.COLUMNS,
         errors: bool = True,
-        nodes: List[str] = None,
+        nodes: list[str] = None,
     ):
         """
         Adds a rename operation to the preprocessing chain.
@@ -405,7 +405,7 @@ class PreprocessingBuilder:
             errors (bool, optional): If True raise a KeyError when a dict-like mapper, index, or columns contains
                 labels that are not present in the Index being transformed. If False existing keys will be renamed
                 and extra keys will be ignored. Defaults to True.
-            nodes (List[str], optional): list of the name of nodes to apply the operation on, applied to all if None. Defaults to None.
+            nodes (list[str], optional): list of the name of nodes to apply the operation on, applied to all if None. Defaults to None.
 
         Returns:
             self (PreprocessingBuilder): the updated PreprocessingBuilder
@@ -426,7 +426,7 @@ class PreprocessingBuilder:
         self,
         type_map: dict,
         errors: bool = True,
-        nodes: List[str] = None,
+        nodes: list[str] = None,
     ):
         """
         Adds an as_type operation to the preprocessing chain.
@@ -437,7 +437,7 @@ class PreprocessingBuilder:
             type_map (dict):  Dict which maps column names to the data types (str) they should be cast to.
             errors (bool, optional): If True raise a KeyError if a column in the type_map does not exist in the data.
                 If False existing columns will be cast and extra columns will be ignored. Defaults to True.
-            nodes (List[str], optional): list of the name of nodes to apply the operation on, applied to all if None. Defaults to None.
+            nodes (list[str], optional): list of the name of nodes to apply the operation on, applied to all if None. Defaults to None.
 
         Returns:
             self (PreprocessingBuilder): the updated PreprocessingBuilder
@@ -456,9 +456,9 @@ class PreprocessingBuilder:
     def extract(
         self,
         field: str,
-        columns: List[str],
-        names: List[str] = None,
-        nodes: List[str] = None,
+        columns: list[str],
+        names: list[str] = None,
+        nodes: list[str] = None,
     ):
         """
         Adds an extract operation to the preprocessing chain.
@@ -468,9 +468,9 @@ class PreprocessingBuilder:
 
         Args:
             field (str): name of the field to extract
-            columns (List[str]): list of column names from which to extract the field values.
-            names (List[str]): names of the resulting columns containing the extracted values.
-            nodes (List[str], optional): list of the name of nodes to apply the operation on, applied to all if None. Defaults to None.
+            columns (list[str]): list of column names from which to extract the field values.
+            names (list[str]): names of the resulting columns containing the extracted values.
+            nodes (list[str], optional): list of the name of nodes to apply the operation on, applied to all if None. Defaults to None.
 
         Returns:
             self (PreprocessingBuilder): the updated PreprocessingBuilder
@@ -490,10 +490,10 @@ class PreprocessingBuilder:
     def apply_regex(
         self,
         regex: str,
-        columns: List[str],
-        names: List[str] = None,
+        columns: list[str],
+        names: list[str] = None,
         regex_type: models.ApplyRegExRegexType = models.ApplyRegExRegexType.MATCH,
-        nodes: List[str] = None,
+        nodes: list[str] = None,
     ):
         """
         Adds an apply_regex operation to the preprocessing chain.
@@ -505,11 +505,11 @@ class PreprocessingBuilder:
 
         Args:
             regex (str): regular expression to apply.
-            columns (List[str]):  list of column names to apply the regular expression to.
+            columns (list[str]):  list of column names to apply the regular expression to.
             regex_type (models.ApplyRegExRegexType, optional): defines what we want to retrieve from the regex
                 (see ApplyRegExRegexType). Defaults to models.ApplyRegExRegexType.MATCH.
-            names (List[str]): names of resulting columns. If None, this operation is in place.
-            nodes (List[str], optional): list of the name of nodes to apply the operation on, applied to all if None. Defaults to None.
+            names (list[str]): names of resulting columns. If None, this operation is in place.
+            nodes (list[str], optional): list of the name of nodes to apply the operation on, applied to all if None. Defaults to None.
 
         Returns:
             self (PreprocessingBuilder): the updated PreprocessingBuilder
@@ -528,7 +528,7 @@ class PreprocessingBuilder:
         return self
 
     def quantiles(
-        self, input_column: str, min_v: float, max_v: float, nodes: List[str] = None
+        self, input_column: str, min_v: float, max_v: float, nodes: list[str] = None
     ):
         """
         Adds a quantiles operation to the preprocessing chain.
@@ -550,7 +550,7 @@ class PreprocessingBuilder:
             input_column (str): the column from which to compute the quantiles
             min_v (float): the minimum expected value a sample can take
             max_v (float): the maximum expected value a sample can take
-            nodes (List[str], optional): the nodes to apply this operation to. Defaults to None.
+            nodes (list[str], optional): the nodes to apply this operation to. Defaults to None.
 
         Returns:
             self (PreprocessingBuilder): the updated PreprocessingBuilder
@@ -574,7 +574,7 @@ class PreprocessingBuilder:
         unit: models.TimeUnit = models.TimeUnit.MONTHS,
         unit_value=1,
         filter_na: bool = True,
-        nodes: List[str] = None,
+        nodes: list[str] = None,
     ):
         """
         Adds a time_diff operation to the preprocessing chain.
@@ -589,7 +589,7 @@ class PreprocessingBuilder:
             unit (models.TimeUnit, optional): the time unit to use. Defaults to models.TimeUnit.WEEKS.
             unit_value (int, optional): the value to use as interval for the time unit, defaults to 4.
             filter_na (bool, optional): whether to filter NaN values in both columns beforehand. Defaults to True.
-            nodes (List[str], optional): the list of nodes to apply this preprocessing operation to. Defaults to None.
+            nodes (list[str], optional): the list of nodes to apply this preprocessing operation to. Defaults to None.
 
         Returns:
             self (PreprocessingBuilder): the updated PreprocessingBuilder
@@ -607,7 +607,7 @@ class PreprocessingBuilder:
         )
         return self
 
-    def dropna(self, subset: List[str] = None, nodes: List[str] = None):
+    def dropna(self, subset: list[str] = None, nodes: list[str] = None):
         """
         Adds a drop-n/a operation to the preprocessing chain.
 
@@ -615,7 +615,7 @@ class PreprocessingBuilder:
         Note: it treats the strings 'NaN' has an actual NaN values (in addition to "").
 
         Args:
-            nodes (List[str], optional): the list of nodes to apply this preprocessing operation to. Defaults to None.
+            nodes (list[str], optional): the list of nodes to apply this preprocessing operation to. Defaults to None.
         Returns:
             self (PreprocessingBuilder): the updated PreprocessingBuilder
         """
@@ -631,9 +631,9 @@ class PreprocessingBuilder:
         self,
         input_column: str,
         output: str,
-        mapping: Dict[str, str],
+        mapping: dict[str, str],
         default: str = "",
-        nodes: List[str] = None,
+        nodes: list[str] = None,
     ):
         """
         Adds an apply_mapping operation to the preprocessing chain.
@@ -643,9 +643,9 @@ class PreprocessingBuilder:
         Args:
             input_column (str): the source column
             output (str): the newly derived column name
-            mapping (Dict[str,str]): the mapping of values
+            mapping (dict[str,str]): the mapping of values
             default (str, optional): default value to use when the value does not match any value from the mapping. Defaults to "".
-            nodes (List[str], optional): the list of nodes to apply this preprocessing operation to. Defaults to None.
+            nodes (list[str], optional): the list of nodes to apply this preprocessing operation to. Defaults to None.
 
         Returns:
             self (PreprocessingBuilder): the updated PreprocessingBuilder
@@ -671,9 +671,9 @@ class PreprocessingBuilder:
         self,
         input_column: str,
         output: str,
-        cuts: List[float],
-        labels: List[str] = None,
-        nodes: List[str] = None,
+        cuts: list[float],
+        labels: list[str] = None,
+        nodes: list[str] = None,
     ):
         """
         Adds a cut operation to the preprocessing chain.
@@ -685,9 +685,9 @@ class PreprocessingBuilder:
         Args:
             input_column (str): name of the input column
             output (str): name of the output column
-            cuts (List[float]): the list of cuts (must be numerical)
-            labels (List[str], optional): list of associated labels/categories must be equal to `len(cuts) - 1`
-            nodes (List[str], optional): If specified, applies the preprocessing operation only for the given nodes. Defaults to None.
+            cuts (list[float]): the list of cuts (must be numerical)
+            labels (list[str], optional): list of associated labels/categories must be equal to `len(cuts) - 1`
+            nodes (list[str], optional): If specified, applies the preprocessing operation only for the given nodes. Defaults to None.
 
         Returns:
             self (PreprocessingBuilder): the updated PreprocessingBuilder
@@ -720,7 +720,7 @@ class PreprocessingBuilder:
         output_column: str,
         mean: float,
         count: int = 0,
-        nodes: List[str] = None,
+        nodes: list[str] = None,
     ):
         """
         Adds a deviation_squares operation to the preprocessing chain.
@@ -734,7 +734,7 @@ class PreprocessingBuilder:
             output_column (str): the output column
             mean (float): the previously computed global mean
             count (int, optional): the previously computed global count. Defaults to 0.
-            nodes (List[str], optional): the nodes to assign the preprocessing operation to. Defaults to None.
+            nodes (list[str], optional): the nodes to assign the preprocessing operation to. Defaults to None.
         """
         mean = float(mean)
         count = int(count)
@@ -752,11 +752,11 @@ class PreprocessingBuilder:
 
     def add_columns(
         self,
-        input_cols: List[str],
+        input_cols: list[str],
         output: str,
         sep: str = "",
         numerical: bool = False,
-        nodes: List[str] = None,
+        nodes: list[str] = None,
     ):
         """
         Adds an add_columns operation to the preprocessing chain.
@@ -770,7 +770,7 @@ class PreprocessingBuilder:
             output (str): name of the output column
             sep (str, optional): separator when the columns are strings. Defaults to "".
             numerical (bool, optional): whether or not to add numerically. Defaults to False.
-            nodes (List[str], optional): the nodes for which the preprocessing applies to. Defaults to None.
+            nodes (list[str], optional): the nodes for which the preprocessing applies to. Defaults to None.
         """
         self._append_to_chain(
             models.AddColumns(
@@ -786,20 +786,20 @@ class PreprocessingBuilder:
 
     def scale(
         self,
-        input_columns: List[str],
+        input_columns: list[str],
         scale: float,
-        output_columns: List[str] = None,
-        nodes: List[str] = None,
+        output_columns: list[str] = None,
+        nodes: list[str] = None,
     ):
         """
         Adds a scale operation to the preprocessing chain. This operation scales one or more columns by a constant.
 
         Args:
-            input_columns (List[str]): the names of one or more columns to scale.
+            input_columns (list[str]): the names of one or more columns to scale.
             scale (float): the constant factor by which to scale the columns.
-            output_columns (List[str], optional): if specified, names of columns to save the results to. If not specified
+            output_columns (list[str], optional): if specified, names of columns to save the results to. If not specified
               (by default), the input columns are overwritten in place.
-            nodes (List[str], optional): the nodes for which the preprocessing applies to. Defaults to None.
+            nodes (list[str], optional): the nodes for which the preprocessing applies to. Defaults to None.
         """
         self._append_to_chain(
             models.Scale(
@@ -813,7 +813,7 @@ class PreprocessingBuilder:
         return self
 
     def multiply_columns(
-        self, input_columns: List[str], output_column: str, nodes: List[str] = None
+        self, input_columns: list[str], output_column: str, nodes: list[str] = None
     ):
         """
         Adds a multiply_columns operation to the preprocessing chain.
@@ -822,9 +822,9 @@ class PreprocessingBuilder:
         in the output column. It requires all input columns to contain numerical values.
 
         Args:
-            input_columns (List[str]): the names of the columns to multiply together.
+            input_columns (list[str]): the names of the columns to multiply together.
             output_column (str): the name of the output column.
-            nodes (List[str], optional): the nodes for which the preprocessing applies to. Defaults to None.
+            nodes (list[str], optional): the nodes for which the preprocessing applies to. Defaults to None.
         """
         self._append_to_chain(
             models.MultiplyColumns(
@@ -842,7 +842,7 @@ class PreprocessingBuilder:
         value: str = None,
         loc: float = None,
         scale: float = None,
-        nodes: List[str] = None,
+        nodes: list[str] = None,
     ):
         """
         Adds a new_column operation to the preprocessing chain.
@@ -859,7 +859,7 @@ class PreprocessingBuilder:
                 Defaults to None.
             scale (float, optional): If specified, the standard deviation of the random values sampled
                 for this column. Defaults to None.
-            nodes (List[str], optional): the nodes for which the preprocessing applies to. Defaults to None.
+            nodes (list[str], optional): the nodes for which the preprocessing applies to. Defaults to None.
         """
         random = UNSET
         if loc is not None or scale is not None:
@@ -895,12 +895,12 @@ class PreprocessingBuilder:
         )
         return self
 
-    def drop_duplicates(self, columns: List[str] = None, keep: str = "first"):
+    def drop_duplicates(self, columns: list[str] = None, keep: str = "first"):
         """
         Adds a drop_duplicates operation to the preprocessing chain.
 
         Args:
-            columns (List[str], optional): the columns to use as keys for deduplication.
+            columns (list[str], optional): the columns to use as keys for deduplication.
                 If None, all columns are used.
             keep (str, optional): what records, if any, to keep from the duplicates. This can be
                 either "first", "last" or "none" (discard all duplicates). Defaults to "first".
@@ -914,7 +914,7 @@ class PreprocessingBuilder:
         )
         return self
 
-    def fillna(self, method: str, columns: List[str] = None, value: Any = None):
+    def fillna(self, method: str, columns: list[str] = None, value: Any = None):
         """
         Adds a fillna operation to the preprocessing chain.
 
@@ -927,7 +927,7 @@ class PreprocessingBuilder:
                 values are filled in based on the dataset. Available methods are mean, median, mode
                 (filling in with the corresponding statistic in each column), ffill, bfill (forward
                 or backward fill) or interpolate (interpolating linearly between non-missing values).
-            columns (List[str], optional): columns where missing values are filled in. If None, all
+            columns (list[str], optional): columns where missing values are filled in. If None, all
                 columns are filled in.
             value (Any, optional): the value to set in place of missing value. Required if the
                 method is "value" (otherwise can be left as None).
@@ -951,10 +951,10 @@ class PreprocessingBuilder:
         function: Callable[[pd.DataFrame], pd.DataFrame],
         name: str = "",
         description: str = "",
-        additional_inputs: Dict[str, Any] = UNSET,
-        output_columns: List[str] = None,
+        additional_inputs: dict[str, Any] = UNSET,
+        output_columns: list[str] = None,
         compatible_with_dp: bool = False,
-        nodes: List[str] = None,
+        nodes: list[str] = None,
     ):
         """
         Adds a custom python preprocessing block to the chain.
@@ -974,16 +974,16 @@ class PreprocessingBuilder:
                 which takes as input a dataframe and returns a new dataframe.
             name (str, optional): common name given to the operation, for indicative purposes. Defaults to "".
             description (str, optional): description given to the operation for indicative purposes. Defaults to "".
-            additional_inputs (Dict[str, any], optional): additional keyword arguments to pass to the custom function
+            additional_inputs (dict[str, Any], optional): additional keyword arguments to pass to the custom function
                 when it is called. The values provided must be marshallable to JSON.
             compatible_with_dp (bool, optional): whether this operation is compatible with differential privacy. For this,
                 it must (1) be a stable transformation (at most one output record per input record) and (2) have a statically
                 determined set of output columns (i.e., not dependent on the input data). Contact Tune Insight if you
                 have questions about this. 🔥 Only set to true if you know what you are doing.
-            output_columns (List[str], optional): the  list of columns added to the output dataset. This is only
+            output_columns (list[str], optional): the  list of columns added to the output dataset. This is only
                 required for dry runs and differential privacy. If provided, conformity is checked and an error is
                 returned if the columns mismatch.
-            nodes (List[str], optional): the nodes for which the preprocessing block will apply to. Defaults to None.
+            nodes (list[str], optional): the nodes for which the preprocessing block will apply to. Defaults to None.
 
         Returns:
             self (PreprocessingBuilder): the updated PreprocessingBuilder
@@ -1006,47 +1006,15 @@ class PreprocessingBuilder:
         )
         return self
 
-    def gwas_preprocessing(
-        self,
-        genomic_nodes: List[str],
-        clinical_nodes: List[str],
-        sample_cols: List[str],
-    ):
-        """
-        Adds the preprocessing operations required for a Genome-Wide Association Study.
-
-        Args:
-            genomic_nodes (List[str]): list of names of the nodes containing genomic data.
-            clinical_nodes (List[str]): list of names of the nodes containing clinical data.
-            sample_cols (List[str]): list of column names containing sample data within the genomic data.
-
-        Returns:
-            self (PreprocessingBuilder): the updated PreprocessingBuilder
-        """
-        self.set_index(columns=["LOCUS"], nodes=genomic_nodes)
-        self.select(columns=sample_cols, nodes=genomic_nodes)
-        self.extract(field="GT_type", columns=sample_cols, nodes=genomic_nodes)
-        self.transpose(nodes=genomic_nodes)
-        self.reset_index(nodes=genomic_nodes)
-        self.rename(
-            mapper={"index": "ID"}, axis=models.RenameAxis.COLUMNS, nodes=genomic_nodes
-        )
-        self.rename(
-            mapper={"Sample": "ID"},
-            axis=models.RenameAxis.COLUMNS,
-            nodes=clinical_nodes,
-        )
-        return self
-
     def create_survival_columns(
-        self, params: "SurvivalParameters", nodes: List[str] = None
+        self, params: "SurvivalParameters", nodes: list[str] = None
     ):
         """
         Adds the preprocessing operations required for a survival analysis.
 
         Args:
             params (computations.SurvivalParameters): parameters of the survival analysis.
-            nodes (List[str], optional): list of the name of nodes to apply the operations on, applied to all if None. Defaults to None.
+            nodes (list[str], optional): list of the name of nodes to apply the operations on, applied to all if None. Defaults to None.
 
         Returns:
             self (PreprocessingBuilder): the updated PreprocessingBuilder
@@ -1057,8 +1025,8 @@ class PreprocessingBuilder:
     def dry_run(
         self,
         client: Client,
-        starting_columns: List[Union[models.DataSourceColumn, str]],
-    ) -> List[List[models.DataSourceVariable]]:
+        starting_columns: list[models.DataSourceColumn | str],
+    ) -> list[list[models.DataSourceVariable]]:
         """Dry-runs the preprocessing operations on a set of starting columns.
 
         This infers the columns available at the end of each preprocessing operation, as well
@@ -1066,11 +1034,11 @@ class PreprocessingBuilder:
 
         Args:
             client (Client): client to connect to.
-            starting_columns (List[Union[models.DataSourceVariable,str]]): the input columns of
+            starting_columns (list[models.DataSourceVariable | str]): the input columns of
                 the dry run (either column names, or variables with types).
 
         Returns:
-            List[List[models.DataSourceVariable]]: the output variables at each step.
+            list[list[models.DataSourceVariable]]: the output variables at each step.
         """
         if not isinstance(client, Client):
             client = client.client
@@ -1097,14 +1065,14 @@ class PreprocessingBuilder:
         return resp.parsed
 
     def _append_to_chain(
-        self, op: models.PreprocessingOperation, nodes: List[str] = None
+        self, op: models.PreprocessingOperation, nodes: list[str] = None
     ):
         """
         Appends a preprocessing operation to the global or compound chain.
 
         Args:
             op (models.PreprocessingOperation): the preprocessing operation to append
-            nodes (List[str], optional): list of the name of nodes to apply the operation on, applied to all if None. Defaults to None.
+            nodes (list[str], optional): list of the name of nodes to apply the operation on, applied to all if None. Defaults to None.
         """
         if nodes is None:
             self.chain.append(op)

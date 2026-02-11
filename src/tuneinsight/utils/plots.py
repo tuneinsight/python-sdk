@@ -1,7 +1,6 @@
 """Visual utilities for plots with Tune Insight branding."""
 
 from pathlib import Path
-from typing import List
 from PIL import Image
 import numpy as np
 import pandas as pd
@@ -236,7 +235,7 @@ def hist(
 
 def hist_grouped(
     group: str,
-    variables: List[str],
+    variables: list[str],
     result: pd.DataFrame,
     title: str = "",
     x_label: str = "",
@@ -248,7 +247,7 @@ def hist_grouped(
 
     Args:
         group (str): the group to plot from the data points.
-        variables (List[str]): the list of variables to plot per-group
+        variables (list[str]): the list of variables to plot per-group
         result (pd.DataFrame): the data frame containing the data to plot.
         title (str, optional): optional plot title. Defaults to "".
         x_label (str, optional): optional plot xlabel. Defaults to "".
@@ -300,3 +299,7 @@ def hist_grouped(
     ax.set_ylim(0, max_value + max_value * BAR_Y_EMPTY_PERCENT)
     style_plot(ax, fig, title, x_label, y_label, size=size)
     plt.show()
+
+
+# For heatmaps and other plots requiring a colormap.
+DEFAULT_COLORMAP = "Reds"

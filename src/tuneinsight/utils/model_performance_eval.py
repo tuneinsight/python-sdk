@@ -8,11 +8,10 @@ sklearn.metrics, but without the dependency on scikit-learn.
 
 """
 
-from typing import List
 import numpy as np
 
 
-def _check_arrays(y_true: List[float], y_pred: List[float]):
+def _check_arrays(y_true: list[float], y_pred: list[float]):
     """
     Check that inputs can be cast to np.arrays of the same size.
 
@@ -25,18 +24,18 @@ def _check_arrays(y_true: List[float], y_pred: List[float]):
     return y_true, y_pred
 
 
-def mse(y_true: List[float], y_pred: List[float]) -> float:
+def mse(y_true: list[float], y_pred: list[float]) -> float:
     """Computes the mean square error (same as sklearn.metrics.mse)."""
     y_true, y_pred = _check_arrays(y_true, y_pred)
     return np.square(y_true - y_pred).mean()
 
 
-def rmse(y_true: List[float], y_pred: List[float]) -> float:
+def rmse(y_true: list[float], y_pred: list[float]) -> float:
     """Computes the root mean square error (same as sklearn.metrics.rmse)."""
     return np.sqrt(mse(y_true, y_pred))
 
 
-def r2_score(y_true: List[float], y_pred: List[float]) -> float:
+def r2_score(y_true: list[float], y_pred: list[float]) -> float:
     """Computes the R2 score  (same as sklearn.metrics.mse)."""
     y_true, y_pred = _check_arrays(y_true, y_pred)
 

@@ -5,7 +5,7 @@ import attr
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.ontology_search_result import OntologySearchResult
+    from ..models.term import Term
 
 
 T = TypeVar("T", bound="TiqlValue")
@@ -16,11 +16,11 @@ class TiqlValue:
     """a possible value that a field can take.
 
     Attributes:
-        terminology (Union[Unset, OntologySearchResult]): Definition of an ontology search result
+        terminology (Union[Unset, Term]): represents a single term from any terminology/ontology stored by the instance.
         value (Union[Unset, str]): the string representation of a value for this field.
     """
 
-    terminology: Union[Unset, "OntologySearchResult"] = UNSET
+    terminology: Union[Unset, "Term"] = UNSET
     value: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -43,15 +43,15 @@ class TiqlValue:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.ontology_search_result import OntologySearchResult
+        from ..models.term import Term
 
         d = src_dict.copy()
         _terminology = d.pop("terminology", UNSET)
-        terminology: Union[Unset, OntologySearchResult]
+        terminology: Union[Unset, Term]
         if isinstance(_terminology, Unset):
             terminology = UNSET
         else:
-            terminology = OntologySearchResult.from_dict(_terminology)
+            terminology = Term.from_dict(_terminology)
 
         value = d.pop("value", UNSET)
 

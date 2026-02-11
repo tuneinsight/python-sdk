@@ -22,6 +22,8 @@ class GetInfosResponse200:
         build_version (Union[Unset, str]): Tune Insight build version
         catalog_status (Union[Unset, GetInfosResponse200CatalogStatus]): Status of the node's catalog
         portal_status (Union[Unset, str]): Portal connectivity status
+        push_catalog_enabled (Union[Unset, bool]): whether the instance has enabled the option to push the catalog to
+            the portal.
         service_account (Union[Unset, str]): name of the service account used by this instance when sending requests to
             other instances.
         startup_status (Union[Unset, str]): Reports the startup process status.
@@ -34,6 +36,7 @@ class GetInfosResponse200:
     build_version: Union[Unset, str] = UNSET
     catalog_status: Union[Unset, "GetInfosResponse200CatalogStatus"] = UNSET
     portal_status: Union[Unset, str] = UNSET
+    push_catalog_enabled: Union[Unset, bool] = UNSET
     service_account: Union[Unset, str] = UNSET
     startup_status: Union[Unset, str] = UNSET
     version: Union[Unset, str] = UNSET
@@ -52,6 +55,7 @@ class GetInfosResponse200:
             catalog_status = self.catalog_status.to_dict()
 
         portal_status = self.portal_status
+        push_catalog_enabled = self.push_catalog_enabled
         service_account = self.service_account
         startup_status = self.startup_status
         version = self.version
@@ -71,6 +75,8 @@ class GetInfosResponse200:
             field_dict["catalogStatus"] = catalog_status
         if portal_status is not UNSET:
             field_dict["portalStatus"] = portal_status
+        if push_catalog_enabled is not UNSET:
+            field_dict["pushCatalogEnabled"] = push_catalog_enabled
         if service_account is not UNSET:
             field_dict["serviceAccount"] = service_account
         if startup_status is not UNSET:
@@ -102,6 +108,8 @@ class GetInfosResponse200:
 
         portal_status = d.pop("portalStatus", UNSET)
 
+        push_catalog_enabled = d.pop("pushCatalogEnabled", UNSET)
+
         service_account = d.pop("serviceAccount", UNSET)
 
         startup_status = d.pop("startupStatus", UNSET)
@@ -115,6 +123,7 @@ class GetInfosResponse200:
             build_version=build_version,
             catalog_status=catalog_status,
             portal_status=portal_status,
+            push_catalog_enabled=push_catalog_enabled,
             service_account=service_account,
             startup_status=startup_status,
             version=version,

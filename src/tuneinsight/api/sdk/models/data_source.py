@@ -5,6 +5,7 @@ import attr
 from ..models.access_scope import AccessScope
 from ..models.data_source_consent_type import DataSourceConsentType
 from ..models.data_source_type import DataSourceType
+from ..models.query_builder_type import QueryBuilderType
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -63,6 +64,7 @@ class DataSource:
         metadata (Union[Unset, DataSourceMetadata]): metadata about a datasource
         owner (Union[Unset, str]):
         projects (Union[Unset, List[str]]): ids of connected projects
+        query_builder_type (Union[Unset, QueryBuilderType]):
         query_enabled_can_be_toggled (Union[Unset, bool]): This field is purely informative (it cannot be edited and is
             not persisted)
             and indicates whether the `queryEnabled` field can be edited by the data source owner.
@@ -74,6 +76,9 @@ class DataSource:
             source
         status (Union[Unset, DataSourceStatus]): regroups data source health check status information
         status_updated_at (Union[Unset, str]): time at which the status was last updated.
+        supports_catalog_build (Union[Unset, bool]): This field is read only and indicates whether this data source can
+            be used to build the terminology catalog and fetch
+            patient occurrences.
         updated_at (Union[Unset, str]):
     """
 
@@ -102,10 +107,12 @@ class DataSource:
     metadata: Union[Unset, "DataSourceMetadata"] = UNSET
     owner: Union[Unset, str] = UNSET
     projects: Union[Unset, List[str]] = UNSET
+    query_builder_type: Union[Unset, QueryBuilderType] = UNSET
     query_enabled_can_be_toggled: Union[Unset, bool] = UNSET
     selections: Union[Unset, List["LocalDataSelection"]] = UNSET
     status: Union[Unset, "DataSourceStatus"] = UNSET
     status_updated_at: Union[Unset, str] = UNSET
+    supports_catalog_build: Union[Unset, bool] = UNSET
     updated_at: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -184,6 +191,10 @@ class DataSource:
         if not isinstance(self.projects, Unset):
             projects = self.projects
 
+        query_builder_type: Union[Unset, str] = UNSET
+        if not isinstance(self.query_builder_type, Unset):
+            query_builder_type = self.query_builder_type.value
+
         query_enabled_can_be_toggled = self.query_enabled_can_be_toggled
         selections: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.selections, Unset):
@@ -198,6 +209,7 @@ class DataSource:
             status = self.status.to_dict()
 
         status_updated_at = self.status_updated_at
+        supports_catalog_build = self.supports_catalog_build
         updated_at = self.updated_at
 
         field_dict: Dict[str, Any] = {}
@@ -253,6 +265,8 @@ class DataSource:
             field_dict["owner"] = owner
         if projects is not UNSET:
             field_dict["projects"] = projects
+        if query_builder_type is not UNSET:
+            field_dict["queryBuilderType"] = query_builder_type
         if query_enabled_can_be_toggled is not UNSET:
             field_dict["queryEnabledCanBeToggled"] = query_enabled_can_be_toggled
         if selections is not UNSET:
@@ -261,6 +275,8 @@ class DataSource:
             field_dict["status"] = status
         if status_updated_at is not UNSET:
             field_dict["statusUpdatedAt"] = status_updated_at
+        if supports_catalog_build is not UNSET:
+            field_dict["supportsCatalogBuild"] = supports_catalog_build
         if updated_at is not UNSET:
             field_dict["updatedAt"] = updated_at
 
@@ -385,6 +401,13 @@ class DataSource:
 
         projects = cast(List[str], d.pop("projects", UNSET))
 
+        _query_builder_type = d.pop("queryBuilderType", UNSET)
+        query_builder_type: Union[Unset, QueryBuilderType]
+        if isinstance(_query_builder_type, Unset):
+            query_builder_type = UNSET
+        else:
+            query_builder_type = QueryBuilderType(_query_builder_type)
+
         query_enabled_can_be_toggled = d.pop("queryEnabledCanBeToggled", UNSET)
 
         selections = []
@@ -402,6 +425,8 @@ class DataSource:
             status = DataSourceStatus.from_dict(_status)
 
         status_updated_at = d.pop("statusUpdatedAt", UNSET)
+
+        supports_catalog_build = d.pop("supportsCatalogBuild", UNSET)
 
         updated_at = d.pop("updatedAt", UNSET)
 
@@ -431,10 +456,12 @@ class DataSource:
             metadata=metadata,
             owner=owner,
             projects=projects,
+            query_builder_type=query_builder_type,
             query_enabled_can_be_toggled=query_enabled_can_be_toggled,
             selections=selections,
             status=status,
             status_updated_at=status_updated_at,
+            supports_catalog_build=supports_catalog_build,
             updated_at=updated_at,
         )
 

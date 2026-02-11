@@ -1,13 +1,12 @@
 Metadata-Version: 2.4
 Name: tuneinsight
-Version: 1.4.2
+Version: 1.5.0
 Summary: Official Python SDK for the Tune Insight API. The current version is compatible with the same version of the API.
 License: Apache-2.0
 Author: Tune Insight SA
-Requires-Python: >=3.9, !=2.7.*, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*, !=3.6.*, !=3.7.*, !=3.8.*
+Requires-Python: >3.10.0,<4.0
 Classifier: License :: OSI Approved :: Apache Software License
 Classifier: Programming Language :: Python :: 3
-Classifier: Programming Language :: Python :: 3.10
 Classifier: Programming Language :: Python :: 3.11
 Classifier: Programming Language :: Python :: 3.12
 Classifier: Programming Language :: Python :: 3.13
@@ -16,8 +15,9 @@ Provides-Extra: full
 Requires-Dist: PyYAML (>=6.0,<7.0)
 Requires-Dist: attrs (>=21.3.0)
 Requires-Dist: black (==24.2.0)
-Requires-Dist: certifi (>=2024.07.04,<2025.0.0)
+Requires-Dist: certifi (>=2024.7.4,<2025.0.0)
 Requires-Dist: cryptography (>=44.0.1,<45.0.0)
+Requires-Dist: fonttools (>=4.60.2,<5.0.0)
 Requires-Dist: h11 (>=0.16.0,<0.17.0)
 Requires-Dist: httpx (>=0.15.4,<0.28.0)
 Requires-Dist: ipython (==8.18.1)
@@ -36,6 +36,7 @@ Requires-Dist: requests (>=2.32.4)
 Requires-Dist: tornado (>=6.5.0,<7.0.0) ; extra == "full"
 Requires-Dist: tqdm (>=4.66.4,<5.0.0)
 Requires-Dist: typing-extensions (>=4.6.3,<5.0.0)
+Requires-Dist: urllib3 (>=2.6.0,<3.0.0)
 Description-Content-Type: text/markdown
 
 # Tune Insight Python SDK

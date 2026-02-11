@@ -1,6 +1,6 @@
 """Classes to perform matching operations (also called Private Set Intersection)."""
 
-from typing import List, Any, Union, Tuple
+from typing import Any
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -9,7 +9,6 @@ from tuneinsight.computations.base import (
     ModelBasedComputation,
     ComputationResult,
 )
-from tuneinsight.computations.cohort import Cohort
 from tuneinsight.utils.plots import style_plot
 
 from tuneinsight.api.sdk import models
@@ -18,11 +17,11 @@ from tuneinsight.api.sdk.types import UNSET, is_set, none_if_unset, false_if_uns
 
 class MatchingResult(ComputationResult):
     """
-    Output of a Matching operation when a cohort is not expected.
+    Output of a Matching operation.
     To use this object as input, use `on_previous_result=this.as_input()` in `Computation.run`.
     """
 
-    def __init__(self, results: List[DataContent]):
+    def __init__(self, results: list[DataContent]):
         if len(results) == 0:
             raise ValueError(
                 "No results were sent by the server. Please contact your administrator."
@@ -33,7 +32,7 @@ class MatchingResult(ComputationResult):
         if not self.encrypted:
             self.data = results[0].get_dataframe()
 
-    def add_ratio(self, all_parties: List[str]):
+    def add_ratio(self, all_parties: list[str]):
         """
         Adds a column to this result giving the fraction of participants with a record.
 
@@ -41,7 +40,7 @@ class MatchingResult(ComputationResult):
         without creating issues.
 
         Args:
-            all_parties (List[str]): list of the names of the parties involved in the PSI.
+            all_parties (list[str]): list of the names of the parties involved in the PSI.
                 This should be a list of valid column names in the underlying dataframe.
         """
         if self.encrypted:
@@ -127,13 +126,12 @@ class Matching(ModelBasedComputation):
     def __init__(
         self,
         project: "Project",  # type: ignore
-        columns: Union[str, List[str]] = None,
+        columns: str | list[str] = None,
         fuzzy: bool = False,
-        fuzzy_columns: Union[str, List[str]] = None,
-        local_input: Union[Any, List[Any], pd.DataFrame] = None,
+        fuzzy_columns: str | list[str] = None,
+        local_input: Any | list[Any] | pd.DataFrame = None,
         hide_origin: bool = False,
         share_results: bool = False,
-        encrypted_results: bool = False,
     ):
         """
         Creates a Matching computation.
@@ -142,14 +140,14 @@ class Matching(ModelBasedComputation):
             project (client.Project): the project to which this computation belongs.
 
 
-            columns (list[str], optional): the column(s) used to match the records with.
+            columns (str or list[str], optional): the column(s) used to match the records with.
 
             fuzzy (bool, default False): if set to true, then fuzzy matching will be used using fuzzy column encoding.
                 If no fuzzy column is specified, then all specified matching columns will be fuzzy-encoded.
 
             fuzzy_columns (list[str], optional): The column(s) that should be specifically fuzzy-encoded.
 
-            local_input (Union[Any, List[Any], pd.DataFrame], optional): user-provided list of records to match.
+            local_input (Any | list[Any], pd.DataFrame], optional): user-provided list of records to match.
                 If provided, this overrides the datasource of the project.
                 matching records. If False, results will be returned as a DataFrame.
 
@@ -159,9 +157,6 @@ class Matching(ModelBasedComputation):
             share_results (bool,optional): If set to True, then the decrypted matching identifiers are shared with the other participating instances.
                 This is useful when the goal is to reuse the result of the matching in another collective computation, as it ensures that all participants can reuse the result.
 
-            encrypted_results (bool,optional): If set to True, then the matches are not decrypted by the requesting instance. Instead the matches are kept encrypted under a collective key
-                and can be reused to compute statistics over all matching records, without revealing which records have matched.
-                This mode is currently 🧪 experimental: it is subject to change in next versions, and is time-consuming (about 15 minutes per run).
         """
 
         matching_columns, fuzzy_params = self._parse_columns(
@@ -169,7 +164,6 @@ class Matching(ModelBasedComputation):
             fuzzy=fuzzy,
             fuzzy_columns=fuzzy_columns,
         )
-        self.encrypted_results = encrypted_results
         # Initialize the computation for these settings.
         super().__init__(
             project,
@@ -178,7 +172,6 @@ class Matching(ModelBasedComputation):
             matching_columns=[str(c) for c in matching_columns],
             fuzzy_params=fuzzy_params,
             hide_matching_origin=hide_origin,
-            encrypted_results=encrypted_results,
             share_results=share_results,
         )
         self.all_columns = []
@@ -206,30 +199,25 @@ class Matching(ModelBasedComputation):
                     else None
                 ),
                 hide_origin=false_if_unset(model.hide_matching_origin),
-                encrypted_results=model.encrypted_results,
                 share_results=model.share_results,
             )
         comp._adapt(model)
         return comp
 
-    def _process_results(
-        self, results: List[DataContent]
-    ) -> Union[Cohort, MatchingResult]:
+    def _process_results(self, results: list[DataContent]) -> MatchingResult:
         """Creates a MatchingResult from the output of the computation."""
         return MatchingResult(results)
 
-    def _process_encrypted_results(
-        self, results: List[DataContent]
-    ) -> Union[Cohort, MatchingResult]:
+    def _process_encrypted_results(self, results: list[DataContent]) -> MatchingResult:
         """Creates a MatchingResult from the output of the computation (encrypted)."""
         return self._process_results(results)
 
     @staticmethod
     def _parse_columns(
-        columns: List[str] = None,
+        columns: list[str] = None,
         fuzzy: bool = False,
-        fuzzy_columns: List[str] = None,
-    ) -> Tuple[List[str], models.FuzzyMatchingParameters]:
+        fuzzy_columns: list[str] = None,
+    ) -> tuple[list[str], models.FuzzyMatchingParameters]:
         # Pre-process the inputs.
         matching_columns = []
         if columns is not None:
@@ -261,7 +249,7 @@ class Matching(ModelBasedComputation):
             )
         return matching_columns, fuzzy_params
 
-    def _setup_local_input(self, local_input: Union[Any, List[Any], pd.DataFrame]):
+    def _setup_local_input(self, local_input: Any | list[Any] | pd.DataFrame):
         if not isinstance(local_input, pd.DataFrame):
             if not isinstance(local_input, list):
                 local_input = [local_input]

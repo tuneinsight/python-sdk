@@ -2,9 +2,7 @@ from typing import Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
-from ..models.series_filter_output_variables_item_entry_selection_criterion import (
-    SeriesFilterOutputVariablesItemEntrySelectionCriterion,
-)
+from ..models.tiql_selection_criterion import TiqlSelectionCriterion
 from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="SeriesFilterOutputVariablesItem")
@@ -17,15 +15,16 @@ class SeriesFilterOutputVariablesItem:
     pass this filter (according to entrySelectionCriterion), and from one of the features of the entry.
 
         Attributes:
-            entry_selection_criterion (Union[Unset, SeriesFilterOutputVariablesItemEntrySelectionCriterion]): Describes how
-                to select an entry in the series that passes the inner filter from which to select the
+            entry_selection_criterion (Union[Unset, TiqlSelectionCriterion]): Describes how to select, in a given series, an
+                entry that passes the inner filter from which to select the
                 variable value (since, in general, there will be multiple entries that pass). Only "first" is currently
                 implemented, but this behavior is not enforced by most implementations for efficiency reasons.
             name (Union[Unset, str]): Unique name assigned to this variable that can be used in other parts of the query.
-            source (Union[Unset, str]): Name of the feature to retrieve from the selected entry.
+            source (Union[Unset, str]): Name of the field to retrieve from the selected entry. The concept is implicitly
+                described by the seriesFilter it is defined on.
     """
 
-    entry_selection_criterion: Union[Unset, SeriesFilterOutputVariablesItemEntrySelectionCriterion] = UNSET
+    entry_selection_criterion: Union[Unset, TiqlSelectionCriterion] = UNSET
     name: Union[Unset, str] = UNSET
     source: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
@@ -54,13 +53,11 @@ class SeriesFilterOutputVariablesItem:
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
         _entry_selection_criterion = d.pop("entrySelectionCriterion", UNSET)
-        entry_selection_criterion: Union[Unset, SeriesFilterOutputVariablesItemEntrySelectionCriterion]
+        entry_selection_criterion: Union[Unset, TiqlSelectionCriterion]
         if isinstance(_entry_selection_criterion, Unset):
             entry_selection_criterion = UNSET
         else:
-            entry_selection_criterion = SeriesFilterOutputVariablesItemEntrySelectionCriterion(
-                _entry_selection_criterion
-            )
+            entry_selection_criterion = TiqlSelectionCriterion(_entry_selection_criterion)
 
         name = d.pop("name", UNSET)
 

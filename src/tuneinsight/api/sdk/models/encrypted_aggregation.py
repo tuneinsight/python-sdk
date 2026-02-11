@@ -27,7 +27,6 @@ class EncryptedAggregation:
         type (ComputationType): Type of the computation.
         dp_policy (Union[Unset, DPPolicy]): represents the disclosure prevention policy that enables toggling various
             mechanisms that are executed whenever the workflow runs.
-        cohort_id (Union[Unset, str]): Unique identifier of a data object.
         data_source_parameters (Union[Unset, ComputationDataSourceParameters]): Parameters used to query the datasource
             from each node before the computation
         dp_epsilon (Union[Unset, float]): If positive, the privacy budget used by this computation. Used only in DP
@@ -94,7 +93,6 @@ class EncryptedAggregation:
 
     type: ComputationType
     dp_policy: Union[Unset, "DPPolicy"] = UNSET
-    cohort_id: Union[Unset, str] = UNSET
     data_source_parameters: Union[Unset, "ComputationDataSourceParameters"] = UNSET
     dp_epsilon: Union[Unset, float] = -1.0
     encrypted: Union[Unset, bool] = UNSET
@@ -131,7 +129,6 @@ class EncryptedAggregation:
         if not isinstance(self.dp_policy, Unset):
             dp_policy = self.dp_policy.to_dict()
 
-        cohort_id = self.cohort_id
         data_source_parameters: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.data_source_parameters, Unset):
             data_source_parameters = self.data_source_parameters.to_dict()
@@ -208,8 +205,6 @@ class EncryptedAggregation:
         )
         if dp_policy is not UNSET:
             field_dict["DPPolicy"] = dp_policy
-        if cohort_id is not UNSET:
-            field_dict["cohortId"] = cohort_id
         if data_source_parameters is not UNSET:
             field_dict["dataSourceParameters"] = data_source_parameters
         if dp_epsilon is not UNSET:
@@ -286,8 +281,6 @@ class EncryptedAggregation:
             dp_policy = UNSET
         else:
             dp_policy = DPPolicy.from_dict(_dp_policy)
-
-        cohort_id = d.pop("cohortId", UNSET)
 
         _data_source_parameters = d.pop("dataSourceParameters", UNSET)
         data_source_parameters: Union[Unset, ComputationDataSourceParameters]
@@ -386,7 +379,6 @@ class EncryptedAggregation:
         encrypted_aggregation = cls(
             type=type,
             dp_policy=dp_policy,
-            cohort_id=cohort_id,
             data_source_parameters=data_source_parameters,
             dp_epsilon=dp_epsilon,
             encrypted=encrypted,

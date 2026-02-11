@@ -43,17 +43,16 @@ from tuneinsight.computations import Aggregation
 ```
 """
 
-from .base import Computation, ModelBasedComputation, KeySwitch, ComputationResult
-from .count import Count, DatasetLength
-from .stats import Statistics
 from .aggregation import Aggregation, Sum
+from .base import Computation, ComputationResult, KeySwitch, ModelBasedComputation
+from .count import Count, DatasetLength
 from .distribution import Distribution, Histogram
 from .encrypted_mean import EncryptedMean
 from .feasibility import Feasibility
-from .gwas import GWAS
+from .filtered_aggregation import FilteredAggregation
+from .heatmap import HeatMap
 from .hybrid_fl import HybridFL
-from .secure_inference import SecureInference
 from .intersection import Matching
-from .private_search import PrivateSearch
 from .regression import LinearRegression, LogisticRegression, PoissonRegression
+from .stats import Statistics
 from .survival import SurvivalAnalysis, SurvivalParameters

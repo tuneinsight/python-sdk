@@ -5,9 +5,10 @@ from .add_columns import AddColumns
 from .advanced_builder_field import AdvancedBuilderField
 from .advanced_filter import AdvancedFilter
 from .advanced_filter_type import AdvancedFilterType
+from .agent_prompt_definition import AgentPromptDefinition
+from .agent_type import AgentType
 from .aggregated_dataset_length import AggregatedDatasetLength
 from .aggregation_strategy import AggregationStrategy
-from .ai_builder_prompt_definition import AIBuilderPromptDefinition
 from .api_type import APIType
 from .append_s3_presigned_ur_ls import AppendS3PresignedURLs
 from .apply_mapping import ApplyMapping
@@ -50,9 +51,11 @@ from .computation_preprocessing_parameters import ComputationPreprocessingParame
 from .computation_preprocessing_parameters_compound_preprocessing import (
     ComputationPreprocessingParametersCompoundPreprocessing,
 )
+from .computation_progress import ComputationProgress
 from .computation_status import ComputationStatus
 from .computation_type import ComputationType
 from .compute_time_since import ComputeTimeSince
+from .concept_field import ConceptField
 from .content import Content
 from .content_type import ContentType
 from .contribution_error import ContributionError
@@ -149,9 +152,9 @@ from .generic_command import GenericCommand
 from .generic_command_parameters import GenericCommandParameters
 from .generic_command_result import GenericCommandResult
 from .generic_command_result_result_item import GenericCommandResultResultItem
-from .get_ai_builder_prompts_data_source_type import GetAIBuilderPromptsDataSourceType
-from .get_ai_builder_prompts_order import GetAIBuilderPromptsOrder
-from .get_ai_builder_prompts_sort_by import GetAIBuilderPromptsSortBy
+from .get_agent_prompts_data_source_type import GetAgentPromptsDataSourceType
+from .get_agent_prompts_order import GetAgentPromptsOrder
+from .get_agent_prompts_sort_by import GetAgentPromptsSortBy
 from .get_availability_status_resource_type import GetAvailabilityStatusResourceType
 from .get_available_columns_response_200 import GetAvailableColumnsResponse200
 from .get_build_catalog_progress_response_200 import GetBuildCatalogProgressResponse200
@@ -161,8 +164,6 @@ from .get_computation_list_order import GetComputationListOrder
 from .get_computation_list_sort_by import GetComputationListSortBy
 from .get_concept_field_values_command import GetConceptFieldValuesCommand
 from .get_concept_field_values_command_result import GetConceptFieldValuesCommandResult
-from .get_concept_metadata_command import GetConceptMetadataCommand
-from .get_concept_metadata_command_result import GetConceptMetadataCommandResult
 from .get_data_preparation_sessions_order import GetDataPreparationSessionsOrder
 from .get_data_preparation_sessions_sort_by import GetDataPreparationSessionsSortBy
 from .get_infos_response_200 import GetInfosResponse200
@@ -184,8 +185,6 @@ from .get_ontology_search_ontologies_item import GetOntologySearchOntologiesItem
 from .get_ontology_search_response_200_item import GetOntologySearchResponse200Item
 from .get_params_response_200 import GetParamsResponse200
 from .get_preprocessing_dry_run_json_body import GetPreprocessingDryRunJsonBody
-from .get_private_search_databases_list_order import GetPrivateSearchDatabasesListOrder
-from .get_private_search_databases_list_sort_by import GetPrivateSearchDatabasesListSortBy
 from .get_project_list_order import GetProjectListOrder
 from .get_project_list_sort_by import GetProjectListSortBy
 from .get_project_network_status_response_200_item import GetProjectNetworkStatusResponse200Item
@@ -201,10 +200,10 @@ from .get_result_list_sort_by import GetResultListSortBy
 from .get_translated_query_command import GetTranslatedQueryCommand
 from .get_translated_query_command_result import GetTranslatedQueryCommandResult
 from .get_user_preference_key import GetUserPreferenceKey
+from .goroutine import Goroutine
 from .group_by_type import GroupByType
 from .group_info import GroupInfo
 from .grouping_parameters import GroupingParameters
-from .gwas import GWAS
 from .health_status import HealthStatus
 from .hybrid_fl import HybridFL
 from .hybrid_fl_community_detection_params import HybridFLCommunityDetectionParams
@@ -227,7 +226,6 @@ from .local_data_selection import LocalDataSelection
 from .local_data_selection_definition import LocalDataSelectionDefinition
 from .local_data_source_type import LocalDataSourceType
 from .local_input import LocalInput
-from .locus_range import LocusRange
 from .log import Log
 from .logical_formula import LogicalFormula
 from .logical_operator import LogicalOperator
@@ -254,7 +252,6 @@ from .noise_distributions import NoiseDistributions
 from .notification import Notification
 from .notification_type import NotificationType
 from .one_hot_encoding import OneHotEncoding
-from .ontology_search_result import OntologySearchResult
 from .ontology_type import OntologyType
 from .organization import Organization
 from .organization_coordinates import OrganizationCoordinates
@@ -293,10 +290,6 @@ from .privacy_summary_computation import PrivacySummaryComputation
 from .privacy_warning import PrivacyWarning
 from .privacy_warning_severity import PrivacyWarningSeverity
 from .privacy_warning_type import PrivacyWarningType
-from .private_search import PrivateSearch
-from .private_search_database import PrivateSearchDatabase
-from .private_search_query import PrivateSearchQuery
-from .private_search_setup import PrivateSearchSetup
 from .project import Project
 from .project_actions import ProjectActions
 from .project_base import ProjectBase
@@ -315,6 +308,7 @@ from .put_user_preference_key import PutUserPreferenceKey
 from .quantiles import Quantiles
 from .query import Query
 from .query_bookmark_definition import QueryBookmarkDefinition
+from .query_builder_type import QueryBuilderType
 from .query_output_variable import QueryOutputVariable
 from .query_status import QueryStatus
 from .realm_role import RealmRole
@@ -334,6 +328,8 @@ from .result_metadata import ResultMetadata
 from .result_release import ResultRelease
 from .run_mode import RunMode
 from .run_project_parameters import RunProjectParameters
+from .runtime_stats import RuntimeStats
+from .runtime_stats_top_goroutines import RuntimeStatsTopGoroutines
 from .scale import Scale
 from .schema_field import SchemaField
 from .schema_table import SchemaTable
@@ -343,17 +339,14 @@ from .secure_inference import SecureInference
 from .select import Select
 from .series_filter import SeriesFilter
 from .series_filter_output_variables_item import SeriesFilterOutputVariablesItem
-from .series_filter_output_variables_item_entry_selection_criterion import (
-    SeriesFilterOutputVariablesItemEntrySelectionCriterion,
-)
 from .session import Session
 from .session_definition import SessionDefinition
 from .set_index import SetIndex
 from .set_intersection import SetIntersection
-from .set_intersection_output_format import SetIntersectionOutputFormat
 from .settings import Settings
 from .setup_session import SetupSession
 from .sql_metadata import SQLMetadata
+from .stack_frame import StackFrame
 from .statistic_base import StatisticBase
 from .statistic_definition import StatisticDefinition
 from .statistic_result import StatisticResult
@@ -368,6 +361,7 @@ from .survival_aggregation import SurvivalAggregation
 from .survival_aggregation_subgroups_item import SurvivalAggregationSubgroupsItem
 from .task_progress import TaskProgress
 from .task_progress_payload import TaskProgressPayload
+from .term import Term
 from .terminology_field import TerminologyField
 from .terminology_reference_type import TerminologyReferenceType
 from .threshold import Threshold
@@ -376,6 +370,7 @@ from .time_diff import TimeDiff
 from .time_unit import TimeUnit
 from .tiql_concept import TiqlConcept
 from .tiql_field import TiqlField
+from .tiql_selection_criterion import TiqlSelectionCriterion
 from .tiql_value import TiqlValue
 from .topology import Topology
 from .training_algorithm import TrainingAlgorithm
@@ -394,7 +389,6 @@ from .user_group import UserGroup
 from .user_info import UserInfo
 from .user_list_query import UserListQuery
 from .user_preference_key import UserPreferenceKey
-from .v_binned_aggregation import VBinnedAggregation
 from .value_distribution import ValueDistribution
 from .view_config import ViewConfig
 from .visualization_type import VisualizationType
@@ -411,9 +405,10 @@ __all__ = (
     "AdvancedBuilderField",
     "AdvancedFilter",
     "AdvancedFilterType",
+    "AgentPromptDefinition",
+    "AgentType",
     "AggregatedDatasetLength",
     "AggregationStrategy",
-    "AIBuilderPromptDefinition",
     "APIType",
     "AppendS3PresignedURLs",
     "ApplyMapping",
@@ -454,9 +449,11 @@ __all__ = (
     "ComputationPolicy",
     "ComputationPreprocessingParameters",
     "ComputationPreprocessingParametersCompoundPreprocessing",
+    "ComputationProgress",
     "ComputationStatus",
     "ComputationType",
     "ComputeTimeSince",
+    "ConceptField",
     "Content",
     "ContentType",
     "ContributionError",
@@ -553,9 +550,9 @@ __all__ = (
     "GenericCommandParameters",
     "GenericCommandResult",
     "GenericCommandResultResultItem",
-    "GetAIBuilderPromptsDataSourceType",
-    "GetAIBuilderPromptsOrder",
-    "GetAIBuilderPromptsSortBy",
+    "GetAgentPromptsDataSourceType",
+    "GetAgentPromptsOrder",
+    "GetAgentPromptsSortBy",
     "GetAvailabilityStatusResourceType",
     "GetAvailableColumnsResponse200",
     "GetBuildCatalogProgressResponse200",
@@ -565,8 +562,6 @@ __all__ = (
     "GetComputationListSortBy",
     "GetConceptFieldValuesCommand",
     "GetConceptFieldValuesCommandResult",
-    "GetConceptMetadataCommand",
-    "GetConceptMetadataCommandResult",
     "GetDataPreparationSessionsOrder",
     "GetDataPreparationSessionsSortBy",
     "GetInfosResponse200",
@@ -588,8 +583,6 @@ __all__ = (
     "GetOntologySearchResponse200Item",
     "GetParamsResponse200",
     "GetPreprocessingDryRunJsonBody",
-    "GetPrivateSearchDatabasesListOrder",
-    "GetPrivateSearchDatabasesListSortBy",
     "GetProjectListOrder",
     "GetProjectListSortBy",
     "GetProjectNetworkStatusResponse200Item",
@@ -605,10 +598,10 @@ __all__ = (
     "GetTranslatedQueryCommand",
     "GetTranslatedQueryCommandResult",
     "GetUserPreferenceKey",
+    "Goroutine",
     "GroupByType",
     "GroupInfo",
     "GroupingParameters",
-    "GWAS",
     "HealthStatus",
     "HybridFL",
     "HybridFLCommunityDetectionParams",
@@ -631,7 +624,6 @@ __all__ = (
     "LocalDataSelectionDefinition",
     "LocalDataSourceType",
     "LocalInput",
-    "LocusRange",
     "Log",
     "LogicalFormula",
     "LogicalOperator",
@@ -658,7 +650,6 @@ __all__ = (
     "Notification",
     "NotificationType",
     "OneHotEncoding",
-    "OntologySearchResult",
     "OntologyType",
     "Organization",
     "OrganizationCoordinates",
@@ -697,10 +688,6 @@ __all__ = (
     "PrivacyWarning",
     "PrivacyWarningSeverity",
     "PrivacyWarningType",
-    "PrivateSearch",
-    "PrivateSearchDatabase",
-    "PrivateSearchQuery",
-    "PrivateSearchSetup",
     "Project",
     "ProjectActions",
     "ProjectBase",
@@ -719,6 +706,7 @@ __all__ = (
     "Quantiles",
     "Query",
     "QueryBookmarkDefinition",
+    "QueryBuilderType",
     "QueryOutputVariable",
     "QueryStatus",
     "RealmRole",
@@ -738,6 +726,8 @@ __all__ = (
     "ResultRelease",
     "RunMode",
     "RunProjectParameters",
+    "RuntimeStats",
+    "RuntimeStatsTopGoroutines",
     "Scale",
     "SchemaField",
     "SchemaTable",
@@ -747,15 +737,14 @@ __all__ = (
     "Select",
     "SeriesFilter",
     "SeriesFilterOutputVariablesItem",
-    "SeriesFilterOutputVariablesItemEntrySelectionCriterion",
     "Session",
     "SessionDefinition",
     "SetIndex",
     "SetIntersection",
-    "SetIntersectionOutputFormat",
     "Settings",
     "SetupSession",
     "SQLMetadata",
+    "StackFrame",
     "StatisticalQuantity",
     "StatisticBase",
     "StatisticDefinition",
@@ -770,6 +759,7 @@ __all__ = (
     "SurvivalAggregationSubgroupsItem",
     "TaskProgress",
     "TaskProgressPayload",
+    "Term",
     "TerminologyField",
     "TerminologyReferenceType",
     "Threshold",
@@ -778,6 +768,7 @@ __all__ = (
     "TimeUnit",
     "TiqlConcept",
     "TiqlField",
+    "TiqlSelectionCriterion",
     "TiqlValue",
     "Topology",
     "TrainingAlgorithm",
@@ -797,7 +788,6 @@ __all__ = (
     "UserListQuery",
     "UserPreferenceKey",
     "ValueDistribution",
-    "VBinnedAggregation",
     "ViewConfig",
     "VisualizationType",
     "Vocabulary",

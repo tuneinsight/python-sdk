@@ -1,10 +1,14 @@
-from typing import Any, Dict, List, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
 from ..models.advanced_filter_type import AdvancedFilterType
 from ..models.comparison_type import ComparisonType
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.concept_field import ConceptField
+
 
 T = TypeVar("T", bound="AtomicFilter")
 
@@ -19,21 +23,29 @@ class AtomicFilter:
         Attributes:
             type (AdvancedFilterType): A type of filter for cross-standard queries.
             comparator (Union[Unset, ComparisonType]): type of comparison
-            left_hand_variable (Union[Unset, str]):
+            left_hand_field (Union[Unset, ConceptField]): A reference to a field in the TIQL data model. Used to specify
+                what data is being accessed.
+            left_hand_variable (Union[Unset, str]): Deprecated in TIQL v1.2. Use leftHandField instead.
+            right_hand_field (Union[Unset, ConceptField]): A reference to a field in the TIQL data model. Used to specify
+                what data is being accessed.
             right_hand_value (Union[Unset, str]): The raw value to compare the data with.
                 If the between/notBetween or isIn/notIsIn operators
                 are used, then this value is interpreted as a list of values
                 separated with the provided `valueDelimiter` parameter.
                 Ex: if between is used with the `,` delimiter, then the rightHandValue should be formatted as
                 `min,max`.
-            right_hand_variable (Union[Unset, str]):
+            right_hand_variable (Union[Unset, str]): If provided, a variable in the TIQL namespace to use as second
+                comparison operand, from TIQL v1.2 onwards.
+                In TIQL < v1.2, this can also be the name of a feature or a field in this concept.
             value_delimiter (Union[Unset, str]): delimiter to use when multiple right hand values are provided. Default:
                 ','.
     """
 
     type: AdvancedFilterType
     comparator: Union[Unset, ComparisonType] = UNSET
+    left_hand_field: Union[Unset, "ConceptField"] = UNSET
     left_hand_variable: Union[Unset, str] = UNSET
+    right_hand_field: Union[Unset, "ConceptField"] = UNSET
     right_hand_value: Union[Unset, str] = UNSET
     right_hand_variable: Union[Unset, str] = UNSET
     value_delimiter: Union[Unset, str] = ","
@@ -46,7 +58,15 @@ class AtomicFilter:
         if not isinstance(self.comparator, Unset):
             comparator = self.comparator.value
 
+        left_hand_field: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.left_hand_field, Unset):
+            left_hand_field = self.left_hand_field.to_dict()
+
         left_hand_variable = self.left_hand_variable
+        right_hand_field: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.right_hand_field, Unset):
+            right_hand_field = self.right_hand_field.to_dict()
+
         right_hand_value = self.right_hand_value
         right_hand_variable = self.right_hand_variable
         value_delimiter = self.value_delimiter
@@ -60,8 +80,12 @@ class AtomicFilter:
         )
         if comparator is not UNSET:
             field_dict["comparator"] = comparator
+        if left_hand_field is not UNSET:
+            field_dict["leftHandField"] = left_hand_field
         if left_hand_variable is not UNSET:
             field_dict["leftHandVariable"] = left_hand_variable
+        if right_hand_field is not UNSET:
+            field_dict["rightHandField"] = right_hand_field
         if right_hand_value is not UNSET:
             field_dict["rightHandValue"] = right_hand_value
         if right_hand_variable is not UNSET:
@@ -73,6 +97,8 @@ class AtomicFilter:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.concept_field import ConceptField
+
         d = src_dict.copy()
         type = AdvancedFilterType(d.pop("type"))
 
@@ -83,7 +109,21 @@ class AtomicFilter:
         else:
             comparator = ComparisonType(_comparator)
 
+        _left_hand_field = d.pop("leftHandField", UNSET)
+        left_hand_field: Union[Unset, ConceptField]
+        if isinstance(_left_hand_field, Unset):
+            left_hand_field = UNSET
+        else:
+            left_hand_field = ConceptField.from_dict(_left_hand_field)
+
         left_hand_variable = d.pop("leftHandVariable", UNSET)
+
+        _right_hand_field = d.pop("rightHandField", UNSET)
+        right_hand_field: Union[Unset, ConceptField]
+        if isinstance(_right_hand_field, Unset):
+            right_hand_field = UNSET
+        else:
+            right_hand_field = ConceptField.from_dict(_right_hand_field)
 
         right_hand_value = d.pop("rightHandValue", UNSET)
 
@@ -94,7 +134,9 @@ class AtomicFilter:
         atomic_filter = cls(
             type=type,
             comparator=comparator,
+            left_hand_field=left_hand_field,
             left_hand_variable=left_hand_variable,
+            right_hand_field=right_hand_field,
             right_hand_value=right_hand_value,
             right_hand_variable=right_hand_variable,
             value_delimiter=value_delimiter,

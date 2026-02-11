@@ -9,7 +9,7 @@ and projects.
 
 from contextlib import contextmanager
 import os
-from typing import List, Optional, Union
+from typing import Optional
 import warnings
 import webbrowser
 
@@ -39,8 +39,7 @@ from tuneinsight.client.project import Project
 from tuneinsight.client.validation import validate_response
 from tuneinsight.client.auth import config
 from tuneinsight.client.auth import auth
-from tuneinsight.client.models import ModelManager
-from tuneinsight.utils import deprecation, time_tools
+from tuneinsight.utils import time_tools
 
 
 @attr.s(auto_attribs=True)
@@ -66,12 +65,11 @@ class Diapason:
 
     conf: config.ClientConfiguration
     client: api_client.Client = None
-    maas: ModelManager = None
     # Whether this client uses end-to-end encryption.
     end_to_end_encrypted: bool = False
     # Whether the API versions of the SDK and server are compatible.
     # This is None until the test is performed (either manually or in new/get_project).
-    _api_compatible: Union[bool, None] = None
+    _api_compatible: Optional[bool] = None
     # The information about the user (capabilities etc.), stored to avoid re-requesting them.
     _user_info: models.UserInfo = None
 
@@ -246,16 +244,6 @@ class Diapason:
         if self.client is None:
             raise AttributeError("The client has not been initialized.")
         return self.client
-
-    def add_model_manager(self, model_manager: ModelManager):
-        """
-        Registers a `ModelManager` with this client to be used for model-as-a-service.
-
-        This  is an 🧪 experimental feature, and is likely to change significantly.
-        See `tuneinsight.computations.models.py` for more details.
-        """
-        deprecation.warn("MaaS", breaking=True)
-        self.maas = model_manager
 
     # User management.
 
@@ -501,7 +489,7 @@ class Diapason:
             access_scope=access_scope,
         )
 
-    def get_datasources(self, name: str = "") -> List[DataSource]:
+    def get_datasources(self, name: str = "") -> list[DataSource]:
         """
         Returns all the datasources on the Tune Insight instance.
 
@@ -511,9 +499,9 @@ class Diapason:
                 are returned.
 
         Returns:
-            List[DataSource]: the datasources retrieved from the instance.
+            list[DataSource]: the datasources retrieved from the instance.
         """
-        response: Response[List[models.DataSource]] = (
+        response: Response[list[models.DataSource]] = (
             get_data_source_list.sync_detailed(client=self._get_client(), name=name)
         )
         validate_response(response)
@@ -522,7 +510,7 @@ class Diapason:
             datasources.append(DataSource(model=datasource, client=self._get_client()))
         return datasources
 
-    def delete_datasource(self, ds: DataSource) -> List[DataSource]:
+    def delete_datasource(self, ds: DataSource) -> list[DataSource]:
         """
         Deletes a datasource on the Tune Insight instance.
 
@@ -534,7 +522,7 @@ class Diapason:
             ds (DataSource): the datasource to delete
 
         Returns:
-            List[DataSource]: updated list of datasources
+            list[DataSource]: updated list of datasources
         """
         ds.delete()  # Do we want to keep this method ?
 
@@ -616,7 +604,7 @@ class Diapason:
                 this node before creating it. Defaults to False.
                 ⚠️ Warning: this will cause issues when multiple nodes are involved in the project, as the
                 corresponding projects are not removed on other nodes. A warning will be raised explaining alternatives.
-            topology (Union[Unset, Topology]): Network Topologies, either 'star' or 'tree'.
+            topology (Topology, optional): Network Topologies, either 'star' or 'tree'.
                 In the star topology all nodes are connected to a central node.
                 In the tree topology all nodes are connected and aware of each other.
             authorized_users (Optional[list[str]]): The IDs of the users who can run the project. If left empty,
@@ -717,7 +705,7 @@ class Diapason:
             model = response.parsed
 
         elif name is not None:
-            response: Response[List[models.Project]] = get_project_list.sync_detailed(
+            response: Response[list[models.Project]] = get_project_list.sync_detailed(
                 client=self._get_client(), name=name
             )
             validate_response(response)
@@ -731,15 +719,15 @@ class Diapason:
         # Instantiate a project object from this model.
         return Project(model=model, diapason=self)
 
-    def get_projects(self) -> List[Project]:
+    def get_projects(self) -> list[Project]:
         """
         Returns all the projects available to the client.
 
         Returns:
-            List[Project]: list of projects
+            list[Project]: list of projects
         """
         self.check_api_compatibility()
-        response: Response[List[models.Project]] = get_project_list.sync_detailed(
+        response: Response[list[models.Project]] = get_project_list.sync_detailed(
             client=self._get_client()
         )
         validate_response(response)
@@ -792,7 +780,7 @@ class Diapason:
             if hard:
                 raise err
             warnings.warn(
-                f"An exception occured while checking API compatibility ({err})."
+                f"An exception occurred while checking API compatibility ({err})."
             )
             return False
         # Check that the version of this client from auto-generated file.

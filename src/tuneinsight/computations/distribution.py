@@ -1,6 +1,5 @@
 """Implementation of the value distribution operation."""
 
-from typing import List
 import pandas as pd
 from tuneinsight.api.sdk import models
 from tuneinsight.api.sdk.types import UNSET, value_if_unset
@@ -32,25 +31,25 @@ class Distribution(ModelBasedComputation):
     dp_epsilon = UNSET
     column: str
     numeric: bool
-    cuts: List[float]
+    cuts: list[float]
     bin_size: float
     bin_center: float
     bin_min: float
     bin_max: float
     grouping_params: models.GroupingParameters
-    possible_values: List[str]
+    possible_values: list[str]
 
     def __init__(
         self,
         project: "Project",  # type: ignore
         column: str = None,
         numeric: bool = False,
-        cuts: List[float] = None,
+        cuts: list[float] = None,
         bin_size: float = 10,
         bin_center: float = 0,
         bin_min: float = UNSET,
         bin_max: float = UNSET,
-        possible_values: List[str] = None,
+        possible_values: list[str] = None,
         float_precision: int = 2,
         dp_epsilon: float = UNSET,
         **kwargs,
@@ -66,7 +65,7 @@ class Distribution(ModelBasedComputation):
 
             numeric (bool, optional): Whether the column is numeric. Defaults to False.
 
-            cuts (List[float], optional): The list of cuts to use for the distribution if the column is numeric. Defaults to None.
+            cuts (list[float], optional): The list of cuts to use for the distribution if the column is numeric. Defaults to None.
 
             bin_size (float, optional): The size of the bins to use for the distribution if the column is numeric. Defaults to 10.
 
@@ -76,7 +75,7 @@ class Distribution(ModelBasedComputation):
 
             bin_max (float, optional): The maximum value to use for the distribution if the column is numeric. Defaults to UNSET. This is required if differential privacy is used.
 
-            possible_values (List[str], optional): The list of possible values for the column if the column is categorical. Defaults to None. This is required if differential privacy is used.
+            possible_values (list[str], optional): The list of possible values for the column if the column is categorical. Defaults to None. This is required if differential privacy is used.
 
             float_precision (int, optional):
                 Numerical precision of the output aggregated values. Defaults to 2.
@@ -151,14 +150,14 @@ class Distribution(ModelBasedComputation):
         comp._adapt(model)
         return comp
 
-    def _process_results(self, results: List[DataContent]) -> pd.DataFrame:
+    def _process_results(self, results: list[DataContent]) -> pd.DataFrame:
         result = results[0].get_float_matrix()
         totals = result.data[0]
         rounded_totals = [round(v, self.float_precision) for v in totals]
         return self._process_grouped_results(result.columns, rounded_totals)
 
     def _process_grouped_results(
-        self, encoded_columns: List[str], data: List[float]
+        self, encoded_columns: list[str], data: list[float]
     ) -> pd.DataFrame:
 
         df_data = {}

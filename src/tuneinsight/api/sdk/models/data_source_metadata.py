@@ -18,7 +18,6 @@ class DataSourceMetadata:
     Attributes:
         errors (Union[Unset, List[str]]): list of errors triggered when creating the metadata.
         metadata_available (Union[Unset, bool]): whether or not the datasource supports returning metadata
-        stores_templates (Union[Unset, bool]): whether the data source stores template tables.
         tables (Union[Unset, List['DataSourceTable']]):
         total_tables (Union[Unset, int]): total number of tables available with this data source. Not all tables may
             appear in this metadata as they can still be loading.
@@ -27,7 +26,6 @@ class DataSourceMetadata:
 
     errors: Union[Unset, List[str]] = UNSET
     metadata_available: Union[Unset, bool] = UNSET
-    stores_templates: Union[Unset, bool] = UNSET
     tables: Union[Unset, List["DataSourceTable"]] = UNSET
     total_tables: Union[Unset, int] = UNSET
     warnings: Union[Unset, List[str]] = UNSET
@@ -39,7 +37,6 @@ class DataSourceMetadata:
             errors = self.errors
 
         metadata_available = self.metadata_available
-        stores_templates = self.stores_templates
         tables: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.tables, Unset):
             tables = []
@@ -60,8 +57,6 @@ class DataSourceMetadata:
             field_dict["errors"] = errors
         if metadata_available is not UNSET:
             field_dict["metadataAvailable"] = metadata_available
-        if stores_templates is not UNSET:
-            field_dict["storesTemplates"] = stores_templates
         if tables is not UNSET:
             field_dict["tables"] = tables
         if total_tables is not UNSET:
@@ -80,8 +75,6 @@ class DataSourceMetadata:
 
         metadata_available = d.pop("metadataAvailable", UNSET)
 
-        stores_templates = d.pop("storesTemplates", UNSET)
-
         tables = []
         _tables = d.pop("tables", UNSET)
         for tables_item_data in _tables or []:
@@ -96,7 +89,6 @@ class DataSourceMetadata:
         data_source_metadata = cls(
             errors=errors,
             metadata_available=metadata_available,
-            stores_templates=stores_templates,
             tables=tables,
             total_tables=total_tables,
             warnings=warnings,

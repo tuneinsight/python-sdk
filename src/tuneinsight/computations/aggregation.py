@@ -1,6 +1,6 @@
 """Implementation of the encrypted aggregation (sum) operation."""
 
-from typing import Any, List, Union
+from typing import Any, Optional
 import json
 import warnings
 import pandas as pd
@@ -45,24 +45,22 @@ class Aggregation(ModelBasedComputation):
     """
 
     float_precision: int = 2
-    cohort_id: str = ""
     join_id: str = ""
     dp_epsilon = UNSET
-    columns: List[models.ColumnProperties]
-    groups: List[models.GroupingParameters]
+    columns: list[models.ColumnProperties]
+    groups: list[models.GroupingParameters]
     include_count: bool
     average: bool
 
     def __init__(
         self,
         project: "Project",  # type: ignore
-        columns: Union[List[any], str] = None,
-        groups: Union[List[any], any] = None,
+        columns: Optional[list[Any] | str] = None,
+        groups: Optional[list[Any] | Any] = None,
         include_count: bool = False,
         allow_missing_columns: bool = False,
         average: bool = False,
         float_precision: int = 2,
-        cohort: "Cohort" = None,  # type: ignore
         dp_epsilon: float = UNSET,
         **kwargs,
     ):
@@ -80,7 +78,7 @@ class Aggregation(ModelBasedComputation):
                 as a models.ColumnProperties, which can specify minimum and maximum bounds for the column values to be taken into account
                 when clipping and/or differential privacy is being used.
 
-            groups (`str|List[any]`):
+            groups (`str | list[Any]`):
                 Groups to use to perform a group-by operation locally before aggregating the columns per-group.
                 Groups can be specified using multiple syntax:
                     'column': groups the data according to categorical values found in the 'column'.
@@ -94,7 +92,7 @@ class Aggregation(ModelBasedComputation):
                         around `bin_center`. For `bin_size = 10` and `bin_center = -5`, this results in intervals such as ..., [-15,-5), [-5,5), [5,15), ...
                     ('column',[bin_edge_1,...,bin_edge_k]): groups are determined using numerical bins with varying bin sizes determined
                         by the provided list of cuts. This results in intervals such as (,0), [0,40), [40,50), [50,).
-                    List[`models.GroupingParameters`]: to directly specify the grouping parameters using the API models.
+                    list[`models.GroupingParameters`]: to directly specify the grouping parameters using the API models.
 
             include_count (bool, optional):
                 Controls whether the output will contain the total number of aggregated records.
@@ -115,9 +113,6 @@ class Aggregation(ModelBasedComputation):
 
             float_precision (int, optional):
                 Numerical precision of the output aggregated values. Defaults to 2.
-
-            cohort (Cohort, optional):
-                Cohort (Set Intersection workflow result) that can be reused as an input to this workflow. Defaults to None.
 
             dp_epsilon (float, optional):
                 The privacy budget to use with this workflow. Defaults to UNSET, in which case differential privacy is not used.
@@ -145,9 +140,6 @@ class Aggregation(ModelBasedComputation):
             allow_missing_columns=allow_missing_columns,
             **kwargs,
         )
-        if cohort is not None:
-            self.model.cohort_id = cohort.cohort_id
-            self.model.join_id = cohort.join_id
         self.float_precision = float_precision
         self.average = average
         self.groups = groups
@@ -172,7 +164,7 @@ class Aggregation(ModelBasedComputation):
         comp._adapt(model)
         return comp
 
-    def _process_results(self, results: List[DataContent]) -> pd.DataFrame:
+    def _process_results(self, results: list[DataContent]) -> pd.DataFrame:
         result = results[0].get_float_matrix()
         totals = result.data[0]
         rounded_totals = [round(v, self.float_precision) for v in totals]
@@ -191,7 +183,7 @@ class Aggregation(ModelBasedComputation):
         return pd.DataFrame(data)
 
     def _process_grouped_results(
-        self, encoded_columns: List[str], data: List[float]
+        self, encoded_columns: list[str], data: list[float]
     ) -> pd.DataFrame:
 
         df_data = {}
@@ -225,8 +217,8 @@ class Aggregation(ModelBasedComputation):
         return pd.DataFrame(data=list(df_data.values()))
 
     @staticmethod
-    def parse_group_columns(encoded_columns: List[str]) -> List[dict]:
-        cols: List[dict] = []
+    def parse_group_columns(encoded_columns: list[str]) -> list[dict]:
+        cols: list[dict] = []
         # Parse json encoded columns.
         for col in encoded_columns:
             try:
@@ -238,7 +230,7 @@ class Aggregation(ModelBasedComputation):
         return cols
 
     @staticmethod
-    def _assert_dp_groups_compatibility(groups: List[models.GroupingParameters]):
+    def _assert_dp_groups_compatibility(groups: list[models.GroupingParameters]):
         """
         Asserts whether grouping parameters are compatible with differential privacy.
         """
@@ -344,9 +336,9 @@ class Aggregation(ModelBasedComputation):
 
     @staticmethod
     def _parse_columns(
-        columns: Union[List[any], str] = None,
-    ) -> List[models.ColumnProperties]:
-        tmp: List[models.ColumnProperties] = []
+        columns: Optional[list[Any] | str] = None,
+    ) -> list[models.ColumnProperties]:
+        tmp: list[models.ColumnProperties] = []
 
         if columns is None:
             columns = []
@@ -366,7 +358,7 @@ class Aggregation(ModelBasedComputation):
             raise ValueError(f"invalid value {col} for column")
         # Ensure there are no duplicate columns
         seen = set()
-        result: List[models.ColumnProperties] = []
+        result: list[models.ColumnProperties] = []
         for col in tmp:
             if col.name not in seen:
                 result.append(col)
@@ -375,8 +367,8 @@ class Aggregation(ModelBasedComputation):
 
     @staticmethod
     def _parse_groups(
-        groups: Union[List[any], any] = None,
-    ) -> List[models.GroupingParameters]:
+        groups: Optional[list[Any] | Any] = None,
+    ) -> list[models.GroupingParameters]:
         if groups is None:
             groups = []
         if not isinstance(groups, list):
@@ -393,7 +385,7 @@ class Aggregation(ModelBasedComputation):
         y_label: str = "",
         size: tuple = (8, 4),
         group: str = "",
-        columns: List[str] = None,
+        columns: list[str] = None,
     ):
         """
         Plots histogram results from the Encrypted Aggregation / Sum workflow
@@ -406,7 +398,7 @@ class Aggregation(ModelBasedComputation):
             y_label (str, optional): y-axis label. Defaults to "".
             size (tuple, optional): size of the plot. Defaults to (8, 4).
             group (str, optional): specific group to plot when multiple groups are used. Defaults to "".
-            columns (List[str], optional): list of columns to plot. Defaults to None.
+            columns (list[str], optional): list of columns to plot. Defaults to None.
             stacked (bool, optional): whether the plotted columns are stacked for each category. Defaults to False.
         """
         if len(result.values) == 0:
@@ -443,7 +435,7 @@ class Aggregation(ModelBasedComputation):
         y_label: str = "",
         size: tuple = (16, 9),
         group: str = "",
-        columns: List[str] = None,
+        columns: list[str] = None,
     ):
 
         to_plot = result

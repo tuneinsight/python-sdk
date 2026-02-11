@@ -12,7 +12,6 @@ if TYPE_CHECKING:
     from ..models.computation_preprocessing_parameters import ComputationPreprocessingParameters
     from ..models.dp_policy import DPPolicy
     from ..models.local_input import LocalInput
-    from ..models.matching_column import MatchingColumn
     from ..models.survival import Survival
     from ..models.survival_aggregation_subgroups_item import SurvivalAggregationSubgroupsItem
     from ..models.unit_filter import UnitFilter
@@ -28,7 +27,6 @@ class SurvivalAggregation:
         type (ComputationType): Type of the computation.
         dp_policy (Union[Unset, DPPolicy]): represents the disclosure prevention policy that enables toggling various
             mechanisms that are executed whenever the workflow runs.
-        cohort_id (Union[Unset, str]): Unique identifier of a data object.
         data_source_parameters (Union[Unset, ComputationDataSourceParameters]): Parameters used to query the datasource
             from each node before the computation
         dp_epsilon (Union[Unset, float]): If positive, the privacy budget used by this computation. Used only in DP
@@ -80,20 +78,12 @@ class SurvivalAggregation:
         units (Union[Unset, List['UnitFilter']]): unit requirements for the numerical values in the computation. Used to
             filter input records with mismatching units.
         wait (Union[Unset, bool]): Whether to wait synchronously for the computation result.
-        encrypted_matching (Union[Unset, bool]): if true, then the resulting matches are kept encrypted before
-            aggregating the survival data (slower)
-        matching_columns (Union[Unset, List['MatchingColumn']]): The columns on which the data should be matched
-        matching_organization (Union[Unset, str]): when secure matching is enabled, the organization with whom to match
-            records with
-        secure_matching (Union[Unset, bool]): if true then a cohort is created by matching records with a specified
-            organization
         subgroups (Union[Unset, List['SurvivalAggregationSubgroupsItem']]): list of filters to create survival subgroups
         survival_parameters (Union[Unset, Survival]):
     """
 
     type: ComputationType
     dp_policy: Union[Unset, "DPPolicy"] = UNSET
-    cohort_id: Union[Unset, str] = UNSET
     data_source_parameters: Union[Unset, "ComputationDataSourceParameters"] = UNSET
     dp_epsilon: Union[Unset, float] = -1.0
     encrypted: Union[Unset, bool] = UNSET
@@ -116,10 +106,6 @@ class SurvivalAggregation:
     timeout: Union[Unset, int] = UNSET
     units: Union[Unset, List["UnitFilter"]] = UNSET
     wait: Union[Unset, bool] = UNSET
-    encrypted_matching: Union[Unset, bool] = UNSET
-    matching_columns: Union[Unset, List["MatchingColumn"]] = UNSET
-    matching_organization: Union[Unset, str] = UNSET
-    secure_matching: Union[Unset, bool] = UNSET
     subgroups: Union[Unset, List["SurvivalAggregationSubgroupsItem"]] = UNSET
     survival_parameters: Union[Unset, "Survival"] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
@@ -131,7 +117,6 @@ class SurvivalAggregation:
         if not isinstance(self.dp_policy, Unset):
             dp_policy = self.dp_policy.to_dict()
 
-        cohort_id = self.cohort_id
         data_source_parameters: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.data_source_parameters, Unset):
             data_source_parameters = self.data_source_parameters.to_dict()
@@ -179,17 +164,6 @@ class SurvivalAggregation:
                 units.append(units_item)
 
         wait = self.wait
-        encrypted_matching = self.encrypted_matching
-        matching_columns: Union[Unset, List[Dict[str, Any]]] = UNSET
-        if not isinstance(self.matching_columns, Unset):
-            matching_columns = []
-            for matching_columns_item_data in self.matching_columns:
-                matching_columns_item = matching_columns_item_data.to_dict()
-
-                matching_columns.append(matching_columns_item)
-
-        matching_organization = self.matching_organization
-        secure_matching = self.secure_matching
         subgroups: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.subgroups, Unset):
             subgroups = []
@@ -211,8 +185,6 @@ class SurvivalAggregation:
         )
         if dp_policy is not UNSET:
             field_dict["DPPolicy"] = dp_policy
-        if cohort_id is not UNSET:
-            field_dict["cohortId"] = cohort_id
         if data_source_parameters is not UNSET:
             field_dict["dataSourceParameters"] = data_source_parameters
         if dp_epsilon is not UNSET:
@@ -257,14 +229,6 @@ class SurvivalAggregation:
             field_dict["units"] = units
         if wait is not UNSET:
             field_dict["wait"] = wait
-        if encrypted_matching is not UNSET:
-            field_dict["encryptedMatching"] = encrypted_matching
-        if matching_columns is not UNSET:
-            field_dict["matchingColumns"] = matching_columns
-        if matching_organization is not UNSET:
-            field_dict["matchingOrganization"] = matching_organization
-        if secure_matching is not UNSET:
-            field_dict["secureMatching"] = secure_matching
         if subgroups is not UNSET:
             field_dict["subgroups"] = subgroups
         if survival_parameters is not UNSET:
@@ -278,7 +242,6 @@ class SurvivalAggregation:
         from ..models.computation_preprocessing_parameters import ComputationPreprocessingParameters
         from ..models.dp_policy import DPPolicy
         from ..models.local_input import LocalInput
-        from ..models.matching_column import MatchingColumn
         from ..models.survival import Survival
         from ..models.survival_aggregation_subgroups_item import SurvivalAggregationSubgroupsItem
         from ..models.unit_filter import UnitFilter
@@ -292,8 +255,6 @@ class SurvivalAggregation:
             dp_policy = UNSET
         else:
             dp_policy = DPPolicy.from_dict(_dp_policy)
-
-        cohort_id = d.pop("cohortId", UNSET)
 
         _data_source_parameters = d.pop("dataSourceParameters", UNSET)
         data_source_parameters: Union[Unset, ComputationDataSourceParameters]
@@ -369,19 +330,6 @@ class SurvivalAggregation:
 
         wait = d.pop("wait", UNSET)
 
-        encrypted_matching = d.pop("encryptedMatching", UNSET)
-
-        matching_columns = []
-        _matching_columns = d.pop("matchingColumns", UNSET)
-        for matching_columns_item_data in _matching_columns or []:
-            matching_columns_item = MatchingColumn.from_dict(matching_columns_item_data)
-
-            matching_columns.append(matching_columns_item)
-
-        matching_organization = d.pop("matchingOrganization", UNSET)
-
-        secure_matching = d.pop("secureMatching", UNSET)
-
         subgroups = []
         _subgroups = d.pop("subgroups", UNSET)
         for subgroups_item_data in _subgroups or []:
@@ -399,7 +347,6 @@ class SurvivalAggregation:
         survival_aggregation = cls(
             type=type,
             dp_policy=dp_policy,
-            cohort_id=cohort_id,
             data_source_parameters=data_source_parameters,
             dp_epsilon=dp_epsilon,
             encrypted=encrypted,
@@ -422,10 +369,6 @@ class SurvivalAggregation:
             timeout=timeout,
             units=units,
             wait=wait,
-            encrypted_matching=encrypted_matching,
-            matching_columns=matching_columns,
-            matching_organization=matching_organization,
-            secure_matching=secure_matching,
             subgroups=subgroups,
             survival_parameters=survival_parameters,
         )

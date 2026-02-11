@@ -1,6 +1,5 @@
 """Computing the mean and standard deviation of some variables after filtering outliers."""
 
-from typing import List
 import pandas as pd
 
 from tuneinsight.client.dataobject import DataContent
@@ -35,8 +34,8 @@ class EncryptedMean(ModelBasedComputation):
     def __init__(
         self,
         project,
-        columns: List[str],
-        grouping_columns: List[str] = UNSET,
+        columns: list[str],
+        grouping_columns: list[str] = UNSET,
         min_participants: int = 5,
         outlier_threshold: int = 2,
     ):
@@ -80,5 +79,5 @@ class EncryptedMean(ModelBasedComputation):
         comp._adapt(model)
         return comp
 
-    def _process_results(self, results: List[DataContent]) -> pd.DataFrame:
+    def _process_results(self, results: list[DataContent]) -> pd.DataFrame:
         return results[0].get_dataframe()

@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
 
 import attr
 
@@ -17,6 +17,8 @@ class TerminologyField:
     """Parameters that must be provided to schema fields when the field's values are terminology references.
 
     Attributes:
+        domains (Union[Unset, List[str]]): the list of domain ids (within vocabularies) that can be referenced by the
+            field.
         reference_method (Union[Unset, TerminologyReferenceType]): enumeration of methods that can be used to find the
             terminology associated with a value, i.e., what part of the ontology is used in the data (human-readable name,
             standard code, or URI).
@@ -24,11 +26,16 @@ class TerminologyField:
             field.
     """
 
+    domains: Union[Unset, List[str]] = UNSET
     reference_method: Union[Unset, TerminologyReferenceType] = UNSET
     vocabularies: Union[Unset, List["Vocabulary"]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        domains: Union[Unset, List[str]] = UNSET
+        if not isinstance(self.domains, Unset):
+            domains = self.domains
+
         reference_method: Union[Unset, str] = UNSET
         if not isinstance(self.reference_method, Unset):
             reference_method = self.reference_method.value
@@ -44,6 +51,8 @@ class TerminologyField:
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if domains is not UNSET:
+            field_dict["domains"] = domains
         if reference_method is not UNSET:
             field_dict["referenceMethod"] = reference_method
         if vocabularies is not UNSET:
@@ -56,6 +65,8 @@ class TerminologyField:
         from ..models.vocabulary import Vocabulary
 
         d = src_dict.copy()
+        domains = cast(List[str], d.pop("domains", UNSET))
+
         _reference_method = d.pop("referenceMethod", UNSET)
         reference_method: Union[Unset, TerminologyReferenceType]
         if isinstance(_reference_method, Unset):
@@ -71,6 +82,7 @@ class TerminologyField:
             vocabularies.append(vocabularies_item)
 
         terminology_field = cls(
+            domains=domains,
             reference_method=reference_method,
             vocabularies=vocabularies,
         )

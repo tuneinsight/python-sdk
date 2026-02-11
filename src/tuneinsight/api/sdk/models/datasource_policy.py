@@ -28,6 +28,9 @@ class DatasourcePolicy:
             preprocessing operations types when restrictPreprocessingOperations is set to true
         restrict_data_source_queries (Union[Unset, bool]): whether or not datasource queries should be restricted
         restrict_preprocessing_operations (Union[Unset, bool]): whether or not datasource queries should be restricted
+        restrict_queries_to_tiql (Union[Unset, None, bool]): whether queries on this project are limited to TIQL format.
+            When activated, only the CrossStandardQueries field will
+            be used to query the datasource (all other fields will be ignored).
     """
 
     dp_policy: Union[Unset, "DPPolicy"] = UNSET
@@ -36,6 +39,7 @@ class DatasourcePolicy:
     authorized_preprocessing_operations: Union[Unset, List[PreprocessingOperationType]] = UNSET
     restrict_data_source_queries: Union[Unset, bool] = UNSET
     restrict_preprocessing_operations: Union[Unset, bool] = UNSET
+    restrict_queries_to_tiql: Union[Unset, None, bool] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -69,6 +73,7 @@ class DatasourcePolicy:
 
         restrict_data_source_queries = self.restrict_data_source_queries
         restrict_preprocessing_operations = self.restrict_preprocessing_operations
+        restrict_queries_to_tiql = self.restrict_queries_to_tiql
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -85,6 +90,8 @@ class DatasourcePolicy:
             field_dict["restrictDataSourceQueries"] = restrict_data_source_queries
         if restrict_preprocessing_operations is not UNSET:
             field_dict["restrictPreprocessingOperations"] = restrict_preprocessing_operations
+        if restrict_queries_to_tiql is not UNSET:
+            field_dict["restrictQueriesToTIQL"] = restrict_queries_to_tiql
 
         return field_dict
 
@@ -128,6 +135,8 @@ class DatasourcePolicy:
 
         restrict_preprocessing_operations = d.pop("restrictPreprocessingOperations", UNSET)
 
+        restrict_queries_to_tiql = d.pop("restrictQueriesToTIQL", UNSET)
+
         datasource_policy = cls(
             dp_policy=dp_policy,
             authorized_computation_types=authorized_computation_types,
@@ -135,6 +144,7 @@ class DatasourcePolicy:
             authorized_preprocessing_operations=authorized_preprocessing_operations,
             restrict_data_source_queries=restrict_data_source_queries,
             restrict_preprocessing_operations=restrict_preprocessing_operations,
+            restrict_queries_to_tiql=restrict_queries_to_tiql,
         )
 
         datasource_policy.additional_properties = d

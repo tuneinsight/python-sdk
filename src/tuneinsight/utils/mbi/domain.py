@@ -13,8 +13,7 @@ both of which are used when computing measurements on real data.
 
 import string
 import datetime
-
-from typing import Union, List
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -78,7 +77,7 @@ class MBIColumnConverter:
 class CategoricalAttribute(MBIColumnConverter):
     """Models an attribute taking values in a known finite set."""
 
-    def __init__(self, possible_values: List[any]):
+    def __init__(self, possible_values: list[Any]):
         """
         Args
             possible_values: the list of all values that this attribute can take.
@@ -109,7 +108,7 @@ class ContinuousAttribute(MBIColumnConverter):
         self,
         min_value: float,
         max_value: float,
-        bins: Union[int, list] = 10,
+        bins: int | list[int] = 10,
         allow_missing: bool = False,
     ):
         """
@@ -165,7 +164,7 @@ class IntegerAttribute(ContinuousAttribute):
         self,
         min_value: int,
         max_value: int,
-        bins: Union[int, list] = 10,
+        bins: int | list[int] = 10,
         allow_missing: bool = False,
     ):
         """(See ContinuousAttribute for documentation.)"""
@@ -191,7 +190,7 @@ class DateAttribute(IntegerAttribute):
         self,
         start_date: str,
         end_date: str,
-        bins: Union[int, list] = 10,
+        bins: int | list[int] = 10,
         strformat: str = "%Y-%m-%d",
         allow_missing: bool = False,
     ):
@@ -294,7 +293,7 @@ class NameAttribute(IdentifierAttribute):
 class DatasetContext:
     """Holds all the information on a dataset to convert to and from MBI."""
 
-    def __init__(self, names: str, converters: List[MBIColumnConverter]):
+    def __init__(self, names: str, converters: list[MBIColumnConverter]):
         self.names = names
         self.converters = converters
         # Generate the mbi domain object, given the domain sizes.
@@ -312,7 +311,7 @@ class DatasetContext:
         return self.mapping[column_name]
 
     @classmethod
-    def from_data_format(cls, data_format: List[dict]):
+    def from_data_format(cls, data_format: list[dict]):
         """Initialize this object from the `data-format` entry of the config."""
         attribute_names = []
         converters = []

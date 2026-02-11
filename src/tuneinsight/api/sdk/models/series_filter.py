@@ -20,6 +20,13 @@ class SeriesFilter:
     This filter consists of an "inner" filter that is applied to each entry in the series. Then, the results are
     aggregated through a logical operator (either AND or OR). A variable (single value) can be extracted upon
     successfully passing the filter by extracting a variable of an entry that passed the inner filter.
+    From TIQL 1.2, series filter can be nested to allow comparison between values in different series. Nested series
+    filters
+    should be understood as nested "for all" or "there exists" statement, depending on the logical aggregator
+    For example, SeriesFilter(ALL, series=A, filter=SeriesFilter(ANY, series=B, filter=f)) requires that for each
+    entries a in the concept A, there exists an entry b in the concept B such that (a, b) passes the filter f.
+    In nested filters, atomic filters should always include the series that the filter applies to, in order to avoid
+    ambiguity.
 
         Attributes:
             type (AdvancedFilterType): A type of filter for cross-standard queries.

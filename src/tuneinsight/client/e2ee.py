@@ -2,7 +2,7 @@
 
 import base64
 import json
-from typing import Callable, Dict
+from typing import Callable
 from tuneinsight.client.dataobject import Result
 from tuneinsight.client.validation import validate_response
 
@@ -126,7 +126,7 @@ def _decrypt_dataframe(
     return models.FloatMatrix(
         type=models.ContentType.FLOATMATRIX,
         columns=encrypted_content.columns,
-        # Convert the data from DataFrame to List[List[float]]
+        # Convert the data from DataFrame to list[list[float]]
         data=list(list(row) for row in df.values),
     )
 
@@ -148,7 +148,7 @@ def _decrypt_statistics(
 
 
 # Each encrypted content type has its own decryption handler.
-DECRYPTION_METHODS: Dict[
+DECRYPTION_METHODS: dict[
     models.ContentType, Callable[[models.EncryptedContent, bytes], models.Content]
 ] = {
     models.ContentType.STATISTICS: _decrypt_statistics,

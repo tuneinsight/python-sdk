@@ -1,6 +1,6 @@
 """Classes to compute simple univariate statistics."""
 
-from typing import List, Dict, Any, Union
+from typing import Any, Optional
 import warnings
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -23,7 +23,7 @@ from tuneinsight.api.sdk.types import UNSET, is_set, value_if_unset
 class StatisticsResults(ComputationResult):
     """Results of a `Statistics` computation."""
 
-    result_list: List[models.StatisticResult]
+    result_list: list[models.StatisticResult]
 
     def __init__(
         self,
@@ -144,13 +144,13 @@ class Statistics(ModelBasedComputation):
 
     """
 
-    _variables: Dict[str, models.StatisticDefinition] = {}
+    _variables: dict[str, models.StatisticDefinition] = {}
 
     def __init__(
         self,
         project,
-        variables: Union[List[Union[str, dict]], str] = None,
-        quantities: List[models.StatisticalQuantity] = UNSET,
+        variables: Optional[list[str | dict] | str] = None,
+        quantities: list[models.StatisticalQuantity] = UNSET,
         dp_epsilon: float = UNSET,
     ):
         """
@@ -222,7 +222,7 @@ class Statistics(ModelBasedComputation):
         return comp
 
     def create_subgroups(
-        self, variable_name: str, column: str, values: List[str], numerical=False
+        self, variable_name: str, column: str, values: list[str], numerical=False
     ):
         """
         Divides the dataset by groups defined by the value of a variable.
@@ -257,7 +257,7 @@ class Statistics(ModelBasedComputation):
         self,
         variable_name: str,
         column: str,
-        comparator: Union[str, Comparator, models.ComparisonType],
+        comparator: str | Comparator | models.ComparisonType,
         value: Any,
         numerical: bool = True,
     ):
@@ -327,6 +327,6 @@ class Statistics(ModelBasedComputation):
                 "At least one variable must be added to the computation (use `variables` in the constructor)."
             )
 
-    def _process_results(self, results: List[DataContent]) -> StatisticsResults:
+    def _process_results(self, results: list[DataContent]) -> StatisticsResults:
         """Post-processes results by converting them to StatisticsResults."""
         return StatisticsResults(self.model, results[0])

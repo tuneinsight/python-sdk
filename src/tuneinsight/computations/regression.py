@@ -9,7 +9,7 @@ on a large scale dataset, contact us at contact@tuneinsight.com.
 
 import time
 import itertools
-from typing import List, Dict, Union
+from typing import Dict
 from typing_extensions import Self
 import numpy as np
 import pandas as pd
@@ -59,10 +59,10 @@ class _RegressionTraining(ModelBasedComputation):
             dp_epsilon=dp_epsilon,
         )
 
-    def _process_results(self, results: List[DataContent]) -> TrainedRegression:
+    def _process_results(self, results: list[DataContent]) -> TrainedRegression:
         return TrainedRegression(results[0])
 
-    def _process_encrypted_results(self, results: List[DataContent]) -> str:
+    def _process_encrypted_results(self, results: list[DataContent]) -> str:
         return results[0].get_id()
 
 
@@ -77,14 +77,14 @@ class _RegressionPredicting(ModelBasedComputation):
             dp_epsilon=1,  # This value is ignored: DP prediction is identical to prediction.
         )
 
-    def _process_results(self, results: List[DataContent]) -> bytes:
+    def _process_results(self, results: list[DataContent]) -> bytes:
         # Plaintext results: return the resulting np.array.
         predictions_array = np.array(results[0].get_prediction().predictions)
         if predictions_array.shape[1] == 1:
             return predictions_array.flatten()
         return predictions_array
 
-    def _process_encrypted_results(self, results: List[DataContent]) -> bytes:
+    def _process_encrypted_results(self, results: list[DataContent]) -> bytes:
         return results[0].get_raw_data()
 
 
@@ -108,7 +108,7 @@ class Regression:
     regression_type: models.RegressionType
 
     # The output of the last regression trained on this object.
-    fit_result: Union[str, TrainedRegression] = None
+    fit_result: str | TrainedRegression = None
 
     def __init__(
         self,
@@ -127,8 +127,8 @@ class Regression:
 
     def fit(
         self,
-        X: List[str],
-        y: List[str],
+        X: list[str],
+        y: list[str],
         encrypted=False,
         local=False,
         learning_rate=0.02,
@@ -142,8 +142,8 @@ class Regression:
         Trains the regression model.
 
         Args:
-            X (List[str]): Column names of the features
-            y (List[str]): Column names of the labels
+            X (list[str]): Column names of the features
+            y (list[str]): Column names of the labels
             encrypted (bool, optional): Whether the model is trained encrypted.
             local (bool, optional): Whether the computation is only on this client.
             learning_rate (float, optional): The learning rate of the regression. Defaults to 0.02.
@@ -214,8 +214,8 @@ class Regression:
 
     def grid_search(
         self,
-        feature_cols: List[str],
-        label_cols: List[str],
+        feature_cols: list[str],
+        label_cols: list[str],
         test_X: pd.DataFrame,
         test_Y: pd.DataFrame,
         param_dict: dict = None,
@@ -225,8 +225,8 @@ class Regression:
         Performs a grid search on model parameters to fine-tune the model
 
         Args:
-            feature_cols (List[str]): Column names of the features
-            label_cols (List[str]): Column names of the labels
+            feature_cols (list[str]): Column names of the features
+            label_cols (list[str]): Column names of the labels
             test_X (pd.DataFrame): Test data features
             test_Y (pd.DataFrame): Test data labels
             param_dict (dict, optional): dictionary of parameters to test. Defaults to None.
@@ -302,7 +302,7 @@ class Regression:
         return best_params
 
     @staticmethod
-    def _generate_param_grid(param_dict: Dict) -> List[dict]:
+    def _generate_param_grid(param_dict: Dict) -> list[dict]:
         """
         Generates a grid of parameter combinations
 

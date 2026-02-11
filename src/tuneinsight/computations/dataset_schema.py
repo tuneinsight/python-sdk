@@ -1,6 +1,6 @@
 """Classes defining dataset schemas to constrain acceptable data formats."""
 
-from typing import Dict, List, Any
+from typing import Any
 
 # from tuneinsight.client import DataSource
 from tuneinsight.client.validation import validate_response
@@ -28,7 +28,7 @@ class DatasetSchema:
     """
     API model for the schema
     """
-    cols: Dict[str, models.ColumnSchema]
+    cols: dict[str, models.ColumnSchema]
     """
     Dictionary from column names to column schema
     """
@@ -242,13 +242,13 @@ class DatasetSchema:
         col.checks.str_startswith = val
         return self
 
-    def isin(self, name: str, vals: List[Any]):
+    def isin(self, name: str, vals: list[Any]):
         """
         Adds a requirement that checks that all values from the column are from a specified set of values.
 
         Args:
             name (str): the name of the column.
-            vals (List[Any]): the specified set of values.
+            vals (list[Any]): the specified set of values.
         Returns:
             self (DatasetSchema): the updated schema
         """
@@ -256,13 +256,13 @@ class DatasetSchema:
         col.checks.isin = vals
         return self
 
-    def notin(self, name: str, vals: List[Any]):
+    def notin(self, name: str, vals: list[Any]):
         """
         Adds a requirement that checks that all values from the column are excluded from specified set of values.
 
         Args:
             name (str): the name of the column
-            vals (List[Any]): the set of values to exclude
+            vals (list[Any]): the set of values to exclude
         Returns:
             self (DatasetSchema): the updated schema
         """

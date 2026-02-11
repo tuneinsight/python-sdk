@@ -30,6 +30,7 @@ class Settings:
             all be satisfied for a project to be authorized.
         computation_timeout (Union[Unset, int]): custom timeout (seconds) to use for computations
         computation_timeout_enabled (Union[Unset, None, bool]): whether to enable the computation timeout
+        dashboard_enabled (Union[Unset, None, bool]): whether or not to enable the dashboard view.
         data_preparation (Union[Unset, None, bool]): whether or not to enable the data preparation UI.
         default_contract (Union[Unset, AuthorizationContract]): describes what parts of the computation are allowed to
             change when a project is authorized
@@ -53,6 +54,7 @@ class Settings:
     auto_reject_specifications: Union[Unset, List["ProjectSpecification"]] = UNSET
     computation_timeout: Union[Unset, int] = UNSET
     computation_timeout_enabled: Union[Unset, None, bool] = UNSET
+    dashboard_enabled: Union[Unset, None, bool] = UNSET
     data_preparation: Union[Unset, None, bool] = UNSET
     default_contract: Union[Unset, "AuthorizationContract"] = UNSET
     default_data_source: Union[Unset, None, str] = UNSET
@@ -97,6 +99,7 @@ class Settings:
 
         computation_timeout = self.computation_timeout
         computation_timeout_enabled = self.computation_timeout_enabled
+        dashboard_enabled = self.dashboard_enabled
         data_preparation = self.data_preparation
         default_contract: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.default_contract, Unset):
@@ -133,6 +136,8 @@ class Settings:
             field_dict["computationTimeout"] = computation_timeout
         if computation_timeout_enabled is not UNSET:
             field_dict["computationTimeoutEnabled"] = computation_timeout_enabled
+        if dashboard_enabled is not UNSET:
+            field_dict["dashboardEnabled"] = dashboard_enabled
         if data_preparation is not UNSET:
             field_dict["dataPreparation"] = data_preparation
         if default_contract is not UNSET:
@@ -197,6 +202,8 @@ class Settings:
 
         computation_timeout_enabled = d.pop("computationTimeoutEnabled", UNSET)
 
+        dashboard_enabled = d.pop("dashboardEnabled", UNSET)
+
         data_preparation = d.pop("dataPreparation", UNSET)
 
         _default_contract = d.pop("defaultContract", UNSET)
@@ -241,6 +248,7 @@ class Settings:
             auto_reject_specifications=auto_reject_specifications,
             computation_timeout=computation_timeout,
             computation_timeout_enabled=computation_timeout_enabled,
+            dashboard_enabled=dashboard_enabled,
             data_preparation=data_preparation,
             default_contract=default_contract,
             default_data_source=default_data_source,

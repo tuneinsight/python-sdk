@@ -11,7 +11,7 @@ modules in tuneinsight.computations.*.
 
 from abc import ABC, abstractmethod
 import json
-from typing import Any, List, Union
+from typing import Any
 import warnings
 import pandas as pd
 
@@ -67,7 +67,7 @@ class Computation(ABC):
     # Note that these are not direct attributes of the computation definition.
     preprocessing: PreprocessingBuilder
     datasource: QueryBuilder
-    units: List[models.UnitFilter]
+    units: list[models.UnitFilter]
     local_input: models.LocalInput
     max_timeout: int
     polling_initial_interval: int
@@ -77,7 +77,7 @@ class Computation(ABC):
     # If the computation times out, it is stored so that it can be resumed.
     _timedout_computation: models.Computation = None
     # Output: the result from computations run on the instance.
-    recorded_computations: List[models.Computation]
+    recorded_computations: list[models.Computation]
 
     def __init__(self, project: "Project"):  # type: ignore
         """
@@ -137,16 +137,15 @@ class Computation(ABC):
     def _override_model(self, _: models.ComputationDefinition):
         """Optional model overrides before running the computation"""
 
-    def _process_results(self, results: List[DataContent]) -> Any:
+    def _process_results(self, results: list[DataContent]) -> Any:
         """Post-process the plaintext results of a computation."""
         return results
 
-    def _process_encrypted_results(self, results: List[DataContent]) -> Any:
+    def _process_encrypted_results(self, results: list[DataContent]) -> Any:
         """Post-process encrypted results of a computation."""
         return results
 
     # API interfacing methods.
-
     @staticmethod
     def _field_is_set(field: Any) -> bool:
         """Checks whether a field in a (API models) definition is set."""
@@ -161,22 +160,13 @@ class Computation(ABC):
         )
 
     @staticmethod
-    def _validate_input_data(
-        input_data: models.DataObject, model: models.ComputationDefinition, local: bool
-    ):
+    def _validate_input_data(input_data: models.DataObject, local: bool):
         if input_data.type not in [
-            InputType.COHORT,
             InputType.FLOAT_MATRIX,
             InputType.TABLE,
         ]:
             raise ValueError(f"invalid input type: {input_data.type}.")
-        if input_data.type == InputType.COHORT and model.type not in [
-            models.ComputationType.ENCRYPTEDAGGREGATION,
-            models.ComputationType.GWAS,
-        ]:
-            raise ValueError(
-                f"cohort cannot be used as an input to a {model.type} computation."
-            )
+
         if not local and not input_data.shared:
             raise ValueError(
                 "local object cannot be used as input to a collective computation."
@@ -191,7 +181,6 @@ class Computation(ABC):
         if model.type in [
             models.ComputationType.COLLECTIVEKEYSWITCH,
             models.ComputationType.ENCRYPTEDPREDICTION,
-            models.ComputationType.PRIVATESEARCH,
         ]:
             return
         # Apply the datasource query.
@@ -337,7 +326,7 @@ class Computation(ABC):
         interval: int = 100 * time_tools.MILLISECOND,
         max_sleep_time: int = 30 * time_tools.SECOND,
         verbose: bool = False,
-    ) -> Union[List[Result], List[DataObject]]:
+    ) -> list[Result] | list[DataObject]:
         """
         Waits until a [models.]computation is finished and returns its result(s).
 
@@ -354,7 +343,7 @@ class Computation(ABC):
             max_sleep_time (int, optional): maximum total time in nanoseconds to wait between polls.
 
         Returns:
-            List[Result] or List[DataObject]: the result of the computation, parsed as a
+            list[Result] or list[DataObject]: the result of the computation, parsed as a
                Result object. If no result is provided (which can happen in some corner cases),
                the list of dataobjects containing data results is returned instead.
         """
@@ -398,7 +387,7 @@ class Computation(ABC):
 
         # Get the result(s) of the computation. Most computations only have one result, but some can have several,
         # so all results post-processing operates over lists of DataContents.
-        result_ids: List[str] = value_if_unset(current_comp.result_ids, [])
+        result_ids: list[str] = value_if_unset(current_comp.result_ids, [])
         if not result_ids:
             # Note: result_id will be deprecated soon, but is still supported at the moment.
             result_id = value_if_unset(current_comp.result_id, "")
@@ -480,6 +469,36 @@ class Computation(ABC):
         validate_response(response)
         return response.parsed.computation
 
+    def run_async(
+        self,
+        local: bool = False,
+        on_previous_result: models.DataObject = None,
+    ) -> models.Computation:
+        """
+        Launches this computation asynchronously.
+
+        This launches this computation on the instance and returns immediately
+        with the computation object. Use fetch_results to wait for the computation
+        to finish and retrieve its results.
+        It return self the computation object created on the backend.
+
+        Args:
+            local (bool, optional): Whether to run the computation locally or remotely. Defaults to False.
+            on_previous_result (models.DataObject,optional): remote object (usually output from another computation) to
+                use as an input. This overrides the datasource of the project.
+        """
+        # Perform optional checks to have user-friendly messages in case something is missing.
+        self._pre_run_check()
+
+        # Update the model to reflect high-level parameters (preprocessing etc.).
+        model: models.ComputationDefinition = self._get_model_before_launch(
+            local, on_previous_result
+        )
+
+        # Start the computation and wait until it finishes.
+        computation = self._launch(model)
+        return computation
+
     def run(
         self,
         local: bool = False,
@@ -556,7 +575,7 @@ class Computation(ABC):
             comp = self.project.get_computation(computation.definition)
             return comp.fetch_results(computation, interval, max_sleep_time)
 
-        results: Union[List[Result], List[DataObject]] = self._poll_computation(
+        results: list[Result] | list[DataObject] = self._poll_computation(
             comp=computation,
             interval=interval,
             max_sleep_time=max_sleep_time,
@@ -592,7 +611,7 @@ class Computation(ABC):
         model.run_mode = models.RunMode.LOCAL if local else models.RunMode.COLLECTIVE
 
         if on_previous_result is not None:
-            self._validate_input_data(on_previous_result, model, local)
+            self._validate_input_data(on_previous_result, local)
             if local:
                 model.local_input_id = on_previous_result.unique_id
             else:

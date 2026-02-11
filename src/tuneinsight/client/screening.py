@@ -1,6 +1,6 @@
 """Classes and utilities to screen a dataset."""
 
-from typing import List, Optional, Union
+from typing import Optional
 
 import attr
 import pandas as pd
@@ -26,7 +26,7 @@ class ScreenedDataset:
     """The result of a screening operation."""
 
     metadata: models.DataPreparationMetadata
-    data: List[models.ScreenedRow]
+    data: list[models.ScreenedRow]
 
     def to_pandas(self) -> pd.DataFrame:
         """Restructures the screened dataset result as a pandas DataFrame for later analysis."""
@@ -114,11 +114,11 @@ class DataPreparationSession:
 
     ## High-level methods to handle a session.
 
-    def set_datasource(self, ds: Union[str, DataSource]):
+    def set_datasource(self, ds: str | DataSource):
         """Sets the datasource of this data preparation session.
 
         Args:
-            ds (Union[str, DataSource]): either a Datasource object, or the unique ID of the datasource.
+            ds (str | DataSource): either a Datasource object, or the unique ID of the datasource.
         """
         if isinstance(ds, DataSource):
             ds = ds.get_id()
@@ -207,11 +207,11 @@ class DataPreparationSession:
             operations[index].enabled = False
         self._set_operations(operations)
 
-    def remove_rows(self, row_indices: List[int]) -> "DataPreparationSession":
+    def remove_rows(self, row_indices: list[int]) -> "DataPreparationSession":
         """Adds a screening operation that removes specific rows in the data.
 
         Args:
-            row_indices (List[int]): the list of indices (in the original data) or rows to remove
+            row_indices (list[int]): the list of indices (in the original data) or rows to remove
 
         Returns:
             self: this object (to chain operations).
@@ -243,14 +243,14 @@ class DataPreparationSession:
 
     def remove_outliers(
         self,
-        columns: Union[str, List[str]],
+        columns: str | list[str],
         threshold: float,
         replace_with: Optional[str] = None,
     ) -> "DataPreparationSession":
         """Adds a screening operation that removes outliers in selected columns.
 
         Args:
-            columns (Union[str, List[str]]): The column(s) from which outliers are removed.
+            columns (str | list[str]): The column(s) from which outliers are removed.
             threshold (float): the threshold (multiplicative of stddev) to define an outlier.
             replace_with (Optional[str], optional): if set, outlier records are not removed,
                 but the outliers are replaced with this value. Defaults to None.
@@ -268,12 +268,12 @@ class DataPreparationSession:
         return self
 
     def filter_empty(
-        self, columns: Union[str, List[str]], replace_with: Optional[str] = None
+        self, columns: str | list[str], replace_with: Optional[str] = None
     ) -> "DataPreparationSession":
         """Adds a screeening operation that filters rows with empty values.
 
         Args:
-            columns (Union[str, List[str]]): The column(s) where to look for empty cells.
+            columns (str | list[str]): The column(s) where to look for empty cells.
             replace_with (Optional[str], optional): if set, rows with missing values are not
                 removed, but the empty values are replaced with this value. Defaults to None.
 
@@ -290,12 +290,12 @@ class DataPreparationSession:
         return self
 
     def filter_non_numeric(
-        self, columns: Union[str, List[str]], replace_with: Optional[str] = None
+        self, columns: str | list[str], replace_with: Optional[str] = None
     ) -> "DataPreparationSession":
         """Adds a screening operation that filters out rows with non-numeric values.
 
         Args:
-            columns (Union[str, List[str]]): The column(s) where to look for (non-)numeric values.
+            columns (str | list[str]): The column(s) where to look for (non-)numeric values.
             replace_with (Optional[str], optional): if set, rows with non-numeric values are not
                 removed but the invalid values are replaced with this value. Defaults to None.
 
@@ -311,13 +311,11 @@ class DataPreparationSession:
         )
         return self
 
-    def autocorrect_dates(
-        self, columns: Union[str, List[str]]
-    ) -> "DataPreparationSession":
+    def autocorrect_dates(self, columns: str | list[str]) -> "DataPreparationSession":
         """Adds a screening operation that auto-correct poorly formatted dates.
 
         Args:
-            columns (Union[str, List[str]]): The column(s) where to autocorrect dates.
+            columns (str | list[str]): The column(s) where to autocorrect dates.
 
         Returns:
             self: this object (to chain operations).
@@ -330,12 +328,12 @@ class DataPreparationSession:
         return self
 
     def filter_invalid_dates(
-        self, columns: Union[str, List[str]], replace_with: Optional[str] = None
+        self, columns: str | list[str], replace_with: Optional[str] = None
     ) -> "DataPreparationSession":
         """Adds a screening operation that filters invalid dates.
 
         Args:
-            columns (Union[str, List[str]]): The column(s) where to look for dates.
+            columns (str | list[str]): The column(s) where to look for dates.
             replace_with (Optional[str], optional): if set, rows with invalid dates are not
                 removed, but the invalid dates are replaced with this value. Defaults to None.
 

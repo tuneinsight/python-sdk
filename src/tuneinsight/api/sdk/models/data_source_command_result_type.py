@@ -4,7 +4,6 @@ from enum import Enum
 class DataSourceCommandResultType(str, Enum):
     GENERICCOMMANDRESULT = "genericCommandResult"
     GETMETADATACOMMANDRESULT = "getMetadataCommandResult"
-    GETCONCEPTMETADATACOMMANDRESULT = "getConceptMetadataCommandResult"
     GETCONCEPTFIELDVALUESCOMMANDRESULT = "getConceptFieldValuesCommandResult"
     GETTRANSLATEDQUERYCOMMANDRESULT = "getTranslatedQueryCommandResult"
 

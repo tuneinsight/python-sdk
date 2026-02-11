@@ -7,17 +7,23 @@ from ... import errors
 from ...client import Client
 from ...models.error import Error
 from ...models.get_build_catalog_progress_response_200 import GetBuildCatalogProgressResponse200
-from ...types import Response
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
     client: Client,
+    data_source_id: Union[Unset, None, str] = UNSET,
 ) -> Dict[str, Any]:
     url = "{}/build-catalog-progress".format(client.base_url)
 
     headers: Dict[str, str] = client.get_headers()
     cookies: Dict[str, Any] = client.get_cookies()
+
+    params: Dict[str, Any] = {}
+    params["dataSourceId"] = data_source_id
+
+    params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
     # Set the proxies if the client has proxies set.
     proxies = None
@@ -37,6 +43,7 @@ def _get_kwargs(
         "cookies": cookies,
         "timeout": client.get_timeout(),
         "proxies": proxies,
+        "params": params,
     }
 
 
@@ -79,8 +86,12 @@ def _build_response(
 def sync_detailed(
     *,
     client: Client,
+    data_source_id: Union[Unset, None, str] = UNSET,
 ) -> Response[Union[Error, GetBuildCatalogProgressResponse200]]:
     """Get the progress of the catalog build
+
+    Args:
+        data_source_id (Union[Unset, None, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -92,6 +103,7 @@ def sync_detailed(
 
     kwargs = _get_kwargs(
         client=client,
+        data_source_id=data_source_id,
     )
 
     response = httpx.request(
@@ -105,8 +117,12 @@ def sync_detailed(
 def sync(
     *,
     client: Client,
+    data_source_id: Union[Unset, None, str] = UNSET,
 ) -> Optional[Union[Error, GetBuildCatalogProgressResponse200]]:
     """Get the progress of the catalog build
+
+    Args:
+        data_source_id (Union[Unset, None, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -118,14 +134,19 @@ def sync(
 
     return sync_detailed(
         client=client,
+        data_source_id=data_source_id,
     ).parsed
 
 
 async def asyncio_detailed(
     *,
     client: Client,
+    data_source_id: Union[Unset, None, str] = UNSET,
 ) -> Response[Union[Error, GetBuildCatalogProgressResponse200]]:
     """Get the progress of the catalog build
+
+    Args:
+        data_source_id (Union[Unset, None, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -137,6 +158,7 @@ async def asyncio_detailed(
 
     kwargs = _get_kwargs(
         client=client,
+        data_source_id=data_source_id,
     )
 
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
@@ -148,8 +170,12 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: Client,
+    data_source_id: Union[Unset, None, str] = UNSET,
 ) -> Optional[Union[Error, GetBuildCatalogProgressResponse200]]:
     """Get the progress of the catalog build
+
+    Args:
+        data_source_id (Union[Unset, None, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -162,5 +188,6 @@ async def asyncio(
     return (
         await asyncio_detailed(
             client=client,
+            data_source_id=data_source_id,
         )
     ).parsed

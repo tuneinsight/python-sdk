@@ -2,7 +2,7 @@
 # Interacting with a Tune Insight instance
 
 The `client` module offers high-level classes to interact with the various
-elements of a Tune Insight instance. 
+elements of a Tune Insight instance.
 
 ## Connecting to a Tune Insight instance
 
@@ -38,7 +38,7 @@ setup, and manage a project.
 Data in Tune Insight instances is stored with two different abstractions:
 
 - Datasources (`client.datasource`) represent data to be used for computations. Datasources can be of
-    different types (e.g., API, database). The data containted in a datasource is only loaded when a
+    different types (e.g., API, database). The data contained in a datasource is only loaded when a
     computation starts.
 - Dataobjects (`client.dataobject`) represent values stored on the instance, typically as the result
     of a computation. These can be downloaded and read from the SDK client.
@@ -58,4 +58,3 @@ from .dataobject import DataObject, Result
 from .datasource import DataSource
 from .diapason import Diapason
 from .project import Project
-from .session import PIRSession

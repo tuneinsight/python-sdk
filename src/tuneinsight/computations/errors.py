@@ -1,6 +1,5 @@
 """Utilities to parse errors in computations and raise appropriate Python errors."""
 
-from typing import List
 from tuneinsight.utils.errors import hidden_traceback_scope
 
 from tuneinsight.api.sdk.models import ComputationError
@@ -85,7 +84,7 @@ def format_computation_error(prefix: str, error: ComputationError) -> str:
     return f"{prefix}: {error.message}"
 
 
-def raise_computation_error(errors: List[ComputationError]):
+def raise_computation_error(errors: list[ComputationError]):
     """
     Raises the appropriate Python error, given the list of errors from the computation.
 
@@ -93,7 +92,7 @@ def raise_computation_error(errors: List[ComputationError]):
     a Python exception for the first error, errors[0].
 
     Args:
-        errors (List[ComputationError]): the list of errors returned with the computation
+        errors (list[ComputationError]): the list of errors returned with the computation
 
     Raises:
         exc: the appropriate computation error when a common pattern is detected

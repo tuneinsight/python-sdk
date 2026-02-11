@@ -1,8 +1,5 @@
 """Classes managing authentication to Keycloak."""
 
-from typing import Dict
-
-
 from time import time
 from ast import literal_eval
 from attr import define
@@ -100,7 +97,7 @@ class KeycloakClient(client.AuthenticatedClient):
         # return literal_eval(resp.content.decode())
         return raise_error_from_response(resp, KeycloakError)
 
-    def get_headers(self) -> Dict[str, str]:
+    def get_headers(self) -> dict[str, str]:
         """Get headers to use in authenticated API endpoints."""
         if "access_token" not in self.tokens:
             self.get_token()
