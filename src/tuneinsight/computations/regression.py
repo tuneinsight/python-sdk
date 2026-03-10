@@ -16,7 +16,6 @@ import pandas as pd
 
 from tuneinsight.client.dataobject import DataContent, DataObject, Result
 from tuneinsight.computations.base import ModelBasedComputation
-from tuneinsight.utils import deprecation
 from tuneinsight.utils.model_performance_eval import r2_score, rmse
 
 from tuneinsight.api.sdk import models
@@ -129,7 +128,6 @@ class Regression:
         self,
         X: list[str],
         y: list[str],
-        encrypted=False,
         local=False,
         learning_rate=0.02,
         network_iteration_count=1,
@@ -144,7 +142,6 @@ class Regression:
         Args:
             X (list[str]): Column names of the features
             y (list[str]): Column names of the labels
-            encrypted (bool, optional): Whether the model is trained encrypted.
             local (bool, optional): Whether the computation is only on this client.
             learning_rate (float, optional): The learning rate of the regression. Defaults to 0.02.
             network_iteration_count (int, optional): The global maximum number of iterations. Defaults to 100.
@@ -156,8 +153,6 @@ class Regression:
         Returns:
             self: this object.
         """
-        if encrypted:
-            deprecation.warn("encrypted=True", "yet to be determined")
         self.fit_model.model.feature_columns = X
         self.fit_model.model.label_columns = y
         self.fit_model.params.learning_rate = learning_rate

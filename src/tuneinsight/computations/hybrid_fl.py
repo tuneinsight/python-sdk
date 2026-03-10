@@ -16,7 +16,7 @@ from tuneinsight.client.dataobject import DataContent
 from tuneinsight.api.sdk import models
 from tuneinsight.api.sdk.types import UNSET
 from tuneinsight.computations.base import ModelBasedComputation
-from tuneinsight.utils import deprecation, hybrid_fl_plots
+from tuneinsight.utils import hybrid_fl_plots
 
 
 class HybridFL(ModelBasedComputation):
@@ -73,32 +73,6 @@ class HybridFL(ModelBasedComputation):
             task_def=json.dumps(task_def) if task_def is not None else UNSET,
             dp_epsilon=dp_epsilon,
         )
-
-    def create_from_params(
-        self,
-        params: models.HybridFLGenericParams = UNSET,
-        spec_params: models.HybridFLSpecParams = UNSET,
-        dp_params: models.HybridFLDpParams = UNSET,
-        task_id: str = None,
-        task_def: Optional[dict[str, str | int | float]] = None,
-    ):
-        deprecation.warn("create_from_params", "HybridFL.__init__")
-
-        model = models.HybridFL(type=models.ComputationType.HYBRIDFL)
-        model.params = params
-
-        model.spec_params = spec_params
-        model.dp_params = dp_params
-        model.task_id = task_id
-
-        if task_def is not None:
-            model.task_def = json.dumps(task_def)
-
-        model.project_id = self.project.get_id()
-
-        dataobjects = super().run(local=False)
-
-        return dataobjects
 
     @classmethod
     def from_model(cls, project: "Project", model: models.HybridFL) -> "HybridFL":

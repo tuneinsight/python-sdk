@@ -36,19 +36,23 @@ from tuneinsight.client import DataSource
 
 def AND(filters: list[models.AdvancedFilter]):
     """Creates a disjunctive filter from a list of sub-filters."""
-    return models.LogicalOperatorFilter(
-        type=models.AdvancedFilterType.LOGICALOPERATORFILTER,
-        operator=models.LogicalOperator.AND,
-        filters=filters,
+    return _WrappedFilter(
+        models.LogicalOperatorFilter(
+            type=models.AdvancedFilterType.LOGICALOPERATORFILTER,
+            operator=models.LogicalOperator.AND,
+            filters=[_unwrap(f) for f in filters],
+        )
     )
 
 
 def OR(filters: list[models.AdvancedFilter]):
     """Creates a conjunctive filter from a list of sub-filters."""
-    return models.LogicalOperatorFilter(
-        type=models.AdvancedFilterType.LOGICALOPERATORFILTER,
-        operator=models.LogicalOperator.OR,
-        filters=filters,
+    return _WrappedFilter(
+        models.LogicalOperatorFilter(
+            type=models.AdvancedFilterType.LOGICALOPERATORFILTER,
+            operator=models.LogicalOperator.OR,
+            filters=[_unwrap(f) for f in filters],
+        )
     )
 
 
@@ -60,10 +64,10 @@ class _WrappedFilter:
         self.simplify()
 
     def __and__(self, other: "_WrappedFilter"):
-        return _WrappedFilter(AND([self.unwrap(), other.unwrap()]))
+        return AND([self.unwrap(), _unwrap(other)])
 
     def __or__(self, other: "_WrappedFilter"):
-        return _WrappedFilter(OR([self.unwrap(), other.unwrap()]))
+        return OR([self.unwrap(), _unwrap(other)])
 
     def simplify(self):
         """Simplifies groups together in case of nested ANDs or ORs."""
@@ -85,6 +89,13 @@ class _WrappedFilter:
 
     def unwrap(self) -> models.AdvancedFilter:
         return self.filter
+
+
+def _unwrap(f: _WrappedFilter | models.AdvancedFilter) -> models.AdvancedFilter:
+    """Safely returns the advanced filter wrapped within a _WrappedFilter, or returns the filter if it's already unwrapped."""
+    if isinstance(f, _WrappedFilter):
+        return f.unwrap()
+    return f
 
 
 class _ComparableValue:
@@ -207,7 +218,7 @@ class OutputVariable(_ComparableValue):
         """Converts this variable to an output variable definition to set at the top-level of the query."""
         return models.QueryOutputVariable(
             name=self.variable_name,
-            series=self.field.concept,
+            series=self.field.concept.name,
         )
 
     def _assert_can_compare(self, other: Union["_ComparableValue", Any]):
@@ -311,15 +322,16 @@ class _Concept:
         aggregator: models.BooleanAggregator,
         outputs: list[OutputVariable] = None,
     ) -> _WrappedFilter:
-        if not isinstance(filter_, _WrappedFilter):
+        if callable(filter_):
             # This is a callable that expects a Concept as input.
             filter_ = filter_(self)
-        elif not callable(filter_):
+        # The input should now be a wrapped filter.
+        if not isinstance(filter_, _WrappedFilter):
             raise ValueError(
                 f"Invalid type for input filter {type(filter_)}: {filter_}."
             )
         # Validate that the input filter applies to this filter.
-        self._assert_filter_validity(filter_.unwrap())
+        self._assert_filter_validity(_unwrap(filter_))
         # Save all the variables in the "Dataset".
         output_variable_models = UNSET
         output_count_as_variable = UNSET
@@ -339,7 +351,7 @@ class _Concept:
         return _WrappedFilter(
             models.SeriesFilter(
                 type=models.AdvancedFilterType.SERIESFILTER,
-                filter_=filter_.unwrap(),
+                filter_=_unwrap(filter_),
                 logical_aggregator=aggregator,
                 series=self._name,
                 output_variables=output_variable_models,
@@ -383,8 +395,6 @@ class _VariableStore:
 
     def add(self, variable: OutputVariable):
         """Adds a variable to the store."""
-        if variable.name in self.variables:
-            raise NameError(f"two variables with the same name: {variable.name}")
         self.variables[variable.name] = variable
         setattr(self, variable.name, variable)
 
@@ -481,7 +491,7 @@ class Dataset:
         variables = [v.name for v in variables_to_extract]
         output_variables = [v.to_query_output_variable() for v in variables_to_extract]
         return models.CrossStandardQuery(
-            filter_=filter_.unwrap(),
+            filter_=_unwrap(filter_),
             variables=variables,
             output_variables=output_variables,
         )

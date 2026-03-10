@@ -28,6 +28,7 @@ class Settings:
             satisfying at least one automatically authorizes the project.
         auto_reject_specifications (Union[Unset, List['ProjectSpecification']]): A list of project templates that must
             all be satisfied for a project to be authorized.
+        catalog_enabled (Union[Unset, None, bool]): whether or not to enable the catalog view.
         computation_timeout (Union[Unset, int]): custom timeout (seconds) to use for computations
         computation_timeout_enabled (Union[Unset, None, bool]): whether to enable the computation timeout
         dashboard_enabled (Union[Unset, None, bool]): whether or not to enable the dashboard view.
@@ -39,6 +40,7 @@ class Settings:
         disable_shared_bookmarks (Union[Unset, None, bool]): whether to disable the shared bookmarks
         enable_combine_protocol (Union[Unset, None, bool]): whether to enable the Combine Protocol
         feasibility_layout (Union[Unset, None, bool]): whether or not to enable the feasibility mode layout.
+        network_catalog_data_source_id (Union[Unset, None, str]): Unique identifier of a data source.
         query_timeout (Union[Unset, int]): custom timeout (seconds) to use for the query
         query_timeout_enabled (Union[Unset, None, bool]): whether to enable the query timeout
         selectable_data_source (Union[Unset, None, bool]): whether or not the datasource of the project can be modified.
@@ -52,6 +54,7 @@ class Settings:
     authorized_project_types: Union[Unset, List[WorkflowType]] = UNSET
     auto_approve_specifications: Union[Unset, List["ProjectSpecification"]] = UNSET
     auto_reject_specifications: Union[Unset, List["ProjectSpecification"]] = UNSET
+    catalog_enabled: Union[Unset, None, bool] = UNSET
     computation_timeout: Union[Unset, int] = UNSET
     computation_timeout_enabled: Union[Unset, None, bool] = UNSET
     dashboard_enabled: Union[Unset, None, bool] = UNSET
@@ -62,6 +65,7 @@ class Settings:
     disable_shared_bookmarks: Union[Unset, None, bool] = UNSET
     enable_combine_protocol: Union[Unset, None, bool] = UNSET
     feasibility_layout: Union[Unset, None, bool] = UNSET
+    network_catalog_data_source_id: Union[Unset, None, str] = UNSET
     query_timeout: Union[Unset, int] = UNSET
     query_timeout_enabled: Union[Unset, None, bool] = UNSET
     selectable_data_source: Union[Unset, None, bool] = UNSET
@@ -97,6 +101,7 @@ class Settings:
 
                 auto_reject_specifications.append(auto_reject_specifications_item)
 
+        catalog_enabled = self.catalog_enabled
         computation_timeout = self.computation_timeout
         computation_timeout_enabled = self.computation_timeout_enabled
         dashboard_enabled = self.dashboard_enabled
@@ -110,6 +115,7 @@ class Settings:
         disable_shared_bookmarks = self.disable_shared_bookmarks
         enable_combine_protocol = self.enable_combine_protocol
         feasibility_layout = self.feasibility_layout
+        network_catalog_data_source_id = self.network_catalog_data_source_id
         query_timeout = self.query_timeout
         query_timeout_enabled = self.query_timeout_enabled
         selectable_data_source = self.selectable_data_source
@@ -132,6 +138,8 @@ class Settings:
             field_dict["autoApproveSpecifications"] = auto_approve_specifications
         if auto_reject_specifications is not UNSET:
             field_dict["autoRejectSpecifications"] = auto_reject_specifications
+        if catalog_enabled is not UNSET:
+            field_dict["catalogEnabled"] = catalog_enabled
         if computation_timeout is not UNSET:
             field_dict["computationTimeout"] = computation_timeout
         if computation_timeout_enabled is not UNSET:
@@ -152,6 +160,8 @@ class Settings:
             field_dict["enableCombineProtocol"] = enable_combine_protocol
         if feasibility_layout is not UNSET:
             field_dict["feasibilityLayout"] = feasibility_layout
+        if network_catalog_data_source_id is not UNSET:
+            field_dict["networkCatalogDataSourceId"] = network_catalog_data_source_id
         if query_timeout is not UNSET:
             field_dict["queryTimeout"] = query_timeout
         if query_timeout_enabled is not UNSET:
@@ -198,6 +208,8 @@ class Settings:
 
             auto_reject_specifications.append(auto_reject_specifications_item)
 
+        catalog_enabled = d.pop("catalogEnabled", UNSET)
+
         computation_timeout = d.pop("computationTimeout", UNSET)
 
         computation_timeout_enabled = d.pop("computationTimeoutEnabled", UNSET)
@@ -223,6 +235,8 @@ class Settings:
 
         feasibility_layout = d.pop("feasibilityLayout", UNSET)
 
+        network_catalog_data_source_id = d.pop("networkCatalogDataSourceId", UNSET)
+
         query_timeout = d.pop("queryTimeout", UNSET)
 
         query_timeout_enabled = d.pop("queryTimeoutEnabled", UNSET)
@@ -246,6 +260,7 @@ class Settings:
             authorized_project_types=authorized_project_types,
             auto_approve_specifications=auto_approve_specifications,
             auto_reject_specifications=auto_reject_specifications,
+            catalog_enabled=catalog_enabled,
             computation_timeout=computation_timeout,
             computation_timeout_enabled=computation_timeout_enabled,
             dashboard_enabled=dashboard_enabled,
@@ -256,6 +271,7 @@ class Settings:
             disable_shared_bookmarks=disable_shared_bookmarks,
             enable_combine_protocol=enable_combine_protocol,
             feasibility_layout=feasibility_layout,
+            network_catalog_data_source_id=network_catalog_data_source_id,
             query_timeout=query_timeout,
             query_timeout_enabled=query_timeout_enabled,
             selectable_data_source=selectable_data_source,

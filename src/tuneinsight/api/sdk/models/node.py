@@ -25,6 +25,9 @@ class Node:
         is_contributor (Union[Unset, bool]): Indicates if this instance does contribute data.
         is_in_network (Union[Unset, bool]): True if the node can be found in the instance's network. If False, then the
             node information cannot be completed.
+        is_l1_node (Union[Unset, None, bool]): True if the node is L1, i.e. does not hold a Multiparty Homomorphic
+            Encryption (MHE) secret key and is not a root node. False if the node is a MHE compute party (root and/or key
+            holders).
         is_root (Union[Unset, bool]): True if the node is the root node in a tree topology network.
         is_sse (Union[Unset, None, bool]): True if the node configured to use server-sent events.
         name (Union[Unset, str]):
@@ -39,6 +42,7 @@ class Node:
     has_user_management: Union[Unset, bool] = UNSET
     is_contributor: Union[Unset, bool] = UNSET
     is_in_network: Union[Unset, bool] = UNSET
+    is_l1_node: Union[Unset, None, bool] = UNSET
     is_root: Union[Unset, bool] = UNSET
     is_sse: Union[Unset, None, bool] = UNSET
     name: Union[Unset, str] = UNSET
@@ -54,6 +58,7 @@ class Node:
         has_user_management = self.has_user_management
         is_contributor = self.is_contributor
         is_in_network = self.is_in_network
+        is_l1_node = self.is_l1_node
         is_root = self.is_root
         is_sse = self.is_sse
         name = self.name
@@ -80,6 +85,8 @@ class Node:
             field_dict["isContributor"] = is_contributor
         if is_in_network is not UNSET:
             field_dict["isInNetwork"] = is_in_network
+        if is_l1_node is not UNSET:
+            field_dict["isL1Node"] = is_l1_node
         if is_root is not UNSET:
             field_dict["isRoot"] = is_root
         if is_sse is not UNSET:
@@ -112,6 +119,8 @@ class Node:
 
         is_in_network = d.pop("isInNetwork", UNSET)
 
+        is_l1_node = d.pop("isL1Node", UNSET)
+
         is_root = d.pop("isRoot", UNSET)
 
         is_sse = d.pop("isSSE", UNSET)
@@ -135,6 +144,7 @@ class Node:
             has_user_management=has_user_management,
             is_contributor=is_contributor,
             is_in_network=is_in_network,
+            is_l1_node=is_l1_node,
             is_root=is_root,
             is_sse=is_sse,
             name=name,

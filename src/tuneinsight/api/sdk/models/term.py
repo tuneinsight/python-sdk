@@ -1,8 +1,12 @@
-from typing import Any, Dict, List, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.term_occurrence import TermOccurrence
+
 
 T = TypeVar("T", bound="Term")
 
@@ -26,10 +30,17 @@ class Term:
             exists at least one reference to this term.
         occurrence_network (Union[Unset, None, float]): represents the number of patients across all data sources in the
             network, for which there exists at least one reference to this term.
+        occurrences (Union[Unset, List['TermOccurrence']]): the list of all occurrence data for this term.
         ontology (Union[Unset, str]):
         parents (Union[Unset, str]):
-        total_occurrence (Union[Unset, None, int]): represents the total number of patients across all data sources for
-            which there exists at least one reference to this term.
+        total_descendant_occurrence (Union[Unset, None, int]): represents the total number of patients across all data
+            sources for which there exists at least one reference to any descendant of this term.
+        total_network_descendant_occurrence (Union[Unset, None, int]): represents the total number of patients across
+            the network for which there exists at least one reference to any descendant of this term.
+        total_network_occurrence (Union[Unset, None, int]): represents the total number of patients across the network
+            for which there exists at least one reference to this term.
+        total_occurrence (Union[Unset, None, int]): represents the total number of patients across all data sources on
+            this instance for which there exists at least one reference to this term.
         uri (Union[Unset, str]):
         version (Union[Unset, str]):
     """
@@ -46,8 +57,12 @@ class Term:
     name: Union[Unset, str] = UNSET
     occurrence: Union[Unset, None, float] = UNSET
     occurrence_network: Union[Unset, None, float] = UNSET
+    occurrences: Union[Unset, List["TermOccurrence"]] = UNSET
     ontology: Union[Unset, str] = UNSET
     parents: Union[Unset, str] = UNSET
+    total_descendant_occurrence: Union[Unset, None, int] = UNSET
+    total_network_descendant_occurrence: Union[Unset, None, int] = UNSET
+    total_network_occurrence: Union[Unset, None, int] = UNSET
     total_occurrence: Union[Unset, None, int] = UNSET
     uri: Union[Unset, str] = UNSET
     version: Union[Unset, str] = UNSET
@@ -66,8 +81,19 @@ class Term:
         name = self.name
         occurrence = self.occurrence
         occurrence_network = self.occurrence_network
+        occurrences: Union[Unset, List[Dict[str, Any]]] = UNSET
+        if not isinstance(self.occurrences, Unset):
+            occurrences = []
+            for occurrences_item_data in self.occurrences:
+                occurrences_item = occurrences_item_data.to_dict()
+
+                occurrences.append(occurrences_item)
+
         ontology = self.ontology
         parents = self.parents
+        total_descendant_occurrence = self.total_descendant_occurrence
+        total_network_descendant_occurrence = self.total_network_descendant_occurrence
+        total_network_occurrence = self.total_network_occurrence
         total_occurrence = self.total_occurrence
         uri = self.uri
         version = self.version
@@ -99,10 +125,18 @@ class Term:
             field_dict["occurrence"] = occurrence
         if occurrence_network is not UNSET:
             field_dict["occurrenceNetwork"] = occurrence_network
+        if occurrences is not UNSET:
+            field_dict["occurrences"] = occurrences
         if ontology is not UNSET:
             field_dict["ontology"] = ontology
         if parents is not UNSET:
             field_dict["parents"] = parents
+        if total_descendant_occurrence is not UNSET:
+            field_dict["totalDescendantOccurrence"] = total_descendant_occurrence
+        if total_network_descendant_occurrence is not UNSET:
+            field_dict["totalNetworkDescendantOccurrence"] = total_network_descendant_occurrence
+        if total_network_occurrence is not UNSET:
+            field_dict["totalNetworkOccurrence"] = total_network_occurrence
         if total_occurrence is not UNSET:
             field_dict["totalOccurrence"] = total_occurrence
         if uri is not UNSET:
@@ -114,6 +148,8 @@ class Term:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.term_occurrence import TermOccurrence
+
         d = src_dict.copy()
         omop_concept_id = d.pop("OMOPConceptId", UNSET)
 
@@ -139,9 +175,22 @@ class Term:
 
         occurrence_network = d.pop("occurrenceNetwork", UNSET)
 
+        occurrences = []
+        _occurrences = d.pop("occurrences", UNSET)
+        for occurrences_item_data in _occurrences or []:
+            occurrences_item = TermOccurrence.from_dict(occurrences_item_data)
+
+            occurrences.append(occurrences_item)
+
         ontology = d.pop("ontology", UNSET)
 
         parents = d.pop("parents", UNSET)
+
+        total_descendant_occurrence = d.pop("totalDescendantOccurrence", UNSET)
+
+        total_network_descendant_occurrence = d.pop("totalNetworkDescendantOccurrence", UNSET)
+
+        total_network_occurrence = d.pop("totalNetworkOccurrence", UNSET)
 
         total_occurrence = d.pop("totalOccurrence", UNSET)
 
@@ -162,8 +211,12 @@ class Term:
             name=name,
             occurrence=occurrence,
             occurrence_network=occurrence_network,
+            occurrences=occurrences,
             ontology=ontology,
             parents=parents,
+            total_descendant_occurrence=total_descendant_occurrence,
+            total_network_descendant_occurrence=total_network_descendant_occurrence,
+            total_network_occurrence=total_network_occurrence,
             total_occurrence=total_occurrence,
             uri=uri,
             version=version,

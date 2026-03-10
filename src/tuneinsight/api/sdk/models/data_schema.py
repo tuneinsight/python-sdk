@@ -6,6 +6,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.data_schema_advanced_builder_fields import DataSchemaAdvancedBuilderFields
+    from ..models.data_schema_metadata import DataSchemaMetadata
     from ..models.schema_table import SchemaTable
 
 
@@ -19,11 +20,14 @@ class DataSchema:
     Attributes:
         advanced_builder_fields (Union[Unset, DataSchemaAdvancedBuilderFields]): Predefined fields for advanced query
             builder parameters.
+        metadata (Union[Unset, DataSchemaMetadata]): additional information about the data structure that applies to all
+            tables.
         name (Union[Unset, str]): optional name for the schema.
         tables (Union[Unset, List['SchemaTable']]):
     """
 
     advanced_builder_fields: Union[Unset, "DataSchemaAdvancedBuilderFields"] = UNSET
+    metadata: Union[Unset, "DataSchemaMetadata"] = UNSET
     name: Union[Unset, str] = UNSET
     tables: Union[Unset, List["SchemaTable"]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
@@ -32,6 +36,10 @@ class DataSchema:
         advanced_builder_fields: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.advanced_builder_fields, Unset):
             advanced_builder_fields = self.advanced_builder_fields.to_dict()
+
+        metadata: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.metadata, Unset):
+            metadata = self.metadata.to_dict()
 
         name = self.name
         tables: Union[Unset, List[Dict[str, Any]]] = UNSET
@@ -47,6 +55,8 @@ class DataSchema:
         field_dict.update({})
         if advanced_builder_fields is not UNSET:
             field_dict["advancedBuilderFields"] = advanced_builder_fields
+        if metadata is not UNSET:
+            field_dict["metadata"] = metadata
         if name is not UNSET:
             field_dict["name"] = name
         if tables is not UNSET:
@@ -57,6 +67,7 @@ class DataSchema:
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         from ..models.data_schema_advanced_builder_fields import DataSchemaAdvancedBuilderFields
+        from ..models.data_schema_metadata import DataSchemaMetadata
         from ..models.schema_table import SchemaTable
 
         d = src_dict.copy()
@@ -66,6 +77,13 @@ class DataSchema:
             advanced_builder_fields = UNSET
         else:
             advanced_builder_fields = DataSchemaAdvancedBuilderFields.from_dict(_advanced_builder_fields)
+
+        _metadata = d.pop("metadata", UNSET)
+        metadata: Union[Unset, DataSchemaMetadata]
+        if isinstance(_metadata, Unset):
+            metadata = UNSET
+        else:
+            metadata = DataSchemaMetadata.from_dict(_metadata)
 
         name = d.pop("name", UNSET)
 
@@ -78,6 +96,7 @@ class DataSchema:
 
         data_schema = cls(
             advanced_builder_fields=advanced_builder_fields,
+            metadata=metadata,
             name=name,
             tables=tables,
         )
