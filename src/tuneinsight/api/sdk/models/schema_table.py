@@ -26,6 +26,8 @@ class SchemaTable:
         linked_template (Union[Unset, bool]): Indicates whether this table is linked to other templates.
         name (Union[Unset, str]): The actual table name in the database (e.g., "patients").
         relations (Union[Unset, List['Relation']]): List of foreign key relations from this table to others.
+        timestamp_column (Union[Unset, str]): The column in this table that contains the timestamp for the encoded
+            event.
         title (Union[Unset, str]): Human-readable label for the table (e.g., "Patient").
     """
 
@@ -36,6 +38,7 @@ class SchemaTable:
     linked_template: Union[Unset, bool] = UNSET
     name: Union[Unset, str] = UNSET
     relations: Union[Unset, List["Relation"]] = UNSET
+    timestamp_column: Union[Unset, str] = UNSET
     title: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -61,6 +64,7 @@ class SchemaTable:
 
                 relations.append(relations_item)
 
+        timestamp_column = self.timestamp_column
         title = self.title
 
         field_dict: Dict[str, Any] = {}
@@ -80,6 +84,8 @@ class SchemaTable:
             field_dict["name"] = name
         if relations is not UNSET:
             field_dict["relations"] = relations
+        if timestamp_column is not UNSET:
+            field_dict["timestampColumn"] = timestamp_column
         if title is not UNSET:
             field_dict["title"] = title
 
@@ -115,6 +121,8 @@ class SchemaTable:
 
             relations.append(relations_item)
 
+        timestamp_column = d.pop("timestampColumn", UNSET)
+
         title = d.pop("title", UNSET)
 
         schema_table = cls(
@@ -125,6 +133,7 @@ class SchemaTable:
             linked_template=linked_template,
             name=name,
             relations=relations,
+            timestamp_column=timestamp_column,
             title=title,
         )
 

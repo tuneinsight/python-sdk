@@ -5,37 +5,32 @@ import attr
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.advanced_builder_field import AdvancedBuilderField
+    from ..models.distribution import Distribution
 
 
-T = TypeVar("T", bound="DataSchemaAdvancedBuilderFields")
+T = TypeVar("T", bound="TermDistributions")
 
 
 @attr.s(auto_attribs=True)
-class DataSchemaAdvancedBuilderFields:
-    """Predefined fields for advanced query builder parameters.
-
+class TermDistributions:
+    """
     Attributes:
-        age (Union[Unset, AdvancedBuilderField]): Configuration for an advanced builder parameter field.
-        birth_date (Union[Unset, AdvancedBuilderField]): Configuration for an advanced builder parameter field.
-        gender (Union[Unset, AdvancedBuilderField]): Configuration for an advanced builder parameter field.
-        vital_status (Union[Unset, AdvancedBuilderField]): Configuration for an advanced builder parameter field.
+        age (Union[Unset, Distribution]):
+        gender (Union[Unset, Distribution]):
+        vital_status (Union[Unset, Distribution]):
+        year (Union[Unset, Distribution]):
     """
 
-    age: Union[Unset, "AdvancedBuilderField"] = UNSET
-    birth_date: Union[Unset, "AdvancedBuilderField"] = UNSET
-    gender: Union[Unset, "AdvancedBuilderField"] = UNSET
-    vital_status: Union[Unset, "AdvancedBuilderField"] = UNSET
+    age: Union[Unset, "Distribution"] = UNSET
+    gender: Union[Unset, "Distribution"] = UNSET
+    vital_status: Union[Unset, "Distribution"] = UNSET
+    year: Union[Unset, "Distribution"] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         age: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.age, Unset):
             age = self.age.to_dict()
-
-        birth_date: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.birth_date, Unset):
-            birth_date = self.birth_date.to_dict()
 
         gender: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.gender, Unset):
@@ -45,62 +40,66 @@ class DataSchemaAdvancedBuilderFields:
         if not isinstance(self.vital_status, Unset):
             vital_status = self.vital_status.to_dict()
 
+        year: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.year, Unset):
+            year = self.year.to_dict()
+
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
         if age is not UNSET:
             field_dict["age"] = age
-        if birth_date is not UNSET:
-            field_dict["birthDate"] = birth_date
         if gender is not UNSET:
             field_dict["gender"] = gender
         if vital_status is not UNSET:
             field_dict["vitalStatus"] = vital_status
+        if year is not UNSET:
+            field_dict["year"] = year
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.advanced_builder_field import AdvancedBuilderField
+        from ..models.distribution import Distribution
 
         d = src_dict.copy()
         _age = d.pop("age", UNSET)
-        age: Union[Unset, AdvancedBuilderField]
+        age: Union[Unset, Distribution]
         if isinstance(_age, Unset):
             age = UNSET
         else:
-            age = AdvancedBuilderField.from_dict(_age)
-
-        _birth_date = d.pop("birthDate", UNSET)
-        birth_date: Union[Unset, AdvancedBuilderField]
-        if isinstance(_birth_date, Unset):
-            birth_date = UNSET
-        else:
-            birth_date = AdvancedBuilderField.from_dict(_birth_date)
+            age = Distribution.from_dict(_age)
 
         _gender = d.pop("gender", UNSET)
-        gender: Union[Unset, AdvancedBuilderField]
+        gender: Union[Unset, Distribution]
         if isinstance(_gender, Unset):
             gender = UNSET
         else:
-            gender = AdvancedBuilderField.from_dict(_gender)
+            gender = Distribution.from_dict(_gender)
 
         _vital_status = d.pop("vitalStatus", UNSET)
-        vital_status: Union[Unset, AdvancedBuilderField]
+        vital_status: Union[Unset, Distribution]
         if isinstance(_vital_status, Unset):
             vital_status = UNSET
         else:
-            vital_status = AdvancedBuilderField.from_dict(_vital_status)
+            vital_status = Distribution.from_dict(_vital_status)
 
-        data_schema_advanced_builder_fields = cls(
+        _year = d.pop("year", UNSET)
+        year: Union[Unset, Distribution]
+        if isinstance(_year, Unset):
+            year = UNSET
+        else:
+            year = Distribution.from_dict(_year)
+
+        term_distributions = cls(
             age=age,
-            birth_date=birth_date,
             gender=gender,
             vital_status=vital_status,
+            year=year,
         )
 
-        data_schema_advanced_builder_fields.additional_properties = d
-        return data_schema_advanced_builder_fields
+        term_distributions.additional_properties = d
+        return term_distributions
 
     @property
     def additional_keys(self) -> List[str]:

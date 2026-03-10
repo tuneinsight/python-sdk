@@ -115,8 +115,11 @@ class Project:
         """
         _disable_patch_prev = self._disable_patch
         self._disable_patch = True
-        yield self
-        self._disable_patch = _disable_patch_prev
+        try:
+            yield self
+        finally:
+            # Ensure that even if an exception occurs, patches are enabled back.
+            self._disable_patch = _disable_patch_prev
 
     # Internal methods.
 

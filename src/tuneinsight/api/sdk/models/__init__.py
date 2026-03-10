@@ -76,6 +76,7 @@ from .data_preparation_session import DataPreparationSession
 from .data_preparation_session_definition import DataPreparationSessionDefinition
 from .data_schema import DataSchema
 from .data_schema_advanced_builder_fields import DataSchemaAdvancedBuilderFields
+from .data_schema_metadata import DataSchemaMetadata
 from .data_selection_type import DataSelectionType
 from .data_source import DataSource
 from .data_source_column import DataSourceColumn
@@ -112,6 +113,9 @@ from .date_format import DateFormat
 from .deviation_squares import DeviationSquares
 from .displayed_capability import DisplayedCapability
 from .displayed_role import DisplayedRole
+from .distribution import Distribution
+from .distribution_bin import DistributionBin
+from .distribution_type import DistributionType
 from .documentation_response_200 import DocumentationResponse200
 from .dp_noise_metadata import DpNoiseMetadata
 from .dp_policy import DPPolicy
@@ -362,6 +366,8 @@ from .survival_aggregation_subgroups_item import SurvivalAggregationSubgroupsIte
 from .task_progress import TaskProgress
 from .task_progress_payload import TaskProgressPayload
 from .term import Term
+from .term_distributions import TermDistributions
+from .term_occurrence import TermOccurrence
 from .terminology_field import TerminologyField
 from .terminology_reference_type import TerminologyReferenceType
 from .threshold import Threshold
@@ -475,6 +481,7 @@ __all__ = (
     "DataPreparationSessionDefinition",
     "DataSchema",
     "DataSchemaAdvancedBuilderFields",
+    "DataSchemaMetadata",
     "DataSelectionType",
     "DatasetSchema",
     "DatasetSchemaColumns",
@@ -510,6 +517,9 @@ __all__ = (
     "DeviationSquares",
     "DisplayedCapability",
     "DisplayedRole",
+    "Distribution",
+    "DistributionBin",
+    "DistributionType",
     "DocumentationResponse200",
     "DpNoiseMetadata",
     "DPPolicy",
@@ -760,8 +770,10 @@ __all__ = (
     "TaskProgress",
     "TaskProgressPayload",
     "Term",
+    "TermDistributions",
     "TerminologyField",
     "TerminologyReferenceType",
+    "TermOccurrence",
     "Threshold",
     "ThresholdType",
     "TimeDiff",

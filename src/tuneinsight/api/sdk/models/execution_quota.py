@@ -14,19 +14,19 @@ class ExecutionQuota:
     """stores information about the status of the execution quota
 
     Attributes:
-        next_allocation (Union[Unset, datetime.datetime]): stores the date and time of the next quota allocation in
-            rfc3339 format
+        next_allocation (Union[Unset, None, datetime.datetime]): stores the date and time of the next quota allocation
+            in rfc3339 format
         remaining_quota (Union[Unset, None, float]): stores the current value of the quota for the requesting user
     """
 
-    next_allocation: Union[Unset, datetime.datetime] = UNSET
+    next_allocation: Union[Unset, None, datetime.datetime] = UNSET
     remaining_quota: Union[Unset, None, float] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        next_allocation: Union[Unset, str] = UNSET
+        next_allocation: Union[Unset, None, str] = UNSET
         if not isinstance(self.next_allocation, Unset):
-            next_allocation = self.next_allocation.isoformat()
+            next_allocation = self.next_allocation.isoformat() if self.next_allocation else None
 
         remaining_quota = self.remaining_quota
 
@@ -44,8 +44,10 @@ class ExecutionQuota:
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
         _next_allocation = d.pop("nextAllocation", UNSET)
-        next_allocation: Union[Unset, datetime.datetime]
-        if isinstance(_next_allocation, Unset):
+        next_allocation: Union[Unset, None, datetime.datetime]
+        if _next_allocation is None:
+            next_allocation = None
+        elif isinstance(_next_allocation, Unset):
             next_allocation = UNSET
         else:
             next_allocation = isoparse(_next_allocation)
