@@ -1,4 +1,4 @@
-""" Plotting functions for hybrid federated learning metrics. """
+"""Plotting functions for hybrid federated learning metrics."""
 
 from datetime import datetime
 import matplotlib.pyplot as plt
@@ -10,7 +10,6 @@ from tuneinsight.utils.plots import (
     TI_COLORS,
     FONT_LIGHT,
 )
-
 
 LIMITS = {
     "acc": (0, 110),

@@ -13,15 +13,19 @@ class Relation:
 
     Attributes:
         foreign_key (Union[Unset, str]): The foreign key column in the current table.
+        target_column (Union[Unset, str]): TargetColumn is the column on the target table to join against. When empty,
+            it defaults to the identifier column of the target table.
         target_table (Union[Unset, str]): Name of the target table in the relation.
     """
 
     foreign_key: Union[Unset, str] = UNSET
+    target_column: Union[Unset, str] = UNSET
     target_table: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         foreign_key = self.foreign_key
+        target_column = self.target_column
         target_table = self.target_table
 
         field_dict: Dict[str, Any] = {}
@@ -29,6 +33,8 @@ class Relation:
         field_dict.update({})
         if foreign_key is not UNSET:
             field_dict["foreignKey"] = foreign_key
+        if target_column is not UNSET:
+            field_dict["targetColumn"] = target_column
         if target_table is not UNSET:
             field_dict["targetTable"] = target_table
 
@@ -39,10 +45,13 @@ class Relation:
         d = src_dict.copy()
         foreign_key = d.pop("foreignKey", UNSET)
 
+        target_column = d.pop("targetColumn", UNSET)
+
         target_table = d.pop("targetTable", UNSET)
 
         relation = cls(
             foreign_key=foreign_key,
+            target_column=target_column,
             target_table=target_table,
         )
 

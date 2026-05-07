@@ -1,8 +1,12 @@
-from typing import Any, Dict, List, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.confidence_interval import ConfidenceInterval
+
 
 T = TypeVar("T", bound="DistributionBin")
 
@@ -12,6 +16,8 @@ class DistributionBin:
     """Single bin with count
 
     Attributes:
+        confidence_interval (Union[Unset, ConfidenceInterval]): a confidence interval on a noisy or otherwise
+            uncertainty value.
         count (Union[Unset, None, int]): Number of patients
         label (Union[Unset, str]): Field label
         max_ (Union[Unset, None, float]): Maximum value
@@ -19,6 +25,7 @@ class DistributionBin:
         value (Union[Unset, None, str]):
     """
 
+    confidence_interval: Union[Unset, "ConfidenceInterval"] = UNSET
     count: Union[Unset, None, int] = UNSET
     label: Union[Unset, str] = UNSET
     max_: Union[Unset, None, float] = UNSET
@@ -27,6 +34,10 @@ class DistributionBin:
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        confidence_interval: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.confidence_interval, Unset):
+            confidence_interval = self.confidence_interval.to_dict()
+
         count = self.count
         label = self.label
         max_ = self.max_
@@ -36,6 +47,8 @@ class DistributionBin:
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if confidence_interval is not UNSET:
+            field_dict["confidenceInterval"] = confidence_interval
         if count is not UNSET:
             field_dict["count"] = count
         if label is not UNSET:
@@ -51,7 +64,16 @@ class DistributionBin:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.confidence_interval import ConfidenceInterval
+
         d = src_dict.copy()
+        _confidence_interval = d.pop("confidenceInterval", UNSET)
+        confidence_interval: Union[Unset, ConfidenceInterval]
+        if isinstance(_confidence_interval, Unset):
+            confidence_interval = UNSET
+        else:
+            confidence_interval = ConfidenceInterval.from_dict(_confidence_interval)
+
         count = d.pop("count", UNSET)
 
         label = d.pop("label", UNSET)
@@ -63,6 +85,7 @@ class DistributionBin:
         value = d.pop("value", UNSET)
 
         distribution_bin = cls(
+            confidence_interval=confidence_interval,
             count=count,
             label=label,
             max_=max_,

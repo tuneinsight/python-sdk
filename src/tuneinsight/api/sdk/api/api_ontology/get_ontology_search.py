@@ -6,20 +6,25 @@ import httpx
 from ... import errors
 from ...client import Client
 from ...models.error import Error
-from ...models.get_ontology_search_ontologies_item import GetOntologySearchOntologiesItem
+from ...models.get_ontology_search_order import GetOntologySearchOrder
 from ...models.get_ontology_search_response_200_item import GetOntologySearchResponse200Item
+from ...models.get_ontology_search_sort_by import GetOntologySearchSortBy
 from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
     client: Client,
-    per_page: Union[Unset, None, int] = 30,
     page: Union[Unset, None, int] = 1,
+    per_page: Union[Unset, None, int] = 20,
+    sort_by: Union[Unset, None, GetOntologySearchSortBy] = UNSET,
+    order: Union[Unset, None, GetOntologySearchOrder] = UNSET,
     query: str,
     with_occurrence: Union[Unset, None, bool] = UNSET,
     with_network_occurrence: Union[Unset, None, bool] = UNSET,
-    ontologies: List[GetOntologySearchOntologiesItem],
+    ontologies: List[str],
+    care_sites: Union[Unset, None, List[str]] = UNSET,
+    domains: Union[Unset, None, List[str]] = UNSET,
 ) -> Dict[str, Any]:
     url = "{}/ontology-search".format(client.base_url)
 
@@ -27,9 +32,21 @@ def _get_kwargs(
     cookies: Dict[str, Any] = client.get_cookies()
 
     params: Dict[str, Any] = {}
+    params["page"] = page
+
     params["perPage"] = per_page
 
-    params["page"] = page
+    json_sort_by: Union[Unset, None, str] = UNSET
+    if not isinstance(sort_by, Unset):
+        json_sort_by = sort_by.value if sort_by else None
+
+    params["sortBy"] = json_sort_by
+
+    json_order: Union[Unset, None, str] = UNSET
+    if not isinstance(order, Unset):
+        json_order = order.value if order else None
+
+    params["order"] = json_order
 
     params["query"] = query
 
@@ -37,13 +54,27 @@ def _get_kwargs(
 
     params["withNetworkOccurrence"] = with_network_occurrence
 
-    json_ontologies = []
-    for ontologies_item_data in ontologies:
-        ontologies_item = ontologies_item_data.value
-
-        json_ontologies.append(ontologies_item)
+    json_ontologies = ontologies
 
     params["ontologies[]"] = json_ontologies
+
+    json_care_sites: Union[Unset, None, List[str]] = UNSET
+    if not isinstance(care_sites, Unset):
+        if care_sites is None:
+            json_care_sites = None
+        else:
+            json_care_sites = care_sites
+
+    params["careSites[]"] = json_care_sites
+
+    json_domains: Union[Unset, None, List[str]] = UNSET
+    if not isinstance(domains, Unset):
+        if domains is None:
+            json_domains = None
+        else:
+            json_domains = domains
+
+    params["domains[]"] = json_domains
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
@@ -113,22 +144,30 @@ def _build_response(
 def sync_detailed(
     *,
     client: Client,
-    per_page: Union[Unset, None, int] = 30,
     page: Union[Unset, None, int] = 1,
+    per_page: Union[Unset, None, int] = 20,
+    sort_by: Union[Unset, None, GetOntologySearchSortBy] = UNSET,
+    order: Union[Unset, None, GetOntologySearchOrder] = UNSET,
     query: str,
     with_occurrence: Union[Unset, None, bool] = UNSET,
     with_network_occurrence: Union[Unset, None, bool] = UNSET,
-    ontologies: List[GetOntologySearchOntologiesItem],
+    ontologies: List[str],
+    care_sites: Union[Unset, None, List[str]] = UNSET,
+    domains: Union[Unset, None, List[str]] = UNSET,
 ) -> Response[Union[Error, List["GetOntologySearchResponse200Item"]]]:
     """Search ontologies with a search term
 
     Args:
-        per_page (Union[Unset, None, int]):  Default: 30.
         page (Union[Unset, None, int]):  Default: 1.
+        per_page (Union[Unset, None, int]):  Default: 20.
+        sort_by (Union[Unset, None, GetOntologySearchSortBy]):
+        order (Union[Unset, None, GetOntologySearchOrder]):
         query (str):
         with_occurrence (Union[Unset, None, bool]):
         with_network_occurrence (Union[Unset, None, bool]):
-        ontologies (List[GetOntologySearchOntologiesItem]):
+        ontologies (List[str]):
+        care_sites (Union[Unset, None, List[str]]):
+        domains (Union[Unset, None, List[str]]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -140,12 +179,16 @@ def sync_detailed(
 
     kwargs = _get_kwargs(
         client=client,
-        per_page=per_page,
         page=page,
+        per_page=per_page,
+        sort_by=sort_by,
+        order=order,
         query=query,
         with_occurrence=with_occurrence,
         with_network_occurrence=with_network_occurrence,
         ontologies=ontologies,
+        care_sites=care_sites,
+        domains=domains,
     )
 
     response = httpx.request(
@@ -159,22 +202,30 @@ def sync_detailed(
 def sync(
     *,
     client: Client,
-    per_page: Union[Unset, None, int] = 30,
     page: Union[Unset, None, int] = 1,
+    per_page: Union[Unset, None, int] = 20,
+    sort_by: Union[Unset, None, GetOntologySearchSortBy] = UNSET,
+    order: Union[Unset, None, GetOntologySearchOrder] = UNSET,
     query: str,
     with_occurrence: Union[Unset, None, bool] = UNSET,
     with_network_occurrence: Union[Unset, None, bool] = UNSET,
-    ontologies: List[GetOntologySearchOntologiesItem],
+    ontologies: List[str],
+    care_sites: Union[Unset, None, List[str]] = UNSET,
+    domains: Union[Unset, None, List[str]] = UNSET,
 ) -> Optional[Union[Error, List["GetOntologySearchResponse200Item"]]]:
     """Search ontologies with a search term
 
     Args:
-        per_page (Union[Unset, None, int]):  Default: 30.
         page (Union[Unset, None, int]):  Default: 1.
+        per_page (Union[Unset, None, int]):  Default: 20.
+        sort_by (Union[Unset, None, GetOntologySearchSortBy]):
+        order (Union[Unset, None, GetOntologySearchOrder]):
         query (str):
         with_occurrence (Union[Unset, None, bool]):
         with_network_occurrence (Union[Unset, None, bool]):
-        ontologies (List[GetOntologySearchOntologiesItem]):
+        ontologies (List[str]):
+        care_sites (Union[Unset, None, List[str]]):
+        domains (Union[Unset, None, List[str]]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -186,34 +237,46 @@ def sync(
 
     return sync_detailed(
         client=client,
-        per_page=per_page,
         page=page,
+        per_page=per_page,
+        sort_by=sort_by,
+        order=order,
         query=query,
         with_occurrence=with_occurrence,
         with_network_occurrence=with_network_occurrence,
         ontologies=ontologies,
+        care_sites=care_sites,
+        domains=domains,
     ).parsed
 
 
 async def asyncio_detailed(
     *,
     client: Client,
-    per_page: Union[Unset, None, int] = 30,
     page: Union[Unset, None, int] = 1,
+    per_page: Union[Unset, None, int] = 20,
+    sort_by: Union[Unset, None, GetOntologySearchSortBy] = UNSET,
+    order: Union[Unset, None, GetOntologySearchOrder] = UNSET,
     query: str,
     with_occurrence: Union[Unset, None, bool] = UNSET,
     with_network_occurrence: Union[Unset, None, bool] = UNSET,
-    ontologies: List[GetOntologySearchOntologiesItem],
+    ontologies: List[str],
+    care_sites: Union[Unset, None, List[str]] = UNSET,
+    domains: Union[Unset, None, List[str]] = UNSET,
 ) -> Response[Union[Error, List["GetOntologySearchResponse200Item"]]]:
     """Search ontologies with a search term
 
     Args:
-        per_page (Union[Unset, None, int]):  Default: 30.
         page (Union[Unset, None, int]):  Default: 1.
+        per_page (Union[Unset, None, int]):  Default: 20.
+        sort_by (Union[Unset, None, GetOntologySearchSortBy]):
+        order (Union[Unset, None, GetOntologySearchOrder]):
         query (str):
         with_occurrence (Union[Unset, None, bool]):
         with_network_occurrence (Union[Unset, None, bool]):
-        ontologies (List[GetOntologySearchOntologiesItem]):
+        ontologies (List[str]):
+        care_sites (Union[Unset, None, List[str]]):
+        domains (Union[Unset, None, List[str]]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -225,12 +288,16 @@ async def asyncio_detailed(
 
     kwargs = _get_kwargs(
         client=client,
-        per_page=per_page,
         page=page,
+        per_page=per_page,
+        sort_by=sort_by,
+        order=order,
         query=query,
         with_occurrence=with_occurrence,
         with_network_occurrence=with_network_occurrence,
         ontologies=ontologies,
+        care_sites=care_sites,
+        domains=domains,
     )
 
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
@@ -242,22 +309,30 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: Client,
-    per_page: Union[Unset, None, int] = 30,
     page: Union[Unset, None, int] = 1,
+    per_page: Union[Unset, None, int] = 20,
+    sort_by: Union[Unset, None, GetOntologySearchSortBy] = UNSET,
+    order: Union[Unset, None, GetOntologySearchOrder] = UNSET,
     query: str,
     with_occurrence: Union[Unset, None, bool] = UNSET,
     with_network_occurrence: Union[Unset, None, bool] = UNSET,
-    ontologies: List[GetOntologySearchOntologiesItem],
+    ontologies: List[str],
+    care_sites: Union[Unset, None, List[str]] = UNSET,
+    domains: Union[Unset, None, List[str]] = UNSET,
 ) -> Optional[Union[Error, List["GetOntologySearchResponse200Item"]]]:
     """Search ontologies with a search term
 
     Args:
-        per_page (Union[Unset, None, int]):  Default: 30.
         page (Union[Unset, None, int]):  Default: 1.
+        per_page (Union[Unset, None, int]):  Default: 20.
+        sort_by (Union[Unset, None, GetOntologySearchSortBy]):
+        order (Union[Unset, None, GetOntologySearchOrder]):
         query (str):
         with_occurrence (Union[Unset, None, bool]):
         with_network_occurrence (Union[Unset, None, bool]):
-        ontologies (List[GetOntologySearchOntologiesItem]):
+        ontologies (List[str]):
+        care_sites (Union[Unset, None, List[str]]):
+        domains (Union[Unset, None, List[str]]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -270,11 +345,15 @@ async def asyncio(
     return (
         await asyncio_detailed(
             client=client,
-            per_page=per_page,
             page=page,
+            per_page=per_page,
+            sort_by=sort_by,
+            order=order,
             query=query,
             with_occurrence=with_occurrence,
             with_network_occurrence=with_network_occurrence,
             ontologies=ontologies,
+            care_sites=care_sites,
+            domains=domains,
         )
     ).parsed

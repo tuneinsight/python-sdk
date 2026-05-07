@@ -26,7 +26,6 @@ from tuneinsight.computations.policy import DataPolicy
 from tuneinsight.utils.tracking import ProgressTracker, new_task_id
 from tuneinsight.utils.io import generate_dataframe_chunks, generate_csv_records
 
-
 # Mapping from datasource command type to the (expected) result class.
 _DATASOURCE_COMMAND_RESULTS = {
     models.DataSourceCommandType.GENERICCOMMAND: models.GenericCommandResult,

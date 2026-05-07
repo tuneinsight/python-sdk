@@ -5,7 +5,6 @@ import sys
 
 from IPython.core.getipython import get_ipython
 
-
 # Whether iPython is used.
 IPYTHON_SET = False
 

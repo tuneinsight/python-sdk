@@ -4,6 +4,7 @@ from enum import Enum
 class ComputationType(str, Enum):
     DUMMY = "dummy"
     UNDEFINED = "undefined"
+    COLLECTENCRYPTEDMASKS = "collectEncryptedMasks"
     COLLECTIVEKEYSWITCH = "collectiveKeySwitch"
     ENCRYPTEDAGGREGATION = "encryptedAggregation"
     AGGREGATEDDATASETLENGTH = "aggregatedDatasetLength"

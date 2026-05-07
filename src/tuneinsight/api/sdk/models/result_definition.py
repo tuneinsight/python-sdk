@@ -1,9 +1,13 @@
-from typing import Any, Dict, List, Type, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
 
 import attr
 
 from ..models.visualization_type import VisualizationType
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.result_definition_preferences import ResultDefinitionPreferences
+
 
 T = TypeVar("T", bound="ResultDefinition")
 
@@ -22,6 +26,8 @@ class ResultDefinition:
         display_raw_results (Union[Unset, None, bool]): frontend flag used to choose whether to display raw or post-
             processed results in the case of inconsistencies created by noise.
         is_large (Union[Unset, None, bool]): frontend flag describing whether this result should be displayed large.
+        preferences (Union[Unset, ResultDefinitionPreferences]): holds custom user preferences used only on the frontend
+            side to display the results.
         shared (Union[Unset, None, bool]): if set to true, the result is shared with users from the same project in the
             same organization.
         tags (Union[Unset, List[str]]): user-defined values describing tags attached to this result.
@@ -35,6 +41,7 @@ class ResultDefinition:
     display_local: Union[Unset, None, bool] = UNSET
     display_raw_results: Union[Unset, None, bool] = UNSET
     is_large: Union[Unset, None, bool] = UNSET
+    preferences: Union[Unset, "ResultDefinitionPreferences"] = UNSET
     shared: Union[Unset, None, bool] = UNSET
     tags: Union[Unset, List[str]] = UNSET
     title: Union[Unset, str] = UNSET
@@ -47,6 +54,10 @@ class ResultDefinition:
         display_local = self.display_local
         display_raw_results = self.display_raw_results
         is_large = self.is_large
+        preferences: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.preferences, Unset):
+            preferences = self.preferences.to_dict()
+
         shared = self.shared
         tags: Union[Unset, List[str]] = UNSET
         if not isinstance(self.tags, Unset):
@@ -70,6 +81,8 @@ class ResultDefinition:
             field_dict["displayRawResults"] = display_raw_results
         if is_large is not UNSET:
             field_dict["isLarge"] = is_large
+        if preferences is not UNSET:
+            field_dict["preferences"] = preferences
         if shared is not UNSET:
             field_dict["shared"] = shared
         if tags is not UNSET:
@@ -83,6 +96,8 @@ class ResultDefinition:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.result_definition_preferences import ResultDefinitionPreferences
+
         d = src_dict.copy()
         display_breakdown = d.pop("displayBreakdown", UNSET)
 
@@ -93,6 +108,13 @@ class ResultDefinition:
         display_raw_results = d.pop("displayRawResults", UNSET)
 
         is_large = d.pop("isLarge", UNSET)
+
+        _preferences = d.pop("preferences", UNSET)
+        preferences: Union[Unset, ResultDefinitionPreferences]
+        if isinstance(_preferences, Unset):
+            preferences = UNSET
+        else:
+            preferences = ResultDefinitionPreferences.from_dict(_preferences)
 
         shared = d.pop("shared", UNSET)
 
@@ -113,6 +135,7 @@ class ResultDefinition:
             display_local=display_local,
             display_raw_results=display_raw_results,
             is_large=is_large,
+            preferences=preferences,
             shared=shared,
             tags=tags,
             title=title,

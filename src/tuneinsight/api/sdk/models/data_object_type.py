@@ -7,6 +7,7 @@ class DataObjectType(str, Enum):
     RLWE_MEM_EVALUATION_KEY_SET = "rlwe-mem-evaluation-key-set"
     RLWE_RELINEARIZATION_KEY = "rlwe-relinearization-key"
     RLWE_SECRET_KEY = "rlwe-secret-key"
+    MHE_ENCRYPTED_MASK_SHARES = "mhe-encrypted-mask-shares"
     HEFLOAT_CIPHERTEXT_SINGLE = "hefloat-ciphertext-single"
     HEFLOAT_CIPHERTEXT_MATRIX = "hefloat-ciphertext-matrix"
     HEINT_CIPHERTEXT_SINGLE = "heint-ciphertext-single"

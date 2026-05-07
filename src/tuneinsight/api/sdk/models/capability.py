@@ -71,6 +71,7 @@ class Capability(str, Enum):
     PROMPTLLMS = "PromptLLMs"
     SEARCHONTOLOGIES = "SearchOntologies"
     BUILDCATALOG = "BuildCatalog"
+    BYPASSCATALOGUPDATECHECK = "BypassCatalogUpdateCheck"
     VIEWTASKPROGRESS = "ViewTaskProgress"
     GETAVAILABILITYSTATUS = "GetAvailabilityStatus"
     VIEWSETTINGS = "ViewSettings"
@@ -88,6 +89,7 @@ class Capability(str, Enum):
     SYNCCONFIG = "SyncConfig"
     GETREMOTEINFOS = "GetRemoteInfos"
     MANAGENOTIFICATIONS = "ManageNotifications"
+    TRIGGERLICENSECHECK = "TriggerLicenseCheck"
 
     def __str__(self) -> str:
         return str(self.value)

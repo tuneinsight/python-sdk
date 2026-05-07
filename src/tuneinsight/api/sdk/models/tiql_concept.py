@@ -18,12 +18,14 @@ class TiqlConcept:
     Attributes:
         description (Union[Unset, str]): user-friendly description for this concept to be shown to the user.
         fields (Union[Unset, List['TiqlField']]): All fields available on this concept
+        hidden (Union[Unset, bool]): whether this concept should be hidden from the user in the frontend.
         label (Union[Unset, str]): the displayed name for this concept
         name (Union[Unset, str]): the unique name for this concept.
     """
 
     description: Union[Unset, str] = UNSET
     fields: Union[Unset, List["TiqlField"]] = UNSET
+    hidden: Union[Unset, bool] = UNSET
     label: Union[Unset, str] = UNSET
     name: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
@@ -38,6 +40,7 @@ class TiqlConcept:
 
                 fields.append(fields_item)
 
+        hidden = self.hidden
         label = self.label
         name = self.name
 
@@ -48,6 +51,8 @@ class TiqlConcept:
             field_dict["description"] = description
         if fields is not UNSET:
             field_dict["fields"] = fields
+        if hidden is not UNSET:
+            field_dict["hidden"] = hidden
         if label is not UNSET:
             field_dict["label"] = label
         if name is not UNSET:
@@ -69,6 +74,8 @@ class TiqlConcept:
 
             fields.append(fields_item)
 
+        hidden = d.pop("hidden", UNSET)
+
         label = d.pop("label", UNSET)
 
         name = d.pop("name", UNSET)
@@ -76,6 +83,7 @@ class TiqlConcept:
         tiql_concept = cls(
             description=description,
             fields=fields,
+            hidden=hidden,
             label=label,
             name=name,
         )

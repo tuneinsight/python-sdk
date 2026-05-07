@@ -6,6 +6,7 @@ import httpx
 from ... import errors
 from ...client import Client
 from ...models.aggregated_dataset_length import AggregatedDatasetLength
+from ...models.collect_encrypted_masks import CollectEncryptedMasks
 from ...models.collective_key_switch import CollectiveKeySwitch
 from ...models.computation import Computation
 from ...models.computation_definition import ComputationDefinition
@@ -33,6 +34,7 @@ def _get_kwargs(
     client: Client,
     json_body: Union[
         "AggregatedDatasetLength",
+        "CollectEncryptedMasks",
         "CollectiveKeySwitch",
         "ComputationDefinition",
         "DatasetStatistics",
@@ -63,6 +65,9 @@ def _get_kwargs(
         json_json_body = json_body.to_dict()
 
     elif isinstance(json_body, Undefined):
+        json_json_body = json_body.to_dict()
+
+    elif isinstance(json_body, CollectEncryptedMasks):
         json_json_body = json_body.to_dict()
 
     elif isinstance(json_body, CollectiveKeySwitch):
@@ -176,6 +181,7 @@ def sync_detailed(
     client: Client,
     json_body: Union[
         "AggregatedDatasetLength",
+        "CollectEncryptedMasks",
         "CollectiveKeySwitch",
         "ComputationDefinition",
         "DatasetStatistics",
@@ -198,11 +204,11 @@ def sync_detailed(
     """Request a computation.
 
     Args:
-        json_body (Union['AggregatedDatasetLength', 'CollectiveKeySwitch',
-            'ComputationDefinition', 'DatasetStatistics', 'Dummy', 'EncryptedAggregation',
-            'EncryptedMean', 'EncryptedPrediction', 'EncryptedRegression', 'Feasibility',
-            'FilteredAggregation', 'HybridFL', 'SecureInference', 'SetIntersection', 'SetupSession',
-            'SurvivalAggregation', 'Undefined', 'ValueDistribution']):
+        json_body (Union['AggregatedDatasetLength', 'CollectEncryptedMasks',
+            'CollectiveKeySwitch', 'ComputationDefinition', 'DatasetStatistics', 'Dummy',
+            'EncryptedAggregation', 'EncryptedMean', 'EncryptedPrediction', 'EncryptedRegression',
+            'Feasibility', 'FilteredAggregation', 'HybridFL', 'SecureInference', 'SetIntersection',
+            'SetupSession', 'SurvivalAggregation', 'Undefined', 'ValueDistribution']):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -230,6 +236,7 @@ def sync(
     client: Client,
     json_body: Union[
         "AggregatedDatasetLength",
+        "CollectEncryptedMasks",
         "CollectiveKeySwitch",
         "ComputationDefinition",
         "DatasetStatistics",
@@ -252,11 +259,11 @@ def sync(
     """Request a computation.
 
     Args:
-        json_body (Union['AggregatedDatasetLength', 'CollectiveKeySwitch',
-            'ComputationDefinition', 'DatasetStatistics', 'Dummy', 'EncryptedAggregation',
-            'EncryptedMean', 'EncryptedPrediction', 'EncryptedRegression', 'Feasibility',
-            'FilteredAggregation', 'HybridFL', 'SecureInference', 'SetIntersection', 'SetupSession',
-            'SurvivalAggregation', 'Undefined', 'ValueDistribution']):
+        json_body (Union['AggregatedDatasetLength', 'CollectEncryptedMasks',
+            'CollectiveKeySwitch', 'ComputationDefinition', 'DatasetStatistics', 'Dummy',
+            'EncryptedAggregation', 'EncryptedMean', 'EncryptedPrediction', 'EncryptedRegression',
+            'Feasibility', 'FilteredAggregation', 'HybridFL', 'SecureInference', 'SetIntersection',
+            'SetupSession', 'SurvivalAggregation', 'Undefined', 'ValueDistribution']):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -277,6 +284,7 @@ async def asyncio_detailed(
     client: Client,
     json_body: Union[
         "AggregatedDatasetLength",
+        "CollectEncryptedMasks",
         "CollectiveKeySwitch",
         "ComputationDefinition",
         "DatasetStatistics",
@@ -299,11 +307,11 @@ async def asyncio_detailed(
     """Request a computation.
 
     Args:
-        json_body (Union['AggregatedDatasetLength', 'CollectiveKeySwitch',
-            'ComputationDefinition', 'DatasetStatistics', 'Dummy', 'EncryptedAggregation',
-            'EncryptedMean', 'EncryptedPrediction', 'EncryptedRegression', 'Feasibility',
-            'FilteredAggregation', 'HybridFL', 'SecureInference', 'SetIntersection', 'SetupSession',
-            'SurvivalAggregation', 'Undefined', 'ValueDistribution']):
+        json_body (Union['AggregatedDatasetLength', 'CollectEncryptedMasks',
+            'CollectiveKeySwitch', 'ComputationDefinition', 'DatasetStatistics', 'Dummy',
+            'EncryptedAggregation', 'EncryptedMean', 'EncryptedPrediction', 'EncryptedRegression',
+            'Feasibility', 'FilteredAggregation', 'HybridFL', 'SecureInference', 'SetIntersection',
+            'SetupSession', 'SurvivalAggregation', 'Undefined', 'ValueDistribution']):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -329,6 +337,7 @@ async def asyncio(
     client: Client,
     json_body: Union[
         "AggregatedDatasetLength",
+        "CollectEncryptedMasks",
         "CollectiveKeySwitch",
         "ComputationDefinition",
         "DatasetStatistics",
@@ -351,11 +360,11 @@ async def asyncio(
     """Request a computation.
 
     Args:
-        json_body (Union['AggregatedDatasetLength', 'CollectiveKeySwitch',
-            'ComputationDefinition', 'DatasetStatistics', 'Dummy', 'EncryptedAggregation',
-            'EncryptedMean', 'EncryptedPrediction', 'EncryptedRegression', 'Feasibility',
-            'FilteredAggregation', 'HybridFL', 'SecureInference', 'SetIntersection', 'SetupSession',
-            'SurvivalAggregation', 'Undefined', 'ValueDistribution']):
+        json_body (Union['AggregatedDatasetLength', 'CollectEncryptedMasks',
+            'CollectiveKeySwitch', 'ComputationDefinition', 'DatasetStatistics', 'Dummy',
+            'EncryptedAggregation', 'EncryptedMean', 'EncryptedPrediction', 'EncryptedRegression',
+            'Feasibility', 'FilteredAggregation', 'HybridFL', 'SecureInference', 'SetIntersection',
+            'SetupSession', 'SurvivalAggregation', 'Undefined', 'ValueDistribution']):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

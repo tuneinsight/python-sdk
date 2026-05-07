@@ -46,6 +46,11 @@ def false_if_unset(v: Any) -> Any:
     return value_if_unset(v, False)
 
 
+def true_if_unset(v: Any) -> Any:
+    """if v is Unset, returns True. Otherwise, returns v unchanged."""
+    return value_if_unset(v, True)
+
+
 FileJsonType = Tuple[Optional[str], BinaryIO, Optional[str]]
 
 

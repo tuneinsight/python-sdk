@@ -55,6 +55,8 @@ class DataSource:
             template (used to determine the query builder structure, if provided)
         type (Union[Unset, DataSourceType]):
         view_config (Union[Unset, ViewConfig]): holds data source parameters that are applicable only for data views.
+        catalog_build_last_updated (Union[Unset, str]): timestamp of the most recent successful catalog update of the
+            data source.
         created_at (Union[Unset, str]):
         data_schema (Union[Unset, DataSchema]): aims to provide a flexible definition of a data schema, which includes
             the tables and their relationships.
@@ -100,6 +102,7 @@ class DataSource:
     structure_template_json: Union[Unset, "DataSourceDefinitionStructureTemplateJSON"] = UNSET
     type: Union[Unset, DataSourceType] = UNSET
     view_config: Union[Unset, "ViewConfig"] = UNSET
+    catalog_build_last_updated: Union[Unset, str] = UNSET
     created_at: Union[Unset, str] = UNSET
     data_schema: Union[Unset, "DataSchema"] = UNSET
     inferred_schemas: Union[Unset, List["DatasetSchema"]] = UNSET
@@ -168,6 +171,7 @@ class DataSource:
         if not isinstance(self.view_config, Unset):
             view_config = self.view_config.to_dict()
 
+        catalog_build_last_updated = self.catalog_build_last_updated
         created_at = self.created_at
         data_schema: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.data_schema, Unset):
@@ -251,6 +255,8 @@ class DataSource:
             field_dict["type"] = type
         if view_config is not UNSET:
             field_dict["viewConfig"] = view_config
+        if catalog_build_last_updated is not UNSET:
+            field_dict["catalogBuildLastUpdated"] = catalog_build_last_updated
         if created_at is not UNSET:
             field_dict["createdAt"] = created_at
         if data_schema is not UNSET:
@@ -372,6 +378,8 @@ class DataSource:
         else:
             view_config = ViewConfig.from_dict(_view_config)
 
+        catalog_build_last_updated = d.pop("catalogBuildLastUpdated", UNSET)
+
         created_at = d.pop("createdAt", UNSET)
 
         _data_schema = d.pop("dataSchema", UNSET)
@@ -449,6 +457,7 @@ class DataSource:
             structure_template_json=structure_template_json,
             type=type,
             view_config=view_config,
+            catalog_build_last_updated=catalog_build_last_updated,
             created_at=created_at,
             data_schema=data_schema,
             inferred_schemas=inferred_schemas,
