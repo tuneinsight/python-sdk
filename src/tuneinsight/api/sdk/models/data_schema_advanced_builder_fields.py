@@ -18,13 +18,17 @@ class DataSchemaAdvancedBuilderFields:
     Attributes:
         age (Union[Unset, AdvancedBuilderField]): Configuration for an advanced builder parameter field.
         birth_date (Union[Unset, AdvancedBuilderField]): Configuration for an advanced builder parameter field.
+        care_site (Union[Unset, AdvancedBuilderField]): Configuration for an advanced builder parameter field.
         gender (Union[Unset, AdvancedBuilderField]): Configuration for an advanced builder parameter field.
+        visit_date (Union[Unset, AdvancedBuilderField]): Configuration for an advanced builder parameter field.
         vital_status (Union[Unset, AdvancedBuilderField]): Configuration for an advanced builder parameter field.
     """
 
     age: Union[Unset, "AdvancedBuilderField"] = UNSET
     birth_date: Union[Unset, "AdvancedBuilderField"] = UNSET
+    care_site: Union[Unset, "AdvancedBuilderField"] = UNSET
     gender: Union[Unset, "AdvancedBuilderField"] = UNSET
+    visit_date: Union[Unset, "AdvancedBuilderField"] = UNSET
     vital_status: Union[Unset, "AdvancedBuilderField"] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -37,9 +41,17 @@ class DataSchemaAdvancedBuilderFields:
         if not isinstance(self.birth_date, Unset):
             birth_date = self.birth_date.to_dict()
 
+        care_site: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.care_site, Unset):
+            care_site = self.care_site.to_dict()
+
         gender: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.gender, Unset):
             gender = self.gender.to_dict()
+
+        visit_date: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.visit_date, Unset):
+            visit_date = self.visit_date.to_dict()
 
         vital_status: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.vital_status, Unset):
@@ -52,8 +64,12 @@ class DataSchemaAdvancedBuilderFields:
             field_dict["age"] = age
         if birth_date is not UNSET:
             field_dict["birthDate"] = birth_date
+        if care_site is not UNSET:
+            field_dict["careSite"] = care_site
         if gender is not UNSET:
             field_dict["gender"] = gender
+        if visit_date is not UNSET:
+            field_dict["visitDate"] = visit_date
         if vital_status is not UNSET:
             field_dict["vitalStatus"] = vital_status
 
@@ -78,12 +94,26 @@ class DataSchemaAdvancedBuilderFields:
         else:
             birth_date = AdvancedBuilderField.from_dict(_birth_date)
 
+        _care_site = d.pop("careSite", UNSET)
+        care_site: Union[Unset, AdvancedBuilderField]
+        if isinstance(_care_site, Unset):
+            care_site = UNSET
+        else:
+            care_site = AdvancedBuilderField.from_dict(_care_site)
+
         _gender = d.pop("gender", UNSET)
         gender: Union[Unset, AdvancedBuilderField]
         if isinstance(_gender, Unset):
             gender = UNSET
         else:
             gender = AdvancedBuilderField.from_dict(_gender)
+
+        _visit_date = d.pop("visitDate", UNSET)
+        visit_date: Union[Unset, AdvancedBuilderField]
+        if isinstance(_visit_date, Unset):
+            visit_date = UNSET
+        else:
+            visit_date = AdvancedBuilderField.from_dict(_visit_date)
 
         _vital_status = d.pop("vitalStatus", UNSET)
         vital_status: Union[Unset, AdvancedBuilderField]
@@ -95,7 +125,9 @@ class DataSchemaAdvancedBuilderFields:
         data_schema_advanced_builder_fields = cls(
             age=age,
             birth_date=birth_date,
+            care_site=care_site,
             gender=gender,
+            visit_date=visit_date,
             vital_status=vital_status,
         )
 

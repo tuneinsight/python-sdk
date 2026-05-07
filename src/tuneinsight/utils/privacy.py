@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 
 from tuneinsight.utils.plots import style_plot
 
-
 # TO DO: use noise scales from results metadata.
 
 

@@ -18,27 +18,42 @@ class SchemaField:
     Attributes:
         description (Union[Unset, str]): optional description for this field.
         field_type (Union[Unset, str]): The data type of the field (e.g., "string", "integer", "date").
+        hidden (Union[Unset, bool]): whether this field should be hidden from the user in the frontend interfaces.
         label (Union[Unset, str]): Human-readable label for the field (e.g., "Gender").
         name (Union[Unset, str]): The column name in the database (e.g., "gender").
+        source_concept (Union[Unset, str]): the concept that this field belongs to, if applicable.
+        target_column (Union[Unset, str]): when the field is a foreign key to another table, this indicates which column
+            in the target table to join on (defaults to the identifier column of the target table).
         terminology (Union[Unset, TerminologyField]): Parameters that must be provided to schema fields when the field's
             values are terminology references.
+        via (Union[Unset, str]): when the field is not directly on the main table, this indicates the path of relations
+            to take to reach this field from the main table.
     """
 
     description: Union[Unset, str] = UNSET
     field_type: Union[Unset, str] = UNSET
+    hidden: Union[Unset, bool] = UNSET
     label: Union[Unset, str] = UNSET
     name: Union[Unset, str] = UNSET
+    source_concept: Union[Unset, str] = UNSET
+    target_column: Union[Unset, str] = UNSET
     terminology: Union[Unset, "TerminologyField"] = UNSET
+    via: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         description = self.description
         field_type = self.field_type
+        hidden = self.hidden
         label = self.label
         name = self.name
+        source_concept = self.source_concept
+        target_column = self.target_column
         terminology: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.terminology, Unset):
             terminology = self.terminology.to_dict()
+
+        via = self.via
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -47,12 +62,20 @@ class SchemaField:
             field_dict["description"] = description
         if field_type is not UNSET:
             field_dict["fieldType"] = field_type
+        if hidden is not UNSET:
+            field_dict["hidden"] = hidden
         if label is not UNSET:
             field_dict["label"] = label
         if name is not UNSET:
             field_dict["name"] = name
+        if source_concept is not UNSET:
+            field_dict["sourceConcept"] = source_concept
+        if target_column is not UNSET:
+            field_dict["targetColumn"] = target_column
         if terminology is not UNSET:
             field_dict["terminology"] = terminology
+        if via is not UNSET:
+            field_dict["via"] = via
 
         return field_dict
 
@@ -65,9 +88,15 @@ class SchemaField:
 
         field_type = d.pop("fieldType", UNSET)
 
+        hidden = d.pop("hidden", UNSET)
+
         label = d.pop("label", UNSET)
 
         name = d.pop("name", UNSET)
+
+        source_concept = d.pop("sourceConcept", UNSET)
+
+        target_column = d.pop("targetColumn", UNSET)
 
         _terminology = d.pop("terminology", UNSET)
         terminology: Union[Unset, TerminologyField]
@@ -76,12 +105,18 @@ class SchemaField:
         else:
             terminology = TerminologyField.from_dict(_terminology)
 
+        via = d.pop("via", UNSET)
+
         schema_field = cls(
             description=description,
             field_type=field_type,
+            hidden=hidden,
             label=label,
             name=name,
+            source_concept=source_concept,
+            target_column=target_column,
             terminology=terminology,
+            via=via,
         )
 
         schema_field.additional_properties = d

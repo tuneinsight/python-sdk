@@ -47,6 +47,7 @@ class SurvivalAggregation:
             of the computation. The local input columns/values must be in the form {<column1>: [<value1>, <value2>, ...],
             ...}
         local_input_id (Union[Unset, str]): Unique identifier of a data object.
+        mhe_v1 (Union[Unset, bool]): Whether to use MHEv1 for the computation.
         owner (Union[Unset, str]): The username of the end user who requested the computation.
         participants (Union[Unset, List[str]]): list of preferred participants (using their alias) to run the
             computation with.
@@ -94,6 +95,7 @@ class SurvivalAggregation:
     local: Union[Unset, bool] = UNSET
     local_input: Union[Unset, "LocalInput"] = UNSET
     local_input_id: Union[Unset, str] = UNSET
+    mhe_v1: Union[Unset, bool] = UNSET
     owner: Union[Unset, str] = UNSET
     participants: Union[Unset, List[str]] = UNSET
     precision: Union[Unset, None, int] = UNSET
@@ -136,6 +138,7 @@ class SurvivalAggregation:
             local_input = self.local_input.to_dict()
 
         local_input_id = self.local_input_id
+        mhe_v1 = self.mhe_v1
         owner = self.owner
         participants: Union[Unset, List[str]] = UNSET
         if not isinstance(self.participants, Unset):
@@ -205,6 +208,8 @@ class SurvivalAggregation:
             field_dict["localInput"] = local_input
         if local_input_id is not UNSET:
             field_dict["localInputID"] = local_input_id
+        if mhe_v1 is not UNSET:
+            field_dict["mheV1"] = mhe_v1
         if owner is not UNSET:
             field_dict["owner"] = owner
         if participants is not UNSET:
@@ -291,6 +296,8 @@ class SurvivalAggregation:
 
         local_input_id = d.pop("localInputID", UNSET)
 
+        mhe_v1 = d.pop("mheV1", UNSET)
+
         owner = d.pop("owner", UNSET)
 
         participants = cast(List[str], d.pop("participants", UNSET))
@@ -357,6 +364,7 @@ class SurvivalAggregation:
             local=local,
             local_input=local_input,
             local_input_id=local_input_id,
+            mhe_v1=mhe_v1,
             owner=owner,
             participants=participants,
             precision=precision,

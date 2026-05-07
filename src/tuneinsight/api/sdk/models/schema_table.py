@@ -19,7 +19,10 @@ class SchemaTable:
     Attributes:
         description (Union[Unset, str]): optional description for the table
         fields (Union[Unset, List['SchemaField']]): List of fields available in this table.
+        hidden (Union[Unset, bool]): whether this table should be hidden from the user in the frontend.
         identifier (Union[Unset, str]): The primary key column of this table (e.g., "id").
+        is_hierarchy_table (Union[Unset, bool]): whether this table contains hierarchical data for its concept, which
+            can be used in the catalog hierarchy and to compute ancestor counts.
         is_main (Union[Unset, bool]): Marks this table as the main entry point for queries. Only one table
             in the template should be marked `true`. This table provides the
             `mainTable` and `identifier` used in SQLMetadata.
@@ -33,7 +36,9 @@ class SchemaTable:
 
     description: Union[Unset, str] = UNSET
     fields: Union[Unset, List["SchemaField"]] = UNSET
+    hidden: Union[Unset, bool] = UNSET
     identifier: Union[Unset, str] = UNSET
+    is_hierarchy_table: Union[Unset, bool] = UNSET
     is_main: Union[Unset, bool] = UNSET
     linked_template: Union[Unset, bool] = UNSET
     name: Union[Unset, str] = UNSET
@@ -52,7 +57,9 @@ class SchemaTable:
 
                 fields.append(fields_item)
 
+        hidden = self.hidden
         identifier = self.identifier
+        is_hierarchy_table = self.is_hierarchy_table
         is_main = self.is_main
         linked_template = self.linked_template
         name = self.name
@@ -74,8 +81,12 @@ class SchemaTable:
             field_dict["description"] = description
         if fields is not UNSET:
             field_dict["fields"] = fields
+        if hidden is not UNSET:
+            field_dict["hidden"] = hidden
         if identifier is not UNSET:
             field_dict["identifier"] = identifier
+        if is_hierarchy_table is not UNSET:
+            field_dict["isHierarchyTable"] = is_hierarchy_table
         if is_main is not UNSET:
             field_dict["isMain"] = is_main
         if linked_template is not UNSET:
@@ -106,7 +117,11 @@ class SchemaTable:
 
             fields.append(fields_item)
 
+        hidden = d.pop("hidden", UNSET)
+
         identifier = d.pop("identifier", UNSET)
+
+        is_hierarchy_table = d.pop("isHierarchyTable", UNSET)
 
         is_main = d.pop("isMain", UNSET)
 
@@ -128,7 +143,9 @@ class SchemaTable:
         schema_table = cls(
             description=description,
             fields=fields,
+            hidden=hidden,
             identifier=identifier,
+            is_hierarchy_table=is_hierarchy_table,
             is_main=is_main,
             linked_template=linked_template,
             name=name,

@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
 
 import attr
 
@@ -28,6 +28,7 @@ class Settings:
             satisfying at least one automatically authorizes the project.
         auto_reject_specifications (Union[Unset, List['ProjectSpecification']]): A list of project templates that must
             all be satisfied for a project to be authorized.
+        available_ontologies (Union[Unset, List[str]]): array of ontologies that are available.
         catalog_enabled (Union[Unset, None, bool]): whether or not to enable the catalog view.
         computation_timeout (Union[Unset, int]): custom timeout (seconds) to use for computations
         computation_timeout_enabled (Union[Unset, None, bool]): whether to enable the computation timeout
@@ -54,6 +55,7 @@ class Settings:
     authorized_project_types: Union[Unset, List[WorkflowType]] = UNSET
     auto_approve_specifications: Union[Unset, List["ProjectSpecification"]] = UNSET
     auto_reject_specifications: Union[Unset, List["ProjectSpecification"]] = UNSET
+    available_ontologies: Union[Unset, List[str]] = UNSET
     catalog_enabled: Union[Unset, None, bool] = UNSET
     computation_timeout: Union[Unset, int] = UNSET
     computation_timeout_enabled: Union[Unset, None, bool] = UNSET
@@ -101,6 +103,10 @@ class Settings:
 
                 auto_reject_specifications.append(auto_reject_specifications_item)
 
+        available_ontologies: Union[Unset, List[str]] = UNSET
+        if not isinstance(self.available_ontologies, Unset):
+            available_ontologies = self.available_ontologies
+
         catalog_enabled = self.catalog_enabled
         computation_timeout = self.computation_timeout
         computation_timeout_enabled = self.computation_timeout_enabled
@@ -138,6 +144,8 @@ class Settings:
             field_dict["autoApproveSpecifications"] = auto_approve_specifications
         if auto_reject_specifications is not UNSET:
             field_dict["autoRejectSpecifications"] = auto_reject_specifications
+        if available_ontologies is not UNSET:
+            field_dict["availableOntologies"] = available_ontologies
         if catalog_enabled is not UNSET:
             field_dict["catalogEnabled"] = catalog_enabled
         if computation_timeout is not UNSET:
@@ -208,6 +216,8 @@ class Settings:
 
             auto_reject_specifications.append(auto_reject_specifications_item)
 
+        available_ontologies = cast(List[str], d.pop("availableOntologies", UNSET))
+
         catalog_enabled = d.pop("catalogEnabled", UNSET)
 
         computation_timeout = d.pop("computationTimeout", UNSET)
@@ -260,6 +270,7 @@ class Settings:
             authorized_project_types=authorized_project_types,
             auto_approve_specifications=auto_approve_specifications,
             auto_reject_specifications=auto_reject_specifications,
+            available_ontologies=available_ontologies,
             catalog_enabled=catalog_enabled,
             computation_timeout=computation_timeout,
             computation_timeout_enabled=computation_timeout_enabled,

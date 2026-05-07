@@ -7,6 +7,11 @@ class OntologyType(str, Enum):
     LOINC = "LOINC"
     CHOP = "CHOP"
     SNOMED = "SNOMED"
+    CCAM = "CCAM"
+    RXNORM = "RxNorm"
+    UCUM = "UCUM"
+    CMS_PLACE_OF_SERVICE = "CMS Place of Service"
+    OMOPGENERATED = "OMOPGenerated"
 
     def __str__(self) -> str:
         return str(self.value)

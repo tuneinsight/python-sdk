@@ -27,6 +27,7 @@ from tuneinsight.api.sdk.types import (
     false_if_unset,
     is_set,
     is_unset,
+    true_if_unset,
     value_if_unset,
 )
 from tuneinsight.client.datasource import DataSource, RemoteDataSource
@@ -278,7 +279,7 @@ class Project:
         """Computes the number of participants in the network that could contribute to this project."""
         num = 0
         for part in self.get_participants():
-            if value_if_unset(part.is_contributor, True):
+            if true_if_unset(part.is_contributor):
                 num += 1
         return num
 
@@ -976,7 +977,7 @@ class Project:
         Raises:
             PermissionError: if this node is contributor. Set the contribution status to False first.
         """
-        if not value_if_unset(self.model.non_contributor, True):
+        if not true_if_unset(self.model.non_contributor):
             raise PermissionError("Only non-contributors can set remote datasources.")
         self._patch(
             models.ProjectDefinition(

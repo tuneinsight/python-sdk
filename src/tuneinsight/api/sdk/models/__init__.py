@@ -28,8 +28,11 @@ from .binning_parameters_method import BinningParametersMethod
 from .boolean_aggregator import BooleanAggregator
 from .build_catalog_action import BuildCatalogAction
 from .capability import Capability
+from .care_site import CareSite
+from .catalog_progress_response import CatalogProgressResponse
 from .categorical_column import CategoricalColumn
 from .client import Client
+from .collect_encrypted_masks import CollectEncryptedMasks
 from .collective_key_switch import CollectiveKeySwitch
 from .column_info import ColumnInfo
 from .column_info_scope import ColumnInfoScope
@@ -56,6 +59,7 @@ from .computation_status import ComputationStatus
 from .computation_type import ComputationType
 from .compute_time_since import ComputeTimeSince
 from .concept_field import ConceptField
+from .confidence_interval import ConfidenceInterval
 from .content import Content
 from .content_type import ContentType
 from .contribution_error import ContributionError
@@ -77,6 +81,7 @@ from .data_preparation_session_definition import DataPreparationSessionDefinitio
 from .data_schema import DataSchema
 from .data_schema_advanced_builder_fields import DataSchemaAdvancedBuilderFields
 from .data_schema_metadata import DataSchemaMetadata
+from .data_schema_metadata_care_sites import DataSchemaMetadataCareSites
 from .data_selection_type import DataSelectionType
 from .data_source import DataSource
 from .data_source_column import DataSourceColumn
@@ -114,9 +119,11 @@ from .deviation_squares import DeviationSquares
 from .displayed_capability import DisplayedCapability
 from .displayed_role import DisplayedRole
 from .distribution import Distribution
+from .distribution_availability_status import DistributionAvailabilityStatus
 from .distribution_bin import DistributionBin
 from .distribution_type import DistributionType
 from .documentation_response_200 import DocumentationResponse200
+from .domain_stat import DomainStat
 from .dp_noise_metadata import DpNoiseMetadata
 from .dp_policy import DPPolicy
 from .drop import Drop
@@ -131,6 +138,7 @@ from .enc_vector_type import EncVectorType
 from .encrypted_aggregation import EncryptedAggregation
 from .encrypted_content import EncryptedContent
 from .encrypted_content_type import EncryptedContentType
+from .encrypted_mask_shares import EncryptedMaskShares
 from .encrypted_mean import EncryptedMean
 from .encrypted_prediction import EncryptedPrediction
 from .encrypted_regression import EncryptedRegression
@@ -161,7 +169,6 @@ from .get_agent_prompts_order import GetAgentPromptsOrder
 from .get_agent_prompts_sort_by import GetAgentPromptsSortBy
 from .get_availability_status_resource_type import GetAvailabilityStatusResourceType
 from .get_available_columns_response_200 import GetAvailableColumnsResponse200
-from .get_build_catalog_progress_response_200 import GetBuildCatalogProgressResponse200
 from .get_comp_bookmark_list_order import GetCompBookmarkListOrder
 from .get_comp_bookmark_list_sort_by import GetCompBookmarkListSortBy
 from .get_computation_list_order import GetComputationListOrder
@@ -185,8 +192,9 @@ from .get_network_metadata_response_200_network_type import GetNetworkMetadataRe
 from .get_notifications_order import GetNotificationsOrder
 from .get_notifications_sort_by import GetNotificationsSortBy
 from .get_ontology_codes_response_200 import GetOntologyCodesResponse200
-from .get_ontology_search_ontologies_item import GetOntologySearchOntologiesItem
+from .get_ontology_search_order import GetOntologySearchOrder
 from .get_ontology_search_response_200_item import GetOntologySearchResponse200Item
+from .get_ontology_search_sort_by import GetOntologySearchSortBy
 from .get_params_response_200 import GetParamsResponse200
 from .get_preprocessing_dry_run_json_body import GetPreprocessingDryRunJsonBody
 from .get_project_list_order import GetProjectListOrder
@@ -222,6 +230,8 @@ from .job import Job
 from .job_error import JobError
 from .job_log import JobLog
 from .job_params import JobParams
+from .job_progress import JobProgress
+from .job_progress_status import JobProgressStatus
 from .job_state import JobState
 from .jupyter_notebook import JupyterNotebook
 from .key_info import KeyInfo
@@ -328,6 +338,7 @@ from .result import Result
 from .result_content import ResultContent
 from .result_contextual_info import ResultContextualInfo
 from .result_definition import ResultDefinition
+from .result_definition_preferences import ResultDefinitionPreferences
 from .result_metadata import ResultMetadata
 from .result_release import ResultRelease
 from .run_mode import RunMode
@@ -366,10 +377,14 @@ from .survival_aggregation_subgroups_item import SurvivalAggregationSubgroupsIte
 from .task_progress import TaskProgress
 from .task_progress_payload import TaskProgressPayload
 from .term import Term
+from .term_description_translations import TermDescriptionTranslations
 from .term_distributions import TermDistributions
+from .term_name_translations import TermNameTranslations
 from .term_occurrence import TermOccurrence
+from .term_occurrence_per_care_site_count import TermOccurrencePerCareSiteCount
 from .terminology_field import TerminologyField
 from .terminology_reference_type import TerminologyReferenceType
+from .terminology_stats_response import TerminologyStatsResponse
 from .threshold import Threshold
 from .threshold_type import ThresholdType
 from .time_diff import TimeDiff
@@ -434,8 +449,11 @@ __all__ = (
     "BooleanAggregator",
     "BuildCatalogAction",
     "Capability",
+    "CareSite",
+    "CatalogProgressResponse",
     "CategoricalColumn",
     "Client",
+    "CollectEncryptedMasks",
     "CollectiveKeySwitch",
     "ColumnInfo",
     "ColumnInfoScope",
@@ -460,6 +478,7 @@ __all__ = (
     "ComputationType",
     "ComputeTimeSince",
     "ConceptField",
+    "ConfidenceInterval",
     "Content",
     "ContentType",
     "ContributionError",
@@ -482,6 +501,7 @@ __all__ = (
     "DataSchema",
     "DataSchemaAdvancedBuilderFields",
     "DataSchemaMetadata",
+    "DataSchemaMetadataCareSites",
     "DataSelectionType",
     "DatasetSchema",
     "DatasetSchemaColumns",
@@ -518,9 +538,11 @@ __all__ = (
     "DisplayedCapability",
     "DisplayedRole",
     "Distribution",
+    "DistributionAvailabilityStatus",
     "DistributionBin",
     "DistributionType",
     "DocumentationResponse200",
+    "DomainStat",
     "DpNoiseMetadata",
     "DPPolicy",
     "Drop",
@@ -533,6 +555,7 @@ __all__ = (
     "EncryptedAggregation",
     "EncryptedContent",
     "EncryptedContentType",
+    "EncryptedMaskShares",
     "EncryptedMean",
     "EncryptedPrediction",
     "EncryptedRegression",
@@ -565,7 +588,6 @@ __all__ = (
     "GetAgentPromptsSortBy",
     "GetAvailabilityStatusResourceType",
     "GetAvailableColumnsResponse200",
-    "GetBuildCatalogProgressResponse200",
     "GetCompBookmarkListOrder",
     "GetCompBookmarkListSortBy",
     "GetComputationListOrder",
@@ -589,8 +611,9 @@ __all__ = (
     "GetNotificationsOrder",
     "GetNotificationsSortBy",
     "GetOntologyCodesResponse200",
-    "GetOntologySearchOntologiesItem",
+    "GetOntologySearchOrder",
     "GetOntologySearchResponse200Item",
+    "GetOntologySearchSortBy",
     "GetParamsResponse200",
     "GetPreprocessingDryRunJsonBody",
     "GetProjectListOrder",
@@ -626,6 +649,8 @@ __all__ = (
     "JobError",
     "JobLog",
     "JobParams",
+    "JobProgress",
+    "JobProgressStatus",
     "JobState",
     "JupyterNotebook",
     "KeyInfo",
@@ -732,6 +757,7 @@ __all__ = (
     "ResultContent",
     "ResultContextualInfo",
     "ResultDefinition",
+    "ResultDefinitionPreferences",
     "ResultMetadata",
     "ResultRelease",
     "RunMode",
@@ -770,10 +796,14 @@ __all__ = (
     "TaskProgress",
     "TaskProgressPayload",
     "Term",
+    "TermDescriptionTranslations",
     "TermDistributions",
     "TerminologyField",
     "TerminologyReferenceType",
+    "TerminologyStatsResponse",
+    "TermNameTranslations",
     "TermOccurrence",
+    "TermOccurrencePerCareSiteCount",
     "Threshold",
     "ThresholdType",
     "TimeDiff",

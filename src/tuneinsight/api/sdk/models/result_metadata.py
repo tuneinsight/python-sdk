@@ -5,6 +5,7 @@ import attr
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.data_source_variable import DataSourceVariable
     from ..models.dp_noise_metadata import DpNoiseMetadata
 
 
@@ -18,9 +19,12 @@ class ResultMetadata:
     Attributes:
         dp_noise (Union[Unset, List['DpNoiseMetadata']]): when using differential privacy, the metadata on the noise
             added to results.
+        queried_columns (Union[Unset, List['DataSourceVariable']]): contains the list of columns that were queried from
+            all of the participant's data sources.
     """
 
     dp_noise: Union[Unset, List["DpNoiseMetadata"]] = UNSET
+    queried_columns: Union[Unset, List["DataSourceVariable"]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -32,16 +36,27 @@ class ResultMetadata:
 
                 dp_noise.append(dp_noise_item)
 
+        queried_columns: Union[Unset, List[Dict[str, Any]]] = UNSET
+        if not isinstance(self.queried_columns, Unset):
+            queried_columns = []
+            for queried_columns_item_data in self.queried_columns:
+                queried_columns_item = queried_columns_item_data.to_dict()
+
+                queried_columns.append(queried_columns_item)
+
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
         if dp_noise is not UNSET:
             field_dict["dpNoise"] = dp_noise
+        if queried_columns is not UNSET:
+            field_dict["queriedColumns"] = queried_columns
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.data_source_variable import DataSourceVariable
         from ..models.dp_noise_metadata import DpNoiseMetadata
 
         d = src_dict.copy()
@@ -52,8 +67,16 @@ class ResultMetadata:
 
             dp_noise.append(dp_noise_item)
 
+        queried_columns = []
+        _queried_columns = d.pop("queriedColumns", UNSET)
+        for queried_columns_item_data in _queried_columns or []:
+            queried_columns_item = DataSourceVariable.from_dict(queried_columns_item_data)
+
+            queried_columns.append(queried_columns_item)
+
         result_metadata = cls(
             dp_noise=dp_noise,
+            queried_columns=queried_columns,
         )
 
         result_metadata.additional_properties = d

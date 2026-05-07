@@ -19,6 +19,7 @@ class TiqlField:
     Attributes:
         concept (Union[Unset, str]): the unique name of the concept that this field is on (if none, this is a field
             directly on the patient record).
+        hidden (Union[Unset, bool]): whether this field should be hidden from the user in the frontend.
         label (Union[Unset, str]): the displayed name for this field.
         max_value (Union[Unset, None, float]): If this field is numeric, the maximum value it can take.
         min_value (Union[Unset, None, float]): If this field is numeric, the minimum value it can take.
@@ -33,6 +34,7 @@ class TiqlField:
     """
 
     concept: Union[Unset, str] = UNSET
+    hidden: Union[Unset, bool] = UNSET
     label: Union[Unset, str] = UNSET
     max_value: Union[Unset, None, float] = UNSET
     min_value: Union[Unset, None, float] = UNSET
@@ -45,6 +47,7 @@ class TiqlField:
 
     def to_dict(self) -> Dict[str, Any]:
         concept = self.concept
+        hidden = self.hidden
         label = self.label
         max_value = self.max_value
         min_value = self.min_value
@@ -64,6 +67,8 @@ class TiqlField:
         field_dict.update({})
         if concept is not UNSET:
             field_dict["concept"] = concept
+        if hidden is not UNSET:
+            field_dict["hidden"] = hidden
         if label is not UNSET:
             field_dict["label"] = label
         if max_value is not UNSET:
@@ -90,6 +95,8 @@ class TiqlField:
 
         d = src_dict.copy()
         concept = d.pop("concept", UNSET)
+
+        hidden = d.pop("hidden", UNSET)
 
         label = d.pop("label", UNSET)
 
@@ -119,6 +126,7 @@ class TiqlField:
 
         tiql_field = cls(
             concept=concept,
+            hidden=hidden,
             label=label,
             max_value=max_value,
             min_value=min_value,

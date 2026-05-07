@@ -21,6 +21,7 @@ class ResultContent:
         breakdown_content (Union[Unset, Content]): Content that can be retrieved and displayed for the user
         computation (Union[Unset, Computation]): Metadata of a computation.
         content (Union[Unset, Content]): Content that can be retrieved and displayed for the user
+        encrypted_masks (Union[Unset, Content]): Content that can be retrieved and displayed for the user
         local_content (Union[Unset, Content]): Content that can be retrieved and displayed for the user
         result (Union[Unset, Result]):
     """
@@ -28,6 +29,7 @@ class ResultContent:
     breakdown_content: Union[Unset, "Content"] = UNSET
     computation: Union[Unset, "Computation"] = UNSET
     content: Union[Unset, "Content"] = UNSET
+    encrypted_masks: Union[Unset, "Content"] = UNSET
     local_content: Union[Unset, "Content"] = UNSET
     result: Union[Unset, "Result"] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
@@ -44,6 +46,10 @@ class ResultContent:
         content: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.content, Unset):
             content = self.content.to_dict()
+
+        encrypted_masks: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.encrypted_masks, Unset):
+            encrypted_masks = self.encrypted_masks.to_dict()
 
         local_content: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.local_content, Unset):
@@ -62,6 +68,8 @@ class ResultContent:
             field_dict["computation"] = computation
         if content is not UNSET:
             field_dict["content"] = content
+        if encrypted_masks is not UNSET:
+            field_dict["encryptedMasks"] = encrypted_masks
         if local_content is not UNSET:
             field_dict["localContent"] = local_content
         if result is not UNSET:
@@ -97,6 +105,13 @@ class ResultContent:
         else:
             content = Content.from_dict(_content)
 
+        _encrypted_masks = d.pop("encryptedMasks", UNSET)
+        encrypted_masks: Union[Unset, Content]
+        if isinstance(_encrypted_masks, Unset):
+            encrypted_masks = UNSET
+        else:
+            encrypted_masks = Content.from_dict(_encrypted_masks)
+
         _local_content = d.pop("localContent", UNSET)
         local_content: Union[Unset, Content]
         if isinstance(_local_content, Unset):
@@ -115,6 +130,7 @@ class ResultContent:
             breakdown_content=breakdown_content,
             computation=computation,
             content=content,
+            encrypted_masks=encrypted_masks,
             local_content=local_content,
             result=result,
         )

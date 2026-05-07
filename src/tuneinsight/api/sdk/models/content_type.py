@@ -5,6 +5,7 @@ class ContentType(str, Enum):
     FLOATMATRIX = "floatMatrix"
     STRINGMATRIX = "stringMatrix"
     ENCRYPTEDCONTENT = "encryptedContent"
+    ENCRYPTEDMASKSHARES = "encryptedMaskShares"
     PREDICTION = "prediction"
     EXTERNALMLRESULT = "externalMlResult"
     STATISTICS = "statistics"

@@ -5,8 +5,8 @@ import httpx
 
 from ... import errors
 from ...client import Client
+from ...models.catalog_progress_response import CatalogProgressResponse
 from ...models.error import Error
-from ...models.get_build_catalog_progress_response_200 import GetBuildCatalogProgressResponse200
 from ...types import UNSET, Response, Unset
 
 
@@ -47,11 +47,9 @@ def _get_kwargs(
     }
 
 
-def _parse_response(
-    *, client: Client, response: httpx.Response
-) -> Optional[Union[Error, GetBuildCatalogProgressResponse200]]:
+def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Union[CatalogProgressResponse, Error]]:
     if response.status_code == HTTPStatus.OK:
-        response_200 = GetBuildCatalogProgressResponse200.from_dict(response.json())
+        response_200 = CatalogProgressResponse.from_dict(response.json())
 
         return response_200
     if response.status_code == HTTPStatus.FORBIDDEN:
@@ -72,9 +70,7 @@ def _parse_response(
         return None
 
 
-def _build_response(
-    *, client: Client, response: httpx.Response
-) -> Response[Union[Error, GetBuildCatalogProgressResponse200]]:
+def _build_response(*, client: Client, response: httpx.Response) -> Response[Union[CatalogProgressResponse, Error]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -87,7 +83,7 @@ def sync_detailed(
     *,
     client: Client,
     data_source_id: Union[Unset, None, str] = UNSET,
-) -> Response[Union[Error, GetBuildCatalogProgressResponse200]]:
+) -> Response[Union[CatalogProgressResponse, Error]]:
     """Get the progress of the catalog build
 
     Args:
@@ -98,7 +94,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Error, GetBuildCatalogProgressResponse200]]
+        Response[Union[CatalogProgressResponse, Error]]
     """
 
     kwargs = _get_kwargs(
@@ -118,7 +114,7 @@ def sync(
     *,
     client: Client,
     data_source_id: Union[Unset, None, str] = UNSET,
-) -> Optional[Union[Error, GetBuildCatalogProgressResponse200]]:
+) -> Optional[Union[CatalogProgressResponse, Error]]:
     """Get the progress of the catalog build
 
     Args:
@@ -129,7 +125,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Error, GetBuildCatalogProgressResponse200]]
+        Response[Union[CatalogProgressResponse, Error]]
     """
 
     return sync_detailed(
@@ -142,7 +138,7 @@ async def asyncio_detailed(
     *,
     client: Client,
     data_source_id: Union[Unset, None, str] = UNSET,
-) -> Response[Union[Error, GetBuildCatalogProgressResponse200]]:
+) -> Response[Union[CatalogProgressResponse, Error]]:
     """Get the progress of the catalog build
 
     Args:
@@ -153,7 +149,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Error, GetBuildCatalogProgressResponse200]]
+        Response[Union[CatalogProgressResponse, Error]]
     """
 
     kwargs = _get_kwargs(
@@ -171,7 +167,7 @@ async def asyncio(
     *,
     client: Client,
     data_source_id: Union[Unset, None, str] = UNSET,
-) -> Optional[Union[Error, GetBuildCatalogProgressResponse200]]:
+) -> Optional[Union[CatalogProgressResponse, Error]]:
     """Get the progress of the catalog build
 
     Args:
@@ -182,7 +178,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Error, GetBuildCatalogProgressResponse200]]
+        Response[Union[CatalogProgressResponse, Error]]
     """
 
     return (

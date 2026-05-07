@@ -1,9 +1,13 @@
-from typing import Any, Dict, List, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
 from ..models.column_type_group import ColumnTypeGroup
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.terminology_field import TerminologyField
+
 
 T = TypeVar("T", bound="DataSourceVariable")
 
@@ -26,6 +30,8 @@ class DataSourceVariable:
                 processed
             concept (Union[Unset, str]): Concept in the data where this variable is found.
             field (Union[Unset, str]): Field in the data concept that contains the data for this variable.
+            terminology (Union[Unset, TerminologyField]): Parameters that must be provided to schema fields when the field's
+                values are terminology references.
     """
 
     name: Union[Unset, str] = UNSET
@@ -33,6 +39,7 @@ class DataSourceVariable:
     type_group: Union[Unset, ColumnTypeGroup] = UNSET
     concept: Union[Unset, str] = UNSET
     field: Union[Unset, str] = UNSET
+    terminology: Union[Unset, "TerminologyField"] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -44,6 +51,9 @@ class DataSourceVariable:
 
         concept = self.concept
         field = self.field
+        terminology: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.terminology, Unset):
+            terminology = self.terminology.to_dict()
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -58,11 +68,15 @@ class DataSourceVariable:
             field_dict["concept"] = concept
         if field is not UNSET:
             field_dict["field"] = field
+        if terminology is not UNSET:
+            field_dict["terminology"] = terminology
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.terminology_field import TerminologyField
+
         d = src_dict.copy()
         name = d.pop("name", UNSET)
 
@@ -79,12 +93,20 @@ class DataSourceVariable:
 
         field = d.pop("field", UNSET)
 
+        _terminology = d.pop("terminology", UNSET)
+        terminology: Union[Unset, TerminologyField]
+        if isinstance(_terminology, Unset):
+            terminology = UNSET
+        else:
+            terminology = TerminologyField.from_dict(_terminology)
+
         data_source_variable = cls(
             name=name,
             type=type,
             type_group=type_group,
             concept=concept,
             field=field,
+            terminology=terminology,
         )
 
         data_source_variable.additional_properties = d

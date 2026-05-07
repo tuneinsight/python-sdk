@@ -8,6 +8,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.computation import Computation
+    from ..models.result_definition_preferences import ResultDefinitionPreferences
     from ..models.result_metadata import ResultMetadata
 
 
@@ -27,6 +28,8 @@ class Result:
         display_raw_results (Union[Unset, None, bool]): frontend flag used to choose whether to display raw or post-
             processed results in the case of inconsistencies created by noise.
         is_large (Union[Unset, None, bool]): frontend flag describing whether this result should be displayed large.
+        preferences (Union[Unset, ResultDefinitionPreferences]): holds custom user preferences used only on the frontend
+            side to display the results.
         shared (Union[Unset, None, bool]): if set to true, the result is shared with users from the same project in the
             same organization.
         tags (Union[Unset, List[str]]): user-defined values describing tags attached to this result.
@@ -53,6 +56,7 @@ class Result:
             once the content is decrypted.
         switching_key_id (Union[Unset, str]): Unique identifier of a data object.
         switching_params (Union[Unset, str]):
+        unmasking_params (Union[Unset, str]):
         updated_at (Union[Unset, str]):
     """
 
@@ -61,6 +65,7 @@ class Result:
     display_local: Union[Unset, None, bool] = UNSET
     display_raw_results: Union[Unset, None, bool] = UNSET
     is_large: Union[Unset, None, bool] = UNSET
+    preferences: Union[Unset, "ResultDefinitionPreferences"] = UNSET
     shared: Union[Unset, None, bool] = UNSET
     tags: Union[Unset, List[str]] = UNSET
     title: Union[Unset, str] = UNSET
@@ -83,6 +88,7 @@ class Result:
     required_post_processing: Union[Unset, str] = UNSET
     switching_key_id: Union[Unset, str] = UNSET
     switching_params: Union[Unset, str] = UNSET
+    unmasking_params: Union[Unset, str] = UNSET
     updated_at: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -92,6 +98,10 @@ class Result:
         display_local = self.display_local
         display_raw_results = self.display_raw_results
         is_large = self.is_large
+        preferences: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.preferences, Unset):
+            preferences = self.preferences.to_dict()
+
         shared = self.shared
         tags: Union[Unset, List[str]] = UNSET
         if not isinstance(self.tags, Unset):
@@ -129,6 +139,7 @@ class Result:
         required_post_processing = self.required_post_processing
         switching_key_id = self.switching_key_id
         switching_params = self.switching_params
+        unmasking_params = self.unmasking_params
         updated_at = self.updated_at
 
         field_dict: Dict[str, Any] = {}
@@ -144,6 +155,8 @@ class Result:
             field_dict["displayRawResults"] = display_raw_results
         if is_large is not UNSET:
             field_dict["isLarge"] = is_large
+        if preferences is not UNSET:
+            field_dict["preferences"] = preferences
         if shared is not UNSET:
             field_dict["shared"] = shared
         if tags is not UNSET:
@@ -188,6 +201,8 @@ class Result:
             field_dict["switchingKeyId"] = switching_key_id
         if switching_params is not UNSET:
             field_dict["switchingParams"] = switching_params
+        if unmasking_params is not UNSET:
+            field_dict["unmaskingParams"] = unmasking_params
         if updated_at is not UNSET:
             field_dict["updatedAt"] = updated_at
 
@@ -196,6 +211,7 @@ class Result:
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         from ..models.computation import Computation
+        from ..models.result_definition_preferences import ResultDefinitionPreferences
         from ..models.result_metadata import ResultMetadata
 
         d = src_dict.copy()
@@ -208,6 +224,13 @@ class Result:
         display_raw_results = d.pop("displayRawResults", UNSET)
 
         is_large = d.pop("isLarge", UNSET)
+
+        _preferences = d.pop("preferences", UNSET)
+        preferences: Union[Unset, ResultDefinitionPreferences]
+        if isinstance(_preferences, Unset):
+            preferences = UNSET
+        else:
+            preferences = ResultDefinitionPreferences.from_dict(_preferences)
 
         shared = d.pop("shared", UNSET)
 
@@ -273,6 +296,8 @@ class Result:
 
         switching_params = d.pop("switchingParams", UNSET)
 
+        unmasking_params = d.pop("unmaskingParams", UNSET)
+
         updated_at = d.pop("updatedAt", UNSET)
 
         result = cls(
@@ -281,6 +306,7 @@ class Result:
             display_local=display_local,
             display_raw_results=display_raw_results,
             is_large=is_large,
+            preferences=preferences,
             shared=shared,
             tags=tags,
             title=title,
@@ -303,6 +329,7 @@ class Result:
             required_post_processing=required_post_processing,
             switching_key_id=switching_key_id,
             switching_params=switching_params,
+            unmasking_params=unmasking_params,
             updated_at=updated_at,
         )
 

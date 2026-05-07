@@ -6,7 +6,6 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-
 HERE = str(Path(__file__).parent)
 
 FONT_LIGHT = Path(HERE + "/graphical/MontserratLight.ttf")

@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
@@ -17,8 +17,9 @@ class TerminologyField:
     """Parameters that must be provided to schema fields when the field's values are terminology references.
 
     Attributes:
-        domains (Union[Unset, List[str]]): the list of domain ids (within vocabularies) that can be referenced by the
-            field.
+        domain (Union[Unset, str]): the domain id (within vocabularies) that can be referenced by the field.
+        hierarchy_ancestor_field (Union[Unset, str]): when the field's terminology reference can be hierarchical, this
+            optional parameter indicates where to get the ancestor values to be included in the hierarchy.
         reference_method (Union[Unset, TerminologyReferenceType]): enumeration of methods that can be used to find the
             terminology associated with a value, i.e., what part of the ontology is used in the data (human-readable name,
             standard code, or URI).
@@ -26,16 +27,15 @@ class TerminologyField:
             field.
     """
 
-    domains: Union[Unset, List[str]] = UNSET
+    domain: Union[Unset, str] = UNSET
+    hierarchy_ancestor_field: Union[Unset, str] = UNSET
     reference_method: Union[Unset, TerminologyReferenceType] = UNSET
     vocabularies: Union[Unset, List["Vocabulary"]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        domains: Union[Unset, List[str]] = UNSET
-        if not isinstance(self.domains, Unset):
-            domains = self.domains
-
+        domain = self.domain
+        hierarchy_ancestor_field = self.hierarchy_ancestor_field
         reference_method: Union[Unset, str] = UNSET
         if not isinstance(self.reference_method, Unset):
             reference_method = self.reference_method.value
@@ -51,8 +51,10 @@ class TerminologyField:
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if domains is not UNSET:
-            field_dict["domains"] = domains
+        if domain is not UNSET:
+            field_dict["domain"] = domain
+        if hierarchy_ancestor_field is not UNSET:
+            field_dict["hierarchyAncestorField"] = hierarchy_ancestor_field
         if reference_method is not UNSET:
             field_dict["referenceMethod"] = reference_method
         if vocabularies is not UNSET:
@@ -65,7 +67,9 @@ class TerminologyField:
         from ..models.vocabulary import Vocabulary
 
         d = src_dict.copy()
-        domains = cast(List[str], d.pop("domains", UNSET))
+        domain = d.pop("domain", UNSET)
+
+        hierarchy_ancestor_field = d.pop("hierarchyAncestorField", UNSET)
 
         _reference_method = d.pop("referenceMethod", UNSET)
         reference_method: Union[Unset, TerminologyReferenceType]
@@ -82,7 +86,8 @@ class TerminologyField:
             vocabularies.append(vocabularies_item)
 
         terminology_field = cls(
-            domains=domains,
+            domain=domain,
+            hierarchy_ancestor_field=hierarchy_ancestor_field,
             reference_method=reference_method,
             vocabularies=vocabularies,
         )

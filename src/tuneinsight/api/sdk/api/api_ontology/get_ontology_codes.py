@@ -17,6 +17,7 @@ def _get_kwargs(
     page: Union[Unset, None, int] = 1,
     ontology: str,
     codes: List[str],
+    care_sites: Union[Unset, None, List[str]] = UNSET,
 ) -> Dict[str, Any]:
     url = "{}/ontology-codes".format(client.base_url)
 
@@ -33,6 +34,15 @@ def _get_kwargs(
     json_codes = codes
 
     params["codes[]"] = json_codes
+
+    json_care_sites: Union[Unset, None, List[str]] = UNSET
+    if not isinstance(care_sites, Unset):
+        if care_sites is None:
+            json_care_sites = None
+        else:
+            json_care_sites = care_sites
+
+    params["careSites[]"] = json_care_sites
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
@@ -97,6 +107,7 @@ def sync_detailed(
     page: Union[Unset, None, int] = 1,
     ontology: str,
     codes: List[str],
+    care_sites: Union[Unset, None, List[str]] = UNSET,
 ) -> Response[Union[Error, GetOntologyCodesResponse200]]:
     """Fetch metadata of specific codes in the ontologies
 
@@ -105,6 +116,7 @@ def sync_detailed(
         page (Union[Unset, None, int]):  Default: 1.
         ontology (str):
         codes (List[str]):
+        care_sites (Union[Unset, None, List[str]]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -120,6 +132,7 @@ def sync_detailed(
         page=page,
         ontology=ontology,
         codes=codes,
+        care_sites=care_sites,
     )
 
     response = httpx.request(
@@ -137,6 +150,7 @@ def sync(
     page: Union[Unset, None, int] = 1,
     ontology: str,
     codes: List[str],
+    care_sites: Union[Unset, None, List[str]] = UNSET,
 ) -> Optional[Union[Error, GetOntologyCodesResponse200]]:
     """Fetch metadata of specific codes in the ontologies
 
@@ -145,6 +159,7 @@ def sync(
         page (Union[Unset, None, int]):  Default: 1.
         ontology (str):
         codes (List[str]):
+        care_sites (Union[Unset, None, List[str]]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -160,6 +175,7 @@ def sync(
         page=page,
         ontology=ontology,
         codes=codes,
+        care_sites=care_sites,
     ).parsed
 
 
@@ -170,6 +186,7 @@ async def asyncio_detailed(
     page: Union[Unset, None, int] = 1,
     ontology: str,
     codes: List[str],
+    care_sites: Union[Unset, None, List[str]] = UNSET,
 ) -> Response[Union[Error, GetOntologyCodesResponse200]]:
     """Fetch metadata of specific codes in the ontologies
 
@@ -178,6 +195,7 @@ async def asyncio_detailed(
         page (Union[Unset, None, int]):  Default: 1.
         ontology (str):
         codes (List[str]):
+        care_sites (Union[Unset, None, List[str]]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -193,6 +211,7 @@ async def asyncio_detailed(
         page=page,
         ontology=ontology,
         codes=codes,
+        care_sites=care_sites,
     )
 
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
@@ -208,6 +227,7 @@ async def asyncio(
     page: Union[Unset, None, int] = 1,
     ontology: str,
     codes: List[str],
+    care_sites: Union[Unset, None, List[str]] = UNSET,
 ) -> Optional[Union[Error, GetOntologyCodesResponse200]]:
     """Fetch metadata of specific codes in the ontologies
 
@@ -216,6 +236,7 @@ async def asyncio(
         page (Union[Unset, None, int]):  Default: 1.
         ontology (str):
         codes (List[str]):
+        care_sites (Union[Unset, None, List[str]]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -232,5 +253,6 @@ async def asyncio(
             page=page,
             ontology=ontology,
             codes=codes,
+            care_sites=care_sites,
         )
     ).parsed

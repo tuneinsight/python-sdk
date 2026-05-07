@@ -18,7 +18,11 @@ from tuneinsight.utils.plots import (
 )
 
 from tuneinsight.api.sdk import models
-from tuneinsight.api.sdk.types import none_if_unset, false_if_unset, value_if_unset
+from tuneinsight.api.sdk.types import (
+    none_if_unset,
+    false_if_unset,
+    true_if_unset,
+)
 
 
 class FeasibilityResult(ComputationResult):
@@ -130,10 +134,8 @@ class Feasibility(ModelBasedComputation):
             comp = cls(
                 project,
                 groups=none_if_unset(model.groups),
-                include_global_count=value_if_unset(model.global_count, True),
-                per_instance_breakdown=value_if_unset(
-                    model.per_instance_breakdown, True
-                ),
+                include_global_count=true_if_unset(model.global_count),
+                per_instance_breakdown=true_if_unset(model.per_instance_breakdown),
                 local_breakdown=false_if_unset(model.local_breakdown),
                 dp_epsilon=model.dp_epsilon,
             )

@@ -10,7 +10,6 @@ from tuneinsight.api.sdk import models
 from tuneinsight.utils import time_tools
 from tuneinsight.utils.plots import style_title, style_suptitle
 
-
 BIT = 1
 BYTE = 8 * BIT
 KILOBIT = 1024 * BIT

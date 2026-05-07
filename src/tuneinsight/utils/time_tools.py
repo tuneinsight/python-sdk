@@ -1,6 +1,7 @@
 """Utility package to use time in a practical matter, using time as int values in nanoseconds."""
 
 import time
+from datetime import timedelta
 
 # Constants to appropriately scale time values.
 NANOSECOND: int = 1
@@ -23,5 +24,10 @@ def since(oldTime: int) -> int:
 
 
 def sleep(nanoseconds: int):
-    """Block the current thread for at least some number of nanoseconds."""
+    """Blocks the current thread for at least some number of nanoseconds."""
     return time.sleep(nanoseconds / SECOND)
+
+
+def render_seconds(seconds: int) -> str:
+    """Renders a number of seconds in a human-readable way."""
+    return str(timedelta(seconds=seconds))

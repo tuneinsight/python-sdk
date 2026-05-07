@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: tuneinsight
-Version: 1.6.0
+Version: 2.0.0
 Summary: Official Python SDK for the Tune Insight API. The current version is compatible with the same version of the API.
 License: Apache-2.0
 Author: Tune Insight SA
@@ -14,9 +14,9 @@ Classifier: Programming Language :: Python :: 3.14
 Provides-Extra: full
 Requires-Dist: PyYAML (>=6.0,<7.0)
 Requires-Dist: attrs (>=21.3.0)
-Requires-Dist: black (==24.2.0)
+Requires-Dist: black (>=26.3.1,<27.0.0)
 Requires-Dist: certifi (>=2024.7.4,<2025.0.0)
-Requires-Dist: cryptography (>=46.0.5,<47.0.0)
+Requires-Dist: cryptography (>=46.0.7,<47.0.0)
 Requires-Dist: fonttools (>=4.60.2,<5.0.0)
 Requires-Dist: h11 (>=0.16.0,<0.17.0)
 Requires-Dist: httpx (>=0.15.4,<0.28.0)
@@ -25,15 +25,17 @@ Requires-Dist: jinja2 (>=3.1.6,<4.0.0)
 Requires-Dist: jsonpickle (>=4.1.1,<5.0.0)
 Requires-Dist: jupyter (>=1.1.1,<2.0.0) ; extra == "full"
 Requires-Dist: jupyter-client (>=8.6.3,<9.0.0) ; extra == "full"
-Requires-Dist: jupyterlab (>=4.4.8,<5.0.0) ; extra == "full"
+Requires-Dist: jupyterlab (>=4.5.7,<5.0.0) ; extra == "full"
 Requires-Dist: matplotlib (>=3.5.0,<4.0.0)
-Requires-Dist: notebook (>=7.3.3,<8.0.0) ; extra == "full"
+Requires-Dist: notebook (>=7.5.6,<8.0.0) ; extra == "full"
 Requires-Dist: pandas (>=2.2.3,<3.0.0)
-Requires-Dist: pillow (>=12.1.1,<13.0.0)
+Requires-Dist: pillow (>=12.2.0,<13.0.0)
+Requires-Dist: pygments (>=2.20.0,<3.0.0)
 Requires-Dist: python-dateutil (>=2.8.0,<3.0.0)
-Requires-Dist: python-dotenv (>=0.21.0,<0.22.0)
+Requires-Dist: python-dotenv (>=1.2.2,<2.0.0)
+Requires-Dist: python-json-logger (==4.0.0)
 Requires-Dist: python-keycloak
-Requires-Dist: requests (>=2.32.4)
+Requires-Dist: requests (>=2.33.0,<3.0.0)
 Requires-Dist: tornado (>=6.5.0,<7.0.0) ; extra == "full"
 Requires-Dist: tqdm (>=4.66.4,<5.0.0)
 Requires-Dist: typing-extensions (>=4.6.3,<5.0.0)

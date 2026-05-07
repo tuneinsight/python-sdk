@@ -73,6 +73,7 @@ class Computation(ABC):
     polling_initial_interval: int
     precision: int
     ignore_boundary_checks: bool
+    mhe_v1: bool
     debug: bool
     # If the computation times out, it is stored so that it can be resumed.
     _timedout_computation: models.Computation = None
@@ -106,6 +107,7 @@ class Computation(ABC):
         self.max_timeout = 600 * time_tools.SECOND
         self.precision = None
         self.ignore_boundary_checks = False
+        self.mhe_v1 = True
         self.debug = False
         # Useful for debugging the post-processing.
         self._last_raw_results = None
@@ -198,6 +200,7 @@ class Computation(ABC):
         """
         model.wait = False
         model.ignore_boundary_checks = self.ignore_boundary_checks
+        model.mhe_v1 = self.mhe_v1
         if not self._field_is_set(model.project_id):
             model.project_id = self.project.get_id()
         model.timeout = int(self.max_timeout / time_tools.SECOND)
@@ -768,6 +771,8 @@ class ModelBasedComputation(Computation):
             self.local_input = model.local_input
         if is_set(model.ignore_boundary_checks):
             self.ignore_boundary_checks = model.ignore_boundary_checks
+        if is_set(model.mhe_v1):
+            self.mhe_v1 = model.mhe_v1
         if is_set(model.precision):
             self.precision = model.precision
         # Update the computation in the project to send the updates to the .
