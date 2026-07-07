@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: tuneinsight
-Version: 2.0.0
+Version: 2.1.0
 Summary: Official Python SDK for the Tune Insight API. The current version is compatible with the same version of the API.
 License: Apache-2.0
 Author: Tune Insight SA
@@ -15,11 +15,13 @@ Provides-Extra: full
 Requires-Dist: PyYAML (>=6.0,<7.0)
 Requires-Dist: attrs (>=21.3.0)
 Requires-Dist: black (>=26.3.1,<27.0.0)
+Requires-Dist: bleach (>=6.4.0,<7.0.0)
 Requires-Dist: certifi (>=2024.7.4,<2025.0.0)
-Requires-Dist: cryptography (>=46.0.7,<47.0.0)
+Requires-Dist: cryptography (>=48.0.1,<49.0.0)
 Requires-Dist: fonttools (>=4.60.2,<5.0.0)
 Requires-Dist: h11 (>=0.16.0,<0.17.0)
 Requires-Dist: httpx (>=0.15.4,<0.28.0)
+Requires-Dist: idna (>=3.15,<4.0)
 Requires-Dist: ipython (==8.18.1)
 Requires-Dist: jinja2 (>=3.1.6,<4.0.0)
 Requires-Dist: jsonpickle (>=4.1.1,<5.0.0)
@@ -36,10 +38,10 @@ Requires-Dist: python-dotenv (>=1.2.2,<2.0.0)
 Requires-Dist: python-json-logger (==4.0.0)
 Requires-Dist: python-keycloak
 Requires-Dist: requests (>=2.33.0,<3.0.0)
-Requires-Dist: tornado (>=6.5.0,<7.0.0) ; extra == "full"
+Requires-Dist: tornado (>=6.5.7,<7.0.0) ; extra == "full"
 Requires-Dist: tqdm (>=4.66.4,<5.0.0)
 Requires-Dist: typing-extensions (>=4.6.3,<5.0.0)
-Requires-Dist: urllib3 (>=2.6.0,<3.0.0)
+Requires-Dist: urllib3 (>=2.7.0,<3.0.0)
 Description-Content-Type: text/markdown
 
 # Tune Insight Python SDK

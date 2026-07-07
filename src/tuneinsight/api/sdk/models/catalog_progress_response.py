@@ -18,8 +18,6 @@ class CatalogProgressResponse:
     catalog.
 
         Attributes:
-            allocate_budget_status (Union[Unset, JobProgress]): the progress of an ongoing or complete catalog build or any
-                other related job.
             build_catalog_status (Union[Unset, JobProgress]): the progress of an ongoing or complete catalog build or any
                 other related job.
             build_network_catalog_status (Union[Unset, JobProgress]): the progress of an ongoing or complete catalog build
@@ -28,17 +26,12 @@ class CatalogProgressResponse:
                 other related job.
     """
 
-    allocate_budget_status: Union[Unset, "JobProgress"] = UNSET
     build_catalog_status: Union[Unset, "JobProgress"] = UNSET
     build_network_catalog_status: Union[Unset, "JobProgress"] = UNSET
     load_ontologies_status: Union[Unset, "JobProgress"] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        allocate_budget_status: Union[Unset, Dict[str, Any]] = UNSET
-        if not isinstance(self.allocate_budget_status, Unset):
-            allocate_budget_status = self.allocate_budget_status.to_dict()
-
         build_catalog_status: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.build_catalog_status, Unset):
             build_catalog_status = self.build_catalog_status.to_dict()
@@ -54,8 +47,6 @@ class CatalogProgressResponse:
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if allocate_budget_status is not UNSET:
-            field_dict["allocateBudgetStatus"] = allocate_budget_status
         if build_catalog_status is not UNSET:
             field_dict["buildCatalogStatus"] = build_catalog_status
         if build_network_catalog_status is not UNSET:
@@ -70,13 +61,6 @@ class CatalogProgressResponse:
         from ..models.job_progress import JobProgress
 
         d = src_dict.copy()
-        _allocate_budget_status = d.pop("allocateBudgetStatus", UNSET)
-        allocate_budget_status: Union[Unset, JobProgress]
-        if isinstance(_allocate_budget_status, Unset):
-            allocate_budget_status = UNSET
-        else:
-            allocate_budget_status = JobProgress.from_dict(_allocate_budget_status)
-
         _build_catalog_status = d.pop("buildCatalogStatus", UNSET)
         build_catalog_status: Union[Unset, JobProgress]
         if isinstance(_build_catalog_status, Unset):
@@ -99,7 +83,6 @@ class CatalogProgressResponse:
             load_ontologies_status = JobProgress.from_dict(_load_ontologies_status)
 
         catalog_progress_response = cls(
-            allocate_budget_status=allocate_budget_status,
             build_catalog_status=build_catalog_status,
             build_network_catalog_status=build_network_catalog_status,
             load_ontologies_status=load_ontologies_status,

@@ -126,3 +126,29 @@ def statistics_confidence_interval(
         if use_default or models.StatisticalQuantity.VARIANCE in stat_def.quantities:
             results.append(header + ("variance",) + tuple(matrix[2 * i + 1, :]))
     return pd.DataFrame(results, columns=columns)
+
+
+def post_process_aggregation_average(
+    content: models.FloatMatrix, remove_counts: bool = True
+) -> models.FloatMatrix:
+    """Post-processes aggregation results when the average must be computed.
+
+    Args:
+        content (models.FloatMatrix): raw aggregated results (including column names).
+        remove_counts (bool): whether to remove counts from the result. Defaults to True.
+
+    Returns:
+        content: the input content, modified in place to have the results divided by the count.
+    """
+    # Safely write the content to a CSV.
+    df = pd.DataFrame(content.data, columns=content.columns)
+    csv_data = StringIO()
+    df.to_csv(csv_data, index=False)
+    post_process = so.PostProcessAverageAggregation
+    post_process.restype = ctypes.c_char_p
+    csv_result = post_process(csv_data.getvalue().encode("UTF-8"), int(remove_counts))
+    csv_result = csv_result.decode("utf8")
+    df = pd.read_csv(StringIO(csv_result))
+    content.data = [row.tolist() for _, row in df.iterrows()]
+    content.columns = df.columns
+    return content

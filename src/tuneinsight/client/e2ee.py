@@ -13,7 +13,10 @@ from tuneinsight.cryptolib import (
     decrypt_stats,
 )
 
-from tuneinsight.cryptolib.postprocessing import post_process_statistics
+from tuneinsight.cryptolib.postprocessing import (
+    post_process_statistics,
+    post_process_aggregation_average,
+)
 
 from tuneinsight.api.sdk import models
 from tuneinsight.api.sdk import client as api_client
@@ -102,12 +105,22 @@ def post_process(
         content (models.Content): the decrypted/plaintext result of the computation.
         postprocessing (str): a description of the post-processing operation.
     """
-    if postprocessing == "dp-statistics":
-        stat_def = models.DatasetStatistics.from_dict(comp.to_dict())
-        assert isinstance(
-            content, models.FloatMatrix
-        ), "cannot post-process statistics (expected float matrix)"
-        return post_process_statistics(stat_def, content.data)
+    match postprocessing:
+        case models.PostprocessingOperation.DP_STATISTICS:
+            stat_def = models.DatasetStatistics.from_dict(comp.to_dict())
+            assert isinstance(
+                content, models.FloatMatrix
+            ), "cannot post-process statistics (expected float matrix)"
+            return post_process_statistics(stat_def, content.data)
+        case models.PostprocessingOperation.AVERAGE:
+            assert isinstance(
+                content, models.FloatMatrix
+            ), "cannot post-process averages (expected float matrix)"
+            remove_counts = True
+            if comp.type == models.ComputationType.ENCRYPTEDAGGREGATION:
+                remove_counts = not comp.to_dict().get("includeCount", False)
+            content = post_process_aggregation_average(content, remove_counts)
+            return content
     return content
 
 

@@ -4,6 +4,7 @@ import attr
 
 from ..models.content_type import ContentType
 from ..models.encrypted_content_type import EncryptedContentType
+from ..models.postprocessing_operation import PostprocessingOperation
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -23,8 +24,8 @@ class EncryptedContent:
         columns (Union[Unset, List[str]]): optional metadata giving the name of the columns of the encrypted matrix
         encrypted_type (Union[Unset, EncryptedContentType]): Type of the plaintext content stored in an
             encryptedContent.
-        required_post_processing (Union[Unset, str]): if specified, a post-processing operation that needs to be applied
-            once the content of this object is decrypted.
+        required_post_processing (Union[Unset, PostprocessingOperation]): a post-processing operation that is applied
+            client-side to the result of a computation.
     """
 
     type: ContentType
@@ -32,7 +33,7 @@ class EncryptedContent:
     contextual_info: Union[Unset, "ResultContextualInfo"] = UNSET
     columns: Union[Unset, List[str]] = UNSET
     encrypted_type: Union[Unset, EncryptedContentType] = UNSET
-    required_post_processing: Union[Unset, str] = UNSET
+    required_post_processing: Union[Unset, PostprocessingOperation] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -51,7 +52,9 @@ class EncryptedContent:
         if not isinstance(self.encrypted_type, Unset):
             encrypted_type = self.encrypted_type.value
 
-        required_post_processing = self.required_post_processing
+        required_post_processing: Union[Unset, str] = UNSET
+        if not isinstance(self.required_post_processing, Unset):
+            required_post_processing = self.required_post_processing.value
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -97,7 +100,12 @@ class EncryptedContent:
         else:
             encrypted_type = EncryptedContentType(_encrypted_type)
 
-        required_post_processing = d.pop("requiredPostProcessing", UNSET)
+        _required_post_processing = d.pop("requiredPostProcessing", UNSET)
+        required_post_processing: Union[Unset, PostprocessingOperation]
+        if isinstance(_required_post_processing, Unset):
+            required_post_processing = UNSET
+        else:
+            required_post_processing = PostprocessingOperation(_required_post_processing)
 
         encrypted_content = cls(
             type=type,

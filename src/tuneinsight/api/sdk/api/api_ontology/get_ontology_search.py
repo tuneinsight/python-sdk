@@ -25,6 +25,8 @@ def _get_kwargs(
     ontologies: List[str],
     care_sites: Union[Unset, None, List[str]] = UNSET,
     domains: Union[Unset, None, List[str]] = UNSET,
+    favorite: Union[Unset, None, bool] = UNSET,
+    simplify_outputs: Union[Unset, None, bool] = UNSET,
 ) -> Dict[str, Any]:
     url = "{}/ontology-search".format(client.base_url)
 
@@ -75,6 +77,10 @@ def _get_kwargs(
             json_domains = domains
 
     params["domains[]"] = json_domains
+
+    params["favorite"] = favorite
+
+    params["simplifyOutputs"] = simplify_outputs
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
@@ -154,6 +160,8 @@ def sync_detailed(
     ontologies: List[str],
     care_sites: Union[Unset, None, List[str]] = UNSET,
     domains: Union[Unset, None, List[str]] = UNSET,
+    favorite: Union[Unset, None, bool] = UNSET,
+    simplify_outputs: Union[Unset, None, bool] = UNSET,
 ) -> Response[Union[Error, List["GetOntologySearchResponse200Item"]]]:
     """Search ontologies with a search term
 
@@ -168,6 +176,8 @@ def sync_detailed(
         ontologies (List[str]):
         care_sites (Union[Unset, None, List[str]]):
         domains (Union[Unset, None, List[str]]):
+        favorite (Union[Unset, None, bool]):
+        simplify_outputs (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -189,6 +199,8 @@ def sync_detailed(
         ontologies=ontologies,
         care_sites=care_sites,
         domains=domains,
+        favorite=favorite,
+        simplify_outputs=simplify_outputs,
     )
 
     response = httpx.request(
@@ -212,6 +224,8 @@ def sync(
     ontologies: List[str],
     care_sites: Union[Unset, None, List[str]] = UNSET,
     domains: Union[Unset, None, List[str]] = UNSET,
+    favorite: Union[Unset, None, bool] = UNSET,
+    simplify_outputs: Union[Unset, None, bool] = UNSET,
 ) -> Optional[Union[Error, List["GetOntologySearchResponse200Item"]]]:
     """Search ontologies with a search term
 
@@ -226,6 +240,8 @@ def sync(
         ontologies (List[str]):
         care_sites (Union[Unset, None, List[str]]):
         domains (Union[Unset, None, List[str]]):
+        favorite (Union[Unset, None, bool]):
+        simplify_outputs (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -247,6 +263,8 @@ def sync(
         ontologies=ontologies,
         care_sites=care_sites,
         domains=domains,
+        favorite=favorite,
+        simplify_outputs=simplify_outputs,
     ).parsed
 
 
@@ -263,6 +281,8 @@ async def asyncio_detailed(
     ontologies: List[str],
     care_sites: Union[Unset, None, List[str]] = UNSET,
     domains: Union[Unset, None, List[str]] = UNSET,
+    favorite: Union[Unset, None, bool] = UNSET,
+    simplify_outputs: Union[Unset, None, bool] = UNSET,
 ) -> Response[Union[Error, List["GetOntologySearchResponse200Item"]]]:
     """Search ontologies with a search term
 
@@ -277,6 +297,8 @@ async def asyncio_detailed(
         ontologies (List[str]):
         care_sites (Union[Unset, None, List[str]]):
         domains (Union[Unset, None, List[str]]):
+        favorite (Union[Unset, None, bool]):
+        simplify_outputs (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -298,6 +320,8 @@ async def asyncio_detailed(
         ontologies=ontologies,
         care_sites=care_sites,
         domains=domains,
+        favorite=favorite,
+        simplify_outputs=simplify_outputs,
     )
 
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
@@ -319,6 +343,8 @@ async def asyncio(
     ontologies: List[str],
     care_sites: Union[Unset, None, List[str]] = UNSET,
     domains: Union[Unset, None, List[str]] = UNSET,
+    favorite: Union[Unset, None, bool] = UNSET,
+    simplify_outputs: Union[Unset, None, bool] = UNSET,
 ) -> Optional[Union[Error, List["GetOntologySearchResponse200Item"]]]:
     """Search ontologies with a search term
 
@@ -333,6 +359,8 @@ async def asyncio(
         ontologies (List[str]):
         care_sites (Union[Unset, None, List[str]]):
         domains (Union[Unset, None, List[str]]):
+        favorite (Union[Unset, None, bool]):
+        simplify_outputs (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -355,5 +383,7 @@ async def asyncio(
             ontologies=ontologies,
             care_sites=care_sites,
             domains=domains,
+            favorite=favorite,
+            simplify_outputs=simplify_outputs,
         )
     ).parsed

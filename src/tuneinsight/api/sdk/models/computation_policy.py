@@ -22,6 +22,8 @@ class ComputationPolicy:
             allowed to change when a project is authorized
         data_policy (Union[Unset, DatasourcePolicy]): policy required by a datasource for the data to be used in a
             project.
+        disable_participant_selection (Union[Unset, None, bool]): Whether to disable the selection of participants in a
+            workflow. If activated, all available contributing participants are used for each computation.
         disabled (Union[Unset, None, bool]): when set to true, the policy is not enforced anymore.
             This field is useful when a project is being setup and workflows should be tested with or without policies.
         fixed_parameters (Union[Unset, List[str]]): when validateParameters is enabled, specifies the set of parameters
@@ -35,6 +37,7 @@ class ComputationPolicy:
 
     authorization_contract: Union[Unset, "AuthorizationContract"] = UNSET
     data_policy: Union[Unset, "DatasourcePolicy"] = UNSET
+    disable_participant_selection: Union[Unset, None, bool] = UNSET
     disabled: Union[Unset, None, bool] = UNSET
     fixed_parameters: Union[Unset, List[str]] = UNSET
     flexible_parameters: Union[Unset, List[str]] = UNSET
@@ -51,6 +54,7 @@ class ComputationPolicy:
         if not isinstance(self.data_policy, Unset):
             data_policy = self.data_policy.to_dict()
 
+        disable_participant_selection = self.disable_participant_selection
         disabled = self.disabled
         fixed_parameters: Union[Unset, List[str]] = UNSET
         if not isinstance(self.fixed_parameters, Unset):
@@ -73,6 +77,8 @@ class ComputationPolicy:
             field_dict["authorizationContract"] = authorization_contract
         if data_policy is not UNSET:
             field_dict["dataPolicy"] = data_policy
+        if disable_participant_selection is not UNSET:
+            field_dict["disableParticipantSelection"] = disable_participant_selection
         if disabled is not UNSET:
             field_dict["disabled"] = disabled
         if fixed_parameters is not UNSET:
@@ -107,6 +113,8 @@ class ComputationPolicy:
         else:
             data_policy = DatasourcePolicy.from_dict(_data_policy)
 
+        disable_participant_selection = d.pop("disableParticipantSelection", UNSET)
+
         disabled = d.pop("disabled", UNSET)
 
         fixed_parameters = cast(List[str], d.pop("fixedParameters", UNSET))
@@ -125,6 +133,7 @@ class ComputationPolicy:
         computation_policy = cls(
             authorization_contract=authorization_contract,
             data_policy=data_policy,
+            disable_participant_selection=disable_participant_selection,
             disabled=disabled,
             fixed_parameters=fixed_parameters,
             flexible_parameters=flexible_parameters,

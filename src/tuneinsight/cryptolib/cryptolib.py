@@ -16,6 +16,7 @@ from tuneinsight.cryptolib import *
 """
 
 import ctypes
+from io import StringIO
 from pathlib import Path
 from os.path import exists
 import platform
@@ -274,9 +275,7 @@ def decrypt_dataframe(
     if plaintext_csv_bytes is None:
         raise go_error()
     plaintext_csv = plaintext_csv_bytes.decode("utf8")
-    plaintext_dataframe = pd.DataFrame(
-        [row.split(",") for row in plaintext_csv.split("\n")]
-    )
+    plaintext_dataframe = pd.read_csv(StringIO(plaintext_csv), header=None)
     # Treat the first column as an index if (1) there are more columns than headers, or
     # (2) headers are None and there is more than one column.
     num_cols = len(plaintext_dataframe.columns)

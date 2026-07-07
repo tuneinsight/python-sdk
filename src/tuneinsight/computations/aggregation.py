@@ -49,8 +49,6 @@ class Aggregation(ModelBasedComputation):
     dp_epsilon = UNSET
     columns: list[models.ColumnProperties]
     groups: list[models.GroupingParameters]
-    include_count: bool
-    average: bool
 
     def __init__(
         self,
@@ -105,11 +103,8 @@ class Aggregation(ModelBasedComputation):
                 When grouping columns are specified, they must exist in the dataset regardless of the value of this parameter.
                 However, the records from each participant do not need to fall into all groups.
 
-            average (bool, optional):
-                Controls whether the aggregated results are automatically averaged on the client-side.
-                If this is set, then the include_count parameter gets automatically set to True.
-                This allows the client to use the record count to compute the average in the post-processing phase.
-                Defaults to False.
+            average (bool, optional): whether the aggregated results should be divided by the count to compute
+                the averages rather than the sums.
 
             float_precision (int, optional):
                 Numerical precision of the output aggregated values. Defaults to 2.
@@ -125,8 +120,7 @@ class Aggregation(ModelBasedComputation):
         if project.is_differentially_private:
             self._assert_dp_groups_compatibility(groups)
         # if groups are specified but columns are not, then set include count to true
-        # if the average is requested then include average in.
-        if (len(groups) > 0 and len(columns) == 0) or average:
+        if len(groups) > 0 and len(columns) == 0:
             include_count = True
 
         super().__init__(
@@ -138,13 +132,12 @@ class Aggregation(ModelBasedComputation):
             groups=groups,
             include_count=include_count,
             allow_missing_columns=allow_missing_columns,
+            average=average,
             **kwargs,
         )
         self.float_precision = float_precision
-        self.average = average
         self.groups = groups
         self.columns = columns
-        self.include_count = include_count
 
     @classmethod
     def from_model(
@@ -157,7 +150,6 @@ class Aggregation(ModelBasedComputation):
                 project,
                 columns=none_if_unset(model.columns),
                 groups=none_if_unset(model.groups),
-                include_count=false_if_unset(model.include_count),
                 allow_missing_columns=false_if_unset(model.allow_missing_columns),
                 dp_epsilon=model.dp_epsilon,
             )
@@ -172,12 +164,6 @@ class Aggregation(ModelBasedComputation):
             return self._process_grouped_results(result.columns, rounded_totals)
         if len(result.columns) == len(rounded_totals):
             data = {"Column": result.columns, "Total": rounded_totals}
-            if self.average:
-                count = 1
-                if "count" in result.columns:
-                    count = rounded_totals[result.columns.index("count")]
-                averages = [round(v / count, self.float_precision) for v in totals]
-                data["Average"] = averages
         else:
             data = rounded_totals
         return pd.DataFrame(data)
@@ -202,18 +188,6 @@ class Aggregation(ModelBasedComputation):
                 record["count"] = int(round(data_entry))
             if col["aggregatedColumn"] != "":
                 record[col["aggregatedColumn"]] = data_entry
-
-        if self.average:
-            for record in df_data.values():
-                if "count" not in record:
-                    continue
-                for agg_col in self.columns:
-                    if agg_col.name not in record:
-                        continue
-                    if record["count"] > 0:
-                        record[f"average_{agg_col.name}"] = round(
-                            record[agg_col.name] / record["count"], self.float_precision
-                        )
         return pd.DataFrame(data=list(df_data.values()))
 
     @staticmethod
@@ -420,11 +394,6 @@ class Aggregation(ModelBasedComputation):
     ):
         x = list(result.Column)
         y = list(result.Total)
-        if self.average:
-            y = list(result.Average)
-            x.pop()
-            y.pop()
-
         hist(x, y, title, x_label=x_label, y_label=y_label, size=size)
 
     def _plot_groups(
@@ -451,8 +420,6 @@ class Aggregation(ModelBasedComputation):
         if columns is None:
             if hasattr(self, "columns") and len(self.columns) > 0:
                 columns = [v.name for v in self.columns]
-                if self.average:
-                    columns = [f"average_{v}" for v in columns]
             else:
                 # Contingency Matrix Print case
                 if len(self.groups) == 2:

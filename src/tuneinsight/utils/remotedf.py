@@ -15,9 +15,9 @@ This module defines the following classes and functions:
 
 """
 
+import re
 from typing import Any, Callable
 
-import re
 import black
 import numpy as np
 import pandas as pd
@@ -35,16 +35,28 @@ class _SelectedColumn:
         self.remotedf = remotedf
         self.name = name
 
-    def __add__(self, other_column):
+    # Override the +, * and / operators of this object, so that remotedf[columnname] * / +
+    # has the behavior of creating a new corresponding operation on the (remote) dataframe.
+
+    def __add__(self, other_column):  # Overrides the default +.
         assert isinstance(other_column, _SelectedColumn)
         return _SumOfColumns(self, other_column)
 
-    def __mul__(self, value):
+    def __mul__(self, value):  # Overrides the default *.
         if isinstance(value, (int, float)):
             return _ScaleOperation(self, value)
         if isinstance(value, _SelectedColumn):
             return _MultiplyColumnsOperations(self, value)
-        raise ValueError(f"multiplication with {type(value)} not supported")
+        raise NotImplementedError(f"multiplication with {type(value)} not supported")
+
+    def __truediv__(self, value):  # Overrides the default /.
+        if isinstance(value, (int, float)):
+            if abs(value) < 1e-16:
+                raise ZeroDivisionError()
+            return _ScaleOperation(self, 1 / value)
+        if isinstance(value, _SelectedColumn):
+            return _DivideOperation(self, value)
+        raise NotImplementedError(f"Division with {type(value)} not supported")
 
     def __rmul__(self, value):
         return self.__mul__(value)
@@ -65,13 +77,15 @@ class _SelectedColumn:
     def ffill(self):
         "Forward fills missing entries in the data (see `pandas.DataFrame.ffill`)."
         return _InplaceOperation(
-            self, lambda _: self.remotedf.ffill(columns=[self.name], inplace=True)
+            self,
+            lambda _: self.remotedf.ffill(columns=[self.name], inplace=True),
         )
 
     def bfill(self):
         "Backward fills missing entries in the data (see `pandas.DataFrame.bfill`)."
         return _InplaceOperation(
-            self, lambda _: self.remotedf.bfill(columns=[self.name], inplace=True)
+            self,
+            lambda _: self.remotedf.bfill(columns=[self.name], inplace=True),
         )
 
     def interpolate(self, method="linear"):
@@ -198,6 +212,24 @@ class _MultiplyColumnsOperations(_PendingOperation):
 
     def commit(self, output_name: str):
         self.df.builder.multiply_columns(self.columns, output_name)
+
+
+class _DivideOperation(_PendingOperation):
+    """A pending operation dividing one column by another."""
+
+    def __init__(self, numerator: _SelectedColumn, denominator: _SelectedColumn):
+        self.df = numerator.remotedf
+        if numerator.remotedf != denominator.remotedf:
+            raise ValueError("all operations must apply to the same RemoteDataFrame")
+        self.numerator = numerator
+        self.denominator = denominator
+
+    def commit(self, output_name):
+        self.df.builder.divide_columns(
+            numerator_column=self.numerator.name,
+            denominator_column=self.denominator.name,
+            output_column=output_name,
+        )
 
 
 class _FilterOperation:
@@ -327,9 +359,10 @@ class RemoteDataFrame:
         """This operation alters the axis labels. By default, this operation renames the columns of a dataset."""
         assert inplace is True, "rename must be done inplace."
         # Convert Pandas inputs into inputs compatible with the API.
-        axis = {"columns": models.RenameAxis.COLUMNS, "index": models.RenameAxis.INDEX}[
-            axis
-        ]
+        axis = {
+            "columns": models.RenameAxis.COLUMNS,
+            "index": models.RenameAxis.INDEX,
+        }[axis]
         errors = {"raise": True, "ignore": False}[errors]
         self.builder.rename(mapper, axis=axis, errors=errors)
         return self
@@ -478,6 +511,26 @@ def select(
     raise ValueError(f"Invalid type for select: {type(df)}")
 
 
+def compute_bmi(
+    df: pd.DataFrame | RemoteDataFrame,
+    weight_column: str,
+    height_column: str,
+    output_column: str,
+) -> pd.DataFrame | RemoteDataFrame:
+    """Computes the BMI in kg/m² from weight and height columns. The output is saved in `output_column`."""
+    if isinstance(df, pd.DataFrame):
+        df[output_column] = df[weight_column] / df[height_column] ** 2
+        return df
+    if isinstance(df, RemoteDataFrame):
+        df.builder.compute_BMI(
+            weight_column=weight_column,
+            height_column=height_column,
+            output_column=output_column,
+        )
+        return df
+    raise ValueError(f"Invalid type for compute_bmi: {type(df)}")
+
+
 def custom(
     name: str = "",
     description: str = "",
@@ -617,6 +670,15 @@ def chain_to_code(chain: models.PreprocessingChain) -> str:
             blocks.append(
                 f"df['{op.output_column}'] = "
                 + " * ".join(f"df['{col}']" for col in op.input_columns)
+            )
+        case models.PreprocessingOperationType.DIVIDECOLUMNS:
+            blocks.append(
+                f"df['{op.output_column}'] = df['{op.numerator_column}'] / df['{op.denominator_column}']"
+            )
+        case models.PreprocessingOperationType.COMPUTEBMI:
+            imports_needed.add("compute_bmi")
+            blocks.append(
+                f"compute_bmi(df, {op.weight_column}, {op.height_column}, {op.output_column})"
             )
         case models.PreprocessingOperationType.NEWCOLUMN:
             blocks.append(f"df['{op.name}'] = {repr(op.value)}")

@@ -5,6 +5,8 @@ from typing import Any, BinaryIO, Generic, Literal, MutableMapping, Optional, Tu
 
 from attrs import define
 
+T = TypeVar("T")
+
 
 class Unset:
     def __bool__(self) -> Literal[False]:
@@ -25,28 +27,28 @@ def is_set(v: Any) -> bool:
 
 
 def is_empty(v: Any) -> bool:
-    """Returns whether an API model is either Unset or its to_dict is equal to {}."""
+    """Returns whether an API model is either Unset or its `.to_dict()` is equal to {}."""
     return is_unset(v) or len(v.to_dict()) == 0
 
 
-def value_if_unset(v: Any, default: Any) -> Any:
+def value_if_unset(v: T | Unset, default: T) -> T:
     """If v is Unset, returns the default value. Otherwise returns v unchanged."""
     if is_set(v):
         return v
     return default
 
 
-def none_if_unset(v: Any) -> Any:
+def none_if_unset(v: T | Unset) -> T | None:
     """If v is Unset, returns None. Otherwise, returns v unchanged."""
     return value_if_unset(v, None)
 
 
-def false_if_unset(v: Any) -> Any:
+def false_if_unset(v: T | Unset) -> T | bool:
     """if v is Unset, returns False. Otherwise, returns v unchanged."""
     return value_if_unset(v, False)
 
 
-def true_if_unset(v: Any) -> Any:
+def true_if_unset(v: T | Unset) -> T | bool:
     """if v is Unset, returns True. Otherwise, returns v unchanged."""
     return value_if_unset(v, True)
 
@@ -65,9 +67,6 @@ class File:
     def to_tuple(self) -> FileJsonType:
         """Returns a tuple representation that httpx will accept for multipart/form-data."""
         return self.file_name, self.payload, self.mime_type
-
-
-T = TypeVar("T")
 
 
 @define

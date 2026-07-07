@@ -7,38 +7,36 @@ and projects.
 
 """
 
-from contextlib import contextmanager
 import os
-from typing import Optional
 import warnings
 import webbrowser
+from contextlib import contextmanager
+from typing import Optional
 
 import attr
 import httpx
 import keycloak
 import pandas as pd
 
-from tuneinsight.api.sdk import models
-from tuneinsight.api.sdk.types import UNSET, Response, is_unset
 from tuneinsight.api.sdk import client as api_client
+from tuneinsight.api.sdk import models
+from tuneinsight.api.sdk.api.api_dataobject import get_data_object
+from tuneinsight.api.sdk.api.api_datasource import get_data_source_list
+from tuneinsight.api.sdk.api.api_infos import get_infos
 from tuneinsight.api.sdk.api.api_project import (
-    post_project,
     get_project,
     get_project_list,
+    post_project,
     post_project_join,
 )
-from tuneinsight.api.sdk.api.api_datasource import get_data_source_list
-from tuneinsight.api.sdk.api.api_dataobject import get_data_object
-from tuneinsight.api.sdk.api.api_infos import get_infos
-from tuneinsight.api.sdk.api.health import get_health
 from tuneinsight.api.sdk.api.api_users import get_user_info
-
+from tuneinsight.api.sdk.api.health import get_health
+from tuneinsight.api.sdk.types import UNSET, Response, is_unset
+from tuneinsight.client.auth import auth, config
 from tuneinsight.client.dataobject import DataObject
 from tuneinsight.client.datasource import DataSource
 from tuneinsight.client.project import Project
 from tuneinsight.client.validation import validate_response
-from tuneinsight.client.auth import config
-from tuneinsight.client.auth import auth
 from tuneinsight.utils import time_tools
 
 
@@ -831,7 +829,15 @@ class Diapason:
     def user_infos(self) -> models.UserInfo:
         """Fetches information about this user from the connected instance."""
         if self._user_info is None:
-            resp = get_user_info.sync_detailed(client=self.client)
+            try:
+                resp = get_user_info.sync_detailed(client=self.client)
+            except ValueError as err:
+                warnings.warn(
+                    f"Error encountered while loading user capabilities: {err}."
+                    "  This is likely because of a version mismatch between the SDK the Tune Insight instance."
+                )
+                # Empty user infos, not memorized in case the error is temporary.
+                return models.UserInfo()
             validate_response(resp)
             self._user_info = resp.parsed
         return self._user_info
@@ -839,6 +845,6 @@ class Diapason:
     def can(self, capability: models.Capability):
         """Returns whether this user has the given capability (represented by its unique name)."""
         infos = self.user_infos
-        if is_unset(infos.capabilities):
+        if infos is None or is_unset(infos.capabilities):
             return True
         return any(cap.name == capability for cap in infos.capabilities)
