@@ -2,14 +2,15 @@ from enum import Enum
 
 
 class PrivacyWarningType(str, Enum):
+    CANSINGLEOUTPARTICIPANTCONTRIBUTION = "canSingleOutParticipantContribution"
     COMBINELOCALRESULTS = "combineLocalResults"
     LENIENTAUTHORIZATIONCONTRACT = "lenientAuthorizationContract"
+    MINCONTRIBUTORSTOOSMALL = "minContributorsTooSmall"
+    MINDATASETSIZETOOSMALL = "minDatasetSizeTooSmall"
     NODATAPROTECTION = "noDataProtection"
     NOE2EE = "noE2EE"
-    MINCONTRIBUTORSTOOSMALL = "minContributorsTooSmall"
     NOQUERYLIMIT = "noQueryLimit"
     NOQUERYLIMITDP = "noQueryLimitDP"
-    MINDATASETSIZETOOSMALL = "minDatasetSizeTooSmall"
     PERINSTANCEBREAKDOWN = "perInstanceBreakdown"
     RECORDLINKAGE = "recordLinkage"
     UNLOCKEDCOMPUTATIONTYPE = "unlockedComputationType"

@@ -17,7 +17,6 @@ if TYPE_CHECKING:
     from ..models.data_source_status import DataSourceStatus
     from ..models.dataset_schema import DatasetSchema
     from ..models.datasource_policy import DatasourcePolicy
-    from ..models.local_data_selection import LocalDataSelection
     from ..models.view_config import ViewConfig
 
 
@@ -74,8 +73,6 @@ class DataSource:
             will be true only if the `queryEnabled` field of the base data source is true as well.
             This field is necessary because the client/UI does not necessarily know about
             the configuration of the base data source.
-        selections (Union[Unset, List['LocalDataSelection']]): list of local data selections associated with the data
-            source
         status (Union[Unset, DataSourceStatus]): regroups data source health check status information
         status_updated_at (Union[Unset, str]): time at which the status was last updated.
         supports_catalog_build (Union[Unset, bool]): This field is read only and indicates whether this data source can
@@ -112,7 +109,6 @@ class DataSource:
     projects: Union[Unset, List[str]] = UNSET
     query_builder_type: Union[Unset, QueryBuilderType] = UNSET
     query_enabled_can_be_toggled: Union[Unset, bool] = UNSET
-    selections: Union[Unset, List["LocalDataSelection"]] = UNSET
     status: Union[Unset, "DataSourceStatus"] = UNSET
     status_updated_at: Union[Unset, str] = UNSET
     supports_catalog_build: Union[Unset, bool] = UNSET
@@ -200,14 +196,6 @@ class DataSource:
             query_builder_type = self.query_builder_type.value
 
         query_enabled_can_be_toggled = self.query_enabled_can_be_toggled
-        selections: Union[Unset, List[Dict[str, Any]]] = UNSET
-        if not isinstance(self.selections, Unset):
-            selections = []
-            for selections_item_data in self.selections:
-                selections_item = selections_item_data.to_dict()
-
-                selections.append(selections_item)
-
         status: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.status, Unset):
             status = self.status.to_dict()
@@ -275,8 +263,6 @@ class DataSource:
             field_dict["queryBuilderType"] = query_builder_type
         if query_enabled_can_be_toggled is not UNSET:
             field_dict["queryEnabledCanBeToggled"] = query_enabled_can_be_toggled
-        if selections is not UNSET:
-            field_dict["selections"] = selections
         if status is not UNSET:
             field_dict["status"] = status
         if status_updated_at is not UNSET:
@@ -298,7 +284,6 @@ class DataSource:
         from ..models.data_source_status import DataSourceStatus
         from ..models.dataset_schema import DatasetSchema
         from ..models.datasource_policy import DatasourcePolicy
-        from ..models.local_data_selection import LocalDataSelection
         from ..models.view_config import ViewConfig
 
         d = src_dict.copy()
@@ -418,13 +403,6 @@ class DataSource:
 
         query_enabled_can_be_toggled = d.pop("queryEnabledCanBeToggled", UNSET)
 
-        selections = []
-        _selections = d.pop("selections", UNSET)
-        for selections_item_data in _selections or []:
-            selections_item = LocalDataSelection.from_dict(selections_item_data)
-
-            selections.append(selections_item)
-
         _status = d.pop("status", UNSET)
         status: Union[Unset, DataSourceStatus]
         if isinstance(_status, Unset):
@@ -467,7 +445,6 @@ class DataSource:
             projects=projects,
             query_builder_type=query_builder_type,
             query_enabled_can_be_toggled=query_enabled_can_be_toggled,
-            selections=selections,
             status=status,
             status_updated_at=status_updated_at,
             supports_catalog_build=supports_catalog_build,

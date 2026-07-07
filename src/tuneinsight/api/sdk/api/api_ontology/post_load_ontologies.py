@@ -6,23 +6,17 @@ import httpx
 from ... import errors
 from ...client import Client
 from ...models.error import Error
-from ...types import UNSET, Response, Unset
+from ...types import Response
 
 
 def _get_kwargs(
     *,
     client: Client,
-    reallocate_budget: Union[Unset, None, bool] = UNSET,
 ) -> Dict[str, Any]:
     url = "{}/load-ontologies".format(client.base_url)
 
     headers: Dict[str, str] = client.get_headers()
     cookies: Dict[str, Any] = client.get_cookies()
-
-    params: Dict[str, Any] = {}
-    params["reallocateBudget"] = reallocate_budget
-
-    params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
     # Set the proxies if the client has proxies set.
     proxies = None
@@ -42,7 +36,6 @@ def _get_kwargs(
         "cookies": cookies,
         "timeout": client.get_timeout(),
         "proxies": proxies,
-        "params": params,
     }
 
 
@@ -80,12 +73,8 @@ def _build_response(*, client: Client, response: httpx.Response) -> Response[Uni
 def sync_detailed(
     *,
     client: Client,
-    reallocate_budget: Union[Unset, None, bool] = UNSET,
 ) -> Response[Union[Any, Error]]:
     """re-load the ontologies in database
-
-    Args:
-        reallocate_budget (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -97,7 +86,6 @@ def sync_detailed(
 
     kwargs = _get_kwargs(
         client=client,
-        reallocate_budget=reallocate_budget,
     )
 
     response = httpx.request(
@@ -111,12 +99,8 @@ def sync_detailed(
 def sync(
     *,
     client: Client,
-    reallocate_budget: Union[Unset, None, bool] = UNSET,
 ) -> Optional[Union[Any, Error]]:
     """re-load the ontologies in database
-
-    Args:
-        reallocate_budget (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -128,19 +112,14 @@ def sync(
 
     return sync_detailed(
         client=client,
-        reallocate_budget=reallocate_budget,
     ).parsed
 
 
 async def asyncio_detailed(
     *,
     client: Client,
-    reallocate_budget: Union[Unset, None, bool] = UNSET,
 ) -> Response[Union[Any, Error]]:
     """re-load the ontologies in database
-
-    Args:
-        reallocate_budget (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -152,7 +131,6 @@ async def asyncio_detailed(
 
     kwargs = _get_kwargs(
         client=client,
-        reallocate_budget=reallocate_budget,
     )
 
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
@@ -164,12 +142,8 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: Client,
-    reallocate_budget: Union[Unset, None, bool] = UNSET,
 ) -> Optional[Union[Any, Error]]:
     """re-load the ontologies in database
-
-    Args:
-        reallocate_budget (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -182,6 +156,5 @@ async def asyncio(
     return (
         await asyncio_detailed(
             client=client,
-            reallocate_budget=reallocate_budget,
         )
     ).parsed

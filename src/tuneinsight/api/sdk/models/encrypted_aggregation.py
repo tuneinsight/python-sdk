@@ -86,6 +86,9 @@ class EncryptedAggregation:
             - If no columns are specified and the columns from each participant are not identical, an error is returned.
             - When grouping columns are specified, they must exist in the dataset regardless of the value of this parameter.
             However, the records from each participant do not need to fall into all groups.
+        average (Union[Unset, bool]): whether to return averages instead of absolute counts. If true, this also computes
+            the count (`includeCount = true` is redundant)
+            and the results are post-processed by dividing aggregated results by the count.
         columns (Union[Unset, List['ColumnProperties']]): the list of variables to aggregate.
         groups (Union[Unset, List['GroupingParameters']]): list of grouping functions to group the data with.
         include_count (Union[Unset, bool]): whether to include a 'count' column containing only '1's. This enables
@@ -119,6 +122,7 @@ class EncryptedAggregation:
     wait: Union[Unset, bool] = UNSET
     aggregate_features: Union[Unset, bool] = UNSET
     allow_missing_columns: Union[Unset, bool] = UNSET
+    average: Union[Unset, bool] = UNSET
     columns: Union[Unset, List["ColumnProperties"]] = UNSET
     groups: Union[Unset, List["GroupingParameters"]] = UNSET
     include_count: Union[Unset, bool] = UNSET
@@ -181,6 +185,7 @@ class EncryptedAggregation:
         wait = self.wait
         aggregate_features = self.aggregate_features
         allow_missing_columns = self.allow_missing_columns
+        average = self.average
         columns: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.columns, Unset):
             columns = []
@@ -258,6 +263,8 @@ class EncryptedAggregation:
             field_dict["aggregateFeatures"] = aggregate_features
         if allow_missing_columns is not UNSET:
             field_dict["allowMissingColumns"] = allow_missing_columns
+        if average is not UNSET:
+            field_dict["average"] = average
         if columns is not UNSET:
             field_dict["columns"] = columns
         if groups is not UNSET:
@@ -367,6 +374,8 @@ class EncryptedAggregation:
 
         allow_missing_columns = d.pop("allowMissingColumns", UNSET)
 
+        average = d.pop("average", UNSET)
+
         columns = []
         _columns = d.pop("columns", UNSET)
         for columns_item_data in _columns or []:
@@ -411,6 +420,7 @@ class EncryptedAggregation:
             wait=wait,
             aggregate_features=aggregate_features,
             allow_missing_columns=allow_missing_columns,
+            average=average,
             columns=columns,
             groups=groups,
             include_count=include_count,

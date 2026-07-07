@@ -57,6 +57,7 @@ from .computation_preprocessing_parameters_compound_preprocessing import (
 from .computation_progress import ComputationProgress
 from .computation_status import ComputationStatus
 from .computation_type import ComputationType
+from .compute_bmi import ComputeBMI
 from .compute_time_since import ComputeTimeSince
 from .concept_field import ConceptField
 from .confidence_interval import ConfidenceInterval
@@ -122,6 +123,7 @@ from .distribution import Distribution
 from .distribution_availability_status import DistributionAvailabilityStatus
 from .distribution_bin import DistributionBin
 from .distribution_type import DistributionType
+from .divide_columns import DivideColumns
 from .documentation_response_200 import DocumentationResponse200
 from .domain_stat import DomainStat
 from .dp_noise_metadata import DpNoiseMetadata
@@ -153,6 +155,7 @@ from .export_screened_data_method import ExportScreenedDataMethod
 from .external_ml_history import ExternalMlHistory
 from .external_ml_result import ExternalMlResult
 from .extract_dict_field import ExtractDictField
+from .favorite_term_definition import FavoriteTermDefinition
 from .feasibility import Feasibility
 from .fill_na import FillNA
 from .fill_na_method import FillNAMethod
@@ -177,6 +180,8 @@ from .get_concept_field_values_command import GetConceptFieldValuesCommand
 from .get_concept_field_values_command_result import GetConceptFieldValuesCommandResult
 from .get_data_preparation_sessions_order import GetDataPreparationSessionsOrder
 from .get_data_preparation_sessions_sort_by import GetDataPreparationSessionsSortBy
+from .get_favorite_terms_order import GetFavoriteTermsOrder
+from .get_favorite_terms_sort_by import GetFavoriteTermsSortBy
 from .get_infos_response_200 import GetInfosResponse200
 from .get_infos_response_200_catalog_status import GetInfosResponse200CatalogStatus
 from .get_jobs_order import GetJobsOrder
@@ -236,8 +241,6 @@ from .job_state import JobState
 from .jupyter_notebook import JupyterNotebook
 from .key_info import KeyInfo
 from .labelled_value import LabelledValue
-from .local_data_selection import LocalDataSelection
-from .local_data_selection_definition import LocalDataSelectionDefinition
 from .local_data_source_type import LocalDataSourceType
 from .local_input import LocalInput
 from .log import Log
@@ -275,7 +278,6 @@ from .participants_access_scope import ParticipantsAccessScope
 from .participation_status import ParticipationStatus
 from .phonetic_encoding import PhoneticEncoding
 from .post_data_object_json_body import PostDataObjectJsonBody
-from .post_data_source_data_multipart_data import PostDataSourceDataMultipartData
 from .post_llm_request_json_body import PostLlmRequestJsonBody
 from .post_llm_request_json_body_prompt_args import PostLlmRequestJsonBodyPromptArgs
 from .post_mock_dataset_access_scope import PostMockDatasetAccessScope
@@ -294,6 +296,7 @@ from .post_summarize_query_agent_response_200 import PostSummarizeQueryAgentResp
 from .post_transcribe_audio_multipart_data import PostTranscribeAudioMultipartData
 from .post_transcribe_audio_response_200 import PostTranscribeAudioResponse200
 from .post_user_response_201 import PostUserResponse201
+from .postprocessing_operation import PostprocessingOperation
 from .prediction import Prediction
 from .prediction_params import PredictionParams
 from .preprocessing_chain import PreprocessingChain
@@ -347,6 +350,7 @@ from .runtime_stats import RuntimeStats
 from .runtime_stats_top_goroutines import RuntimeStatsTopGoroutines
 from .scale import Scale
 from .schema_field import SchemaField
+from .schema_field_special_handler import SchemaFieldSpecialHandler
 from .schema_table import SchemaTable
 from .screened_row import ScreenedRow
 from .screening_operation import ScreeningOperation
@@ -476,6 +480,7 @@ __all__ = (
     "ComputationProgress",
     "ComputationStatus",
     "ComputationType",
+    "ComputeBMI",
     "ComputeTimeSince",
     "ConceptField",
     "ConfidenceInterval",
@@ -541,6 +546,7 @@ __all__ = (
     "DistributionAvailabilityStatus",
     "DistributionBin",
     "DistributionType",
+    "DivideColumns",
     "DocumentationResponse200",
     "DomainStat",
     "DpNoiseMetadata",
@@ -572,6 +578,7 @@ __all__ = (
     "ExternalMlHistory",
     "ExternalMlResult",
     "ExtractDictField",
+    "FavoriteTermDefinition",
     "Feasibility",
     "FillNA",
     "FillNAMethod",
@@ -596,6 +603,8 @@ __all__ = (
     "GetConceptFieldValuesCommandResult",
     "GetDataPreparationSessionsOrder",
     "GetDataPreparationSessionsSortBy",
+    "GetFavoriteTermsOrder",
+    "GetFavoriteTermsSortBy",
     "GetInfosResponse200",
     "GetInfosResponse200CatalogStatus",
     "GetJobsOrder",
@@ -655,8 +664,6 @@ __all__ = (
     "JupyterNotebook",
     "KeyInfo",
     "LabelledValue",
-    "LocalDataSelection",
-    "LocalDataSelectionDefinition",
     "LocalDataSourceType",
     "LocalInput",
     "Log",
@@ -694,7 +701,6 @@ __all__ = (
     "ParticipationStatus",
     "PhoneticEncoding",
     "PostDataObjectJsonBody",
-    "PostDataSourceDataMultipartData",
     "PostLlmRequestJsonBody",
     "PostLlmRequestJsonBodyPromptArgs",
     "PostMockDatasetAccessScope",
@@ -702,6 +708,7 @@ __all__ = (
     "PostNotifyNetworkJsonBody",
     "PostPreprocessingAgentJsonBody",
     "PostPreprocessingAgentResponse200",
+    "PostprocessingOperation",
     "PostProjectDataJsonBody",
     "PostProtocolMessageMultipartData",
     "PostQueryBuilderAgentJsonBody",
@@ -766,6 +773,7 @@ __all__ = (
     "RuntimeStatsTopGoroutines",
     "Scale",
     "SchemaField",
+    "SchemaFieldSpecialHandler",
     "SchemaTable",
     "ScreenedRow",
     "ScreeningOperation",

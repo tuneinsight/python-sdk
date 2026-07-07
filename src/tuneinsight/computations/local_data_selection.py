@@ -4,9 +4,8 @@ from typing import Optional
 
 from tuneinsight.api.sdk import models
 from tuneinsight.api.sdk.types import is_set
-
-from tuneinsight.computations.queries import QueryBuilder
 from tuneinsight.computations.preprocessing import PreprocessingBuilder
+from tuneinsight.computations.queries import QueryBuilder
 
 
 class LocalDataSelection:
@@ -42,16 +41,3 @@ class LocalDataSelection:
                 )
             if is_set(compdef.data_source_parameters):
                 self.datasource.set_model(compdef.data_source_parameters)
-
-    def to_model(self) -> models.LocalDataSelectionDefinition:
-        """
-        Returns the definition schema of the selection.
-
-        Returns:
-            DefinitionModel: the schema definition
-        """
-        definition = models.LocalDataSelectionDefinition(
-            data_selection=self.datasource.get_model(),
-            preprocessing=self.preprocessing.get_model(),
-        )
-        return definition

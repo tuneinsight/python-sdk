@@ -20,17 +20,21 @@ class ConceptField:
             i.e. the `conceptField` is used at a point
             in a TIQL query where it could refer to only one concept, then this field is optional.
         field (Union[Unset, str]): The name of the field to access on the concept.
+        target_field (Union[Unset, str]): Optional target field through which the virtual join is added. When a concept
+            has multiple fields that map to the same virtual source, this specifies which physical join path to use.
         time_offset (Union[Unset, Duration]): definition of a date-independent time interval
     """
 
     concept: Union[Unset, str] = UNSET
     field: Union[Unset, str] = UNSET
+    target_field: Union[Unset, str] = UNSET
     time_offset: Union[Unset, "Duration"] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         concept = self.concept
         field = self.field
+        target_field = self.target_field
         time_offset: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.time_offset, Unset):
             time_offset = self.time_offset.to_dict()
@@ -42,6 +46,8 @@ class ConceptField:
             field_dict["concept"] = concept
         if field is not UNSET:
             field_dict["field"] = field
+        if target_field is not UNSET:
+            field_dict["targetField"] = target_field
         if time_offset is not UNSET:
             field_dict["timeOffset"] = time_offset
 
@@ -56,6 +62,8 @@ class ConceptField:
 
         field = d.pop("field", UNSET)
 
+        target_field = d.pop("targetField", UNSET)
+
         _time_offset = d.pop("timeOffset", UNSET)
         time_offset: Union[Unset, Duration]
         if isinstance(_time_offset, Unset):
@@ -66,6 +74,7 @@ class ConceptField:
         concept_field = cls(
             concept=concept,
             field=field,
+            target_field=target_field,
             time_offset=time_offset,
         )
 

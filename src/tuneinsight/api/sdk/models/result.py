@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
 import attr
 
 from ..models.computation_type import ComputationType
+from ..models.postprocessing_operation import PostprocessingOperation
 from ..models.visualization_type import VisualizationType
 from ..types import UNSET, Unset
 
@@ -52,8 +53,8 @@ class Result:
         name (Union[Unset, str]): name to identify the result when there are multiple results in a single computation.
         original_ciphertext_id (Union[Unset, str]): Unique identifier of a data object.
         owner (Union[Unset, str]): the name of the user that launched the computation.
-        required_post_processing (Union[Unset, str]): if specified, a post-processing operation that needs to be applied
-            once the content is decrypted.
+        required_post_processing (Union[Unset, PostprocessingOperation]): a post-processing operation that is applied
+            client-side to the result of a computation.
         switching_key_id (Union[Unset, str]): Unique identifier of a data object.
         switching_params (Union[Unset, str]):
         unmasking_params (Union[Unset, str]):
@@ -85,7 +86,7 @@ class Result:
     name: Union[Unset, str] = UNSET
     original_ciphertext_id: Union[Unset, str] = UNSET
     owner: Union[Unset, str] = UNSET
-    required_post_processing: Union[Unset, str] = UNSET
+    required_post_processing: Union[Unset, PostprocessingOperation] = UNSET
     switching_key_id: Union[Unset, str] = UNSET
     switching_params: Union[Unset, str] = UNSET
     unmasking_params: Union[Unset, str] = UNSET
@@ -136,7 +137,10 @@ class Result:
         name = self.name
         original_ciphertext_id = self.original_ciphertext_id
         owner = self.owner
-        required_post_processing = self.required_post_processing
+        required_post_processing: Union[Unset, str] = UNSET
+        if not isinstance(self.required_post_processing, Unset):
+            required_post_processing = self.required_post_processing.value
+
         switching_key_id = self.switching_key_id
         switching_params = self.switching_params
         unmasking_params = self.unmasking_params
@@ -290,7 +294,12 @@ class Result:
 
         owner = d.pop("owner", UNSET)
 
-        required_post_processing = d.pop("requiredPostProcessing", UNSET)
+        _required_post_processing = d.pop("requiredPostProcessing", UNSET)
+        required_post_processing: Union[Unset, PostprocessingOperation]
+        if isinstance(_required_post_processing, Unset):
+            required_post_processing = UNSET
+        else:
+            required_post_processing = PostprocessingOperation(_required_post_processing)
 
         switching_key_id = d.pop("switchingKeyId", UNSET)
 

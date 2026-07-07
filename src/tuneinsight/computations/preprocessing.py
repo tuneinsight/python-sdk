@@ -1,14 +1,13 @@
 from enum import Enum
 from typing import Any, Callable
 from warnings import warn
+
 import pandas as pd
 
 from tuneinsight.api.sdk import Client, models
-from tuneinsight.api.sdk.types import UNSET
-from tuneinsight.api.sdk.types import is_set, is_unset
-from tuneinsight.api.sdk.models import ComparisonType as ct
 from tuneinsight.api.sdk.api.api_computations import get_preprocessing_dry_run
-
+from tuneinsight.api.sdk.models import ComparisonType as ct
+from tuneinsight.api.sdk.types import UNSET, is_set, is_unset
 from tuneinsight.client.validation import validate_response
 from tuneinsight.computations.dataset_schema import DatasetSchema
 from tuneinsight.utils.code import get_code
@@ -829,6 +828,69 @@ class PreprocessingBuilder:
             models.MultiplyColumns(
                 type=models.PreprocessingOperationType.MULTIPLYCOLUMNS,
                 input_columns=input_columns,
+                output_column=output_column,
+            ),
+            nodes,
+        )
+        return self
+
+    def divide_columns(
+        self,
+        numerator_column: str,
+        denominator_column: str,
+        output_column: str,
+        nodes: list[str] = None,
+    ):
+        """
+        Adds a divide_columns operation to the preprocessing chain.
+
+        This operation divides the values in one column (numerator) by the values in another
+        (denominator) and saves the result in the output column. It requires all input columns
+        to contain numerical values.
+
+        Args:
+            numerator_column (str): the name of the numerator column.
+            denominator_column (str): the names of the denominator column.
+            output_column (str): the name of the output column.
+            nodes (list[str], optional): the nodes for which the preprocessing applies to. Defaults to None.
+        """
+        self._append_to_chain(
+            models.DivideColumns(
+                type=models.PreprocessingOperationType.DIVIDECOLUMNS,
+                numerator_column=numerator_column,
+                denominator_column=denominator_column,
+                output_column=output_column,
+            ),
+            nodes,
+        )
+        return self
+
+    def compute_BMI(
+        self,
+        weight_column: str,
+        height_column: str,
+        output_column: str,
+        nodes: list[str] = None,
+    ):
+        """
+        Adds a compute_BMI operation to the preprocessing chain.
+
+        This operation computes the BMI in [kg/m²] from the values in a height column and a weight
+        column in the data and saves the result in the output column. It requires all input columns
+        to contain numerical values. The weights should be in kg and the heights in m: if your data
+        uses other units, use `scale` before to add a preprocessing operation that converts to kg or m.
+
+        Args:
+            weight_column (str): the name of the column containing weights in kilograms (kg).
+            height_column (str): the name of the column containing heights in meters (m).
+            output_column (str): the name of the output column.
+            nodes (list[str], optional): the nodes for which the preprocessing applies to. Defaults to None.
+        """
+        self._append_to_chain(
+            models.ComputeBMI(
+                type=models.PreprocessingOperationType.COMPUTEBMI,
+                weight_column=weight_column,
+                height_column=height_column,
                 output_column=output_column,
             ),
             nodes,

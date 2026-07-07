@@ -109,6 +109,7 @@ extern __declspec(dllexport) void* PolynomialEvaluation(char* id, char* polynomi
 extern __declspec(dllexport) char* PostProcessSurvivalDP(char* results);
 extern __declspec(dllexport) char* KaplanMeierConfidenceInterval(char* results, char* epsilonEncoded);
 extern __declspec(dllexport) char* PostProcessStatistics(char* results);
+extern __declspec(dllexport) char* PostProcessAverageAggregation(char* results, int removeCountsC);
 extern __declspec(dllexport) char* StatisticsConfidenceInterval(char* results, char* scaleParams);
 
 #ifdef __cplusplus

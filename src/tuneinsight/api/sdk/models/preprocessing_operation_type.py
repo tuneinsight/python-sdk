@@ -25,11 +25,13 @@ class PreprocessingOperationType(str, Enum):
     DATASETVALIDATION = "datasetValidation"
     SCALE = "scale"
     MULTIPLYCOLUMNS = "multiplyColumns"
+    DIVIDECOLUMNS = "divideColumns"
     APPENDS3PRESIGNEDURLS = "appendS3PresignedURLs"
     NEWCOLUMN = "newColumn"
     COMPUTETIMESINCE = "computeTimeSince"
     DROPDUPLICATES = "dropDuplicates"
     FILLNA = "fillNA"
+    COMPUTEBMI = "computeBMI"
     CUSTOM = "custom"
 
     def __str__(self) -> str:

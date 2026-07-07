@@ -109,6 +109,7 @@ extern void* PolynomialEvaluation(char* id, char* polynomialCoefficients, size_t
 extern char* PostProcessSurvivalDP(char* results);
 extern char* KaplanMeierConfidenceInterval(char* results, char* epsilonEncoded);
 extern char* PostProcessStatistics(char* results);
+extern char* PostProcessAverageAggregation(char* results, int removeCountsC);
 extern char* StatisticsConfidenceInterval(char* results, char* scaleParams);
 
 #ifdef __cplusplus

@@ -198,6 +198,7 @@ class DataPolicy(models.DatasourcePolicy):
         max_quota: int = None,
         scope: str = "project",
         users_share_budget: bool = False,
+        local_comps_use_quota: bool = False,
     ):
         """
         Defines a quota for limiting the workflow executions in the project.
@@ -226,6 +227,7 @@ class DataPolicy(models.DatasourcePolicy):
                 project, default), or "datasource" (each user has their own budget on all projects with this datasource).
             users_share_budget (bool, optional): whether the quota is shared across all users. If false (default), each
                 user has access to the full budget, independently of other users.
+            local_comps_use_quota (bool, optional): whether local computations also use budget. Default false.
         """
         if max_quota is None:
             max_quota = initial
@@ -239,6 +241,7 @@ class DataPolicy(models.DatasourcePolicy):
             scope=models.ExecutionQuotaParametersScope(scope),
             users_share_quota=users_share_budget,
             allocation_interval=interval,
+            local_computations_use_budget=local_comps_use_quota,
         )
 
     def set_budget(self, *args, **kwargs):

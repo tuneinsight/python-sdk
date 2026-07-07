@@ -15,17 +15,20 @@ T = TypeVar("T", bound="GetOntologySearchResponse200Item")
 class GetOntologySearchResponse200Item:
     """
     Attributes:
+        cached (Union[Unset, bool]):
         ontology (Union[Unset, str]):
         results (Union[Unset, List['Term']]):
         total (Union[Unset, int]):
     """
 
+    cached: Union[Unset, bool] = UNSET
     ontology: Union[Unset, str] = UNSET
     results: Union[Unset, List["Term"]] = UNSET
     total: Union[Unset, int] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        cached = self.cached
         ontology = self.ontology
         results: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.results, Unset):
@@ -40,6 +43,8 @@ class GetOntologySearchResponse200Item:
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if cached is not UNSET:
+            field_dict["cached"] = cached
         if ontology is not UNSET:
             field_dict["ontology"] = ontology
         if results is not UNSET:
@@ -54,6 +59,8 @@ class GetOntologySearchResponse200Item:
         from ..models.term import Term
 
         d = src_dict.copy()
+        cached = d.pop("cached", UNSET)
+
         ontology = d.pop("ontology", UNSET)
 
         results = []
@@ -66,6 +73,7 @@ class GetOntologySearchResponse200Item:
         total = d.pop("total", UNSET)
 
         get_ontology_search_response_200_item = cls(
+            cached=cached,
             ontology=ontology,
             results=results,
             total=total,

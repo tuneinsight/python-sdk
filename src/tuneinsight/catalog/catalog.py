@@ -9,7 +9,7 @@ from tuneinsight.client.validation import validate_response
 from tuneinsight.api.sdk.types import value_if_unset
 from tuneinsight.api.sdk.api.api_ontology import get_ontology_search, get_care_sites
 
-DEFAULT_ONTOLOGIES = ["ICD10", "ATC", "LOINC", "CHOP", "SNOMED"]
+DEFAULT_ONTOLOGIES = ["ICD10GM", "ATC", "LOINC", "CHOP", "SNOMED"]
 
 
 class Catalog:

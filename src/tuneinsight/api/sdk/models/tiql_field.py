@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
+from ..models.schema_field_special_handler import SchemaFieldSpecialHandler
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -24,7 +25,12 @@ class TiqlField:
         max_value (Union[Unset, None, float]): If this field is numeric, the maximum value it can take.
         min_value (Union[Unset, None, float]): If this field is numeric, the minimum value it can take.
         name (Union[Unset, str]): the unique name for this field on its concept.
+        needs_unit (Union[Unset, bool]): whether this field requires a unit. This is used to determine whether to
+            include a unit parameter for this field in the query builder.
         scope (Union[Unset, str]): if provided, the ontology that the data values are taken from.
+        special_handler (Union[Unset, SchemaFieldSpecialHandler]): Optional. Declares that this field requires special
+            query rewriting and preprocessing logic.
+            Used for fields that are not encoded as is in the data, but deduced automatically from other fields.
         terminology (Union[Unset, TerminologyField]): Parameters that must be provided to schema fields when the field's
             values are terminology references.
         type (Union[Unset, str]): type of the underlying data (number, freeform string, or categorical from an
@@ -39,7 +45,9 @@ class TiqlField:
     max_value: Union[Unset, None, float] = UNSET
     min_value: Union[Unset, None, float] = UNSET
     name: Union[Unset, str] = UNSET
+    needs_unit: Union[Unset, bool] = UNSET
     scope: Union[Unset, str] = UNSET
+    special_handler: Union[Unset, SchemaFieldSpecialHandler] = UNSET
     terminology: Union[Unset, "TerminologyField"] = UNSET
     type: Union[Unset, str] = UNSET
     unit: Union[Unset, "UnitFilter"] = UNSET
@@ -52,7 +60,12 @@ class TiqlField:
         max_value = self.max_value
         min_value = self.min_value
         name = self.name
+        needs_unit = self.needs_unit
         scope = self.scope
+        special_handler: Union[Unset, str] = UNSET
+        if not isinstance(self.special_handler, Unset):
+            special_handler = self.special_handler.value
+
         terminology: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.terminology, Unset):
             terminology = self.terminology.to_dict()
@@ -77,8 +90,12 @@ class TiqlField:
             field_dict["minValue"] = min_value
         if name is not UNSET:
             field_dict["name"] = name
+        if needs_unit is not UNSET:
+            field_dict["needsUnit"] = needs_unit
         if scope is not UNSET:
             field_dict["scope"] = scope
+        if special_handler is not UNSET:
+            field_dict["specialHandler"] = special_handler
         if terminology is not UNSET:
             field_dict["terminology"] = terminology
         if type is not UNSET:
@@ -106,7 +123,16 @@ class TiqlField:
 
         name = d.pop("name", UNSET)
 
+        needs_unit = d.pop("needsUnit", UNSET)
+
         scope = d.pop("scope", UNSET)
+
+        _special_handler = d.pop("specialHandler", UNSET)
+        special_handler: Union[Unset, SchemaFieldSpecialHandler]
+        if isinstance(_special_handler, Unset):
+            special_handler = UNSET
+        else:
+            special_handler = SchemaFieldSpecialHandler(_special_handler)
 
         _terminology = d.pop("terminology", UNSET)
         terminology: Union[Unset, TerminologyField]
@@ -131,7 +157,9 @@ class TiqlField:
             max_value=max_value,
             min_value=min_value,
             name=name,
+            needs_unit=needs_unit,
             scope=scope,
+            special_handler=special_handler,
             terminology=terminology,
             type=type,
             unit=unit,
