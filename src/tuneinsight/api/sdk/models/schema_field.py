@@ -14,26 +14,28 @@ T = TypeVar("T", bound="SchemaField")
 
 @attr.s(auto_attribs=True)
 class SchemaField:
-    """Definition of a table field or column, within a data schema definition.
+    """Definition of a table field or column, within a data schema definition. In FHIR, this is an element of a resource,
+    possibly nested with a JSONPath.
 
-    Attributes:
-        description (Union[Unset, str]): optional description for this field.
-        field_type (Union[Unset, str]): The data type of the field (e.g., "string", "integer", "date").
-        hidden (Union[Unset, bool]): whether this field should be hidden from the user in the frontend interfaces.
-        label (Union[Unset, str]): Human-readable label for the field (e.g., "Gender").
-        name (Union[Unset, str]): The column name in the database (e.g., "gender").
-        needs_unit (Union[Unset, bool]): whether this field requires a unit. This is used to determine whether to
-            include a unit parameter for this field in the query builder.
-        source_concept (Union[Unset, str]): the concept that this field belongs to, if applicable.
-        special_handler (Union[Unset, SchemaFieldSpecialHandler]): Optional. Declares that this field requires special
-            query rewriting and preprocessing logic.
-            Used for fields that are not encoded as is in the data, but deduced automatically from other fields.
-        target_column (Union[Unset, str]): when the field is a foreign key to another table, this indicates which column
-            in the target table to join on (defaults to the identifier column of the target table).
-        terminology (Union[Unset, TerminologyField]): Parameters that must be provided to schema fields when the field's
-            values are terminology references.
-        via (Union[Unset, str]): when the field is not directly on the main table, this indicates the path of relations
-            to take to reach this field from the main table.
+        Attributes:
+            description (Union[Unset, str]): optional description for this field.
+            field_type (Union[Unset, str]): The data type of the field (e.g., "string", "integer", "date").
+            hidden (Union[Unset, bool]): whether this field should be hidden from the user in the frontend interfaces.
+            label (Union[Unset, str]): Human-readable label for the field (e.g., "Gender").
+            name (Union[Unset, str]): The column name in the database (e.g., "gender"), or JSONPath to the value in the FHIR
+                resource.
+            needs_unit (Union[Unset, bool]): whether this field requires a unit. This is used to determine whether to
+                include a unit parameter for this field in the query builder.
+            source_concept (Union[Unset, str]): the concept that this field belongs to, if applicable.
+            special_handler (Union[Unset, SchemaFieldSpecialHandler]): Optional. Declares that this field requires special
+                query rewriting and preprocessing logic.
+                Used for fields that are not encoded as is in the data, but deduced automatically from other fields.
+            target_column (Union[Unset, str]): when the field is a foreign key to another table, this indicates which column
+                in the target table to join on (defaults to the identifier column of the target table).
+            terminology (Union[Unset, TerminologyField]): Parameters that must be provided to schema fields when the field's
+                values are terminology references.
+            via (Union[Unset, str]): when the field is not directly on the main table, this indicates the path of relations
+                to take to reach this field from the main table.
     """
 
     description: Union[Unset, str] = UNSET

@@ -20,12 +20,14 @@ class GetConceptFieldValuesCommandResult:
         type (DataSourceCommandResultType): List of output types and structures of datasource commands.
         info (Union[Unset, str]): additional information and context about the command result.
         query (Union[Unset, str]): the query that was executed as part of the datasource command.
-        values (Union[Unset, List['TiqlValue']]): the value that this concept can take.
+        domain (Union[Unset, str]): the name of the terminology domain the codes stored in this field belong to.
+        values (Union[Unset, List['TiqlValue']]): the values that this field can take.
     """
 
     type: DataSourceCommandResultType
     info: Union[Unset, str] = UNSET
     query: Union[Unset, str] = UNSET
+    domain: Union[Unset, str] = UNSET
     values: Union[Unset, List["TiqlValue"]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -34,6 +36,7 @@ class GetConceptFieldValuesCommandResult:
 
         info = self.info
         query = self.query
+        domain = self.domain
         values: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.values, Unset):
             values = []
@@ -53,6 +56,8 @@ class GetConceptFieldValuesCommandResult:
             field_dict["info"] = info
         if query is not UNSET:
             field_dict["query"] = query
+        if domain is not UNSET:
+            field_dict["domain"] = domain
         if values is not UNSET:
             field_dict["values"] = values
 
@@ -69,6 +74,8 @@ class GetConceptFieldValuesCommandResult:
 
         query = d.pop("query", UNSET)
 
+        domain = d.pop("domain", UNSET)
+
         values = []
         _values = d.pop("values", UNSET)
         for values_item_data in _values or []:
@@ -80,6 +87,7 @@ class GetConceptFieldValuesCommandResult:
             type=type,
             info=info,
             query=query,
+            domain=domain,
             values=values,
         )
 

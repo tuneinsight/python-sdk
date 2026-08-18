@@ -25,16 +25,24 @@ class CrossStandardQuery:
 
         Attributes:
             filter_ (Union[Unset, AdvancedFilter]): Abstract subclass of a filter for cross-standard queries.
-            output_variables (Union[Unset, List['QueryOutputVariable']]): The variables to be extracted from the cohort.
-                Each variable should either be the name
-                of a feature (directly attached to a record), or a unique identifier defined in a filter
-                for series variables (variables attached to a record that contain a list of values).
+            output_variables (Union[Unset, List['QueryOutputVariable']]): Additional variables to extract from each entity
+                that passes the filter. These variables are
+                extracted "context-free", i.e. they are not attached to a specific filter. Effectively, an
+                entry of the corresponding series is selected, and its field is extracted as is. TIQL++ feature.
+            tiql_core (Union[Unset, bool]): Whether this query is written in TIQL-core, a restrictive subset of TIQL. TIQL-
+                Core is as expressive
+                as TIQL (i.e. every TIQL query can be written in TIQL-Core) but has strict requirements on the query
+                structure. This flag is intended to be set by the backend during transpiling and not set manually.
             unit (Union[Unset, str]): The unit of the feasibility query (i.e., what is a record -- should be "patient").
-            variables (Union[Unset, List[str]]): Legacy version of the above output variables
+            variables (Union[Unset, List[str]]): Names of the variables to extract from each entity that passes the filter.
+                These variables
+                are created by passing SeriesFilters and uniquely identified by a name. The order of the variables
+                in this list is the same as the column names in the output table.
     """
 
     filter_: Union[Unset, "AdvancedFilter"] = UNSET
     output_variables: Union[Unset, List["QueryOutputVariable"]] = UNSET
+    tiql_core: Union[Unset, bool] = UNSET
     unit: Union[Unset, str] = UNSET
     variables: Union[Unset, List[str]] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
@@ -52,6 +60,7 @@ class CrossStandardQuery:
 
                 output_variables.append(output_variables_item)
 
+        tiql_core = self.tiql_core
         unit = self.unit
         variables: Union[Unset, List[str]] = UNSET
         if not isinstance(self.variables, Unset):
@@ -64,6 +73,8 @@ class CrossStandardQuery:
             field_dict["filter"] = filter_
         if output_variables is not UNSET:
             field_dict["outputVariables"] = output_variables
+        if tiql_core is not UNSET:
+            field_dict["tiqlCore"] = tiql_core
         if unit is not UNSET:
             field_dict["unit"] = unit
         if variables is not UNSET:
@@ -91,6 +102,8 @@ class CrossStandardQuery:
 
             output_variables.append(output_variables_item)
 
+        tiql_core = d.pop("tiqlCore", UNSET)
+
         unit = d.pop("unit", UNSET)
 
         variables = cast(List[str], d.pop("variables", UNSET))
@@ -98,6 +111,7 @@ class CrossStandardQuery:
         cross_standard_query = cls(
             filter_=filter_,
             output_variables=output_variables,
+            tiql_core=tiql_core,
             unit=unit,
             variables=variables,
         )

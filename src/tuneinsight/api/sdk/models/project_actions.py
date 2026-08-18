@@ -23,6 +23,8 @@ class ProjectActions:
             archive_or_unarchive (Union[Unset, AvailabilityStatus]): generic object that holds information about whether a
                 resource or action is available to the user.
             available_run_modes (Union[Unset, List[RunMode]]): list of run modes that are currently supported.
+            custom_preprocessing (Union[Unset, bool]): if true, this instance allows custom preprocessing operations. They
+                might still not be supported by all participants.
             deny (Union[Unset, AvailabilityStatus]): generic object that holds information about whether a resource or
                 action is available to the user.
             edit_data_source (Union[Unset, AvailabilityStatus]): generic object that holds information about whether a
@@ -49,6 +51,8 @@ class ProjectActions:
                 resource or action is available to the user.
             run_local (Union[Unset, AvailabilityStatus]): generic object that holds information about whether a resource or
                 action is available to the user.
+            select_computation_participants (Union[Unset, AvailabilityStatus]): generic object that holds information about
+                whether a resource or action is available to the user.
             share (Union[Unset, AvailabilityStatus]): generic object that holds information about whether a resource or
                 action is available to the user.
     """
@@ -56,6 +60,7 @@ class ProjectActions:
     approve: Union[Unset, "AvailabilityStatus"] = UNSET
     archive_or_unarchive: Union[Unset, "AvailabilityStatus"] = UNSET
     available_run_modes: Union[Unset, List[RunMode]] = UNSET
+    custom_preprocessing: Union[Unset, bool] = UNSET
     deny: Union[Unset, "AvailabilityStatus"] = UNSET
     edit_data_source: Union[Unset, "AvailabilityStatus"] = UNSET
     edit_operation_params: Union[Unset, "AvailabilityStatus"] = UNSET
@@ -69,6 +74,7 @@ class ProjectActions:
     revoke_auth_request: Union[Unset, "AvailabilityStatus"] = UNSET
     run_collective: Union[Unset, "AvailabilityStatus"] = UNSET
     run_local: Union[Unset, "AvailabilityStatus"] = UNSET
+    select_computation_participants: Union[Unset, "AvailabilityStatus"] = UNSET
     share: Union[Unset, "AvailabilityStatus"] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -89,6 +95,7 @@ class ProjectActions:
 
                 available_run_modes.append(available_run_modes_item)
 
+        custom_preprocessing = self.custom_preprocessing
         deny: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.deny, Unset):
             deny = self.deny.to_dict()
@@ -135,6 +142,10 @@ class ProjectActions:
         if not isinstance(self.run_local, Unset):
             run_local = self.run_local.to_dict()
 
+        select_computation_participants: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.select_computation_participants, Unset):
+            select_computation_participants = self.select_computation_participants.to_dict()
+
         share: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.share, Unset):
             share = self.share.to_dict()
@@ -148,6 +159,8 @@ class ProjectActions:
             field_dict["archiveOrUnarchive"] = archive_or_unarchive
         if available_run_modes is not UNSET:
             field_dict["availableRunModes"] = available_run_modes
+        if custom_preprocessing is not UNSET:
+            field_dict["customPreprocessing"] = custom_preprocessing
         if deny is not UNSET:
             field_dict["deny"] = deny
         if edit_data_source is not UNSET:
@@ -174,6 +187,8 @@ class ProjectActions:
             field_dict["runCollective"] = run_collective
         if run_local is not UNSET:
             field_dict["runLocal"] = run_local
+        if select_computation_participants is not UNSET:
+            field_dict["selectComputationParticipants"] = select_computation_participants
         if share is not UNSET:
             field_dict["share"] = share
 
@@ -204,6 +219,8 @@ class ProjectActions:
             available_run_modes_item = RunMode(available_run_modes_item_data)
 
             available_run_modes.append(available_run_modes_item)
+
+        custom_preprocessing = d.pop("customPreprocessing", UNSET)
 
         _deny = d.pop("deny", UNSET)
         deny: Union[Unset, AvailabilityStatus]
@@ -286,6 +303,13 @@ class ProjectActions:
         else:
             run_local = AvailabilityStatus.from_dict(_run_local)
 
+        _select_computation_participants = d.pop("selectComputationParticipants", UNSET)
+        select_computation_participants: Union[Unset, AvailabilityStatus]
+        if isinstance(_select_computation_participants, Unset):
+            select_computation_participants = UNSET
+        else:
+            select_computation_participants = AvailabilityStatus.from_dict(_select_computation_participants)
+
         _share = d.pop("share", UNSET)
         share: Union[Unset, AvailabilityStatus]
         if isinstance(_share, Unset):
@@ -297,6 +321,7 @@ class ProjectActions:
             approve=approve,
             archive_or_unarchive=archive_or_unarchive,
             available_run_modes=available_run_modes,
+            custom_preprocessing=custom_preprocessing,
             deny=deny,
             edit_data_source=edit_data_source,
             edit_operation_params=edit_operation_params,
@@ -310,6 +335,7 @@ class ProjectActions:
             revoke_auth_request=revoke_auth_request,
             run_collective=run_collective,
             run_local=run_local,
+            select_computation_participants=select_computation_participants,
             share=share,
         )
 

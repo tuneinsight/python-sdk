@@ -7,6 +7,7 @@ from dateutil.parser import isoparse
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.connection_pool import ConnectionPool
     from ..models.goroutine import Goroutine
     from ..models.runtime_stats_top_goroutines import RuntimeStatsTopGoroutines
 
@@ -22,6 +23,7 @@ class RuntimeStats:
         allocated_bytes (Union[Unset, int]): current memory usage in bytes.
         app_routines (Union[Unset, List['Goroutine']]): list of running app-related goroutines with their stack
             information.
+        connection_pools (Union[Unset, List['ConnectionPool']]): list of open database connection pools.
         num_app_goroutines (Union[Unset, int]): total number of app-related goroutines running on the instance.
         num_goroutines (Union[Unset, int]): total number of goroutines running on the instance.
         num_system_goroutines (Union[Unset, int]): total number of system-related goroutines (not directly spawned by
@@ -36,6 +38,7 @@ class RuntimeStats:
 
     allocated_bytes: Union[Unset, int] = UNSET
     app_routines: Union[Unset, List["Goroutine"]] = UNSET
+    connection_pools: Union[Unset, List["ConnectionPool"]] = UNSET
     num_app_goroutines: Union[Unset, int] = UNSET
     num_goroutines: Union[Unset, int] = UNSET
     num_system_goroutines: Union[Unset, int] = UNSET
@@ -54,6 +57,14 @@ class RuntimeStats:
                 app_routines_item = app_routines_item_data.to_dict()
 
                 app_routines.append(app_routines_item)
+
+        connection_pools: Union[Unset, List[Dict[str, Any]]] = UNSET
+        if not isinstance(self.connection_pools, Unset):
+            connection_pools = []
+            for connection_pools_item_data in self.connection_pools:
+                connection_pools_item = connection_pools_item_data.to_dict()
+
+                connection_pools.append(connection_pools_item)
 
         num_app_goroutines = self.num_app_goroutines
         num_goroutines = self.num_goroutines
@@ -82,6 +93,8 @@ class RuntimeStats:
             field_dict["allocatedBytes"] = allocated_bytes
         if app_routines is not UNSET:
             field_dict["appRoutines"] = app_routines
+        if connection_pools is not UNSET:
+            field_dict["connectionPools"] = connection_pools
         if num_app_goroutines is not UNSET:
             field_dict["numAppGoroutines"] = num_app_goroutines
         if num_goroutines is not UNSET:
@@ -101,6 +114,7 @@ class RuntimeStats:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.connection_pool import ConnectionPool
         from ..models.goroutine import Goroutine
         from ..models.runtime_stats_top_goroutines import RuntimeStatsTopGoroutines
 
@@ -113,6 +127,13 @@ class RuntimeStats:
             app_routines_item = Goroutine.from_dict(app_routines_item_data)
 
             app_routines.append(app_routines_item)
+
+        connection_pools = []
+        _connection_pools = d.pop("connectionPools", UNSET)
+        for connection_pools_item_data in _connection_pools or []:
+            connection_pools_item = ConnectionPool.from_dict(connection_pools_item_data)
+
+            connection_pools.append(connection_pools_item)
 
         num_app_goroutines = d.pop("numAppGoroutines", UNSET)
 
@@ -146,6 +167,7 @@ class RuntimeStats:
         runtime_stats = cls(
             allocated_bytes=allocated_bytes,
             app_routines=app_routines,
+            connection_pools=connection_pools,
             num_app_goroutines=num_app_goroutines,
             num_goroutines=num_goroutines,
             num_system_goroutines=num_system_goroutines,

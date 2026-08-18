@@ -15,6 +15,8 @@ def _get_kwargs(
     *,
     client: Client,
     care_sites: Union[Unset, None, List[str]] = UNSET,
+    with_occurrence: Union[Unset, None, bool] = UNSET,
+    with_network_occurrence: Union[Unset, None, bool] = UNSET,
 ) -> Dict[str, Any]:
     url = "{}/terms/{termId}".format(client.base_url, termId=term_id)
 
@@ -30,6 +32,10 @@ def _get_kwargs(
             json_care_sites = care_sites
 
     params["careSites[]"] = json_care_sites
+
+    params["withOccurrence"] = with_occurrence
+
+    params["withNetworkOccurrence"] = with_network_occurrence
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
@@ -100,12 +106,16 @@ def sync_detailed(
     *,
     client: Client,
     care_sites: Union[Unset, None, List[str]] = UNSET,
+    with_occurrence: Union[Unset, None, bool] = UNSET,
+    with_network_occurrence: Union[Unset, None, bool] = UNSET,
 ) -> Response[Union[Error, Term]]:
     """Fetch all the data related to one specific code.
 
     Args:
         term_id (str):
         care_sites (Union[Unset, None, List[str]]):
+        with_occurrence (Union[Unset, None, bool]):
+        with_network_occurrence (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -119,6 +129,8 @@ def sync_detailed(
         term_id=term_id,
         client=client,
         care_sites=care_sites,
+        with_occurrence=with_occurrence,
+        with_network_occurrence=with_network_occurrence,
     )
 
     response = httpx.request(
@@ -134,12 +146,16 @@ def sync(
     *,
     client: Client,
     care_sites: Union[Unset, None, List[str]] = UNSET,
+    with_occurrence: Union[Unset, None, bool] = UNSET,
+    with_network_occurrence: Union[Unset, None, bool] = UNSET,
 ) -> Optional[Union[Error, Term]]:
     """Fetch all the data related to one specific code.
 
     Args:
         term_id (str):
         care_sites (Union[Unset, None, List[str]]):
+        with_occurrence (Union[Unset, None, bool]):
+        with_network_occurrence (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -153,6 +169,8 @@ def sync(
         term_id=term_id,
         client=client,
         care_sites=care_sites,
+        with_occurrence=with_occurrence,
+        with_network_occurrence=with_network_occurrence,
     ).parsed
 
 
@@ -161,12 +179,16 @@ async def asyncio_detailed(
     *,
     client: Client,
     care_sites: Union[Unset, None, List[str]] = UNSET,
+    with_occurrence: Union[Unset, None, bool] = UNSET,
+    with_network_occurrence: Union[Unset, None, bool] = UNSET,
 ) -> Response[Union[Error, Term]]:
     """Fetch all the data related to one specific code.
 
     Args:
         term_id (str):
         care_sites (Union[Unset, None, List[str]]):
+        with_occurrence (Union[Unset, None, bool]):
+        with_network_occurrence (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -180,6 +202,8 @@ async def asyncio_detailed(
         term_id=term_id,
         client=client,
         care_sites=care_sites,
+        with_occurrence=with_occurrence,
+        with_network_occurrence=with_network_occurrence,
     )
 
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
@@ -193,12 +217,16 @@ async def asyncio(
     *,
     client: Client,
     care_sites: Union[Unset, None, List[str]] = UNSET,
+    with_occurrence: Union[Unset, None, bool] = UNSET,
+    with_network_occurrence: Union[Unset, None, bool] = UNSET,
 ) -> Optional[Union[Error, Term]]:
     """Fetch all the data related to one specific code.
 
     Args:
         term_id (str):
         care_sites (Union[Unset, None, List[str]]):
+        with_occurrence (Union[Unset, None, bool]):
+        with_network_occurrence (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -213,5 +241,7 @@ async def asyncio(
             term_id=term_id,
             client=client,
             care_sites=care_sites,
+            with_occurrence=with_occurrence,
+            with_network_occurrence=with_network_occurrence,
         )
     ).parsed

@@ -22,6 +22,7 @@ class ComparisonType(str, Enum):
     BETWEEN = "between"
     NOTBETWEEN = "notBetween"
     EQUALCASEINSENSITIVE = "equalCaseInsensitive"
+    EQUALORDESCENDANTOF = "equalOrDescendantOf"
 
     def __str__(self) -> str:
         return str(self.value)

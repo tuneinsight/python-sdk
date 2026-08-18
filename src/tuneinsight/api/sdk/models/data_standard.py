@@ -2,7 +2,6 @@ from enum import Enum
 
 
 class DataStandard(str, Enum):
-    OMOP = "OMOP"
     FHIR = "FHIR"
     SPHN = "SPHN"
 
