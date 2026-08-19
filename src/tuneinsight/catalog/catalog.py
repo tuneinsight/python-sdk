@@ -1,13 +1,12 @@
 """Utilities to connect to a catalog on a Tune Insight instance."""
 
-from typing import Generator
+from typing import Generator, Optional
 
 from tuneinsight import models
+from tuneinsight.api.sdk.api.api_ontology import get_care_sites, get_ontology_search
+from tuneinsight.api.sdk.types import value_if_unset
 from tuneinsight.client import Diapason
 from tuneinsight.client.validation import validate_response
-
-from tuneinsight.api.sdk.types import value_if_unset
-from tuneinsight.api.sdk.api.api_ontology import get_ontology_search, get_care_sites
 
 DEFAULT_ONTOLOGIES = ["ICD10GM", "ATC", "LOINC", "CHOP", "SNOMED"]
 
@@ -30,7 +29,8 @@ class Catalog:
     def search(
         self,
         query: str = "",
-        ontologies=DEFAULT_ONTOLOGIES,
+        ontologies: list[str] = DEFAULT_ONTOLOGIES,
+        domains: Optional[list[str]] = None,
         with_occurrence: bool = False,
         with_network_occurrence: bool = False,
         page: int = 1,
@@ -43,6 +43,7 @@ class Catalog:
             query (str, optional): the string to search for. Defaults to "", in which case all terms are fetched.
             ontologies (list, optional): the list of ontologies to search for the term. Defaults to the five
                 default ontologies (which may not be present in your data).
+            domains (list, optional): the list of domains to filter terms by. Defaults to no filter.
             with_occurrence (bool, optional): whether to only include terms that have an occurrence (>= 10 patients).
                 Defaults to False (terms not in the data will also be included).
             with_network_occurrence (bool, optional): whether to only include terms that have an occurrence (>= 10
@@ -65,6 +66,7 @@ class Catalog:
             client=self.client,
             query=query,
             ontologies=ontologies,
+            domains=domains,
             with_occurrence=with_occurrence,
             with_network_occurrence=with_network_occurrence,
             page=page,
@@ -82,8 +84,9 @@ class Catalog:
         self,
         query: str,
         ontology: str,
+        domain: Optional[str] = None,
         with_occurrence: bool = False,
-        care_sites: list[str] = None,
+        care_sites: Optional[list[str]] = None,
     ) -> Generator[models.Term, None, None]:
         """
         Retrieves all the terms for a query in an ontology, as an iterator.
@@ -92,7 +95,8 @@ class Catalog:
 
         Args:
             query (str): the string to search for. If empty (""), all terms are fetched.
-            ontologies (list): the ontology to search for this term.
+            ontology (str): the ontology to search for this term.
+            domain (str, optional): the domain to filter by.
             with_occurrence (bool, optional): whether to only include terms that have an occurrence (>= 10 patients).
                 Defaults to False (terms not in the data will also be included).
             care_sites (list of strings, optional): the names of the care sites for which the catalog is fetched.
@@ -108,6 +112,7 @@ class Catalog:
             result = self.search(
                 query=query,
                 ontologies=[ontology],
+                domains=None if domain is None else [domain],
                 page=page,
                 per_page=per_page,
                 with_occurrence=with_occurrence,

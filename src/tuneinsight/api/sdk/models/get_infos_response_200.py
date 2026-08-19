@@ -21,12 +21,15 @@ class GetInfosResponse200:
         auth_status (Union[Unset, str]): Authentication provider connectivity status
         build_version (Union[Unset, str]): Tune Insight build version
         catalog_status (Union[Unset, GetInfosResponse200CatalogStatus]): Status of the node's catalog
+        maintenance_mode (Union[Unset, bool]): whether the instance is in maintenance mode (only GET and admin endpoints
+            enabled).
         portal_status (Union[Unset, str]): Portal connectivity status
         push_catalog_enabled (Union[Unset, bool]): whether the instance has enabled the option to push the catalog to
             the portal.
         service_account (Union[Unset, str]): name of the service account used by this instance when sending requests to
             other instances.
         startup_status (Union[Unset, str]): Reports the startup process status.
+        terminology_version (Union[Unset, str]): Instance version when the ontologies were last updated.
         version (Union[Unset, str]): Tune Insight instance version
     """
 
@@ -35,10 +38,12 @@ class GetInfosResponse200:
     auth_status: Union[Unset, str] = UNSET
     build_version: Union[Unset, str] = UNSET
     catalog_status: Union[Unset, "GetInfosResponse200CatalogStatus"] = UNSET
+    maintenance_mode: Union[Unset, bool] = UNSET
     portal_status: Union[Unset, str] = UNSET
     push_catalog_enabled: Union[Unset, bool] = UNSET
     service_account: Union[Unset, str] = UNSET
     startup_status: Union[Unset, str] = UNSET
+    terminology_version: Union[Unset, str] = UNSET
     version: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -54,10 +59,12 @@ class GetInfosResponse200:
         if not isinstance(self.catalog_status, Unset):
             catalog_status = self.catalog_status.to_dict()
 
+        maintenance_mode = self.maintenance_mode
         portal_status = self.portal_status
         push_catalog_enabled = self.push_catalog_enabled
         service_account = self.service_account
         startup_status = self.startup_status
+        terminology_version = self.terminology_version
         version = self.version
 
         field_dict: Dict[str, Any] = {}
@@ -73,6 +80,8 @@ class GetInfosResponse200:
             field_dict["buildVersion"] = build_version
         if catalog_status is not UNSET:
             field_dict["catalogStatus"] = catalog_status
+        if maintenance_mode is not UNSET:
+            field_dict["maintenanceMode"] = maintenance_mode
         if portal_status is not UNSET:
             field_dict["portalStatus"] = portal_status
         if push_catalog_enabled is not UNSET:
@@ -81,6 +90,8 @@ class GetInfosResponse200:
             field_dict["serviceAccount"] = service_account
         if startup_status is not UNSET:
             field_dict["startupStatus"] = startup_status
+        if terminology_version is not UNSET:
+            field_dict["terminologyVersion"] = terminology_version
         if version is not UNSET:
             field_dict["version"] = version
 
@@ -106,6 +117,8 @@ class GetInfosResponse200:
         else:
             catalog_status = GetInfosResponse200CatalogStatus.from_dict(_catalog_status)
 
+        maintenance_mode = d.pop("maintenanceMode", UNSET)
+
         portal_status = d.pop("portalStatus", UNSET)
 
         push_catalog_enabled = d.pop("pushCatalogEnabled", UNSET)
@@ -113,6 +126,8 @@ class GetInfosResponse200:
         service_account = d.pop("serviceAccount", UNSET)
 
         startup_status = d.pop("startupStatus", UNSET)
+
+        terminology_version = d.pop("terminologyVersion", UNSET)
 
         version = d.pop("version", UNSET)
 
@@ -122,10 +137,12 @@ class GetInfosResponse200:
             auth_status=auth_status,
             build_version=build_version,
             catalog_status=catalog_status,
+            maintenance_mode=maintenance_mode,
             portal_status=portal_status,
             push_catalog_enabled=push_catalog_enabled,
             service_account=service_account,
             startup_status=startup_status,
+            terminology_version=terminology_version,
             version=version,
         )
 

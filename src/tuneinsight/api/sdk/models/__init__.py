@@ -61,6 +61,7 @@ from .compute_bmi import ComputeBMI
 from .compute_time_since import ComputeTimeSince
 from .concept_field import ConceptField
 from .confidence_interval import ConfidenceInterval
+from .connection_pool import ConnectionPool
 from .content import Content
 from .content_type import ContentType
 from .contribution_error import ContributionError
@@ -230,6 +231,7 @@ from .hybrid_fl_machine_learning_params import HybridFLMachineLearningParams
 from .hybrid_fl_params_type import HybridFLParamsType
 from .hybrid_fl_spec_base_params import HybridFLSpecBaseParams
 from .hybrid_fl_spec_params import HybridFLSpecParams
+from .input_transformation import InputTransformation
 from .instance_configuration import InstanceConfiguration
 from .job import Job
 from .job_error import JobError
@@ -484,6 +486,7 @@ __all__ = (
     "ComputeTimeSince",
     "ConceptField",
     "ConfidenceInterval",
+    "ConnectionPool",
     "Content",
     "ContentType",
     "ContributionError",
@@ -653,6 +656,7 @@ __all__ = (
     "HybridFLParamsType",
     "HybridFLSpecBaseParams",
     "HybridFLSpecParams",
+    "InputTransformation",
     "InstanceConfiguration",
     "Job",
     "JobError",

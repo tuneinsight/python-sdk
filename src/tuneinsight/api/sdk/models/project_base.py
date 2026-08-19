@@ -22,6 +22,9 @@ class ProjectBase:
     """Common fields of a project (for get, patch and post)
 
     Attributes:
+        access_groups (Union[Unset, List[str]]): list of groups users must belong to to access this project.
+            In order to let all users of a specific group access the project,
+            the unrestricted access flag must be set to true as well.
         allow_clear_query (Union[Unset, bool]): [Dangerous, can lead to cross code data share] True if it is allowed for
             a client to query the data source all participants of the project and return the clear text result
         allow_shared_edit (Union[Unset, bool]): True if this project can be modified after being shared. Modifications
@@ -84,6 +87,7 @@ class ProjectBase:
         workflow_type (Union[Unset, WorkflowType]): type of the workflow UI in the frontend
     """
 
+    access_groups: Union[Unset, List[str]] = UNSET
     allow_clear_query: Union[Unset, bool] = UNSET
     allow_shared_edit: Union[Unset, bool] = UNSET
     authorized_instances: Union[Unset, List[str]] = UNSET
@@ -127,6 +131,10 @@ class ProjectBase:
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        access_groups: Union[Unset, List[str]] = UNSET
+        if not isinstance(self.access_groups, Unset):
+            access_groups = self.access_groups
+
         allow_clear_query = self.allow_clear_query
         allow_shared_edit = self.allow_shared_edit
         authorized_instances: Union[Unset, List[str]] = UNSET
@@ -197,6 +205,8 @@ class ProjectBase:
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if access_groups is not UNSET:
+            field_dict["accessGroups"] = access_groups
         if allow_clear_query is not UNSET:
             field_dict["allowClearQuery"] = allow_clear_query
         if allow_shared_edit is not UNSET:
@@ -286,6 +296,8 @@ class ProjectBase:
         from ..models.computation_policy import ComputationPolicy
 
         d = src_dict.copy()
+        access_groups = cast(List[str], d.pop("accessGroups", UNSET))
+
         allow_clear_query = d.pop("allowClearQuery", UNSET)
 
         allow_shared_edit = d.pop("allowSharedEdit", UNSET)
@@ -404,6 +416,7 @@ class ProjectBase:
             workflow_type = WorkflowType(_workflow_type)
 
         project_base = cls(
+            access_groups=access_groups,
             allow_clear_query=allow_clear_query,
             allow_shared_edit=allow_shared_edit,
             authorized_instances=authorized_instances,

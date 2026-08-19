@@ -14,24 +14,25 @@ T = TypeVar("T", bound="SchemaTable")
 
 @attr.s(auto_attribs=True)
 class SchemaTable:
-    """Definition of table or view within a data schema, including fields and local relations.
+    """Definition of a table or view within a data schema, including fields and local relations. This is a resource in
+    FHIR.
 
-    Attributes:
-        description (Union[Unset, str]): optional description for the table
-        fields (Union[Unset, List['SchemaField']]): List of fields available in this table.
-        hidden (Union[Unset, bool]): whether this table should be hidden from the user in the frontend.
-        identifier (Union[Unset, str]): The primary key column of this table (e.g., "id").
-        is_hierarchy_table (Union[Unset, bool]): whether this table contains hierarchical data for its concept, which
-            can be used in the catalog hierarchy and to compute ancestor counts.
-        is_main (Union[Unset, bool]): Marks this table as the main entry point for queries. Only one table
-            in the template should be marked `true`. This table provides the
-            `mainTable` and `identifier` used in SQLMetadata.
-        linked_template (Union[Unset, bool]): Indicates whether this table is linked to other templates.
-        name (Union[Unset, str]): The actual table name in the database (e.g., "patients").
-        relations (Union[Unset, List['Relation']]): List of foreign key relations from this table to others.
-        timestamp_column (Union[Unset, str]): The column in this table that contains the timestamp for the encoded
-            event.
-        title (Union[Unset, str]): Human-readable label for the table (e.g., "Patient").
+        Attributes:
+            description (Union[Unset, str]): optional description for the table
+            fields (Union[Unset, List['SchemaField']]): List of fields available in this table.
+            hidden (Union[Unset, bool]): whether this table should be hidden from the user in the frontend.
+            identifier (Union[Unset, str]): The primary key column of this table (e.g., "id").
+            is_hierarchy_table (Union[Unset, bool]): whether this table contains hierarchical data for its concept, which
+                can be used in the catalog hierarchy and to compute ancestor counts.
+            is_main (Union[Unset, bool]): Marks this table as the main entry point for queries. Only one table
+                in the template should be marked `true`. This table provides the
+                `mainTable` and `identifier` used in SQLMetadata.
+            linked_template (Union[Unset, bool]): Indicates whether this table is linked to other templates.
+            name (Union[Unset, str]): The actual table name in the database (e.g., "patients").
+            relations (Union[Unset, List['Relation']]): List of foreign key relations from this table to others.
+            timestamp_column (Union[Unset, str]): The column in this table that contains the timestamp for the encoded
+                event.
+            title (Union[Unset, str]): Human-readable label for the table (e.g., "Patient").
     """
 
     description: Union[Unset, str] = UNSET
