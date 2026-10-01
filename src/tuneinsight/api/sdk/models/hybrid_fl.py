@@ -83,8 +83,6 @@ class HybridFL:
             filter input records with mismatching units.
         wait (Union[Unset, bool]): Whether to wait synchronously for the computation result.
         dp_params (Union[Unset, HybridFLDpParams]): Parameters for Differential Privacy in the Hybrid Federated Learning
-        task_def (Union[Unset, str]):
-        task_id (Union[Unset, str]):
     """
 
     type: ComputationType
@@ -115,8 +113,6 @@ class HybridFL:
     units: Union[Unset, List["UnitFilter"]] = UNSET
     wait: Union[Unset, bool] = UNSET
     dp_params: Union[Unset, "HybridFLDpParams"] = UNSET
-    task_def: Union[Unset, str] = UNSET
-    task_id: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -182,9 +178,6 @@ class HybridFL:
         if not isinstance(self.dp_params, Unset):
             dp_params = self.dp_params.to_dict()
 
-        task_def = self.task_def
-        task_id = self.task_id
-
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -244,10 +237,6 @@ class HybridFL:
             field_dict["wait"] = wait
         if dp_params is not UNSET:
             field_dict["dpParams"] = dp_params
-        if task_def is not UNSET:
-            field_dict["taskDef"] = task_def
-        if task_id is not UNSET:
-            field_dict["taskId"] = task_id
 
         return field_dict
 
@@ -359,10 +348,6 @@ class HybridFL:
         else:
             dp_params = HybridFLDpParams.from_dict(_dp_params)
 
-        task_def = d.pop("taskDef", UNSET)
-
-        task_id = d.pop("taskId", UNSET)
-
         hybrid_fl = cls(
             type=type,
             params=params,
@@ -392,8 +377,6 @@ class HybridFL:
             units=units,
             wait=wait,
             dp_params=dp_params,
-            task_def=task_def,
-            task_id=task_id,
         )
 
         hybrid_fl.additional_properties = d

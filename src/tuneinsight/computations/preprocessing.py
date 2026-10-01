@@ -665,6 +665,37 @@ class PreprocessingBuilder:
         )
         return self
 
+    def is_missing(
+        self,
+        input_column: str,
+        output_column=UNSET,
+        nodes: list[str] = None,
+    ):
+        """
+        Adds an is_missing operation to the preprocessing chain.
+
+        This operation creates a binary indicator column from an input column, using 0 for
+        missing values and 1 for non-missing values. If no output column is provided, the
+        input column is overwritten in place.
+
+        Args:
+            input_column (str): the name of the column to inspect.
+            output_column (str, optional): the name of the output indicator column. Defaults to None.
+            nodes (list[str], optional): the list of nodes to apply this preprocessing operation to. Defaults to None.
+
+        Returns:
+            self (PreprocessingBuilder): the updated PreprocessingBuilder
+        """
+        self._append_to_chain(
+            models.IsMissing(
+                type=models.PreprocessingOperationType.ISMISSING,
+                input_column=input_column,
+                output_column=output_column,
+            ),
+            nodes=nodes,
+        )
+        return self
+
     def cut(
         self,
         input_column: str,
@@ -859,6 +890,56 @@ class PreprocessingBuilder:
                 type=models.PreprocessingOperationType.DIVIDECOLUMNS,
                 numerator_column=numerator_column,
                 denominator_column=denominator_column,
+                output_column=output_column,
+            ),
+            nodes,
+        )
+        return self
+
+    def max_columns(
+        self, input_columns: list[str], output_column: str, nodes: list[str] = None
+    ):
+        """
+        Adds a max_columns operation to the preprocessing chain.
+
+        This operation computes the row-wise maximum across the specified columns and saves
+        the result in the output column. It supports both numerical values and date/datetime-like
+        values, making it suitable for cases such as selecting the latest vaccination date.
+
+        Args:
+            input_columns (list[str]): the names of the columns to compare.
+            output_column (str): the name of the output column.
+            nodes (list[str], optional): the nodes for which the preprocessing applies to. Defaults to None.
+        """
+        self._append_to_chain(
+            models.MaxColumns(
+                type=models.PreprocessingOperationType.MAXCOLUMNS,
+                input_columns=input_columns,
+                output_column=output_column,
+            ),
+            nodes,
+        )
+        return self
+
+    def min_columns(
+        self, input_columns: list[str], output_column: str, nodes: list[str] = None
+    ):
+        """
+        Adds a min_columns operation to the preprocessing chain.
+
+        This operation computes the row-wise minimum across the specified columns and saves
+        the result in the output column. It supports both numerical values and date/datetime-like
+        values, making it suitable for cases such as selecting the earliest vaccination date.
+
+        Args:
+            input_columns (list[str]): the names of the columns to compare.
+            output_column (str): the name of the output column.
+            nodes (list[str], optional): the nodes for which the preprocessing applies to. Defaults to None.
+        """
+        self._append_to_chain(
+            models.MinColumns(
+                type=models.PreprocessingOperationType.MINCOLUMNS,
+                input_columns=input_columns,
                 output_column=output_column,
             ),
             nodes,

@@ -4,6 +4,7 @@ from enum import Enum
 class PreprocessingOperationType(str, Enum):
     ONEHOTENCODING = "oneHotEncoding"
     PHONETICENCODING = "phoneticEncoding"
+    ISMISSING = "isMissing"
     SELECT = "select"
     DROP = "drop"
     FILTER = "filter"
@@ -26,6 +27,8 @@ class PreprocessingOperationType(str, Enum):
     SCALE = "scale"
     MULTIPLYCOLUMNS = "multiplyColumns"
     DIVIDECOLUMNS = "divideColumns"
+    MAXCOLUMNS = "maxColumns"
+    MINCOLUMNS = "minColumns"
     APPENDS3PRESIGNEDURLS = "appendS3PresignedURLs"
     NEWCOLUMN = "newColumn"
     COMPUTETIMESINCE = "computeTimeSince"

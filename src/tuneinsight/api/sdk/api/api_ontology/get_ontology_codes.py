@@ -7,6 +7,7 @@ from ... import errors
 from ...client import Client
 from ...models.error import Error
 from ...models.get_ontology_codes_response_200 import GetOntologyCodesResponse200
+from ...models.get_ontology_codes_sort_by import GetOntologyCodesSortBy
 from ...types import UNSET, Response, Unset
 
 
@@ -19,6 +20,9 @@ def _get_kwargs(
     codes: List[str],
     care_sites: Union[Unset, None, List[str]] = UNSET,
     favorite: Union[Unset, None, bool] = UNSET,
+    with_occurrence: Union[Unset, None, bool] = UNSET,
+    with_network_occurrence: Union[Unset, None, bool] = UNSET,
+    sort_by: Union[Unset, None, GetOntologyCodesSortBy] = UNSET,
 ) -> Dict[str, Any]:
     url = "{}/ontology-codes".format(client.base_url)
 
@@ -46,6 +50,16 @@ def _get_kwargs(
     params["careSites[]"] = json_care_sites
 
     params["favorite"] = favorite
+
+    params["withOccurrence"] = with_occurrence
+
+    params["withNetworkOccurrence"] = with_network_occurrence
+
+    json_sort_by: Union[Unset, None, str] = UNSET
+    if not isinstance(sort_by, Unset):
+        json_sort_by = sort_by.value if sort_by else None
+
+    params["sortBy"] = json_sort_by
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
@@ -112,6 +126,9 @@ def sync_detailed(
     codes: List[str],
     care_sites: Union[Unset, None, List[str]] = UNSET,
     favorite: Union[Unset, None, bool] = UNSET,
+    with_occurrence: Union[Unset, None, bool] = UNSET,
+    with_network_occurrence: Union[Unset, None, bool] = UNSET,
+    sort_by: Union[Unset, None, GetOntologyCodesSortBy] = UNSET,
 ) -> Response[Union[Error, GetOntologyCodesResponse200]]:
     """Fetch metadata of specific codes in the ontologies
 
@@ -122,6 +139,9 @@ def sync_detailed(
         codes (List[str]):
         care_sites (Union[Unset, None, List[str]]):
         favorite (Union[Unset, None, bool]):
+        with_occurrence (Union[Unset, None, bool]):
+        with_network_occurrence (Union[Unset, None, bool]):
+        sort_by (Union[Unset, None, GetOntologyCodesSortBy]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -139,6 +159,9 @@ def sync_detailed(
         codes=codes,
         care_sites=care_sites,
         favorite=favorite,
+        with_occurrence=with_occurrence,
+        with_network_occurrence=with_network_occurrence,
+        sort_by=sort_by,
     )
 
     response = httpx.request(
@@ -158,6 +181,9 @@ def sync(
     codes: List[str],
     care_sites: Union[Unset, None, List[str]] = UNSET,
     favorite: Union[Unset, None, bool] = UNSET,
+    with_occurrence: Union[Unset, None, bool] = UNSET,
+    with_network_occurrence: Union[Unset, None, bool] = UNSET,
+    sort_by: Union[Unset, None, GetOntologyCodesSortBy] = UNSET,
 ) -> Optional[Union[Error, GetOntologyCodesResponse200]]:
     """Fetch metadata of specific codes in the ontologies
 
@@ -168,6 +194,9 @@ def sync(
         codes (List[str]):
         care_sites (Union[Unset, None, List[str]]):
         favorite (Union[Unset, None, bool]):
+        with_occurrence (Union[Unset, None, bool]):
+        with_network_occurrence (Union[Unset, None, bool]):
+        sort_by (Union[Unset, None, GetOntologyCodesSortBy]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -185,6 +214,9 @@ def sync(
         codes=codes,
         care_sites=care_sites,
         favorite=favorite,
+        with_occurrence=with_occurrence,
+        with_network_occurrence=with_network_occurrence,
+        sort_by=sort_by,
     ).parsed
 
 
@@ -197,6 +229,9 @@ async def asyncio_detailed(
     codes: List[str],
     care_sites: Union[Unset, None, List[str]] = UNSET,
     favorite: Union[Unset, None, bool] = UNSET,
+    with_occurrence: Union[Unset, None, bool] = UNSET,
+    with_network_occurrence: Union[Unset, None, bool] = UNSET,
+    sort_by: Union[Unset, None, GetOntologyCodesSortBy] = UNSET,
 ) -> Response[Union[Error, GetOntologyCodesResponse200]]:
     """Fetch metadata of specific codes in the ontologies
 
@@ -207,6 +242,9 @@ async def asyncio_detailed(
         codes (List[str]):
         care_sites (Union[Unset, None, List[str]]):
         favorite (Union[Unset, None, bool]):
+        with_occurrence (Union[Unset, None, bool]):
+        with_network_occurrence (Union[Unset, None, bool]):
+        sort_by (Union[Unset, None, GetOntologyCodesSortBy]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -224,6 +262,9 @@ async def asyncio_detailed(
         codes=codes,
         care_sites=care_sites,
         favorite=favorite,
+        with_occurrence=with_occurrence,
+        with_network_occurrence=with_network_occurrence,
+        sort_by=sort_by,
     )
 
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
@@ -241,6 +282,9 @@ async def asyncio(
     codes: List[str],
     care_sites: Union[Unset, None, List[str]] = UNSET,
     favorite: Union[Unset, None, bool] = UNSET,
+    with_occurrence: Union[Unset, None, bool] = UNSET,
+    with_network_occurrence: Union[Unset, None, bool] = UNSET,
+    sort_by: Union[Unset, None, GetOntologyCodesSortBy] = UNSET,
 ) -> Optional[Union[Error, GetOntologyCodesResponse200]]:
     """Fetch metadata of specific codes in the ontologies
 
@@ -251,6 +295,9 @@ async def asyncio(
         codes (List[str]):
         care_sites (Union[Unset, None, List[str]]):
         favorite (Union[Unset, None, bool]):
+        with_occurrence (Union[Unset, None, bool]):
+        with_network_occurrence (Union[Unset, None, bool]):
+        sort_by (Union[Unset, None, GetOntologyCodesSortBy]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -269,5 +316,8 @@ async def asyncio(
             codes=codes,
             care_sites=care_sites,
             favorite=favorite,
+            with_occurrence=with_occurrence,
+            with_network_occurrence=with_network_occurrence,
+            sort_by=sort_by,
         )
     ).parsed

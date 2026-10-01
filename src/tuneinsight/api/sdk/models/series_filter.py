@@ -30,6 +30,9 @@ class SeriesFilter:
 
         Attributes:
             type (AdvancedFilterType): A type of filter for cross-standard queries.
+            alias (Union[Unset, str]): an optional unique name to use to refer to this SeriesFilter. If specified, this name
+                must be unique across all SeriesFilters in the query.
+                In TIQL++, this can be empty, in which case the TIQL transpiler assigns a unique alias.
             filter_ (Union[Unset, AdvancedFilter]): Abstract subclass of a filter for cross-standard queries.
             logical_aggregator (Union[Unset, BooleanAggregator]): A criterion to aggregate a series of boolean values as a
                 single value.
@@ -40,6 +43,7 @@ class SeriesFilter:
     """
 
     type: AdvancedFilterType
+    alias: Union[Unset, str] = UNSET
     filter_: Union[Unset, "AdvancedFilter"] = UNSET
     logical_aggregator: Union[Unset, BooleanAggregator] = UNSET
     output_count_as_variable: Union[Unset, None, str] = UNSET
@@ -50,6 +54,7 @@ class SeriesFilter:
     def to_dict(self) -> Dict[str, Any]:
         type = self.type.value
 
+        alias = self.alias
         filter_: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.filter_, Unset):
             filter_ = self.filter_.to_dict()
@@ -76,6 +81,8 @@ class SeriesFilter:
                 "type": type,
             }
         )
+        if alias is not UNSET:
+            field_dict["alias"] = alias
         if filter_ is not UNSET:
             field_dict["filter"] = filter_
         if logical_aggregator is not UNSET:
@@ -96,6 +103,8 @@ class SeriesFilter:
 
         d = src_dict.copy()
         type = AdvancedFilterType(d.pop("type"))
+
+        alias = d.pop("alias", UNSET)
 
         _filter_ = d.pop("filter", UNSET)
         filter_: Union[Unset, AdvancedFilter]
@@ -124,6 +133,7 @@ class SeriesFilter:
 
         series_filter = cls(
             type=type,
+            alias=alias,
             filter_=filter_,
             logical_aggregator=logical_aggregator,
             output_count_as_variable=output_count_as_variable,

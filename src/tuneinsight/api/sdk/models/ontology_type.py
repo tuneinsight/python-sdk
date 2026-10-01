@@ -30,6 +30,7 @@ class OntologyType(str, Enum):
     SPECIMEN_TYPE = "Specimen Type"
     VISIT_TYPE = "Visit Type"
     OMOP_EXTENSION = "OMOP Extension"
+    VISIT = "Visit"
 
     def __str__(self) -> str:
         return str(self.value)

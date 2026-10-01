@@ -28,6 +28,8 @@ class TerminologyStatsResponse:
             been loaded in the instance.
         origins (Union[Unset, List[str]]): names of the origin instances from which the catalog was built.
         total_concepts (Union[Unset, int]): total count of distinct concepts in the data source.
+        total_concepts_with_patients (Union[Unset, int]): total count of distinct concepts with patients in the data
+            source.
         total_patients (Union[Unset, int]): total count of distinct patients in the data source.
         updated_at (Union[Unset, str]): last time the catalog was built at.
     """
@@ -40,6 +42,7 @@ class TerminologyStatsResponse:
     loaded_vocabularies: Union[Unset, List[OntologyType]] = UNSET
     origins: Union[Unset, List[str]] = UNSET
     total_concepts: Union[Unset, int] = UNSET
+    total_concepts_with_patients: Union[Unset, int] = UNSET
     total_patients: Union[Unset, int] = UNSET
     updated_at: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
@@ -87,6 +90,7 @@ class TerminologyStatsResponse:
             origins = self.origins
 
         total_concepts = self.total_concepts
+        total_concepts_with_patients = self.total_concepts_with_patients
         total_patients = self.total_patients
         updated_at = self.updated_at
 
@@ -109,6 +113,8 @@ class TerminologyStatsResponse:
             field_dict["origins"] = origins
         if total_concepts is not UNSET:
             field_dict["totalConcepts"] = total_concepts
+        if total_concepts_with_patients is not UNSET:
+            field_dict["totalConceptsWithPatients"] = total_concepts_with_patients
         if total_patients is not UNSET:
             field_dict["totalPatients"] = total_patients
         if updated_at is not UNSET:
@@ -163,6 +169,8 @@ class TerminologyStatsResponse:
 
         total_concepts = d.pop("totalConcepts", UNSET)
 
+        total_concepts_with_patients = d.pop("totalConceptsWithPatients", UNSET)
+
         total_patients = d.pop("totalPatients", UNSET)
 
         updated_at = d.pop("updatedAt", UNSET)
@@ -176,6 +184,7 @@ class TerminologyStatsResponse:
             loaded_vocabularies=loaded_vocabularies,
             origins=origins,
             total_concepts=total_concepts,
+            total_concepts_with_patients=total_concepts_with_patients,
             total_patients=total_patients,
             updated_at=updated_at,
         )
