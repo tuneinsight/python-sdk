@@ -8,7 +8,7 @@ from ...client import Client
 from ...models.data_source_command import DataSourceCommand
 from ...models.data_source_command_result import DataSourceCommandResult
 from ...models.error import Error
-from ...types import UNSET, Response, Unset
+from ...types import Response
 
 
 def _get_kwargs(
@@ -16,17 +16,11 @@ def _get_kwargs(
     *,
     client: Client,
     json_body: DataSourceCommand,
-    global_execution: Union[Unset, None, bool] = UNSET,
 ) -> Dict[str, Any]:
     url = "{}/projects/{projectId}/datasource-command".format(client.base_url, projectId=project_id)
 
     headers: Dict[str, str] = client.get_headers()
     cookies: Dict[str, Any] = client.get_cookies()
-
-    params: Dict[str, Any] = {}
-    params["globalExecution"] = global_execution
-
-    params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
     json_json_body = json_body.to_dict()
 
@@ -49,7 +43,6 @@ def _get_kwargs(
         "timeout": client.get_timeout(),
         "proxies": proxies,
         "json": json_json_body,
-        "params": params,
     }
 
 
@@ -98,13 +91,11 @@ def sync_detailed(
     *,
     client: Client,
     json_body: DataSourceCommand,
-    global_execution: Union[Unset, None, bool] = UNSET,
 ) -> Response[Union[DataSourceCommandResult, Error]]:
     """Execute a data source's command (e.g. to fetch metadata) on the project's datasource.
 
     Args:
         project_id (str):
-        global_execution (Union[Unset, None, bool]):
         json_body (DataSourceCommand): Abstract subclass representing a datasource command.
 
     Raises:
@@ -119,7 +110,6 @@ def sync_detailed(
         project_id=project_id,
         client=client,
         json_body=json_body,
-        global_execution=global_execution,
     )
 
     response = httpx.request(
@@ -135,13 +125,11 @@ def sync(
     *,
     client: Client,
     json_body: DataSourceCommand,
-    global_execution: Union[Unset, None, bool] = UNSET,
 ) -> Optional[Union[DataSourceCommandResult, Error]]:
     """Execute a data source's command (e.g. to fetch metadata) on the project's datasource.
 
     Args:
         project_id (str):
-        global_execution (Union[Unset, None, bool]):
         json_body (DataSourceCommand): Abstract subclass representing a datasource command.
 
     Raises:
@@ -156,7 +144,6 @@ def sync(
         project_id=project_id,
         client=client,
         json_body=json_body,
-        global_execution=global_execution,
     ).parsed
 
 
@@ -165,13 +152,11 @@ async def asyncio_detailed(
     *,
     client: Client,
     json_body: DataSourceCommand,
-    global_execution: Union[Unset, None, bool] = UNSET,
 ) -> Response[Union[DataSourceCommandResult, Error]]:
     """Execute a data source's command (e.g. to fetch metadata) on the project's datasource.
 
     Args:
         project_id (str):
-        global_execution (Union[Unset, None, bool]):
         json_body (DataSourceCommand): Abstract subclass representing a datasource command.
 
     Raises:
@@ -186,7 +171,6 @@ async def asyncio_detailed(
         project_id=project_id,
         client=client,
         json_body=json_body,
-        global_execution=global_execution,
     )
 
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
@@ -200,13 +184,11 @@ async def asyncio(
     *,
     client: Client,
     json_body: DataSourceCommand,
-    global_execution: Union[Unset, None, bool] = UNSET,
 ) -> Optional[Union[DataSourceCommandResult, Error]]:
     """Execute a data source's command (e.g. to fetch metadata) on the project's datasource.
 
     Args:
         project_id (str):
-        global_execution (Union[Unset, None, bool]):
         json_body (DataSourceCommand): Abstract subclass representing a datasource command.
 
     Raises:
@@ -222,6 +204,5 @@ async def asyncio(
             project_id=project_id,
             client=client,
             json_body=json_body,
-            global_execution=global_execution,
         )
     ).parsed

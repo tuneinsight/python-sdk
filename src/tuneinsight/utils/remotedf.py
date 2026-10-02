@@ -10,6 +10,8 @@ This module defines the following classes and functions:
     supports many operations available on a pd.DataFrame (see documentation).
  - get_dummies, an analogue to pd.get_dummies that works on a RemoteDataFrame as well.
  - cut, an analogue to pd.cut that works on a RemoteDataFrame as well.
+ - is_missing, an indicator for missing values.
+ - max_columns and min_columns, row-wise extrema across selected columns.
  - select, a utility to select a subset of columns on a DataFrame or RemoteDataFrame.
  - custom, a decorator to write functions that operate over pandas.DataFrames locally or remotely.
 
@@ -306,6 +308,8 @@ class RemoteDataFrame:
     be applied seamlessly on DataFrames and RemoteDataFrames:
         - `get_dummies`, for one-hot encoding,
         - `cut`, for binning numerical columns.
+        - `is_missing`, for an indicator of missing values.
+        - `max_columns` and `min_columns`, for row-wise extrema across columns.
 
     Finally, this module also defines the `select` operation to select a subset of
     columns, and the `custom` decorator to run a custom preprocessing function.
@@ -511,6 +515,73 @@ def select(
     raise ValueError(f"Invalid type for select: {type(df)}")
 
 
+def is_missing(
+    df: pd.DataFrame | RemoteDataFrame,
+    input_column: str,
+    output_column: str | None = None,
+) -> pd.DataFrame | RemoteDataFrame:
+    """Encodes missing values as 0 and non-missing values as 1.
+
+    If `output_column` is omitted, the input column is overwritten in place.
+    """
+    if isinstance(df, pd.DataFrame):
+        df[output_column or input_column] = df[input_column].notna().astype(int)
+        return df
+    if isinstance(df, RemoteDataFrame):
+        if output_column is None:
+            df.builder.is_missing(input_column)
+        else:
+            df.builder.is_missing(input_column, output_column)
+        return df
+    raise ValueError(f"Invalid type for is_missing: {type(df)}")
+
+
+def _cast_extreme_columns(df: pd.DataFrame, input_columns: list[str]) -> pd.DataFrame:
+    """Casts extrema inputs to floats or UTC datetimes, matching server behavior."""
+    input_data = df[input_columns]
+    if all(
+        pd.api.types.is_numeric_dtype(input_data[column]) for column in input_columns
+    ):
+        return input_data.astype(float)
+    return input_data.apply(pd.to_datetime, errors="coerce", utc=True)
+
+
+def max_columns(
+    df: pd.DataFrame | RemoteDataFrame,
+    input_columns: list[str],
+    output_column: str,
+) -> pd.DataFrame | RemoteDataFrame:
+    """Computes the row-wise maximum across `input_columns` into `output_column`.
+
+    Inputs must all be numerical or date-like, as with the server preprocessing operation.
+    """
+    if isinstance(df, pd.DataFrame):
+        df[output_column] = _cast_extreme_columns(df, input_columns).max(axis=1)
+        return df
+    if isinstance(df, RemoteDataFrame):
+        df.builder.max_columns(input_columns, output_column)
+        return df
+    raise ValueError(f"Invalid type for max_columns: {type(df)}")
+
+
+def min_columns(
+    df: pd.DataFrame | RemoteDataFrame,
+    input_columns: list[str],
+    output_column: str,
+) -> pd.DataFrame | RemoteDataFrame:
+    """Computes the row-wise minimum across `input_columns` into `output_column`.
+
+    Inputs must all be numerical or date-like, as with the server preprocessing operation.
+    """
+    if isinstance(df, pd.DataFrame):
+        df[output_column] = _cast_extreme_columns(df, input_columns).min(axis=1)
+        return df
+    if isinstance(df, RemoteDataFrame):
+        df.builder.min_columns(input_columns, output_column)
+        return df
+    raise ValueError(f"Invalid type for min_columns: {type(df)}")
+
+
 def compute_bmi(
     df: pd.DataFrame | RemoteDataFrame,
     weight_column: str,
@@ -651,6 +722,11 @@ def chain_to_code(chain: models.PreprocessingChain) -> str:
             blocks.append(
                 f'df["{op.output_column}"] = df["{op.input_column}"].replace(to_replace={op.mapping.to_dict()}, default={repr(op.default)})'
             )
+        case models.PreprocessingOperationType.ISMISSING:
+            imports_needed.add("is_missing")
+            blocks.append(
+                f"df = is_missing(df, {repr(op.input_column)}, {repr(op.output_column)})"
+            )
         case models.PreprocessingOperationType.CUT:
             imports_needed.add("cut")
             blocks.append(
@@ -674,6 +750,16 @@ def chain_to_code(chain: models.PreprocessingChain) -> str:
         case models.PreprocessingOperationType.DIVIDECOLUMNS:
             blocks.append(
                 f"df['{op.output_column}'] = df['{op.numerator_column}'] / df['{op.denominator_column}']"
+            )
+        case models.PreprocessingOperationType.MAXCOLUMNS:
+            imports_needed.add("max_columns")
+            blocks.append(
+                f"df = max_columns(df, {repr(op.input_columns)}, {repr(op.output_column)})"
+            )
+        case models.PreprocessingOperationType.MINCOLUMNS:
+            imports_needed.add("min_columns")
+            blocks.append(
+                f"df = min_columns(df, {repr(op.input_columns)}, {repr(op.output_column)})"
             )
         case models.PreprocessingOperationType.COMPUTEBMI:
             imports_needed.add("compute_bmi")

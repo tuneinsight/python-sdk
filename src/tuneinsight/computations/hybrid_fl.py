@@ -8,15 +8,33 @@ Classes for Hybrid Federated Learning.
    few releases. Use with caution.
 """
 
-from typing import Optional
-import json
-from copy import deepcopy
+import base64
+from typing import Optional, Union, Sequence, Literal
+
 import pandas as pd
-from tuneinsight.client.dataobject import DataContent
+
+# ti-models is optional; importing HybridFL without the ml extra is handled by
+# tuneinsight.computations, while Pylint analyzes this module independently.
+# pylint: disable=import-error
+from ti_models.trainer.ti_trainer import TITrainer
+from ti_models.trainer.training_metadata import (
+    TIEventType,
+    TrainingMetadata,
+    generate_federated_curves,
+)
+
+# pylint: enable=import-error
+
 from tuneinsight.api.sdk import models
-from tuneinsight.api.sdk.types import UNSET
+from tuneinsight.api.sdk.types import UNSET, is_set, is_unset
+from tuneinsight.client.dataobject import DataContent
 from tuneinsight.computations.base import ModelBasedComputation
-from tuneinsight.utils import hybrid_fl_plots
+from tuneinsight.utils.plots import (
+    style_plot,
+    TI_COLORS,
+)
+
+MAX_BINARY_TRAINER_SIZE_BYTES = 200_000
 
 
 class HybridFL(ModelBasedComputation):
@@ -38,12 +56,11 @@ class HybridFL(ModelBasedComputation):
 
     def __init__(
         self,
-        project,
+        project: "Project",  # type: ignore,
         params: models.HybridFLGenericParams = UNSET,
         spec_params: models.HybridFLSpecParams = UNSET,
         dp_params: models.HybridFLDpParams = UNSET,
-        task_id: str = None,
-        task_def: Optional[dict[str, str | int | float]] = None,
+        trainer: Optional[TITrainer] = UNSET,
         dp_epsilon: Optional[float] = UNSET,
     ):
         """
@@ -54,14 +71,15 @@ class HybridFL(ModelBasedComputation):
             params (models.HybridFLGenericParams): the base parameters for this computation.
             spec_params (models.HybridFLSpecParams): the specific parameters for this computation depending on the hybrid FL type.
             dp_params (models.HybridFLDpParams): the differential privacy parameters.
-            task_id (str): a unique identifier for this learning task.
+            trainer (TITrainer, optional): The trainer defining the model and training procedure. Required if spec_params is of type HybridFLMachineLearningParams.
             dp_epsilon (float, optional):
                 The privacy budget to use with this workflow. Defaults to UNSET, in which case differential privacy is not used.
-            task_def (dict): task definition dictionary. See documentation for more details.
-
         """
-
-        spec_params = self._set_spec_params_type(spec_params)
+        if is_set(trainer) and trainer is not None:
+            creation_event = trainer.metadata.get_latest_event(TIEventType.CREATION)
+            if creation_event and not creation_event.author:
+                creation_event.author = project.model.created_by_node
+        spec_params = self._set_spec_params_type(spec_params, trainer)
         super().__init__(
             project,
             models.HybridFL,
@@ -69,8 +87,6 @@ class HybridFL(ModelBasedComputation):
             params=params,
             dp_params=dp_params,
             spec_params=spec_params,
-            task_id=task_id,
-            task_def=json.dumps(task_def) if task_def is not None else UNSET,
             dp_epsilon=dp_epsilon,
         )
 
@@ -83,92 +99,82 @@ class HybridFL(ModelBasedComputation):
                 params=model.params,
                 spec_params=model.spec_params,
                 dp_params=model.dp_params,
-                task_id=model.task_id,
-                task_def=model.task_def,
                 dp_epsilon=model.dp_epsilon,
             )
         comp._adapt(model)
         return comp
 
-    def _set_spec_params_type(self, spec_params):
-        """Sets the spec_params type filed based on the used spec_params."""
+    def _set_spec_params_type(self, spec_params, trainer: Optional[TITrainer] = UNSET):
+        """
+        Sets the spec_params type field based on the used spec_params.
+        If spec_params is of type HybridFLMachineLearningParams, trainer must be provided.
+
+        Args:
+            spec_params (models.HybridFLSpecParams): the specific parameters for this computation depending on the hybrid FL type.
+            trainer (TITrainer, optional): The trainer defining the model and training procedure. Required if spec_params is of type HybridFLMachineLearningParams.
+
+        Raises:
+            ValueError: If spec_params is of type HybridFLMachineLearningParams and trainer is not provided.
+        """
         if isinstance(spec_params, models.HybridFLCommunityDetectionParams):
             spec_params.params_type = (
                 models.HybridFLParamsType.HYBRIDFLCOMMUNITYDETECTIONPARAMS
             )
         elif isinstance(spec_params, models.HybridFLMachineLearningParams):
+            if is_unset(spec_params.trainer) and (is_unset(trainer) or trainer is None):
+                raise ValueError(
+                    "Trainer must be provided when using HybridFLMachineLearningParams"
+                )
+            if is_set(trainer) and trainer is not None:
+                binary_trainer = trainer.marshal_binary(is_init_trainer=True)
+                if len(binary_trainer) > MAX_BINARY_TRAINER_SIZE_BYTES:
+                    raise ValueError(
+                        "The serialized trainer must not exceed "
+                        f"{MAX_BINARY_TRAINER_SIZE_BYTES} bytes"
+                    )
+                encoded_trainer = base64.b64encode(binary_trainer).decode()
+                spec_params.trainer = encoded_trainer
             spec_params.params_type = (
                 models.HybridFLParamsType.HYBRIDFLMACHINELEARNINGPARAMS
             )
+
         else:
             spec_params.params_type = models.HybridFLParamsType.HYBRIDFLSPECBASEPARAMS
         return spec_params
 
-    @staticmethod
-    def get_results(history, local_only=False):
-        """Extracts results from a history dictionary."""
-        history = deepcopy(history)
-        _format_history(history)
-        train_metrics = (
-            history.metrics["train"] if local_only else history.init_metrics["train"]
-        )
-        test_metrics = (
-            history.metrics["val"] if local_only else history.init_metrics["val"]
-        )
-
-        for key, value in train_metrics.items():
-            train_metrics[key] = (
-                round(value[-1][-1] or -1, 4)
-                if local_only
-                else round(value[-1] or -1, 4)
-            )
-        for key, value in test_metrics.items():
-            test_metrics[key] = (
-                round(value[-1][-1] or -1, 4)
-                if local_only
-                else round(value[-1] or -1, 4)
-            )
-
-        return train_metrics, test_metrics
-
-    def display_results(
-        self, history, local_only=False, metrics_to_display=("accuracy",)
+    def plot_results(
+        self,
+        result,
+        metric_key: str = "loss",
+        palette: Optional[Union[str, Sequence]] = None,
+        align_by: Literal["step", "time"] = "step",
     ):
-        """Displays the results of this computation, given its history."""
-        history = deepcopy(history)
-        _format_history(history)
+        """Plot the training curves from the participants from the result of the computation."""
+        if palette is None:
+            palette = TI_COLORS
 
-        hybrid_fl_plots.plot_timeline(
-            history, local_only=local_only, metrics_to_display=metrics_to_display
+        metadata = TrainingMetadata.unmarshal_json(result.metadata)
+        events = metadata.events
+
+        curves = generate_federated_curves(events, metric_key=metric_key)
+
+        style_kwargs = {
+            "title": f"{metadata.name.replace('_', ' ')} learning curves",
+            "x_label": "",
+            "y_label": metric_key,
+            "size": (12, 6),
+        }
+
+        def style_fn(axis, fig, **kwargs):
+            style_plot(axis, fig, **kwargs)
+
+        curves.plot(
+            palette=palette,
+            show_aggregations=True,
+            align_by=align_by,
+            style_fn=style_fn,
+            style_kwargs=style_kwargs,
         )
 
     def _process_results(self, results: list[DataContent]) -> pd.DataFrame:
         return results[0].get_ml_result()
-
-
-def _format_history(history):
-    metrics = {}
-    for json_metrics in history.metrics:
-        round_metrics = json.loads(json_metrics)
-        for split, metrics_split in round_metrics.items():
-            if split not in metrics:
-                metrics[split] = {}
-            for key, metrics_array in metrics_split.items():
-                if key in metrics[split]:
-                    metrics[split][key].append(metrics_array)
-                else:
-                    metrics[split][key] = [metrics_array]
-    history.metrics = metrics
-
-    init_metrics = {}
-    for json_metrics in history.init_metrics:
-        round_metrics = json.loads(json_metrics)
-        for split, metrics_split in round_metrics.items():
-            if split not in init_metrics:
-                init_metrics[split] = {}
-            for key, metrics_array in metrics_split.items():
-                if key in init_metrics[split]:
-                    init_metrics[split][key].append(metrics_array)
-                else:
-                    init_metrics[split][key] = [metrics_array]
-    history.init_metrics = init_metrics

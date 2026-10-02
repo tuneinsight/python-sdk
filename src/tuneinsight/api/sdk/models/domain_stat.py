@@ -16,12 +16,15 @@ class DomainStat:
         label (Union[Unset, str]): the label for this domain
         patient_count (Union[Unset, int]): number of distinct patients with at least one record in this domain.
         total_concepts (Union[Unset, int]): total number of concepts in this domain loaded from terminology files.
+        total_concepts_with_patients (Union[Unset, int]): total number of concepts in this domain which have at least
+            one occurrence in the data catalog.
     """
 
     domain: Union[Unset, str] = UNSET
     label: Union[Unset, str] = UNSET
     patient_count: Union[Unset, int] = UNSET
     total_concepts: Union[Unset, int] = UNSET
+    total_concepts_with_patients: Union[Unset, int] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -29,6 +32,7 @@ class DomainStat:
         label = self.label
         patient_count = self.patient_count
         total_concepts = self.total_concepts
+        total_concepts_with_patients = self.total_concepts_with_patients
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -41,6 +45,8 @@ class DomainStat:
             field_dict["patientCount"] = patient_count
         if total_concepts is not UNSET:
             field_dict["totalConcepts"] = total_concepts
+        if total_concepts_with_patients is not UNSET:
+            field_dict["totalConceptsWithPatients"] = total_concepts_with_patients
 
         return field_dict
 
@@ -55,11 +61,14 @@ class DomainStat:
 
         total_concepts = d.pop("totalConcepts", UNSET)
 
+        total_concepts_with_patients = d.pop("totalConceptsWithPatients", UNSET)
+
         domain_stat = cls(
             domain=domain,
             label=label,
             patient_count=patient_count,
             total_concepts=total_concepts,
+            total_concepts_with_patients=total_concepts_with_patients,
         )
 
         domain_stat.additional_properties = d

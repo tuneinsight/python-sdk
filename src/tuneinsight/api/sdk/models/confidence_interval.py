@@ -12,17 +12,22 @@ class ConfidenceInterval:
     """a confidence interval on a noisy or otherwise uncertainty value.
 
     Attributes:
+        center (Union[Unset, None, float]): The center of the confidence interval in the probability sense (the median,
+            not the geometric center).
+            This is typically the value for which the confidence interval is computed.
         confidence (Union[Unset, float]): the confidence level of the interval, between 0 and 1.
         high (Union[Unset, float]): the upper bound of the interval.
         low (Union[Unset, float]): the lower bound of the interval.
     """
 
+    center: Union[Unset, None, float] = UNSET
     confidence: Union[Unset, float] = UNSET
     high: Union[Unset, float] = UNSET
     low: Union[Unset, float] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        center = self.center
         confidence = self.confidence
         high = self.high
         low = self.low
@@ -30,6 +35,8 @@ class ConfidenceInterval:
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if center is not UNSET:
+            field_dict["center"] = center
         if confidence is not UNSET:
             field_dict["confidence"] = confidence
         if high is not UNSET:
@@ -42,6 +49,8 @@ class ConfidenceInterval:
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
+        center = d.pop("center", UNSET)
+
         confidence = d.pop("confidence", UNSET)
 
         high = d.pop("high", UNSET)
@@ -49,6 +58,7 @@ class ConfidenceInterval:
         low = d.pop("low", UNSET)
 
         confidence_interval = cls(
+            center=center,
             confidence=confidence,
             high=high,
             low=low,

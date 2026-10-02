@@ -17,6 +17,9 @@ class HybridFLMachineLearningParams:
         learning_rate (Union[Unset, float]): Learning rate of the optimizer in the python-server
         local_epochs (Union[Unset, int]): Number of local epochs of the Hybrid FL between aggregations
         momentum (Union[Unset, float]): Momentum of the optimizer in the python-server
+        trainer (Union[Unset, str]): The serialized trainer object created with the TI-Model library,
+            containing the model architecture and training logic for the
+            machine learning protocol in the Hybrid FL.
     """
 
     params_type: Union[Unset, str] = UNSET
@@ -24,6 +27,7 @@ class HybridFLMachineLearningParams:
     learning_rate: Union[Unset, float] = UNSET
     local_epochs: Union[Unset, int] = UNSET
     momentum: Union[Unset, float] = UNSET
+    trainer: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -32,6 +36,7 @@ class HybridFLMachineLearningParams:
         learning_rate = self.learning_rate
         local_epochs = self.local_epochs
         momentum = self.momentum
+        trainer = self.trainer
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -46,6 +51,8 @@ class HybridFLMachineLearningParams:
             field_dict["localEpochs"] = local_epochs
         if momentum is not UNSET:
             field_dict["momentum"] = momentum
+        if trainer is not UNSET:
+            field_dict["trainer"] = trainer
 
         return field_dict
 
@@ -62,12 +69,15 @@ class HybridFLMachineLearningParams:
 
         momentum = d.pop("momentum", UNSET)
 
+        trainer = d.pop("trainer", UNSET)
+
         hybrid_fl_machine_learning_params = cls(
             params_type=params_type,
             batch_size=batch_size,
             learning_rate=learning_rate,
             local_epochs=local_epochs,
             momentum=momentum,
+            trainer=trainer,
         )
 
         hybrid_fl_machine_learning_params.additional_properties = d
