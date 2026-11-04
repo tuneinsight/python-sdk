@@ -5,7 +5,6 @@ import httpx
 
 from ... import errors
 from ...client import Client
-from ...models.data_source_command import DataSourceCommand
 from ...models.data_source_command_result import DataSourceCommandResult
 from ...models.error import Error
 from ...types import Response
@@ -15,14 +14,11 @@ def _get_kwargs(
     project_id: str,
     *,
     client: Client,
-    json_body: DataSourceCommand,
 ) -> Dict[str, Any]:
     url = "{}/projects/{projectId}/datasource-command".format(client.base_url, projectId=project_id)
 
     headers: Dict[str, str] = client.get_headers()
     cookies: Dict[str, Any] = client.get_cookies()
-
-    json_json_body = json_body.to_dict()
 
     # Set the proxies if the client has proxies set.
     proxies = None
@@ -42,7 +38,6 @@ def _get_kwargs(
         "cookies": cookies,
         "timeout": client.get_timeout(),
         "proxies": proxies,
-        "json": json_json_body,
     }
 
 
@@ -90,13 +85,11 @@ def sync_detailed(
     project_id: str,
     *,
     client: Client,
-    json_body: DataSourceCommand,
 ) -> Response[Union[DataSourceCommandResult, Error]]:
     """Execute a data source's command (e.g. to fetch metadata) on the project's datasource.
 
     Args:
         project_id (str):
-        json_body (DataSourceCommand): Abstract subclass representing a datasource command.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -109,7 +102,6 @@ def sync_detailed(
     kwargs = _get_kwargs(
         project_id=project_id,
         client=client,
-        json_body=json_body,
     )
 
     response = httpx.request(
@@ -124,13 +116,11 @@ def sync(
     project_id: str,
     *,
     client: Client,
-    json_body: DataSourceCommand,
 ) -> Optional[Union[DataSourceCommandResult, Error]]:
     """Execute a data source's command (e.g. to fetch metadata) on the project's datasource.
 
     Args:
         project_id (str):
-        json_body (DataSourceCommand): Abstract subclass representing a datasource command.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -143,7 +133,6 @@ def sync(
     return sync_detailed(
         project_id=project_id,
         client=client,
-        json_body=json_body,
     ).parsed
 
 
@@ -151,13 +140,11 @@ async def asyncio_detailed(
     project_id: str,
     *,
     client: Client,
-    json_body: DataSourceCommand,
 ) -> Response[Union[DataSourceCommandResult, Error]]:
     """Execute a data source's command (e.g. to fetch metadata) on the project's datasource.
 
     Args:
         project_id (str):
-        json_body (DataSourceCommand): Abstract subclass representing a datasource command.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -170,7 +157,6 @@ async def asyncio_detailed(
     kwargs = _get_kwargs(
         project_id=project_id,
         client=client,
-        json_body=json_body,
     )
 
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
@@ -183,13 +169,11 @@ async def asyncio(
     project_id: str,
     *,
     client: Client,
-    json_body: DataSourceCommand,
 ) -> Optional[Union[DataSourceCommandResult, Error]]:
     """Execute a data source's command (e.g. to fetch metadata) on the project's datasource.
 
     Args:
         project_id (str):
-        json_body (DataSourceCommand): Abstract subclass representing a datasource command.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -203,6 +187,5 @@ async def asyncio(
         await asyncio_detailed(
             project_id=project_id,
             client=client,
-            json_body=json_body,
         )
     ).parsed

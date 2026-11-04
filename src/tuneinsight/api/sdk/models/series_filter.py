@@ -8,6 +8,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.advanced_filter import AdvancedFilter
+    from ..models.numerical_comparison import NumericalComparison
     from ..models.series_filter_output_variables_item import SeriesFilterOutputVariablesItem
 
 
@@ -33,6 +34,9 @@ class SeriesFilter:
             alias (Union[Unset, str]): an optional unique name to use to refer to this SeriesFilter. If specified, this name
                 must be unique across all SeriesFilters in the query.
                 In TIQL++, this can be empty, in which case the TIQL transpiler assigns a unique alias.
+            count_filter (Union[Unset, NumericalComparison]): Simplified structure that represents a single comparison on a
+                numerical value.
+                This defined a comparator and a right-hand comparand. The value being compared is the left-hand comparand.
             filter_ (Union[Unset, AdvancedFilter]): Abstract subclass of a filter for cross-standard queries.
             logical_aggregator (Union[Unset, BooleanAggregator]): A criterion to aggregate a series of boolean values as a
                 single value.
@@ -44,6 +48,7 @@ class SeriesFilter:
 
     type: AdvancedFilterType
     alias: Union[Unset, str] = UNSET
+    count_filter: Union[Unset, "NumericalComparison"] = UNSET
     filter_: Union[Unset, "AdvancedFilter"] = UNSET
     logical_aggregator: Union[Unset, BooleanAggregator] = UNSET
     output_count_as_variable: Union[Unset, None, str] = UNSET
@@ -55,6 +60,10 @@ class SeriesFilter:
         type = self.type.value
 
         alias = self.alias
+        count_filter: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.count_filter, Unset):
+            count_filter = self.count_filter.to_dict()
+
         filter_: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.filter_, Unset):
             filter_ = self.filter_.to_dict()
@@ -83,6 +92,8 @@ class SeriesFilter:
         )
         if alias is not UNSET:
             field_dict["alias"] = alias
+        if count_filter is not UNSET:
+            field_dict["countFilter"] = count_filter
         if filter_ is not UNSET:
             field_dict["filter"] = filter_
         if logical_aggregator is not UNSET:
@@ -99,12 +110,20 @@ class SeriesFilter:
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         from ..models.advanced_filter import AdvancedFilter
+        from ..models.numerical_comparison import NumericalComparison
         from ..models.series_filter_output_variables_item import SeriesFilterOutputVariablesItem
 
         d = src_dict.copy()
         type = AdvancedFilterType(d.pop("type"))
 
         alias = d.pop("alias", UNSET)
+
+        _count_filter = d.pop("countFilter", UNSET)
+        count_filter: Union[Unset, NumericalComparison]
+        if isinstance(_count_filter, Unset):
+            count_filter = UNSET
+        else:
+            count_filter = NumericalComparison.from_dict(_count_filter)
 
         _filter_ = d.pop("filter", UNSET)
         filter_: Union[Unset, AdvancedFilter]
@@ -134,6 +153,7 @@ class SeriesFilter:
         series_filter = cls(
             type=type,
             alias=alias,
+            count_filter=count_filter,
             filter_=filter_,
             logical_aggregator=logical_aggregator,
             output_count_as_variable=output_count_as_variable,

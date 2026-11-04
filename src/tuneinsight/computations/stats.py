@@ -196,9 +196,9 @@ class Statistics(ModelBasedComputation):
         """Initializes a Statistics object from its API model."""
         model = models.DatasetStatistics.from_dict(model.to_dict())
         # Parse the statistics in the object, and convert them to variables.
-        conf = model.statistics
+        conf = list(model.statistics) if is_set(model.statistics) else []
         quantities = UNSET
-        if is_set(conf) and len(conf) > 0:
+        if conf:
             quantities = conf[0].quantities
             for qt in conf[1:]:
                 if quantities != qt.quantities:
@@ -208,16 +208,15 @@ class Statistics(ModelBasedComputation):
         with project.disable_patch():
             comp = Statistics(project, variables=[], quantities=quantities)
         # Add the variables one by one.
-        if is_set(conf):
-            for variable in conf:
-                comp.add_variable(
-                    name=variable.name,
-                    variable=variable.variable,
-                    min_bound=value_if_unset(variable.min_bound, 0),
-                    max_bound=value_if_unset(variable.max_bound, 200),
-                )
-                if is_set(variable.filter_):
-                    comp._variables[variable.name].filter_ = variable.filter_
+        for variable in conf:
+            comp.add_variable(
+                name=variable.name,
+                variable=variable.variable,
+                min_bound=value_if_unset(variable.min_bound, 0),
+                max_bound=value_if_unset(variable.max_bound, 200),
+            )
+            if is_set(variable.filter_):
+                comp._variables[variable.name].filter_ = variable.filter_
         comp._adapt(model)
         return comp
 

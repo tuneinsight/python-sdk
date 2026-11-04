@@ -82,35 +82,35 @@ typedef struct { void *data; GoInt len; GoInt cap; } GoSlice;
 extern "C" {
 #endif
 
-extern __declspec(dllexport) char* GetLastGoError(void);
-extern __declspec(dllexport) char* NewPolynomialCkksParams(void);
-extern __declspec(dllexport) char* NewCkksOperatorFromB64Parameters(char* b64params);
-extern __declspec(dllexport) char* NewCkksOperatorFromB64SchemeContext(char* b64Context);
-extern __declspec(dllexport) char* GenKeyPair(char* id);
-extern __declspec(dllexport) char* GetSecretKeyB64(char* id);
-extern __declspec(dllexport) char* GetPublicKeyB64(char* id);
-extern __declspec(dllexport) void* GetRelinearizationKeyBytes(char* id);
-extern __declspec(dllexport) void* EncryptFloatMatrix(char* id, char* plaintext);
-extern __declspec(dllexport) char* DecryptCipherTable(char* id, void* ciphertext, size_t textSize);
-extern __declspec(dllexport) char* DecryptStatistics(char* id, void* ciphertext, size_t textSize);
-extern __declspec(dllexport) char* GenRelinearizationKey(char* id);
-extern __declspec(dllexport) char* EncodeBase64Url(void* bytes, size_t size);
-extern __declspec(dllexport) void* DecodeBase64Url(char* base64data);
-extern __declspec(dllexport) size_t DecodeBase64UrlSize(char* base64data);
-extern __declspec(dllexport) char* GenerateEvaluator(char* id);
-extern __declspec(dllexport) char* GenerateEncryptor(char* id);
-extern __declspec(dllexport) char* GenerateDecryptor(char* id);
-extern __declspec(dllexport) char* InstantiateScheme(char* id);
-extern __declspec(dllexport) void* EncryptNumber(char* id, char* number);
-extern __declspec(dllexport) void* DecryptNumber(char* id, void* ciphertext, size_t textSize);
-extern __declspec(dllexport) void* Add(char* id, void* number1, void* number2, size_t number1Size, size_t number2Size);
-extern __declspec(dllexport) void* Multiply(char* id, void* number1, void* number2, size_t number1Size, size_t number2Size);
-extern __declspec(dllexport) void* PolynomialEvaluation(char* id, char* polynomialCoefficients, size_t polynomialCoefficientsSize, void* number, size_t numberSize);
-extern __declspec(dllexport) char* PostProcessSurvivalDP(char* results);
-extern __declspec(dllexport) char* KaplanMeierConfidenceInterval(char* results, char* epsilonEncoded);
-extern __declspec(dllexport) char* PostProcessStatistics(char* results);
-extern __declspec(dllexport) char* PostProcessAverageAggregation(char* results, int removeCountsC);
-extern __declspec(dllexport) char* StatisticsConfidenceInterval(char* results, char* scaleParams);
+extern char* GetLastGoError(void);
+extern char* NewPolynomialCkksParams(void);
+extern char* NewCkksOperatorFromB64Parameters(char* b64params);
+extern char* NewCkksOperatorFromB64SchemeContext(char* b64Context);
+extern char* GenKeyPair(char* id);
+extern char* GetSecretKeyB64(char* id);
+extern char* GetPublicKeyB64(char* id);
+extern void* GetRelinearizationKeyBytes(char* id);
+extern void* EncryptFloatMatrix(char* id, char* plaintext);
+extern char* DecryptCipherTable(char* id, void* ciphertext, size_t textSize);
+extern char* DecryptStatistics(char* id, void* ciphertext, size_t textSize);
+extern char* GenRelinearizationKey(char* id);
+extern char* EncodeBase64Url(void* bytes, size_t size);
+extern void* DecodeBase64Url(char* base64data);
+extern size_t DecodeBase64UrlSize(char* base64data);
+extern char* GenerateEvaluator(char* id);
+extern char* GenerateEncryptor(char* id);
+extern char* GenerateDecryptor(char* id);
+extern char* InstantiateScheme(char* id);
+extern void* EncryptNumber(char* id, char* number);
+extern void* DecryptNumber(char* id, void* ciphertext, size_t textSize);
+extern void* Add(char* id, void* number1, void* number2, size_t number1Size, size_t number2Size);
+extern void* Multiply(char* id, void* number1, void* number2, size_t number1Size, size_t number2Size);
+extern void* PolynomialEvaluation(char* id, char* polynomialCoefficients, size_t polynomialCoefficientsSize, void* number, size_t numberSize);
+extern char* PostProcessSurvivalDP(char* results);
+extern char* KaplanMeierConfidenceInterval(char* results, char* epsilonEncoded);
+extern char* PostProcessStatistics(char* results);
+extern char* PostProcessAverageAggregation(char* results, int removeCountsC);
+extern char* StatisticsConfidenceInterval(char* results, char* scaleParams);
 
 #ifdef __cplusplus
 }

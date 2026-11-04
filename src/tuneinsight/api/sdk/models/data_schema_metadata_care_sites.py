@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
+from ..models.care_site_identification_method import CareSiteIdentificationMethod
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -18,9 +19,13 @@ class DataSchemaMetadataCareSites:
 
         Attributes:
             address (Union[Unset, AdvancedBuilderField]): Configuration for an advanced builder parameter field.
+            care_site_identifier (Union[Unset, AdvancedBuilderField]): Configuration for an advanced builder parameter
+                field.
             city (Union[Unset, AdvancedBuilderField]): Configuration for an advanced builder parameter field.
             country (Union[Unset, AdvancedBuilderField]): Configuration for an advanced builder parameter field.
             district (Union[Unset, AdvancedBuilderField]): Configuration for an advanced builder parameter field.
+            identification_method (Union[Unset, CareSiteIdentificationMethod]): enumeration of ways to uniquely identify
+                care sites.
             latitude (Union[Unset, AdvancedBuilderField]): Configuration for an advanced builder parameter field.
             locality (Union[Unset, AdvancedBuilderField]): Configuration for an advanced builder parameter field.
             longitude (Union[Unset, AdvancedBuilderField]): Configuration for an advanced builder parameter field.
@@ -33,9 +38,11 @@ class DataSchemaMetadataCareSites:
     """
 
     address: Union[Unset, "AdvancedBuilderField"] = UNSET
+    care_site_identifier: Union[Unset, "AdvancedBuilderField"] = UNSET
     city: Union[Unset, "AdvancedBuilderField"] = UNSET
     country: Union[Unset, "AdvancedBuilderField"] = UNSET
     district: Union[Unset, "AdvancedBuilderField"] = UNSET
+    identification_method: Union[Unset, CareSiteIdentificationMethod] = UNSET
     latitude: Union[Unset, "AdvancedBuilderField"] = UNSET
     locality: Union[Unset, "AdvancedBuilderField"] = UNSET
     longitude: Union[Unset, "AdvancedBuilderField"] = UNSET
@@ -51,6 +58,10 @@ class DataSchemaMetadataCareSites:
         if not isinstance(self.address, Unset):
             address = self.address.to_dict()
 
+        care_site_identifier: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.care_site_identifier, Unset):
+            care_site_identifier = self.care_site_identifier.to_dict()
+
         city: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.city, Unset):
             city = self.city.to_dict()
@@ -62,6 +73,10 @@ class DataSchemaMetadataCareSites:
         district: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.district, Unset):
             district = self.district.to_dict()
+
+        identification_method: Union[Unset, str] = UNSET
+        if not isinstance(self.identification_method, Unset):
+            identification_method = self.identification_method.value
 
         latitude: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.latitude, Unset):
@@ -97,12 +112,16 @@ class DataSchemaMetadataCareSites:
         field_dict.update({})
         if address is not UNSET:
             field_dict["address"] = address
+        if care_site_identifier is not UNSET:
+            field_dict["careSiteIdentifier"] = care_site_identifier
         if city is not UNSET:
             field_dict["city"] = city
         if country is not UNSET:
             field_dict["country"] = country
         if district is not UNSET:
             field_dict["district"] = district
+        if identification_method is not UNSET:
+            field_dict["identificationMethod"] = identification_method
         if latitude is not UNSET:
             field_dict["latitude"] = latitude
         if locality is not UNSET:
@@ -134,6 +153,13 @@ class DataSchemaMetadataCareSites:
         else:
             address = AdvancedBuilderField.from_dict(_address)
 
+        _care_site_identifier = d.pop("careSiteIdentifier", UNSET)
+        care_site_identifier: Union[Unset, AdvancedBuilderField]
+        if isinstance(_care_site_identifier, Unset):
+            care_site_identifier = UNSET
+        else:
+            care_site_identifier = AdvancedBuilderField.from_dict(_care_site_identifier)
+
         _city = d.pop("city", UNSET)
         city: Union[Unset, AdvancedBuilderField]
         if isinstance(_city, Unset):
@@ -154,6 +180,13 @@ class DataSchemaMetadataCareSites:
             district = UNSET
         else:
             district = AdvancedBuilderField.from_dict(_district)
+
+        _identification_method = d.pop("identificationMethod", UNSET)
+        identification_method: Union[Unset, CareSiteIdentificationMethod]
+        if isinstance(_identification_method, Unset):
+            identification_method = UNSET
+        else:
+            identification_method = CareSiteIdentificationMethod(_identification_method)
 
         _latitude = d.pop("latitude", UNSET)
         latitude: Union[Unset, AdvancedBuilderField]
@@ -208,9 +241,11 @@ class DataSchemaMetadataCareSites:
 
         data_schema_metadata_care_sites = cls(
             address=address,
+            care_site_identifier=care_site_identifier,
             city=city,
             country=country,
             district=district,
+            identification_method=identification_method,
             latitude=latitude,
             locality=locality,
             longitude=longitude,

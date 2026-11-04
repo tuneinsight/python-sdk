@@ -1,7 +1,7 @@
 """Classes to interact with datasources in a Tune Insight instance."""
 
 import contextlib
-from typing import Any
+from typing import cast, Any
 from io import StringIO
 import pandas as pd
 
@@ -17,11 +17,10 @@ from tuneinsight.api.sdk.api.api_datasource import (
     get_data_source,
     patch_data_source,
     post_data_source_command,
+    post_data_source_query,
 )
-from tuneinsight.api.sdk.api.api_dataobject import post_data_object
 
 from tuneinsight.client.validation import validate_response
-from tuneinsight.client.dataobject import DataObject
 from tuneinsight.computations.policy import DataPolicy
 from tuneinsight.utils.tracking import ProgressTracker, new_task_id
 from tuneinsight.utils.io import generate_dataframe_chunks, generate_csv_records
@@ -254,34 +253,33 @@ class DataSource:
 
     ## Methods to manipulate a datasource object.
 
-    def adapt(
-        self, do_type: models.DataObjectType, query: Any = "", json_path: str = ""
-    ) -> DataObject:
+    def query(self, query: Any = "", json_path: str = "") -> pd.DataFrame:
         """
-        Creates a dataobject from the data in this datasource (or the output of a query on it).
-
+        Queries the data source and returns the query results as a data frame.
+        This method attempts to set query_enabled=True before querying the data source.
         Args:
-            do_type (models.DataObjectType): the type of DataObject to create.
-            query (str, optional): a query selecting a subset of the data. The default is "" for CSV datasource (all records),
+            query (str, optional): a query selecting a subset of the data.
+                The default is "" for CSV datasource (all records),
                 but note that this is an invalid query for database datasources.
             json_path (str, optional): JsonPath expression to retrieve data from within JSON-structured data. Defaults to "".
 
         Returns:
-            DataObject: The newly created dataobject holding the data.
+            DataFrame: The newly created DataFrame holding the data.
         """
-        method = models.DataObjectCreationMethod.DATASOURCE
-        definition = models.PostDataObjectJsonBody(
-            method=method,
-            data_source_id=self.get_id(),
-            type=do_type,
-            query=query,
-            json_path=json_path,
+
+        self._patch(models.DataSourceDefinition(query_enabled=True))
+
+        definition = models.DataSourceQueryDefinition(
+            query=models.DataSourceQuery(database_query=query, api_json_path=json_path)
         )
-        response: Response[models.DataObject] = post_data_object.sync_detailed(
-            client=self.client, json_body=definition
+        response: Response[models.DataSourceQueryResult | models.Error] = (
+            post_data_source_query.sync_detailed(
+                self.get_id(), client=self.client, json_body=definition
+            )
         )
         validate_response(response)
-        return DataObject(model=response.parsed, client=self.client)
+        result = cast(models.DataSourceQueryResult, response.parsed)
+        return pd.DataFrame(data=result.results.rows, columns=result.results.columns)
 
     def upload_data(
         self,
@@ -404,12 +402,7 @@ class DataSource:
         """
         if not query and self.local_query_parameters is not None:
             query = self.local_query_parameters.database_query
-        do = self.adapt(
-            do_type=models.DataObjectType.TABLE, query=query, json_path=json_path
-        )
-        df = do.get_dataframe()
-        do.delete()
-        return df
+        return self.query(query=query, json_path=json_path)
 
     def delete(self):
         """
