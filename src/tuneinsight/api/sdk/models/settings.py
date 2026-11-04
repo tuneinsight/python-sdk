@@ -34,6 +34,8 @@ class Settings:
         computation_timeout_enabled (Union[Unset, None, bool]): whether to enable the computation timeout
         dashboard_enabled (Union[Unset, None, bool]): whether or not to enable the dashboard view.
         data_preparation (Union[Unset, None, bool]): whether or not to enable the data preparation UI.
+        data_quality_enabled (Union[Unset, None, bool]): whether or not to display data quality indicators in the
+            catalog.
         default_contract (Union[Unset, AuthorizationContract]): describes what parts of the computation are allowed to
             change when a project is authorized
         default_data_source (Union[Unset, None, str]): Unique identifier of a data source.
@@ -44,6 +46,10 @@ class Settings:
             administrators.
         feasibility_layout (Union[Unset, None, bool]): whether or not to enable the feasibility mode layout.
         network_catalog_data_source_id (Union[Unset, None, str]): Unique identifier of a data source.
+        new_project_creation_workflow (Union[Unset, None, bool]): whether or not to enable the beta project creation
+            workflow.
+        ontology_browser_domain_selection (Union[Unset, None, bool]): whether or not to enable the domain selection
+            dropdown in the ontology browser.
         query_timeout (Union[Unset, int]): custom timeout (seconds) to use for the query
         query_timeout_enabled (Union[Unset, None, bool]): whether to enable the query timeout
         selectable_data_source (Union[Unset, None, bool]): whether or not the datasource of the project can be modified.
@@ -62,6 +68,7 @@ class Settings:
     computation_timeout_enabled: Union[Unset, None, bool] = UNSET
     dashboard_enabled: Union[Unset, None, bool] = UNSET
     data_preparation: Union[Unset, None, bool] = UNSET
+    data_quality_enabled: Union[Unset, None, bool] = False
     default_contract: Union[Unset, "AuthorizationContract"] = UNSET
     default_data_source: Union[Unset, None, str] = UNSET
     default_project: Union[Unset, str] = UNSET
@@ -70,6 +77,8 @@ class Settings:
     enabled_ontologies: Union[Unset, List[OntologyType]] = UNSET
     feasibility_layout: Union[Unset, None, bool] = UNSET
     network_catalog_data_source_id: Union[Unset, None, str] = UNSET
+    new_project_creation_workflow: Union[Unset, None, bool] = False
+    ontology_browser_domain_selection: Union[Unset, None, bool] = UNSET
     query_timeout: Union[Unset, int] = UNSET
     query_timeout_enabled: Union[Unset, None, bool] = UNSET
     selectable_data_source: Union[Unset, None, bool] = UNSET
@@ -110,6 +119,7 @@ class Settings:
         computation_timeout_enabled = self.computation_timeout_enabled
         dashboard_enabled = self.dashboard_enabled
         data_preparation = self.data_preparation
+        data_quality_enabled = self.data_quality_enabled
         default_contract: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.default_contract, Unset):
             default_contract = self.default_contract.to_dict()
@@ -128,6 +138,8 @@ class Settings:
 
         feasibility_layout = self.feasibility_layout
         network_catalog_data_source_id = self.network_catalog_data_source_id
+        new_project_creation_workflow = self.new_project_creation_workflow
+        ontology_browser_domain_selection = self.ontology_browser_domain_selection
         query_timeout = self.query_timeout
         query_timeout_enabled = self.query_timeout_enabled
         selectable_data_source = self.selectable_data_source
@@ -160,6 +172,8 @@ class Settings:
             field_dict["dashboardEnabled"] = dashboard_enabled
         if data_preparation is not UNSET:
             field_dict["dataPreparation"] = data_preparation
+        if data_quality_enabled is not UNSET:
+            field_dict["dataQualityEnabled"] = data_quality_enabled
         if default_contract is not UNSET:
             field_dict["defaultContract"] = default_contract
         if default_data_source is not UNSET:
@@ -176,6 +190,10 @@ class Settings:
             field_dict["feasibilityLayout"] = feasibility_layout
         if network_catalog_data_source_id is not UNSET:
             field_dict["networkCatalogDataSourceId"] = network_catalog_data_source_id
+        if new_project_creation_workflow is not UNSET:
+            field_dict["newProjectCreationWorkflow"] = new_project_creation_workflow
+        if ontology_browser_domain_selection is not UNSET:
+            field_dict["ontologyBrowserDomainSelection"] = ontology_browser_domain_selection
         if query_timeout is not UNSET:
             field_dict["queryTimeout"] = query_timeout
         if query_timeout_enabled is not UNSET:
@@ -232,6 +250,8 @@ class Settings:
 
         data_preparation = d.pop("dataPreparation", UNSET)
 
+        data_quality_enabled = d.pop("dataQualityEnabled", UNSET)
+
         _default_contract = d.pop("defaultContract", UNSET)
         default_contract: Union[Unset, AuthorizationContract]
         if isinstance(_default_contract, Unset):
@@ -257,6 +277,10 @@ class Settings:
         feasibility_layout = d.pop("feasibilityLayout", UNSET)
 
         network_catalog_data_source_id = d.pop("networkCatalogDataSourceId", UNSET)
+
+        new_project_creation_workflow = d.pop("newProjectCreationWorkflow", UNSET)
+
+        ontology_browser_domain_selection = d.pop("ontologyBrowserDomainSelection", UNSET)
 
         query_timeout = d.pop("queryTimeout", UNSET)
 
@@ -286,6 +310,7 @@ class Settings:
             computation_timeout_enabled=computation_timeout_enabled,
             dashboard_enabled=dashboard_enabled,
             data_preparation=data_preparation,
+            data_quality_enabled=data_quality_enabled,
             default_contract=default_contract,
             default_data_source=default_data_source,
             default_project=default_project,
@@ -294,6 +319,8 @@ class Settings:
             enabled_ontologies=enabled_ontologies,
             feasibility_layout=feasibility_layout,
             network_catalog_data_source_id=network_catalog_data_source_id,
+            new_project_creation_workflow=new_project_creation_workflow,
+            ontology_browser_domain_selection=ontology_browser_domain_selection,
             query_timeout=query_timeout,
             query_timeout_enabled=query_timeout_enabled,
             selectable_data_source=selectable_data_source,

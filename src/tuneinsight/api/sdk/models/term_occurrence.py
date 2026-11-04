@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
 
 import attr
 
+from ..models.term_occurrence_count_origin import TermOccurrenceCountOrigin
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -25,6 +26,8 @@ class TermOccurrence:
             confidence_interval (Union[Unset, ConfidenceInterval]): a confidence interval on a noisy or otherwise
                 uncertainty value.
             count (Union[Unset, None, int]): represents the count of exact occurrences for this term.
+            count_origin (Union[Unset, TermOccurrenceCountOrigin]): whether this occurrence is direct, mapped, or combines
+                both contributions.
             data_source_id (Union[Unset, str]): data source id this occurrence was computed from.
             distributions (Union[Unset, TermDistributions]):
             per_care_site_count (Union[Unset, TermOccurrencePerCareSiteCount]): when the occurrence is aggregated, this
@@ -32,17 +35,23 @@ class TermOccurrence:
             remote (Union[Unset, bool]): indicates whether the occurrence for this term is from a remote instance of from
                 the serving instance.
             remote_instance (Union[Unset, str]): instance id of the remote instance that provided this term occurrence.
+            source_term_ids (Union[Unset, List[str]]): Geco term IDs of contributing source terms. Each individual local
+                mapped
+                occurrence has one source ID; aggregated counts may contain several.
+                The same model represents both individual and aggregated occurrences.
             term_id (Union[Unset, str]): unique identifier of the term
     """
 
     care_sites: Union[Unset, List[str]] = UNSET
     confidence_interval: Union[Unset, "ConfidenceInterval"] = UNSET
     count: Union[Unset, None, int] = UNSET
+    count_origin: Union[Unset, TermOccurrenceCountOrigin] = UNSET
     data_source_id: Union[Unset, str] = UNSET
     distributions: Union[Unset, "TermDistributions"] = UNSET
     per_care_site_count: Union[Unset, "TermOccurrencePerCareSiteCount"] = UNSET
     remote: Union[Unset, bool] = UNSET
     remote_instance: Union[Unset, str] = UNSET
+    source_term_ids: Union[Unset, List[str]] = UNSET
     term_id: Union[Unset, str] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -56,6 +65,10 @@ class TermOccurrence:
             confidence_interval = self.confidence_interval.to_dict()
 
         count = self.count
+        count_origin: Union[Unset, str] = UNSET
+        if not isinstance(self.count_origin, Unset):
+            count_origin = self.count_origin.value
+
         data_source_id = self.data_source_id
         distributions: Union[Unset, Dict[str, Any]] = UNSET
         if not isinstance(self.distributions, Unset):
@@ -67,6 +80,10 @@ class TermOccurrence:
 
         remote = self.remote
         remote_instance = self.remote_instance
+        source_term_ids: Union[Unset, List[str]] = UNSET
+        if not isinstance(self.source_term_ids, Unset):
+            source_term_ids = self.source_term_ids
+
         term_id = self.term_id
 
         field_dict: Dict[str, Any] = {}
@@ -78,6 +95,8 @@ class TermOccurrence:
             field_dict["confidenceInterval"] = confidence_interval
         if count is not UNSET:
             field_dict["count"] = count
+        if count_origin is not UNSET:
+            field_dict["countOrigin"] = count_origin
         if data_source_id is not UNSET:
             field_dict["dataSourceId"] = data_source_id
         if distributions is not UNSET:
@@ -88,6 +107,8 @@ class TermOccurrence:
             field_dict["remote"] = remote
         if remote_instance is not UNSET:
             field_dict["remoteInstance"] = remote_instance
+        if source_term_ids is not UNSET:
+            field_dict["sourceTermIds"] = source_term_ids
         if term_id is not UNSET:
             field_dict["termId"] = term_id
 
@@ -111,6 +132,13 @@ class TermOccurrence:
 
         count = d.pop("count", UNSET)
 
+        _count_origin = d.pop("countOrigin", UNSET)
+        count_origin: Union[Unset, TermOccurrenceCountOrigin]
+        if isinstance(_count_origin, Unset):
+            count_origin = UNSET
+        else:
+            count_origin = TermOccurrenceCountOrigin(_count_origin)
+
         data_source_id = d.pop("dataSourceId", UNSET)
 
         _distributions = d.pop("distributions", UNSET)
@@ -131,17 +159,21 @@ class TermOccurrence:
 
         remote_instance = d.pop("remoteInstance", UNSET)
 
+        source_term_ids = cast(List[str], d.pop("sourceTermIds", UNSET))
+
         term_id = d.pop("termId", UNSET)
 
         term_occurrence = cls(
             care_sites=care_sites,
             confidence_interval=confidence_interval,
             count=count,
+            count_origin=count_origin,
             data_source_id=data_source_id,
             distributions=distributions,
             per_care_site_count=per_care_site_count,
             remote=remote,
             remote_instance=remote_instance,
+            source_term_ids=source_term_ids,
             term_id=term_id,
         )
 

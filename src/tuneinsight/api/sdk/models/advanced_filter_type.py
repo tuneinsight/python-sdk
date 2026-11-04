@@ -5,6 +5,7 @@ class AdvancedFilterType(str, Enum):
     LOGICALOPERATORFILTER = "logicalOperatorFilter"
     ATOMICFILTER = "atomicFilter"
     SERIESFILTER = "seriesFilter"
+    NOTFILTER = "notFilter"
 
     def __str__(self) -> str:
         return str(self.value)

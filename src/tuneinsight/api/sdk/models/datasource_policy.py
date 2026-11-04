@@ -8,6 +8,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.dp_policy import DPPolicy
+    from ..models.population import Population
     from ..models.whitelisted_query import WhitelistedQuery
 
 
@@ -31,6 +32,8 @@ class DatasourcePolicy:
         restrict_queries_to_tiql (Union[Unset, None, bool]): whether queries on this project are limited to TIQL format.
             When activated, only the CrossStandardQueries field will
             be used to query the datasource (all other fields will be ignored).
+        study_population (Union[Unset, Population]): Defines a population as a filter.
+            Used as the core study population in a project's policy to restrict data source queries at computation time.
     """
 
     dp_policy: Union[Unset, "DPPolicy"] = UNSET
@@ -40,6 +43,7 @@ class DatasourcePolicy:
     restrict_data_source_queries: Union[Unset, bool] = UNSET
     restrict_preprocessing_operations: Union[Unset, bool] = UNSET
     restrict_queries_to_tiql: Union[Unset, None, bool] = UNSET
+    study_population: Union[Unset, "Population"] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -74,6 +78,9 @@ class DatasourcePolicy:
         restrict_data_source_queries = self.restrict_data_source_queries
         restrict_preprocessing_operations = self.restrict_preprocessing_operations
         restrict_queries_to_tiql = self.restrict_queries_to_tiql
+        study_population: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.study_population, Unset):
+            study_population = self.study_population.to_dict()
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -92,12 +99,15 @@ class DatasourcePolicy:
             field_dict["restrictPreprocessingOperations"] = restrict_preprocessing_operations
         if restrict_queries_to_tiql is not UNSET:
             field_dict["restrictQueriesToTIQL"] = restrict_queries_to_tiql
+        if study_population is not UNSET:
+            field_dict["studyPopulation"] = study_population
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         from ..models.dp_policy import DPPolicy
+        from ..models.population import Population
         from ..models.whitelisted_query import WhitelistedQuery
 
         d = src_dict.copy()
@@ -137,6 +147,13 @@ class DatasourcePolicy:
 
         restrict_queries_to_tiql = d.pop("restrictQueriesToTIQL", UNSET)
 
+        _study_population = d.pop("studyPopulation", UNSET)
+        study_population: Union[Unset, Population]
+        if isinstance(_study_population, Unset):
+            study_population = UNSET
+        else:
+            study_population = Population.from_dict(_study_population)
+
         datasource_policy = cls(
             dp_policy=dp_policy,
             authorized_computation_types=authorized_computation_types,
@@ -145,6 +162,7 @@ class DatasourcePolicy:
             restrict_data_source_queries=restrict_data_source_queries,
             restrict_preprocessing_operations=restrict_preprocessing_operations,
             restrict_queries_to_tiql=restrict_queries_to_tiql,
+            study_population=study_population,
         )
 
         datasource_policy.additional_properties = d

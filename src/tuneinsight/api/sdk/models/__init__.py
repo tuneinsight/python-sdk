@@ -29,6 +29,7 @@ from .boolean_aggregator import BooleanAggregator
 from .build_catalog_action import BuildCatalogAction
 from .capability import Capability
 from .care_site import CareSite
+from .care_site_identification_method import CareSiteIdentificationMethod
 from .catalog_progress_response import CatalogProgressResponse
 from .categorical_column import CategoricalColumn
 from .client import Client
@@ -117,6 +118,7 @@ from .dataset_validation import DatasetValidation
 from .datasource_dev_options import DatasourceDevOptions
 from .datasource_policy import DatasourcePolicy
 from .date_format import DateFormat
+from .death_config import DeathConfig
 from .deviation_squares import DeviationSquares
 from .displayed_capability import DisplayedCapability
 from .displayed_role import DisplayedRole
@@ -182,9 +184,11 @@ from .get_concept_field_values_command import GetConceptFieldValuesCommand
 from .get_concept_field_values_command_result import GetConceptFieldValuesCommandResult
 from .get_data_preparation_sessions_order import GetDataPreparationSessionsOrder
 from .get_data_preparation_sessions_sort_by import GetDataPreparationSessionsSortBy
+from .get_data_schema_response import GetDataSchemaResponse
 from .get_favorite_terms_order import GetFavoriteTermsOrder
 from .get_favorite_terms_sort_by import GetFavoriteTermsSortBy
 from .get_infos_response_200 import GetInfosResponse200
+from .get_infos_response_200_andor_status import GetInfosResponse200AndorStatus
 from .get_infos_response_200_catalog_status import GetInfosResponse200CatalogStatus
 from .get_jobs_order import GetJobsOrder
 from .get_jobs_response_200 import GetJobsResponse200
@@ -234,6 +238,7 @@ from .hybrid_fl_params_type import HybridFLParamsType
 from .hybrid_fl_spec_base_params import HybridFLSpecBaseParams
 from .hybrid_fl_spec_params import HybridFLSpecParams
 from .import_keys_definition import ImportKeysDefinition
+from .individual_notification_config import IndividualNotificationConfig
 from .input_transformation import InputTransformation
 from .instance_configuration import InstanceConfiguration
 from .is_missing import IsMissing
@@ -245,8 +250,10 @@ from .job_progress import JobProgress
 from .job_progress_status import JobProgressStatus
 from .job_state import JobState
 from .jupyter_notebook import JupyterNotebook
+from .kek_rotation_definition import KekRotationDefinition
 from .key_info import KeyInfo
 from .labelled_value import LabelledValue
+from .last_planned_stay_config import LastPlannedStayConfig
 from .local_data_source_type import LocalDataSourceType
 from .local_input import LocalInput
 from .log import Log
@@ -274,17 +281,23 @@ from .node import Node
 from .node_status import NodeStatus
 from .node_status_catalog_status import NodeStatusCatalogStatus
 from .noise_distributions import NoiseDistributions
+from .not_filter import NotFilter
 from .notification import Notification
 from .notification_type import NotificationType
+from .numerical_comparison import NumericalComparison
 from .one_hot_encoding import OneHotEncoding
 from .ontology_type import OntologyType
+from .opposition_config import OppositionConfig
 from .organization import Organization
 from .organization_coordinates import OrganizationCoordinates
 from .paginated_result import PaginatedResult
 from .participant import Participant
 from .participants_access_scope import ParticipantsAccessScope
 from .participation_status import ParticipationStatus
+from .patient_notification_fields import PatientNotificationFields
 from .phonetic_encoding import PhoneticEncoding
+from .population import Population
+from .population_database_query_builder import PopulationDatabaseQueryBuilder
 from .post_data_object_json_body import PostDataObjectJsonBody
 from .post_llm_request_json_body import PostLlmRequestJsonBody
 from .post_llm_request_json_body_prompt_args import PostLlmRequestJsonBodyPromptArgs
@@ -393,7 +406,9 @@ from .term_description_translations import TermDescriptionTranslations
 from .term_distributions import TermDistributions
 from .term_name_translations import TermNameTranslations
 from .term_occurrence import TermOccurrence
+from .term_occurrence_count_origin import TermOccurrenceCountOrigin
 from .term_occurrence_per_care_site_count import TermOccurrencePerCareSiteCount
+from .term_reference import TermReference
 from .term_sort_option import TermSortOption
 from .terminology_field import TerminologyField
 from .terminology_reference_type import TerminologyReferenceType
@@ -463,6 +478,7 @@ __all__ = (
     "BuildCatalogAction",
     "Capability",
     "CareSite",
+    "CareSiteIdentificationMethod",
     "CatalogProgressResponse",
     "CategoricalColumn",
     "Client",
@@ -549,6 +565,7 @@ __all__ = (
     "DataUploadParams",
     "DataUploadResponse",
     "DateFormat",
+    "DeathConfig",
     "DeviationSquares",
     "DisplayedCapability",
     "DisplayedRole",
@@ -614,9 +631,11 @@ __all__ = (
     "GetConceptFieldValuesCommandResult",
     "GetDataPreparationSessionsOrder",
     "GetDataPreparationSessionsSortBy",
+    "GetDataSchemaResponse",
     "GetFavoriteTermsOrder",
     "GetFavoriteTermsSortBy",
     "GetInfosResponse200",
+    "GetInfosResponse200AndorStatus",
     "GetInfosResponse200CatalogStatus",
     "GetJobsOrder",
     "GetJobsResponse200",
@@ -666,6 +685,7 @@ __all__ = (
     "HybridFLSpecBaseParams",
     "HybridFLSpecParams",
     "ImportKeysDefinition",
+    "IndividualNotificationConfig",
     "InputTransformation",
     "InstanceConfiguration",
     "IsMissing",
@@ -677,8 +697,10 @@ __all__ = (
     "JobProgressStatus",
     "JobState",
     "JupyterNotebook",
+    "KekRotationDefinition",
     "KeyInfo",
     "LabelledValue",
+    "LastPlannedStayConfig",
     "LocalDataSourceType",
     "LocalInput",
     "Log",
@@ -706,17 +728,23 @@ __all__ = (
     "NodeStatus",
     "NodeStatusCatalogStatus",
     "NoiseDistributions",
+    "NotFilter",
     "Notification",
     "NotificationType",
+    "NumericalComparison",
     "OneHotEncoding",
     "OntologyType",
+    "OppositionConfig",
     "Organization",
     "OrganizationCoordinates",
     "PaginatedResult",
     "Participant",
     "ParticipantsAccessScope",
     "ParticipationStatus",
+    "PatientNotificationFields",
     "PhoneticEncoding",
+    "Population",
+    "PopulationDatabaseQueryBuilder",
     "PostDataObjectJsonBody",
     "PostLlmRequestJsonBody",
     "PostLlmRequestJsonBodyPromptArgs",
@@ -828,7 +856,9 @@ __all__ = (
     "TerminologyStatsResponse",
     "TermNameTranslations",
     "TermOccurrence",
+    "TermOccurrenceCountOrigin",
     "TermOccurrencePerCareSiteCount",
+    "TermReference",
     "TermSortOption",
     "Threshold",
     "ThresholdType",

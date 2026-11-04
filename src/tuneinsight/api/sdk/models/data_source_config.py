@@ -47,6 +47,7 @@ class DataSourceConfig:
         s_3_region (Union[Unset, str]): Region of the S3 bucket
         s_3url (Union[Unset, str]): URL of the S3
         suricata_path (Union[Unset, str]): the path to the suricata JSON file.
+        token_uri (Union[Unset, str]): OAuth 2.0 token endpoint used by the client credentials flow
         with_auth (Union[Unset, bool]): Whether the API requires authentication
     """
 
@@ -71,6 +72,7 @@ class DataSourceConfig:
     s_3_region: Union[Unset, str] = UNSET
     s_3url: Union[Unset, str] = UNSET
     suricata_path: Union[Unset, str] = UNSET
+    token_uri: Union[Unset, str] = UNSET
     with_auth: Union[Unset, bool] = UNSET
     additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
 
@@ -117,6 +119,7 @@ class DataSourceConfig:
         s_3_region = self.s_3_region
         s_3url = self.s_3url
         suricata_path = self.suricata_path
+        token_uri = self.token_uri
         with_auth = self.with_auth
 
         field_dict: Dict[str, Any] = {}
@@ -164,6 +167,8 @@ class DataSourceConfig:
             field_dict["s3URL"] = s_3url
         if suricata_path is not UNSET:
             field_dict["suricataPath"] = suricata_path
+        if token_uri is not UNSET:
+            field_dict["token-uri"] = token_uri
         if with_auth is not UNSET:
             field_dict["withAuth"] = with_auth
 
@@ -252,6 +257,8 @@ class DataSourceConfig:
 
         suricata_path = d.pop("suricataPath", UNSET)
 
+        token_uri = d.pop("token-uri", UNSET)
+
         with_auth = d.pop("withAuth", UNSET)
 
         data_source_config = cls(
@@ -276,6 +283,7 @@ class DataSourceConfig:
             s_3_region=s_3_region,
             s_3url=s_3url,
             suricata_path=suricata_path,
+            token_uri=token_uri,
             with_auth=with_auth,
         )
 

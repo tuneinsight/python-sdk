@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
 
 import attr
 
+from ..models.get_infos_response_200_andor_status import GetInfosResponse200AndorStatus
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -18,6 +19,9 @@ class GetInfosResponse200:
         api_checksum (Union[Unset, str]): Checksum of the current version of the API.
         accepted_groups (Union[Unset, List[str]]): List of user groups that this instance accepts (users are treated as
             local)
+        andor_status (Union[Unset, GetInfosResponse200AndorStatus]): ANDOR reachability status (ok or nok). Only present
+            when an ANDOR URL is configured. Connection failures and HTTP 5xx responses report nok; other HTTP responses
+            report ok without verifying authentication.
         auth_status (Union[Unset, str]): Authentication provider connectivity status
         build_version (Union[Unset, str]): Tune Insight build version
         catalog_status (Union[Unset, GetInfosResponse200CatalogStatus]): Status of the node's catalog
@@ -35,6 +39,7 @@ class GetInfosResponse200:
 
     api_checksum: Union[Unset, str] = UNSET
     accepted_groups: Union[Unset, List[str]] = UNSET
+    andor_status: Union[Unset, GetInfosResponse200AndorStatus] = UNSET
     auth_status: Union[Unset, str] = UNSET
     build_version: Union[Unset, str] = UNSET
     catalog_status: Union[Unset, "GetInfosResponse200CatalogStatus"] = UNSET
@@ -52,6 +57,10 @@ class GetInfosResponse200:
         accepted_groups: Union[Unset, List[str]] = UNSET
         if not isinstance(self.accepted_groups, Unset):
             accepted_groups = self.accepted_groups
+
+        andor_status: Union[Unset, str] = UNSET
+        if not isinstance(self.andor_status, Unset):
+            andor_status = self.andor_status.value
 
         auth_status = self.auth_status
         build_version = self.build_version
@@ -74,6 +83,8 @@ class GetInfosResponse200:
             field_dict["APIChecksum"] = api_checksum
         if accepted_groups is not UNSET:
             field_dict["acceptedGroups"] = accepted_groups
+        if andor_status is not UNSET:
+            field_dict["andorStatus"] = andor_status
         if auth_status is not UNSET:
             field_dict["authStatus"] = auth_status
         if build_version is not UNSET:
@@ -106,6 +117,13 @@ class GetInfosResponse200:
 
         accepted_groups = cast(List[str], d.pop("acceptedGroups", UNSET))
 
+        _andor_status = d.pop("andorStatus", UNSET)
+        andor_status: Union[Unset, GetInfosResponse200AndorStatus]
+        if isinstance(_andor_status, Unset):
+            andor_status = UNSET
+        else:
+            andor_status = GetInfosResponse200AndorStatus(_andor_status)
+
         auth_status = d.pop("authStatus", UNSET)
 
         build_version = d.pop("buildVersion", UNSET)
@@ -134,6 +152,7 @@ class GetInfosResponse200:
         get_infos_response_200 = cls(
             api_checksum=api_checksum,
             accepted_groups=accepted_groups,
+            andor_status=andor_status,
             auth_status=auth_status,
             build_version=build_version,
             catalog_status=catalog_status,

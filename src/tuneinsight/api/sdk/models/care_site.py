@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 
 import attr
 
+from ..models.care_site_identification_method import CareSiteIdentificationMethod
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -33,6 +34,10 @@ class CareSite:
             More specifically, given a specific term from an ontology, this object
             stores the number of patients that have at least one record referencing this term in the data source.
             Moreover, this object also stores other useful metadata and statistics about the term.
+        identification_method (Union[Unset, CareSiteIdentificationMethod]): enumeration of ways to uniquely identify
+            care sites.
+        identifier (Union[Unset, str]): Unique identifier for the care site.
+            This always be set to <identification-method>-<identifier>.
         latitude (Union[Unset, float]): latitude of the care site.
         locality (Union[Unset, str]): Represents the third-level administrative division within a country.
             Examples by country:
@@ -42,7 +47,7 @@ class CareSite:
             - UK: Town / Borough
             - DE: Municipality
         longitude (Union[Unset, float]): longitude of the care site.
-        name (Union[Unset, str]): Name of the care site and primary identifier used in the catalog.
+        name (Union[Unset, str]): Name of the care site (previously primary identifier) used in the catalog.
         postal_code (Union[Unset, str]): Postal or ZIP code of the care site. Often used for validation and quick
             geographic filtering.
         refreshed_at (Union[Unset, str]): the time at which this care site was updated/retrieved from the data source on
@@ -62,6 +67,8 @@ class CareSite:
     data_source_id: Union[Unset, str] = UNSET
     district: Union[Unset, str] = UNSET
     global_catalog: Union[Unset, "TermOccurrence"] = UNSET
+    identification_method: Union[Unset, CareSiteIdentificationMethod] = UNSET
+    identifier: Union[Unset, str] = UNSET
     latitude: Union[Unset, float] = UNSET
     locality: Union[Unset, str] = UNSET
     longitude: Union[Unset, float] = UNSET
@@ -83,6 +90,11 @@ class CareSite:
         if not isinstance(self.global_catalog, Unset):
             global_catalog = self.global_catalog.to_dict()
 
+        identification_method: Union[Unset, str] = UNSET
+        if not isinstance(self.identification_method, Unset):
+            identification_method = self.identification_method.value
+
+        identifier = self.identifier
         latitude = self.latitude
         locality = self.locality
         longitude = self.longitude
@@ -108,6 +120,10 @@ class CareSite:
             field_dict["district"] = district
         if global_catalog is not UNSET:
             field_dict["globalCatalog"] = global_catalog
+        if identification_method is not UNSET:
+            field_dict["identificationMethod"] = identification_method
+        if identifier is not UNSET:
+            field_dict["identifier"] = identifier
         if latitude is not UNSET:
             field_dict["latitude"] = latitude
         if locality is not UNSET:
@@ -151,6 +167,15 @@ class CareSite:
         else:
             global_catalog = TermOccurrence.from_dict(_global_catalog)
 
+        _identification_method = d.pop("identificationMethod", UNSET)
+        identification_method: Union[Unset, CareSiteIdentificationMethod]
+        if isinstance(_identification_method, Unset):
+            identification_method = UNSET
+        else:
+            identification_method = CareSiteIdentificationMethod(_identification_method)
+
+        identifier = d.pop("identifier", UNSET)
+
         latitude = d.pop("latitude", UNSET)
 
         locality = d.pop("locality", UNSET)
@@ -176,6 +201,8 @@ class CareSite:
             data_source_id=data_source_id,
             district=district,
             global_catalog=global_catalog,
+            identification_method=identification_method,
+            identifier=identifier,
             latitude=latitude,
             locality=locality,
             longitude=longitude,

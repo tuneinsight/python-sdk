@@ -66,6 +66,10 @@ def _parse_response(*, client: Client, response: httpx.Response) -> Optional[Uni
         response_404 = Error.from_dict(response.json())
 
         return response_404
+    if response.status_code == HTTPStatus.CONFLICT:
+        response_409 = Error.from_dict(response.json())
+
+        return response_409
     if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
         response_500 = Error.from_dict(response.json())
 

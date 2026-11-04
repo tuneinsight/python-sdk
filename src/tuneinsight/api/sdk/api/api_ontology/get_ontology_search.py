@@ -27,6 +27,7 @@ def _get_kwargs(
     domains: Union[Unset, None, List[str]] = UNSET,
     favorite: Union[Unset, None, bool] = UNSET,
     simplify_outputs: Union[Unset, None, bool] = UNSET,
+    no_cache: Union[Unset, None, bool] = UNSET,
 ) -> Dict[str, Any]:
     url = "{}/ontology-search".format(client.base_url)
 
@@ -81,6 +82,8 @@ def _get_kwargs(
     params["favorite"] = favorite
 
     params["simplifyOutputs"] = simplify_outputs
+
+    params["no-cache"] = no_cache
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
@@ -162,6 +165,7 @@ def sync_detailed(
     domains: Union[Unset, None, List[str]] = UNSET,
     favorite: Union[Unset, None, bool] = UNSET,
     simplify_outputs: Union[Unset, None, bool] = UNSET,
+    no_cache: Union[Unset, None, bool] = UNSET,
 ) -> Response[Union[Error, List["GetOntologySearchResponse200Item"]]]:
     """Search ontologies with a search term
 
@@ -178,6 +182,7 @@ def sync_detailed(
         domains (Union[Unset, None, List[str]]):
         favorite (Union[Unset, None, bool]):
         simplify_outputs (Union[Unset, None, bool]):
+        no_cache (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -201,6 +206,7 @@ def sync_detailed(
         domains=domains,
         favorite=favorite,
         simplify_outputs=simplify_outputs,
+        no_cache=no_cache,
     )
 
     response = httpx.request(
@@ -226,6 +232,7 @@ def sync(
     domains: Union[Unset, None, List[str]] = UNSET,
     favorite: Union[Unset, None, bool] = UNSET,
     simplify_outputs: Union[Unset, None, bool] = UNSET,
+    no_cache: Union[Unset, None, bool] = UNSET,
 ) -> Optional[Union[Error, List["GetOntologySearchResponse200Item"]]]:
     """Search ontologies with a search term
 
@@ -242,6 +249,7 @@ def sync(
         domains (Union[Unset, None, List[str]]):
         favorite (Union[Unset, None, bool]):
         simplify_outputs (Union[Unset, None, bool]):
+        no_cache (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -265,6 +273,7 @@ def sync(
         domains=domains,
         favorite=favorite,
         simplify_outputs=simplify_outputs,
+        no_cache=no_cache,
     ).parsed
 
 
@@ -283,6 +292,7 @@ async def asyncio_detailed(
     domains: Union[Unset, None, List[str]] = UNSET,
     favorite: Union[Unset, None, bool] = UNSET,
     simplify_outputs: Union[Unset, None, bool] = UNSET,
+    no_cache: Union[Unset, None, bool] = UNSET,
 ) -> Response[Union[Error, List["GetOntologySearchResponse200Item"]]]:
     """Search ontologies with a search term
 
@@ -299,6 +309,7 @@ async def asyncio_detailed(
         domains (Union[Unset, None, List[str]]):
         favorite (Union[Unset, None, bool]):
         simplify_outputs (Union[Unset, None, bool]):
+        no_cache (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -322,6 +333,7 @@ async def asyncio_detailed(
         domains=domains,
         favorite=favorite,
         simplify_outputs=simplify_outputs,
+        no_cache=no_cache,
     )
 
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
@@ -345,6 +357,7 @@ async def asyncio(
     domains: Union[Unset, None, List[str]] = UNSET,
     favorite: Union[Unset, None, bool] = UNSET,
     simplify_outputs: Union[Unset, None, bool] = UNSET,
+    no_cache: Union[Unset, None, bool] = UNSET,
 ) -> Optional[Union[Error, List["GetOntologySearchResponse200Item"]]]:
     """Search ontologies with a search term
 
@@ -361,6 +374,7 @@ async def asyncio(
         domains (Union[Unset, None, List[str]]):
         favorite (Union[Unset, None, bool]):
         simplify_outputs (Union[Unset, None, bool]):
+        no_cache (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -385,5 +399,6 @@ async def asyncio(
             domains=domains,
             favorite=favorite,
             simplify_outputs=simplify_outputs,
+            no_cache=no_cache,
         )
     ).parsed

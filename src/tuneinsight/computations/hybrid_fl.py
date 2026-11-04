@@ -9,7 +9,7 @@ Classes for Hybrid Federated Learning.
 """
 
 import base64
-from typing import Optional, Union, Sequence, Literal
+from typing import Literal, Optional, Sequence, Union
 
 import pandas as pd
 
@@ -24,14 +24,13 @@ from ti_models.trainer.training_metadata import (
 )
 
 # pylint: enable=import-error
-
 from tuneinsight.api.sdk import models
 from tuneinsight.api.sdk.types import UNSET, is_set, is_unset
 from tuneinsight.client.dataobject import DataContent
 from tuneinsight.computations.base import ModelBasedComputation
 from tuneinsight.utils.plots import (
-    style_plot,
     TI_COLORS,
+    style_plot,
 )
 
 MAX_BINARY_TRAINER_SIZE_BYTES = 200_000

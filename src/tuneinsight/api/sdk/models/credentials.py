@@ -15,6 +15,8 @@ class Credentials:
     Attributes:
         access_key_id (Union[Unset, str]): S3 access key id
         api_token (Union[Unset, str]): Token to connect to the API
+        client_id (Union[Unset, str]): OAuth 2.0 client ID used by the client credentials flow
+        client_secret (Union[Unset, str]): OAuth 2.0 client secret used by the client credentials flow
         connection_string (Union[Unset, str]): connection string for a database
         credentials_id (Union[Unset, str]): the id of the credentials stored in the key vault
         password (Union[Unset, str]): generic password field.
@@ -25,6 +27,8 @@ class Credentials:
 
     access_key_id: Union[Unset, str] = UNSET
     api_token: Union[Unset, str] = UNSET
+    client_id: Union[Unset, str] = UNSET
+    client_secret: Union[Unset, str] = UNSET
     connection_string: Union[Unset, str] = UNSET
     credentials_id: Union[Unset, str] = UNSET
     password: Union[Unset, str] = UNSET
@@ -36,6 +40,8 @@ class Credentials:
     def to_dict(self) -> Dict[str, Any]:
         access_key_id = self.access_key_id
         api_token = self.api_token
+        client_id = self.client_id
+        client_secret = self.client_secret
         connection_string = self.connection_string
         credentials_id = self.credentials_id
         password = self.password
@@ -53,6 +59,10 @@ class Credentials:
             field_dict["accessKeyId"] = access_key_id
         if api_token is not UNSET:
             field_dict["api-token"] = api_token
+        if client_id is not UNSET:
+            field_dict["client-id"] = client_id
+        if client_secret is not UNSET:
+            field_dict["client-secret"] = client_secret
         if connection_string is not UNSET:
             field_dict["connectionString"] = connection_string
         if credentials_id is not UNSET:
@@ -75,6 +85,10 @@ class Credentials:
 
         api_token = d.pop("api-token", UNSET)
 
+        client_id = d.pop("client-id", UNSET)
+
+        client_secret = d.pop("client-secret", UNSET)
+
         connection_string = d.pop("connectionString", UNSET)
 
         credentials_id = d.pop("credentialsId", UNSET)
@@ -95,6 +109,8 @@ class Credentials:
         credentials = cls(
             access_key_id=access_key_id,
             api_token=api_token,
+            client_id=client_id,
+            client_secret=client_secret,
             connection_string=connection_string,
             credentials_id=credentials_id,
             password=password,

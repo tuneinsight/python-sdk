@@ -15,6 +15,7 @@ def _get_kwargs(
     client: Client,
     data_source_id: Union[Unset, None, str] = UNSET,
     care_sites: Union[Unset, None, List[str]] = UNSET,
+    no_cache: Union[Unset, None, bool] = UNSET,
 ) -> Dict[str, Any]:
     url = "{}/terminology-stats".format(client.base_url)
 
@@ -32,6 +33,8 @@ def _get_kwargs(
             json_care_sites = care_sites
 
     params["careSites[]"] = json_care_sites
+
+    params["no-cache"] = no_cache
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
@@ -90,12 +93,14 @@ def sync_detailed(
     client: Client,
     data_source_id: Union[Unset, None, str] = UNSET,
     care_sites: Union[Unset, None, List[str]] = UNSET,
+    no_cache: Union[Unset, None, bool] = UNSET,
 ) -> Response[Union[Error, TerminologyStatsResponse]]:
     """Get concept coverage statistics per terminology
 
     Args:
         data_source_id (Union[Unset, None, str]):
         care_sites (Union[Unset, None, List[str]]):
+        no_cache (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -109,6 +114,7 @@ def sync_detailed(
         client=client,
         data_source_id=data_source_id,
         care_sites=care_sites,
+        no_cache=no_cache,
     )
 
     response = httpx.request(
@@ -124,12 +130,14 @@ def sync(
     client: Client,
     data_source_id: Union[Unset, None, str] = UNSET,
     care_sites: Union[Unset, None, List[str]] = UNSET,
+    no_cache: Union[Unset, None, bool] = UNSET,
 ) -> Optional[Union[Error, TerminologyStatsResponse]]:
     """Get concept coverage statistics per terminology
 
     Args:
         data_source_id (Union[Unset, None, str]):
         care_sites (Union[Unset, None, List[str]]):
+        no_cache (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -143,6 +151,7 @@ def sync(
         client=client,
         data_source_id=data_source_id,
         care_sites=care_sites,
+        no_cache=no_cache,
     ).parsed
 
 
@@ -151,12 +160,14 @@ async def asyncio_detailed(
     client: Client,
     data_source_id: Union[Unset, None, str] = UNSET,
     care_sites: Union[Unset, None, List[str]] = UNSET,
+    no_cache: Union[Unset, None, bool] = UNSET,
 ) -> Response[Union[Error, TerminologyStatsResponse]]:
     """Get concept coverage statistics per terminology
 
     Args:
         data_source_id (Union[Unset, None, str]):
         care_sites (Union[Unset, None, List[str]]):
+        no_cache (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -170,6 +181,7 @@ async def asyncio_detailed(
         client=client,
         data_source_id=data_source_id,
         care_sites=care_sites,
+        no_cache=no_cache,
     )
 
     async with httpx.AsyncClient(verify=client.verify_ssl) as _client:
@@ -183,12 +195,14 @@ async def asyncio(
     client: Client,
     data_source_id: Union[Unset, None, str] = UNSET,
     care_sites: Union[Unset, None, List[str]] = UNSET,
+    no_cache: Union[Unset, None, bool] = UNSET,
 ) -> Optional[Union[Error, TerminologyStatsResponse]]:
     """Get concept coverage statistics per terminology
 
     Args:
         data_source_id (Union[Unset, None, str]):
         care_sites (Union[Unset, None, List[str]]):
+        no_cache (Union[Unset, None, bool]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -203,5 +217,6 @@ async def asyncio(
             client=client,
             data_source_id=data_source_id,
             care_sites=care_sites,
+            no_cache=no_cache,
         )
     ).parsed

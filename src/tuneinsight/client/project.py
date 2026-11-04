@@ -93,7 +93,6 @@ class Project:
                 self.datasource = DataSource.fetch_from_id(
                     self.client, self.model.data_source_id
                 )
-            # pylint: disable=broad-exception-caught
             except Exception as err:
                 warnings.warn(
                     f"Could not load datasource {self.model.data_source_id} of project (error: {err})"

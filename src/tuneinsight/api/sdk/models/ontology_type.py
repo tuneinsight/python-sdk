@@ -5,6 +5,7 @@ class OntologyType(str, Enum):
     ICD10 = "ICD10"
     OMOPGENERATED = "OMOPGenerated"
     ICD10GM = "ICD10GM"
+    ICDO3 = "ICDO3"
     CIM10 = "CIM10"
     ATC = "ATC"
     LOINC = "LOINC"
@@ -31,6 +32,8 @@ class OntologyType(str, Enum):
     VISIT_TYPE = "Visit Type"
     OMOP_EXTENSION = "OMOP Extension"
     VISIT = "Visit"
+    CURRENCY = "Currency"
+    COST = "Cost"
 
     def __str__(self) -> str:
         return str(self.value)

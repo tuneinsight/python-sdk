@@ -39,6 +39,8 @@ class ProjectActions:
                 resource or action is available to the user.
             edit_query (Union[Unset, AvailabilityStatus]): generic object that holds information about whether a resource or
                 action is available to the user.
+            edit_study_population (Union[Unset, AvailabilityStatus]): generic object that holds information about whether a
+                resource or action is available to the user.
             remaining_collective_runs (Union[Unset, None, int]): if an execution quota is setup with the project,
                 this field returns the remaining number of collective computations that can be run with this project.
             remaining_local_runs (Union[Unset, None, int]): if an execution quota is setup with the project,
@@ -68,6 +70,7 @@ class ProjectActions:
     edit_policy: Union[Unset, "AvailabilityStatus"] = UNSET
     edit_preprocessing: Union[Unset, "AvailabilityStatus"] = UNSET
     edit_query: Union[Unset, "AvailabilityStatus"] = UNSET
+    edit_study_population: Union[Unset, "AvailabilityStatus"] = UNSET
     remaining_collective_runs: Union[Unset, None, int] = UNSET
     remaining_local_runs: Union[Unset, None, int] = UNSET
     request_auth: Union[Unset, "AvailabilityStatus"] = UNSET
@@ -124,6 +127,10 @@ class ProjectActions:
         if not isinstance(self.edit_query, Unset):
             edit_query = self.edit_query.to_dict()
 
+        edit_study_population: Union[Unset, Dict[str, Any]] = UNSET
+        if not isinstance(self.edit_study_population, Unset):
+            edit_study_population = self.edit_study_population.to_dict()
+
         remaining_collective_runs = self.remaining_collective_runs
         remaining_local_runs = self.remaining_local_runs
         request_auth: Union[Unset, Dict[str, Any]] = UNSET
@@ -175,6 +182,8 @@ class ProjectActions:
             field_dict["editPreprocessing"] = edit_preprocessing
         if edit_query is not UNSET:
             field_dict["editQuery"] = edit_query
+        if edit_study_population is not UNSET:
+            field_dict["editStudyPopulation"] = edit_study_population
         if remaining_collective_runs is not UNSET:
             field_dict["remainingCollectiveRuns"] = remaining_collective_runs
         if remaining_local_runs is not UNSET:
@@ -271,6 +280,13 @@ class ProjectActions:
         else:
             edit_query = AvailabilityStatus.from_dict(_edit_query)
 
+        _edit_study_population = d.pop("editStudyPopulation", UNSET)
+        edit_study_population: Union[Unset, AvailabilityStatus]
+        if isinstance(_edit_study_population, Unset):
+            edit_study_population = UNSET
+        else:
+            edit_study_population = AvailabilityStatus.from_dict(_edit_study_population)
+
         remaining_collective_runs = d.pop("remainingCollectiveRuns", UNSET)
 
         remaining_local_runs = d.pop("remainingLocalRuns", UNSET)
@@ -329,6 +345,7 @@ class ProjectActions:
             edit_policy=edit_policy,
             edit_preprocessing=edit_preprocessing,
             edit_query=edit_query,
+            edit_study_population=edit_study_population,
             remaining_collective_runs=remaining_collective_runs,
             remaining_local_runs=remaining_local_runs,
             request_auth=request_auth,
